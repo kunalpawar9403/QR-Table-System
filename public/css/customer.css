@@ -647,3 +647,79 @@
 .step-item.active .step-label {
   color: var(--primary-dark);
 }
+
+/* Professional Vector SVG & Dietary Badges */
+.svg-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.dietary-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+}
+
+.dietary-tag.veg {
+  color: #166534;
+}
+
+.dietary-tag.non-veg {
+  color: #991b1b;
+}
+
+.dietary-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  position: relative;
+  background: #ffffff;
+}
+
+.dietary-badge.veg {
+  border: 1.5px solid #16a34a;
+}
+
+.dietary-badge.veg::after {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: #16a34a;
+}
+
+.dietary-badge.non-veg {
+  border: 1.5px solid #dc2626;
+}
+
+.dietary-badge.non-veg::after {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 5px solid #dc2626;
+}
+
+.modal-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  background: #f1f5f9;
+}

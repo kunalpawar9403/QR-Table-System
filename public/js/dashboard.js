@@ -33,6 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const serviceAlertsDropdownList = document.getElementById('serviceAlertsDropdownList');
   const serviceAlertFloatingBanner = document.getElementById('serviceAlertFloatingBanner');
 
+  // Professional SVG Icons Library
+  const ICONS = {
+    water: `<svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    bill: `<svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+    waiter: `<svg class="svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    print: `<svg class="svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>`,
+    edit: `<svg class="svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+    mobile: `<svg class="svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+    trash: `<svg class="svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+    check: `<svg class="svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,
+    clock: `<svg class="svg-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    soundActive: `<svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+    soundMuted: `<svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"/></svg>`
+  };
+
   // Clock
   function updateClock() {
     const now = new Date();
@@ -54,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       orders = orders.filter(o => o.id !== newOrder.id);
       orders.unshift(newOrder);
       refreshAllViews();
-      showToast(`🔔 New Order #${newOrder.orderNumber} from ${newOrder.tableName}!`, 'success');
+      showToast(`New Order #${newOrder.orderNumber} from ${newOrder.tableName}`, 'success');
     });
 
     socket.on('order:status_changed', (updated) => {
@@ -76,12 +91,12 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showFloatingServiceBanner(call);
       }
       if (typeof window.showToast === 'function') {
-        window.showToast(`🚨 ${call.tableName}: ${call.type.toUpperCase()}`, 'warning');
+        window.showToast(`${call.tableName}: ${call.type.toUpperCase()}`, 'warning');
       }
       // Browser notification if permitted
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
-          new Notification(`🚨 ${call.tableName} - ${call.type}`, {
+          new Notification(`${call.tableName} - ${call.type}`, {
             body: `Customer at ${call.tableName} requested ${call.type}! Tap to view.`
           });
         } catch(e) {}
@@ -120,10 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const isMuted = window.soundManager.toggleMute();
       if (isMuted) {
         soundToggleBtn.classList.add('muted');
-        soundToggleBtn.innerHTML = `<span>🔇 Sound Off</span>`;
+        soundToggleBtn.innerHTML = `${ICONS.soundMuted} <span>Sound Off</span>`;
       } else {
         soundToggleBtn.classList.remove('muted');
-        soundToggleBtn.innerHTML = `<span>🔔 Sound Active</span>`;
+        soundToggleBtn.innerHTML = `${ICONS.soundActive} <span>Sound Active</span>`;
         window.soundManager.playNewOrderChime();
       }
     });
@@ -264,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (latestOrders.length > orders.length) {
           if (window.soundManager) window.soundManager.playNewOrderChime();
           const newest = latestOrders[0];
-          showToast(`🔔 New Order #${newest?.orderNumber} from ${newest?.tableName}!`, 'success');
+          showToast(`New Order #${newest?.orderNumber} from ${newest?.tableName}`, 'success');
         }
         orders = latestOrders;
       }
@@ -329,9 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const hour = new Date().getHours();
     const greetingEl = document.getElementById('overviewGreeting');
     if (greetingEl) {
-      if (hour < 12) greetingEl.textContent = '👋 Good Morning!';
-      else if (hour < 17) greetingEl.textContent = '👋 Good Afternoon!';
-      else greetingEl.textContent = '👋 Good Evening!';
+      if (hour < 12) greetingEl.textContent = 'Good Morning!';
+      else if (hour < 17) greetingEl.textContent = 'Good Afternoon!';
+      else greetingEl.textContent = 'Good Evening!';
     }
 
     if (overviewKdsStream) {
@@ -373,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const shortName = t.name.startsWith('Table ') ? `T${t.name.replace('Table ', '')}` : t.name;
         return `
           <div class="mini-table-cell ${isOccupied ? 'occupied' : ''} ${hasCall ? 'has-service-alert' : ''}" onclick="switchTab('tables'); selectAndShowStand(${t.id});" style="${hasCall ? 'border: 2px solid #ef4444; background: #fff1f2;' : ''}">
-            <div class="mini-table-name">${shortName} ${hasCall ? '🚨' : ''}</div>
+            <div class="mini-table-name">${shortName} ${hasCall ? '<span class="status-indicator-dot occupied" style="margin-left:3px;"></span>' : ''}</div>
             <div class="mini-table-status" style="${hasCall ? 'color: #e11d48; font-weight:800;' : ''}">${hasCall ? 'CALLING' : isOccupied ? 'Occupied' : 'Vacant'}</div>
           </div>
         `;
@@ -400,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- Column 1: New Orders (Red Accent) -->
       <div class="kds-column">
         <div class="kds-column-header new">
-          <span>🔴 NEW ORDERS</span>
+          <span style="display:inline-flex; align-items:center; gap:6px;"><span class="status-indicator-dot occupied"></span> NEW ORDERS</span>
           <span>${newOrders.length}</span>
         </div>
         ${newOrders.length === 0 
@@ -412,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- Column 2: Cooking (Orange Accent) -->
       <div class="kds-column">
         <div class="kds-column-header cooking">
-          <span>🟡 COOKING</span>
+          <span style="display:inline-flex; align-items:center; gap:6px;"><span class="status-indicator-dot" style="background:#f59e0b;"></span> COOKING</span>
           <span>${cookingOrders.length}</span>
         </div>
         ${cookingOrders.length === 0 
@@ -424,7 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <!-- Column 3: Ready (Green Accent) -->
       <div class="kds-column">
         <div class="kds-column-header ready">
-          <span>🟢 READY</span>
+          <span style="display:inline-flex; align-items:center; gap:6px;"><span class="status-indicator-dot vacant"></span> READY</span>
           <span>${readyOrders.length}</span>
         </div>
         ${readyOrders.length === 0 
@@ -557,7 +572,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filtered.length === 0) {
       dashTablesGrid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:50px 20px; color:#64748b;">
-          <div style="font-size:40px; margin-bottom:10px;">🪑</div>
+          <div class="modal-icon-badge" style="margin:0 auto 12px;">
+            <svg class="svg-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>
+          </div>
           <p style="font-size:15px; font-weight:600; margin-bottom:10px;">No tables found matching "${tableFloorFilter}".</p>
           <button class="btn btn-primary btn-sm" onclick="openAddTableModal()">+ Add New Table</button>
         </div>
@@ -573,7 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const activeCall = hasCalls ? tableCalls[0] : null;
       const isWater = activeCall && (activeCall.type || '').toLowerCase().includes('water');
       const isBill = activeCall && (activeCall.type || '').toLowerCase().includes('bill');
-      const callIcon = isWater ? '💧' : isBill ? '💳' : '🙋‍♂️';
+      const callIcon = isWater ? ICONS.water : isBill ? ICONS.bill : ICONS.waiter;
       const callClass = isWater ? 'type-water' : isBill ? 'type-bill' : 'type-waiter';
 
       return `
@@ -592,19 +609,19 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div style="font-size:12px; color:#94a3b8; line-height:1.4;">
-              <div>${table.section} • 👥 ${table.capacity} Guests</div>
+              <div>${table.section} • ${table.capacity} Guests</div>
               <div style="margin-top:6px; font-weight:600; color:${isOccupied ? '#f43f5e' : '#34d399'}; font-size:11.5px;">
                 ${isOccupied 
-                  ? `⚡ Active: ${table.activeOrdersCount || 1} • Dining` 
-                  : '✅ Cleaned & ready'}
+                  ? `Active: ${table.activeOrdersCount || 1} • Dining` 
+                  : 'Cleaned & ready'}
               </div>
             </div>
 
             ${hasCalls ? `
               <div class="table-card-service-alert ${callClass}">
-                <span>${callIcon} ${activeCall.type}</span>
+                <span style="display:inline-flex; align-items:center; gap:4px;">${callIcon} ${activeCall.type}</span>
                 <button class="btn-service-mini-done" onclick="event.stopPropagation(); dismissServiceCall('${activeCall.id}')" title="Mark request resolved">
-                  ✓ Done
+                  Clear
                 </button>
               </div>
             ` : ''}
@@ -614,26 +631,26 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- OCCUPANCY CONTROL ACTION -->
             ${isOccupied 
               ? `<button class="btn-table-primary-action btn-table-vacant" onclick="event.stopPropagation(); makeTableVacant(${table.id})" title="Click when customer finishes food to clear table">
-                   <span>🍽️ Make Vacant</span>
+                   <span>Clear Table</span>
                  </button>`
               : `<button class="btn-table-primary-action btn-table-occupy" onclick="event.stopPropagation(); markTableOccupied(${table.id})" title="Mark occupied for walk-in guests">
-                   <span>👥 Mark Occupied</span>
+                   <span>Seat Guests</span>
                  </button>`
             }
 
             <!-- SECONDARY ACTIONS: QR STAND, EDIT, CUSTOMER MENU, DELETE -->
             <div class="table-secondary-actions">
               <button class="btn-table-icon" onclick="event.stopPropagation(); selectAndShowStand(${table.id})" title="View Acrylic Stand">
-                <span>🖨️</span>
+                ${ICONS.print}
               </button>
               <button class="btn-table-icon" onclick="event.stopPropagation(); openEditTableModal(${table.id})" title="Edit Table Details">
-                <span>✏️</span>
+                ${ICONS.edit}
               </button>
               <button class="btn-table-icon" onclick="event.stopPropagation(); window.open('/?table=${table.id}', '_blank')" title="Open Customer Menu">
-                <span>📱</span>
+                ${ICONS.mobile}
               </button>
               <button class="btn-table-icon delete" onclick="event.stopPropagation(); confirmDeleteTable(${table.id})" title="Delete Table">
-                <span>🗑️</span>
+                ${ICONS.trash}
               </button>
             </div>
           </div>
@@ -649,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         const data = await res.json();
         if (window.soundManager) window.soundManager.playReadyChime();
-        showToast(`✅ Table ${tableId} is now VACANT and ready for new guests!`, 'success');
+        showToast(`Table ${tableId} is now VACANT and ready for new guests`, 'success');
         await loadData();
       } else {
         showToast('Failed to update table status', 'warning');
@@ -709,15 +726,16 @@ document.addEventListener('DOMContentLoaded', () => {
       standQuickActions.innerHTML = `
         <div style="display:flex; gap:8px;">
           ${isOccupied 
-            ? `<button class="btn btn-primary btn-sm" style="flex:1; background:linear-gradient(135deg, #059669 0%, #10b981 100%); font-size:11px; padding:8px 10px;" onclick="makeTableVacant(${table.id})">
-                 🍽️ Make Vacant (Food Done)
+            ? `<button class="btn btn-primary btn-sm" style="flex:1; background:linear-gradient(135deg, #059669 0%, #10b981 100%); font-size:11px; padding:8px 10px; display:inline-flex; align-items:center; justify-content:center; gap:6px;" onclick="makeTableVacant(${table.id})">
+                 <span>Clear Table (Vacant)</span>
                </button>`
-            : `<button class="btn btn-secondary btn-sm" style="flex:1; background:#1e293b; color:#cbd5e1; font-size:11px; padding:8px 10px;" onclick="markTableOccupied(${table.id})">
-                 👥 Mark Occupied
+            : `<button class="btn btn-secondary btn-sm" style="flex:1; background:#1e293b; color:#cbd5e1; font-size:11px; padding:8px 10px; display:inline-flex; align-items:center; justify-content:center; gap:6px;" onclick="markTableOccupied(${table.id})">
+                 <span>Seat Guests</span>
                </button>`
           }
-          <button class="btn btn-secondary btn-sm" style="background:#111624; border-color:var(--dash-border); color:#f8fafc; font-size:11px; padding:8px 10px;" onclick="openEditTableModal(${table.id})">
-            ✏️ Edit Table
+          <button class="btn btn-secondary btn-sm" style="background:#111624; border-color:var(--dash-border); color:#f8fafc; font-size:11px; padding:8px 10px; display:inline-flex; align-items:center; gap:6px;" onclick="openEditTableModal(${table.id})">
+            ${ICONS.edit}
+            <span>Edit Table</span>
           </button>
         </div>
       `;
@@ -752,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch(`/api/tables/${selectedStandTable}/regenerate-token`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
-        showToast(`✅ Generated new QR Token: ${data.newToken}! Previous links expired.`, 'success');
+        showToast(`Generated new QR Token: ${data.newToken}! Previous links expired.`, 'success');
         await loadData();
         loadStandPreview(selectedStandTable);
       } else {
@@ -959,8 +977,8 @@ document.addEventListener('DOMContentLoaded', () => {
           </td>
           <td><strong style="color:#00874e; font-size:14px; font-family:var(--font-display);">₹${order.total.toFixed(2)}</strong></td>
           <td style="text-align:right;">
-            <button class="btn btn-secondary btn-sm" onclick="printKOT('${order.id}')" style="padding:4px 10px; font-size:11px;">
-              🖨️ Receipt
+            <button class="btn btn-secondary btn-sm" onclick="printKOT('${order.id}')" style="padding:4px 10px; font-size:11px; display:inline-flex; align-items:center; gap:4px;">
+              ${ICONS.print} Receipt
             </button>
           </td>
         </tr>
@@ -1018,16 +1036,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="menu-crud-info">
               <div class="menu-crud-title">
                 <div style="display:flex; align-items:center; gap:6px; min-width:0;">
-                  <span>${item.isVeg ? '🟢' : '🔴'}</span>
-                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.name}</span>
+                  <span class="dietary-badge ${item.isVeg ? 'veg' : 'non-veg'}" title="${item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}"></span>
+                  <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;">${item.name}</span>
                 </div>
-                <span style="color:#f59e0b; font-size:13px; flex-shrink:0;">⭐</span>
+                ${item.isSpecial ? '<span class="menu-special-pill">Special</span>' : ''}
               </div>
               <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px;">
                 <span class="menu-crud-cat-pill">${item.category}</span>
-                <span style="font-size:11px; color:#64748b;">⏱️ ${item.prepTime || '12-15 mins'}</span>
-                <span class="badge ${item.available ? 'badge-ready' : 'badge-new'}" style="font-size:9.5px; padding:2px 7px;">
-                  ${item.available ? '🟢 In Stock' : '🔴 86\'d'}
+                <span style="font-size:11px; color:#64748b; display:inline-flex; align-items:center; gap:3px;">${ICONS.clock} ${item.prepTime || '12-15 mins'}</span>
+                <span class="badge ${item.available ? 'badge-ready' : 'badge-new'}" style="font-size:9.5px; padding:2px 7px; display:inline-flex; align-items:center; gap:4px;">
+                  <span class="status-indicator-dot ${item.available ? 'vacant' : 'occupied'}"></span> ${item.available ? 'In Stock' : '86\'d'}
                 </span>
               </div>
               <p class="menu-crud-desc">${item.description || 'Artisanal culinary preparation.'}</p>
@@ -1051,10 +1069,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <!-- Action buttons: Edit & Delete -->
               <div class="menu-crud-btns">
                 <button class="btn-action-edit" onclick="openEditDishModal('${item.id}')" title="Edit Item">
-                  <span>✏️</span><span class="btn-edit-label"> Edit</span>
+                  ${ICONS.edit}<span class="btn-edit-label"> Edit</span>
                 </button>
                 <button class="btn-action-delete" onclick="confirmDeleteDish('${item.id}')" title="Delete Item">
-                  <span>🗑️</span>
+                  ${ICONS.trash}
                 </button>
               </div>
             </div>
@@ -1276,23 +1294,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (dropdownList) {
       if (count === 0) {
-        dropdownList.innerHTML = `<div style="padding:24px 16px; text-align:center; color:#94a3b8; font-size:12px;">✅ No active service calls</div>`;
+        dropdownList.innerHTML = `<div style="padding:24px 16px; text-align:center; color:#94a3b8; font-size:12px;">No active service calls</div>`;
       } else {
         dropdownList.innerHTML = serviceCalls.map(c => {
           const isWater = (c.type || '').toLowerCase().includes('water');
           const isBill = (c.type || '').toLowerCase().includes('bill');
-          const icon = isWater ? '💧' : isBill ? '💳' : '🙋‍♂️';
+          const icon = isWater ? ICONS.water : isBill ? ICONS.bill : ICONS.waiter;
           return `
             <div class="alert-item-row">
               <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:20px;">${icon}</span>
+                <span style="display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px; background:#f1f5f9;">${icon}</span>
                 <div>
                   <div style="font-weight:800; font-size:13px; color:#0f172a;">${c.tableName}</div>
                   <div style="font-size:11px; color:#64748b;">${c.type}</div>
                 </div>
               </div>
-              <button class="btn-service-mini-done" onclick="dismissServiceCall('${c.id}')">
-                ✓ Attended
+              <button class="btn-service-mini-done" onclick="dismissServiceCall('${c.id}')" style="display:inline-flex; align-items:center; gap:4px;">
+                ${ICONS.check} Attended
               </button>
             </div>
           `;
@@ -1313,7 +1331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isWater = (call.type || '').toLowerCase().includes('water');
     const isBill = (call.type || '').toLowerCase().includes('bill');
     const typeClass = isWater ? 'type-water' : isBill ? 'type-bill' : 'type-waiter';
-    const icon = isWater ? '💧' : isBill ? '💳' : '🙋‍♂️';
+    const icon = isWater ? ICONS.water : isBill ? ICONS.bill : ICONS.waiter;
     const titleText = isWater ? 'Water Requested!' : isBill ? 'Bill / Check Requested!' : 'Waiter Call!';
 
     const alertId = 'alert-' + (call.id || Date.now());
@@ -1326,7 +1344,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alertEl.id = alertId;
     alertEl.className = `service-alert-box ${typeClass}`;
     alertEl.innerHTML = `
-      <div class="service-alert-icon">${icon}</div>
+      <div class="service-alert-icon" style="display:flex; align-items:center; justify-content:center;">${icon}</div>
       <div class="service-alert-content">
         <div class="service-alert-title">
           <span>${call.tableName || 'Table'}</span>
@@ -1335,8 +1353,8 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="service-alert-sub">${call.type} • Tap when attended</div>
       </div>
-      <button class="btn-service-attended" onclick="dismissServiceCall('${call.id}', '${alertId}')">
-        ✓ Attended / Clear
+      <button class="btn-service-attended" onclick="dismissServiceCall('${call.id}', '${alertId}')" style="display:inline-flex; align-items:center; gap:6px;">
+        ${ICONS.check} Attended / Clear
       </button>
     `;
 
@@ -1368,7 +1386,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderServiceAlerts();
         renderTablesFloor();
         renderOverviewPanels();
-        showToast('Service call resolved ✅', 'info');
+        showToast('Service call resolved', 'info');
       }
     } catch (e) {
       console.error('Failed to dismiss service call:', e);

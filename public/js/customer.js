@@ -221,7 +221,7 @@
 
     if (videoStream) {
       stopCamera();
-      if (btn) btn.innerHTML = '<span>📷 Open Camera Scanner</span>';
+      if (btn) btn.innerHTML = '<span>Open Camera Scanner</span>';
       return;
     }
 
@@ -241,7 +241,7 @@
         video.play();
       }
       if (placeholder) placeholder.style.display = 'none';
-      if (btn) btn.innerHTML = '<span>⏹️ Stop Camera</span>';
+      if (btn) btn.innerHTML = '<span>Stop Camera</span>';
 
       showToast('Camera active! Point at table QR stand or tap below.', 'info');
 
@@ -269,7 +269,7 @@
 
     if (video) video.style.display = 'none';
     if (placeholder) placeholder.style.display = 'flex';
-    if (btn) btn.innerHTML = '<span>📷 Open Camera Scanner</span>';
+    if (btn) btn.innerHTML = '<span>Open Camera Scanner</span>';
   }
 
   // Unlock Menu Cards
@@ -315,7 +315,7 @@
     if (menuAppSection) menuAppSection.style.display = 'block';
     if (appHeader) appHeader.style.display = 'flex';
 
-    if (tableBadgeText) tableBadgeText.textContent = `TABLE ${currentTableId} (ACTIVE 🟢)`;
+    if (tableBadgeText) tableBadgeText.textContent = `TABLE ${currentTableId} (ACTIVE)`;
     if (verifiedTableText) verifiedTableText.textContent = `Table ${currentTableId} • Live Session`;
 
     showToast(`Table ${currentTableId} Verified! Active dining session unlocked.`, 'success');
@@ -467,7 +467,7 @@
         <div class="menu-card ${!item.available ? 'item-unavailable' : ''}">
           <div class="menu-card-img-wrap">
             <img src="${item.image}" alt="${item.name}" class="menu-card-img" loading="lazy">
-            <span class="dietary-tag">${item.isVeg ? '🟢 VEG' : '🔴 NON-VEG'}</span>
+            <span class="dietary-tag ${item.isVeg ? 'veg' : 'non-veg'}"><span class="dietary-badge ${item.isVeg ? 'veg' : 'non-veg'}"></span> ${item.isVeg ? 'VEG' : 'NON-VEG'}</span>
           </div>
           <div class="menu-card-content">
             <div>
@@ -659,7 +659,9 @@
     if (cart.length === 0) {
       cartItemsList.innerHTML = `
         <div style="text-align: center; padding: 40px 10px; color: #94a3b8;">
-          <div style="font-size: 40px; margin-bottom: 10px;">🍽️</div>
+          <div class="modal-icon-badge" style="margin: 0 auto 12px;">
+            <svg class="svg-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+          </div>
           <p style="font-weight: 600; font-size: 15px; color:#475569;">Your cart is currently empty</p>
           <p style="font-size: 13px;">Explore the menu to add delicious dishes!</p>
         </div>
@@ -717,7 +719,7 @@
 
     if (btnSubmit) {
       btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<span>Sending to Kitchen... 🍳</span>`;
+      btnSubmit.innerHTML = `<span>Sending to Kitchen...</span>`;
     }
 
     try {
@@ -758,7 +760,7 @@
     } finally {
       if (btnSubmit) {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<span>Send Order to Kitchen 🚀</span>`;
+        btnSubmit.innerHTML = `<span>Send Order to Kitchen</span>`;
       }
     }
   };
@@ -769,10 +771,10 @@
     if (!trackingView) return;
 
     const steps = [
-      { key: 'new', label: 'Order Sent', icon: '📝' },
-      { key: 'preparing', label: 'In Kitchen', icon: '🍳' },
-      { key: 'ready', label: 'Ready to Serve', icon: '🛎️' },
-      { key: 'served', label: 'Served', icon: '✅' }
+      { key: 'new', label: 'Order Sent', num: '1' },
+      { key: 'preparing', label: 'In Kitchen', num: '2' },
+      { key: 'ready', label: 'Ready to Serve', num: '3' },
+      { key: 'served', label: 'Served', num: '4' }
     ];
 
     const currentStatusIndex = steps.findIndex(s => s.key === order.status);
@@ -794,7 +796,7 @@
             const isActive = currentStatusIndex === idx;
             return `
               <div class="step-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}">
-                <div class="step-circle">${step.icon}</div>
+                <div class="step-circle" style="font-weight:700;">${step.num}</div>
                 <span class="step-label">${step.label}</span>
               </div>
             `;
@@ -808,11 +810,13 @@
         </div>
 
         <div style="display:flex; gap:10px; margin-top:16px;">
-          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="requestService('Water Request')">
-            💧 Request Water
+          <button class="btn btn-secondary btn-sm" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;" onclick="requestService('Water Request')">
+            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            <span>Request Water</span>
           </button>
-          <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="requestService('Call Waiter')">
-            🙋 Call Waiter
+          <button class="btn btn-secondary btn-sm" style="flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px;" onclick="requestService('Call Waiter')">
+            <svg class="svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span>Call Staff</span>
           </button>
         </div>
       </div>
@@ -853,7 +857,7 @@
     if (window.event && window.event.currentTarget) {
       const btn = window.event.currentTarget;
       const originalHtml = btn.innerHTML;
-      btn.innerHTML = `<span>✓ Sent</span>`;
+      btn.innerHTML = `<span>Sent</span>`;
       btn.style.opacity = '0.7';
       btn.disabled = true;
       setTimeout(() => {

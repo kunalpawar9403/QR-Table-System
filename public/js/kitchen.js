@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('service:call', (serviceCall) => {
       if (window.soundManager) window.soundManager.playServiceBell();
       showServiceCallAlert(serviceCall);
-      showToast(`🚨 ${serviceCall.tableName}: ${serviceCall.type.toUpperCase()}`, 'warning');
+      showToast(`${serviceCall.tableName}: ${serviceCall.type.toUpperCase()}`, 'warning');
       showFloatingServiceBanner(serviceCall);
     });
   }
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Service Alert Banner
   function showServiceCallAlert(call) {
     if (!serviceAlertBanner || !serviceAlertText) return;
-    serviceAlertText.textContent = `🚨 ${call.tableName} CALL: ${call.type.toUpperCase()} requested just now!`;
+    serviceAlertText.textContent = `TABLE CALL: ${call.tableName} requested ${call.type.toUpperCase()}!`;
     serviceAlertBanner.style.display = 'flex';
   }
 
@@ -88,8 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const isWater = (call.type || '').toLowerCase().includes('water');
     const isBill = (call.type || '').toLowerCase().includes('bill');
     const typeClass = isWater ? 'type-water' : isBill ? 'type-bill' : 'type-waiter';
-    const icon = isWater ? '💧' : isBill ? '💳' : '🙋‍♂️';
-    const titleText = isWater ? 'Water Requested!' : isBill ? 'Bill / Check Requested!' : 'Waiter Call!';
+    const iconSvg = isWater 
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`
+      : isBill 
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`;
+    const titleText = isWater ? 'Water Requested!' : isBill ? 'Bill / Check Requested!' : 'Staff Assistance Requested!';
 
     const alertId = 'alert-' + (call.id || Date.now());
     const existing = document.getElementById(alertId);
@@ -99,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     alertEl.id = alertId;
     alertEl.className = `service-alert-box ${typeClass}`;
     alertEl.innerHTML = `
-      <div class="service-alert-icon">${icon}</div>
+      <div class="service-alert-icon" style="display:flex; align-items:center; justify-content:center;">${iconSvg}</div>
       <div class="service-alert-content">
         <div class="service-alert-title">
           <span>${call.tableName || 'Table'}</span>
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="service-alert-sub">${call.type} • Tap when attended</div>
       </div>
       <button class="btn-service-attended" onclick="this.closest('.service-alert-box').remove()">
-        ✓ Attended / Clear
+        Attended / Clear
       </button>
     `;
 
@@ -171,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const createdAt = el.dataset.time;
       if (createdAt) {
         const mins = getElapsedMinutes(createdAt);
-        el.textContent = `⏱️ ${formatTimeAgo(createdAt)}`;
+        el.textContent = formatTimeAgo(createdAt);
         el.className = 'ticket-timer';
         if (mins >= 15) el.classList.add('timer-urgent');
         else if (mins >= 8) el.classList.add('timer-warn');
@@ -200,7 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filtered.length === 0) {
       kdsBoard.innerHTML = `
         <div class="kds-empty-state">
-          <div class="kds-empty-icon">🍳</div>
+          <div class="kds-empty-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
           <h3 style="font-size:20px; color:#cbd5e1; margin-bottom:8px;">All Orders Caught Up!</h3>
           <p style="font-size:14px;">Incoming orders placed via Table QR codes will immediately ring and appear here.</p>
         </div>
@@ -223,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="ticket-meta">
               <div class="ticket-id">#${order.orderNumber}</div>
               <div class="ticket-timer ${timerClass}" data-time="${order.createdAt}">
-                ⏱️ ${formatTimeAgo(order.createdAt)}
+                ${formatTimeAgo(order.createdAt)}
               </div>
             </div>
           </div>
@@ -255,19 +261,19 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="ticket-footer">
             ${order.status === 'new' ? `
               <button class="btn-bump btn-bump-cook" onclick="updateOrderStatus('${order.id}', 'preparing')">
-                <span>Start Cooking 🍳</span>
+                <span>Start Cooking</span>
               </button>
             ` : ''}
 
             ${order.status === 'preparing' ? `
               <button class="btn-bump btn-bump-ready" onclick="updateOrderStatus('${order.id}', 'ready')">
-                <span>Mark Ready 🛎️</span>
+                <span>Mark Ready</span>
               </button>
             ` : ''}
 
             ${order.status === 'ready' ? `
               <button class="btn-bump btn-bump-serve" onclick="updateOrderStatus('${order.id}', 'served')">
-                <span>Served / Done ✅</span>
+                <span>Served / Done</span>
               </button>
             ` : ''}
 
@@ -278,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ` : ''}
 
             <button class="btn btn-secondary btn-sm" onclick="printKOT('${order.id}')" title="Print Kitchen Ticket" style="background:#0f172a; color:#94a3b8; border-color:#334155;">
-              🖨️ KOT
+              Print KOT
             </button>
           </div>
         </div>

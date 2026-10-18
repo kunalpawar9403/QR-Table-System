@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   socket.on('service:call', (call) => {
-    showToast(`🔔 ${call.tableName} requested: ${call.type}`, 'warning');
+    showToast(`${call.tableName} requested: ${call.type}`, 'warning');
   });
 
   refreshAllData();
