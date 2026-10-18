@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let serverInfo = { localIp: 'localhost', port: 3000, localBaseUrl: 'http://localhost:3000', browserBaseUrl: window.location.origin };
   let tables = [];
   let selectedTableId = 3; // Default to Table 3 matching illustration
-  let useNetworkIp = true;
+  const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  let useNetworkIp = isLocalHost;
 
   const tableChipsContainer = document.getElementById('tableChipsContainer');
   const qrImageEl = document.getElementById('standQrImg');
@@ -11,6 +12,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const targetUrlTextEl = document.getElementById('targetUrlText');
   const networkIpToggle = document.getElementById('networkIpToggle');
   const hostInfoBadge = document.getElementById('hostInfoBadge');
+
+  if (networkIpToggle) {
+    networkIpToggle.checked = useNetworkIp;
+  }
 
   // Fetch server info
   try {

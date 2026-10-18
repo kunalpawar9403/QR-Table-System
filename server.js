@@ -34,6 +34,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+app.get('/kitchen', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'kitchen.html'));
+});
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+app.get('/qr-stands', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'qr-stands.html'));
+});
 
 // Helper to determine local network IP for real phone scanning
 function getLocalIpAddress() {
@@ -51,7 +60,27 @@ function getLocalIpAddress() {
 const LOCAL_IP = getLocalIpAddress();
 
 // Data file paths
-const DATA_DIR = path.join(__dirname, 'data');
+const DEFAULT_DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : DEFAULT_DATA_DIR;
+
+// Seed data files into /tmp if running on Vercel
+if (process.env.VERCEL) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    ['menu.json', 'tables.json', 'orders.json'].forEach(fileName => {
+      const src = path.join(DEFAULT_DATA_DIR, fileName);
+      const dest = path.join(DATA_DIR, fileName);
+      if (fs.existsSync(src) && !fs.existsSync(dest)) {
+        fs.copyFileSync(src, dest);
+      }
+    });
+  } catch (e) {
+    console.error('Failed to initialize /tmp data dir on Vercel:', e);
+  }
+}
+
 const MENU_FILE = path.join(DATA_DIR, 'menu.json');
 const TABLES_FILE = path.join(DATA_DIR, 'tables.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
@@ -658,14 +687,18 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`====================================================`);
-  console.log(`  Smart Restaurant QR Ordering System Started!     `);
-  console.log(`  Local Access:      http://localhost:${PORT}      `);
-  console.log(`  Phone on Wi-Fi:    http://${LOCAL_IP}:${PORT}    `);
-  console.log(`  Kitchen Display:   http://localhost:${PORT}/kitchen.html `);
-  console.log(`  Table QR Stands:   http://localhost:${PORT}/qr-stands.html`);
-  console.log(`  Admin Dashboard:   http://localhost:${PORT}/admin.html   `);
-  console.log(`====================================================`);
-});
+// Start server if executed directly (e.g., node server.js) and not in Vercel serverless
+if (require.main === module && !process.env.VERCEL) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`====================================================`);
+    console.log(`  Smart Restaurant QR Ordering System Started!     `);
+    console.log(`  Local Access:      http://localhost:${PORT}      `);
+    console.log(`  Phone on Wi-Fi:    http://${LOCAL_IP}:${PORT}    `);
+    console.log(`  Kitchen Display:   http://localhost:${PORT}/kitchen.html `);
+    console.log(`  Table QR Stands:   http://localhost:${PORT}/qr-stands.html`);
+    console.log(`  Admin Dashboard:   http://localhost:${PORT}/admin.html   `);
+    console.log(`====================================================`);
+  });
+}
+
+module.exports = app;
