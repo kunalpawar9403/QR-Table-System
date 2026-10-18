@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Spice Garden | Smart QR Table Ordering</title>
+  <script>
+    // If visited directly without a table parameter (e.g. main Vercel link), open Admin Dashboard
+    const _urlParams = new URLSearchParams(window.location.search);
+    if (!_urlParams.get('table')) {
+      window.location.replace('/dashboard.html');
+    }
+  </script>
   <link rel="stylesheet" href="/css/common.css">
   <link rel="stylesheet" href="/css/customer.css">
   <style>
