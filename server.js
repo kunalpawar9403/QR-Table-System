@@ -55,10 +55,11 @@ app.get('/qr-stands', (req, res) => {
 
 // Helper to determine local network IP for real phone scanning
 function getLocalIpAddress() {
+  if (process.env.VERCEL) return 'localhost';
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
-      if (iface.family === 'IPv4' && !iface.internal) {
+      if (iface.family === 'IPv4' && !iface.internal && !iface.address.startsWith('169.254.')) {
         return iface.address;
       }
     }
@@ -154,12 +155,17 @@ ensureTableTokens();
 
 // Server info & host URLs for QR generation
 app.get('/api/info', (req, res) => {
+  const isVercel = Boolean(process.env.VERCEL);
   const host = req.headers.host || `localhost:${PORT}`;
+  const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (!host.includes('localhost') && !host.includes('127.0.0.1'));
+  const protocol = isHttps ? 'https' : 'http';
+
   res.json({
-    localIp: LOCAL_IP,
+    localIp: isVercel ? host : LOCAL_IP,
     port: PORT,
-    localBaseUrl: `http://${LOCAL_IP}:${PORT}`,
-    browserBaseUrl: `http://${host}`,
+    localBaseUrl: isVercel ? `${protocol}://${host}` : `http://${LOCAL_IP}:${PORT}`,
+    browserBaseUrl: `${protocol}://${host}`,
+    isCloud: isVercel || (!host.includes('localhost') && !host.includes('127.0.0.1'))
   });
 });
 
@@ -667,8 +673,16 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
       writeData(TABLES_FILE, tables);
     }
 
-    const host = req.query.host || req.headers.host || `localhost:${PORT}`;
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const isVercel = Boolean(process.env.VERCEL);
+    let host = req.headers.host || `localhost:${PORT}`;
+    
+    // Only use req.query.host if provided, not on Vercel, and not an internal link-local 169.254.x.x IP
+    if (!isVercel && req.query.host && !req.query.host.startsWith('169.254.')) {
+      host = req.query.host;
+    }
+
+    const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (req.headers.host && !req.headers.host.includes('localhost') && !req.headers.host.includes('127.0.0.1'));
+    const protocol = isHttps ? 'https' : 'http';
     const targetUrl = `${protocol}://${host}/?table=${tableId}&token=${table.sessionToken}`;
     
     const qrDataUrl = await QRCode.toDataURL(targetUrl, {

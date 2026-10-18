@@ -331,69 +331,69 @@
 
   const DEFAULT_MENU_FALLBACK = [
     {
-      id: "dish_1",
-      name: "Artisan Truffle & Wild Mushroom Pizza",
-      category: "mains",
-      price: 499,
-      description: "Wood-fired crust topped with sautéed wild mushrooms, fresh buffalo mozzarella, aromatic black truffle oil, and micro basil.",
-      image: "/images/artisan_pizza.jpg",
-      isVeg: true,
-      isSpecial: true,
-      available: true
-    },
-    {
-      id: "dish_2",
-      name: "Creamy Garlic Parmesan Fettuccine",
-      category: "mains",
-      price: 429,
-      description: "Handcrafted egg fettuccine tossed in a rich slow-simmered garlic cream sauce with aged Parmigiano-Reggiano and fresh garden herbs.",
-      image: "/images/creamy_pasta.jpg",
-      isVeg: true,
-      isSpecial: false,
-      available: true
-    },
-    {
-      id: "dish_3",
-      name: "The Royal Paneer Tikka Burger",
-      category: "starters",
-      price: 349,
-      description: "Tandoori char-grilled paneer steak, minted pickled onions, creamy garlic mayo, layered inside a toasted buttery brioche bun.",
+      id: "item-1",
+      name: "Classic Gourmet Veggie Burger",
+      category: "burgers",
+      price: 249,
+      description: "Handcrafted plant-protein patty with melted cheddar, crisp lettuce, farm tomato, caramelized onions, and house special herb mayo on a toasted brioche bun. Served with golden fries.",
       image: "/images/veggie_burger.jpg",
       isVeg: true,
       isSpecial: true,
       available: true
     },
     {
-      id: "dish_4",
-      name: "Mediterranean Garden Quinoa Salad",
-      category: "starters",
-      price: 299,
-      description: "Crisp baby arugula, cucumber ribbons, Greek kalamata olives, heirloom cherry tomatoes, crumbled feta, and organic quinoa in citrus vinaigrette.",
+      id: "item-2",
+      name: "Artisan Wood-Fired Margherita",
+      category: "pizza",
+      price: 399,
+      description: "Slow-fermented sourdough crust topped with San Marzano tomato sauce, fresh buffalo mozzarella, aromatic sweet basil, and extra virgin olive oil drizzle.",
+      image: "/images/artisan_pizza.jpg",
+      isVeg: true,
+      isSpecial: true,
+      available: true
+    },
+    {
+      id: "item-3",
+      name: "Creamy Fettuccine Alfredo",
+      category: "pasta",
+      price: 349,
+      description: "Fresh handcrafted fettuccine pasta tossed in silky rich aged Parmigiano-Reggiano sauce, sweet cream butter, cracked tellicherry pepper, and garden parsley.",
+      image: "/images/creamy_pasta.jpg",
+      isVeg: true,
+      isSpecial: false,
+      available: true
+    },
+    {
+      id: "item-4",
+      name: "Sparkling Berry Citrus Soda",
+      category: "drinks",
+      price: 149,
+      description: "Artisanal crushed wild blackberry and raspberry reduction, sparkling mineral water, fresh mint leaves, and hand-squeezed Key lime over pebble ice.",
+      image: "/images/craft_soda.jpg",
+      isVeg: true,
+      isSpecial: false,
+      available: true
+    },
+    {
+      id: "item-5",
+      name: "Mediterranean Garden Harvest Bowl",
+      category: "bowls",
+      price: 289,
+      description: "Crisp baby greens, heirloom cherry tomatoes, Persian cucumbers, Kalamata olives, creamy feta, roasted chickpeas, and lemon oregano vinaigrette.",
       image: "/images/green_salad.jpg",
       isVeg: true,
       isSpecial: false,
       available: true
     },
     {
-      id: "dish_5",
-      name: "Midnight Belgian Chocolate Lava Cake",
+      id: "item-6",
+      name: "Signature Espresso Tiramisu",
       category: "desserts",
-      price: 279,
-      description: "Warm molten Belgian chocolate cake bursting with dark ganache, paired with handcrafted Madagascar vanilla bean gelato.",
+      price: 229,
+      description: "House-baked savoiardi ladyfingers soaked in single-origin espresso, whipped mascarpone cream, dark cocoa powder, and fresh raspberries.",
       image: "/images/dessert.jpg",
       isVeg: true,
       isSpecial: true,
-      available: true
-    },
-    {
-      id: "dish_6",
-      name: "Sparkling Hibiscus Berry Craft Soda",
-      category: "beverages",
-      price: 189,
-      description: "House-brewed organic wild hibiscus flowers infused with crushed blackberries, fresh garden mint, and bubbly sparkling spring water.",
-      image: "/images/craft_soda.jpg",
-      isVeg: true,
-      isSpecial: false,
       available: true
     }
   ];

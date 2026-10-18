@@ -638,7 +638,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const standTokenBadge = document.getElementById('dashStandTokenBadge');
 
     try {
-      const hostToUse = serverInfo.localIp !== 'localhost' ? `${serverInfo.localIp}:${serverInfo.port}` : window.location.host;
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const hostToUse = (isLocal && serverInfo.localIp && serverInfo.localIp !== 'localhost' && !serverInfo.localIp.startsWith('169.254.'))
+        ? `${serverInfo.localIp}:${serverInfo.port}`
+        : window.location.host;
       const res = await fetch(`/api/qrcode/${tableId}?host=${encodeURIComponent(hostToUse)}`);
       const data = await res.json();
 

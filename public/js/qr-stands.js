@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       standTableNumEl.textContent = table.name.toUpperCase();
     }
 
-    const hostToUse = useNetworkIp && serverInfo.localIp !== 'localhost' 
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const hostToUse = (isLocal && useNetworkIp && serverInfo.localIp && serverInfo.localIp !== 'localhost' && !serverInfo.localIp.startsWith('169.254.')) 
       ? `${serverInfo.localIp}:${serverInfo.port}` 
       : window.location.host;
 
