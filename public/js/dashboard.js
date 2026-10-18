@@ -129,11 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Global Tab Switcher
+  // Global Tab Switcher (Desktop Sidebar + Mobile Bottom Navigation)
   window.switchTab = function(tabName) {
     activeTab = tabName;
 
-    document.querySelectorAll('.nav-item-btn').forEach(btn => {
+    document.querySelectorAll('.nav-item-btn, .mobile-nav-btn').forEach(btn => {
       if (btn.dataset.tab === tabName) btn.classList.add('active');
       else btn.classList.remove('active');
     });
@@ -143,15 +143,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const targetPanel = document.getElementById(`panel-${tabName}`);
-    if (targetPanel) targetPanel.classList.add('active');
+    if (targetPanel) {
+      targetPanel.classList.add('active');
+      const canvas = document.querySelector('.dash-content-canvas');
+      if (canvas) canvas.scrollTop = 0;
+    }
+
+    if (window.closeMobileSidebar) window.closeMobileSidebar();
   };
 
-  document.querySelectorAll('.nav-item-btn').forEach(btn => {
+  document.querySelectorAll('.nav-item-btn, .mobile-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
       if (tab) switchTab(tab);
     });
   });
+
+  // Mobile Sidebar & Quick Actions Controls
+  window.toggleMobileSidebar = function() {
+    const sidebar = document.getElementById('dashSidebar');
+    const backdrop = document.getElementById('mobileSidebarBackdrop');
+    if (sidebar) {
+      const isOpen = sidebar.classList.toggle('mobile-open');
+      if (backdrop) backdrop.classList.toggle('active', isOpen);
+    }
+  };
+
+  window.closeMobileSidebar = function() {
+    const sidebar = document.getElementById('dashSidebar');
+    const backdrop = document.getElementById('mobileSidebarBackdrop');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.remove('active');
+  };
+
+  window.toggleQuickActionsSheet = function() {
+    const sheet = document.getElementById('mobileQuickActionSheet');
+    const backdrop = document.getElementById('mobileQuickActionBackdrop');
+    if (sheet) {
+      const isOpen = sheet.classList.toggle('active');
+      if (backdrop) backdrop.classList.toggle('active', isOpen);
+    }
+  };
+
+  window.closeQuickActionsSheet = function() {
+    const sheet = document.getElementById('mobileQuickActionSheet');
+    const backdrop = document.getElementById('mobileQuickActionBackdrop');
+    if (sheet) sheet.classList.remove('active');
+    if (backdrop) backdrop.classList.remove('active');
+  };
 
   // Kitchen Filter Tabs
   document.querySelectorAll('.kds-filter-tab').forEach(btn => {
@@ -272,7 +311,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (kpiOrders) kpiOrders.textContent = count;
     if (kpiOccupancy) kpiOccupancy.textContent = `${occupiedCount} / ${tables.length}`;
     if (kpiAvgTicket) kpiAvgTicket.textContent = `₹${avg.toFixed(2)}`;
-    if (kitchenBadgeCount) kitchenBadgeCount.textContent = `${activeKitchenOrders.length}`;
+    
+    // Sync kitchen active badges on both desktop sidebar and mobile bottom nav
+    document.querySelectorAll('.kitchen-badge-count').forEach(el => {
+      el.textContent = `${activeKitchenOrders.length}`;
+      if (activeKitchenOrders.length > 0) {
+        el.style.display = 'inline-flex';
+      } else {
+        el.style.display = 'none';
+      }
+    });
   }
 
   // 2. Overview Live Stream & Mini Grid (Matching Reference Image)
@@ -531,14 +579,14 @@ document.addEventListener('DOMContentLoaded', () => {
       return `
         <div class="dash-table-card ${isOccupied ? 'occupied' : 'vacant'} ${isSelected ? 'selected' : ''}" onclick="selectAndShowStand(${table.id})">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span class="dash-table-name" style="font-size:16px;">${table.name}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:8px;">
+              <span class="dash-table-name" style="font-size:15px; font-weight:800; white-space:nowrap;">${table.name}</span>
               ${isOccupied 
-                ? `<span class="badge" style="background:rgba(244,63,94,0.18); color:#f43f5e; border:1px solid rgba(244,63,94,0.3); font-size:10px; font-weight:800; display:inline-flex; align-items:center; gap:5px;">
+                ? `<span class="badge" style="background:rgba(244,63,94,0.18); color:#f43f5e; border:1px solid rgba(244,63,94,0.3); font-size:9.5px; font-weight:800; display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border-radius:6px; white-space:nowrap;">
                      <span class="pulse-dot-red"></span> OCCUPIED
                    </span>`
-                : `<span class="badge" style="background:rgba(16,185,129,0.18); color:#34d399; border:1px solid rgba(16,185,129,0.3); font-size:10px; font-weight:800; display:inline-flex; align-items:center; gap:5px;">
-                     <span class="pulse-dot-green"></span> VACANT / READY
+                : `<span class="badge" style="background:rgba(16,185,129,0.18); color:#00874e; border:1px solid rgba(16,185,129,0.3); font-size:9.5px; font-weight:800; display:inline-flex; align-items:center; gap:4px; padding:2px 6px; border-radius:6px; white-space:nowrap;">
+                     <span class="pulse-dot-green"></span> VACANT
                    </span>`
               }
             </div>
@@ -547,8 +595,8 @@ document.addEventListener('DOMContentLoaded', () => {
               <div>${table.section} • 👥 ${table.capacity} Guests</div>
               <div style="margin-top:6px; font-weight:600; color:${isOccupied ? '#f43f5e' : '#34d399'}; font-size:11.5px;">
                 ${isOccupied 
-                  ? `⚡ Active Orders: ${table.activeOrdersCount || 1} • Dining` 
-                  : '✅ Cleaned & ready for guests'}
+                  ? `⚡ Active: ${table.activeOrdersCount || 1} • Dining` 
+                  : '✅ Cleaned & ready'}
               </div>
             </div>
 
@@ -566,20 +614,20 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- OCCUPANCY CONTROL ACTION -->
             ${isOccupied 
               ? `<button class="btn-table-primary-action btn-table-vacant" onclick="event.stopPropagation(); makeTableVacant(${table.id})" title="Click when customer finishes food to clear table">
-                   <span>🍽️ Make Vacant (Food Completed)</span>
+                   <span>🍽️ Make Vacant</span>
                  </button>`
               : `<button class="btn-table-primary-action btn-table-occupy" onclick="event.stopPropagation(); markTableOccupied(${table.id})" title="Mark occupied for walk-in guests">
                    <span>👥 Mark Occupied</span>
                  </button>`
             }
 
-            <!-- SECONDARY ACTIONS: EDIT, QR STAND, MENU, DELETE -->
+            <!-- SECONDARY ACTIONS: QR STAND, EDIT, CUSTOMER MENU, DELETE -->
             <div class="table-secondary-actions">
-              <button class="btn-table-icon" style="flex:1;" onclick="event.stopPropagation(); selectAndShowStand(${table.id})" title="View Acrylic Stand">
-                <span>🖨️ Stand</span>
+              <button class="btn-table-icon" onclick="event.stopPropagation(); selectAndShowStand(${table.id})" title="View Acrylic Stand">
+                <span>🖨️</span>
               </button>
-              <button class="btn-table-icon" style="flex:1;" onclick="event.stopPropagation(); openEditTableModal(${table.id})" title="Edit Table Details">
-                <span>✏️ Edit</span>
+              <button class="btn-table-icon" onclick="event.stopPropagation(); openEditTableModal(${table.id})" title="Edit Table Details">
+                <span>✏️</span>
               </button>
               <button class="btn-table-icon" onclick="event.stopPropagation(); window.open('/?table=${table.id}', '_blank')" title="Open Customer Menu">
                 <span>📱</span>
@@ -991,9 +1039,9 @@ document.addEventListener('DOMContentLoaded', () => {
               <span class="menu-crud-price">₹${item.price}</span>
             </div>
 
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div class="menu-crud-actions-right">
               <!-- 86'd Toggle Switch -->
-              <div style="display:flex; align-items:center; gap:6px;">
+              <div class="menu-crud-switch-wrap">
                 <label class="switch" style="transform:scale(0.85);" title="Toggle In Stock / 86'd">
                   <input type="checkbox" ${item.available ? 'checked' : ''} onchange="toggleItemStock('${item.id}')">
                   <span class="slider"></span>
@@ -1003,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <!-- Action buttons: Edit & Delete -->
               <div class="menu-crud-btns">
                 <button class="btn-action-edit" onclick="openEditDishModal('${item.id}')" title="Edit Item">
-                  <span>✏️ Edit</span>
+                  <span>✏️</span><span class="btn-edit-label"> Edit</span>
                 </button>
                 <button class="btn-action-delete" onclick="confirmDeleteDish('${item.id}')" title="Delete Item">
                   <span>🗑️</span>
@@ -1212,19 +1260,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const dropdownList = document.getElementById('serviceAlertsDropdownList');
 
     const count = serviceCalls.length;
-    if (countBadge) {
+    document.querySelectorAll('.service-alerts-count-badge').forEach(badge => {
       if (count > 0) {
-        countBadge.textContent = count;
-        countBadge.style.display = 'inline-block';
+        badge.textContent = count;
+        badge.style.display = 'inline-flex';
       } else {
-        countBadge.style.display = 'none';
+        badge.style.display = 'none';
       }
-    }
+    });
 
-    if (bellBtn) {
-      if (count > 0) bellBtn.classList.add('has-alerts');
-      else bellBtn.classList.remove('has-alerts');
-    }
+    document.querySelectorAll('.header-alerts-bell').forEach(bell => {
+      if (count > 0) bell.classList.add('has-alerts');
+      else bell.classList.remove('has-alerts');
+    });
 
     if (dropdownList) {
       if (count === 0) {
