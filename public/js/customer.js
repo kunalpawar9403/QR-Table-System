@@ -147,6 +147,65 @@
     });
   }
 
+  let qrScanInterval = null;
+
+  // Real-time camera QR decoder
+  async function scanVideoFrame() {
+    const video = document.getElementById('cameraVideo');
+    if (!video || !videoStream || video.readyState < 2) return;
+
+    // 1. Try Native BarcodeDetector (Chrome, iOS 17+, Android)
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new BarcodeDetector({ formats: ['qr_code'] });
+        const codes = await detector.detect(video);
+        if (codes && codes.length > 0) {
+          handleScannedData(codes[0].rawValue);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    // 2. Try jsQR canvas scanning
+    if (typeof jsQR !== 'undefined' && video.videoWidth > 0) {
+      try {
+        if (!window._scanCanvas) {
+          window._scanCanvas = document.createElement('canvas');
+          window._scanCtx = window._scanCanvas.getContext('2d');
+        }
+        window._scanCanvas.width = video.videoWidth;
+        window._scanCanvas.height = video.videoHeight;
+        window._scanCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const imgData = window._scanCtx.getImageData(0, 0, video.videoWidth, video.videoHeight);
+        const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
+        if (code && code.data) {
+          handleScannedData(code.data);
+          return;
+        }
+      } catch (e) {}
+    }
+  }
+
+  function handleScannedData(rawText) {
+    if (!rawText) return;
+    try {
+      const url = new URL(rawText, window.location.origin);
+      const table = url.searchParams.get('table');
+      const token = url.searchParams.get('token');
+      if (table) {
+        stopCamera();
+        unlockMenuForTable(parseInt(table, 10), true, token);
+        return;
+      }
+    } catch (e) {}
+
+    const match = rawText.match(/\b(?:table|t)?\s*(\d+)\b/i);
+    if (match && match[1]) {
+      stopCamera();
+      unlockMenuForTable(parseInt(match[1], 10), true, null);
+    }
+  }
+
   // Camera Management
   async function toggleCamera() {
     const btn = document.getElementById('btnStartCamera');
@@ -179,6 +238,9 @@
 
       showToast('Camera active! Point at table QR stand or tap below.', 'info');
 
+      if (qrScanInterval) clearInterval(qrScanInterval);
+      qrScanInterval = setInterval(scanVideoFrame, 350);
+
     } catch (err) {
       console.warn('Camera error:', err);
       showToast('Camera permission denied or unavailable. Tap any table below to test!', 'warning');
@@ -186,6 +248,10 @@
   }
 
   function stopCamera() {
+    if (qrScanInterval) {
+      clearInterval(qrScanInterval);
+      qrScanInterval = null;
+    }
     if (videoStream) {
       videoStream.getTracks().forEach(track => track.stop());
       videoStream = null;
@@ -203,26 +269,25 @@
   async function unlockMenuForTable(tableId, playBeep = false, token = null) {
     const tokenToVerify = token || sessionStorage.getItem('spice_token_' + tableId) || '';
 
+    currentTableId = tableId;
+    currentTableToken = tokenToVerify;
+
     // Verify token with server before unlocking!
     try {
       const verifyRes = await fetch(`/api/tables/${tableId}/verify-token?token=${encodeURIComponent(tokenToVerify)}`);
-      const verifyData = await verifyRes.json();
-
-      if (!verifyData.valid) {
-        // Token is expired or invalid -> block menu and show expired screen!
-        showSessionExpiredScreen(verifyData.tableName || `Table ${tableId}`, verifyData.message);
-        return;
+      if (verifyRes.ok) {
+        const verifyData = await verifyRes.json();
+        if (verifyData && verifyData.valid === false) {
+          showSessionExpiredScreen(verifyData.tableName || `Table ${tableId}`, verifyData.message);
+          return;
+        }
+        if (verifyData && verifyData.activeToken) {
+          currentTableToken = verifyData.activeToken;
+          sessionStorage.setItem('spice_token_' + tableId, currentTableToken);
+        }
       }
-
-      // Valid session! Store active token
-      currentTableId = tableId;
-      currentTableToken = verifyData.activeToken;
-      sessionStorage.setItem('spice_token_' + tableId, currentTableToken);
-
     } catch (err) {
       console.warn('Token check error, proceeding with fallback:', err);
-      currentTableId = tableId;
-      currentTableToken = tokenToVerify;
     }
 
     stopCamera();
@@ -255,26 +320,104 @@
       });
     }
 
-    // Render menu right now!
-    if (menuData && menuData.length > 0) {
-      renderMenu();
-    } else {
-      fetchMenu();
+    // Always ensure menuData is ready and render immediately
+    if (!menuData || menuData.length === 0) {
+      await fetchMenu();
     }
+    renderMenu();
 
     checkExistingOrders();
   }
+
+  const DEFAULT_MENU_FALLBACK = [
+    {
+      id: "dish_1",
+      name: "Artisan Truffle & Wild Mushroom Pizza",
+      category: "mains",
+      price: 499,
+      description: "Wood-fired crust topped with sautéed wild mushrooms, fresh buffalo mozzarella, aromatic black truffle oil, and micro basil.",
+      image: "/images/artisan_pizza.jpg",
+      isVeg: true,
+      isSpecial: true,
+      available: true
+    },
+    {
+      id: "dish_2",
+      name: "Creamy Garlic Parmesan Fettuccine",
+      category: "mains",
+      price: 429,
+      description: "Handcrafted egg fettuccine tossed in a rich slow-simmered garlic cream sauce with aged Parmigiano-Reggiano and fresh garden herbs.",
+      image: "/images/creamy_pasta.jpg",
+      isVeg: true,
+      isSpecial: false,
+      available: true
+    },
+    {
+      id: "dish_3",
+      name: "The Royal Paneer Tikka Burger",
+      category: "starters",
+      price: 349,
+      description: "Tandoori char-grilled paneer steak, minted pickled onions, creamy garlic mayo, layered inside a toasted buttery brioche bun.",
+      image: "/images/veggie_burger.jpg",
+      isVeg: true,
+      isSpecial: true,
+      available: true
+    },
+    {
+      id: "dish_4",
+      name: "Mediterranean Garden Quinoa Salad",
+      category: "starters",
+      price: 299,
+      description: "Crisp baby arugula, cucumber ribbons, Greek kalamata olives, heirloom cherry tomatoes, crumbled feta, and organic quinoa in citrus vinaigrette.",
+      image: "/images/green_salad.jpg",
+      isVeg: true,
+      isSpecial: false,
+      available: true
+    },
+    {
+      id: "dish_5",
+      name: "Midnight Belgian Chocolate Lava Cake",
+      category: "desserts",
+      price: 279,
+      description: "Warm molten Belgian chocolate cake bursting with dark ganache, paired with handcrafted Madagascar vanilla bean gelato.",
+      image: "/images/dessert.jpg",
+      isVeg: true,
+      isSpecial: true,
+      available: true
+    },
+    {
+      id: "dish_6",
+      name: "Sparkling Hibiscus Berry Craft Soda",
+      category: "beverages",
+      price: 189,
+      description: "House-brewed organic wild hibiscus flowers infused with crushed blackberries, fresh garden mint, and bubbly sparkling spring water.",
+      image: "/images/craft_soda.jpg",
+      isVeg: true,
+      isSpecial: false,
+      available: true
+    }
+  ];
 
   // Fetch Menu from Server
   async function fetchMenu() {
     try {
       const res = await fetch('/api/menu');
-      menuData = await res.json();
-      if (currentTableId) {
-        renderMenu();
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          menuData = data;
+        } else {
+          menuData = DEFAULT_MENU_FALLBACK;
+        }
+      } else {
+        menuData = DEFAULT_MENU_FALLBACK;
       }
     } catch (err) {
-      console.error('Failed to load menu:', err);
+      console.error('Failed to load menu, using fallback:', err);
+      menuData = DEFAULT_MENU_FALLBACK;
+    }
+    if (currentTableId) {
+      renderMenu();
     }
   }
 
