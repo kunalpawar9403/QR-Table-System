@@ -301,5 +301,56 @@
     "paymentMethod": "Pay at Counter / UPI",
     "updatedAt": "2026-10-18T04:02:44.783Z",
     "completedAt": "2026-10-18T04:03:22.235Z"
+  },
+  {
+    "id": "ORD-111",
+    "orderNumber": 111,
+    "tableId": 8,
+    "tableName": "Table 8",
+    "guestName": "Table 8 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-18T11:46:38.967Z",
+    "items": [
+      {
+        "id": "ni-1",
+        "name": "Kaju Masala",
+        "price": 160,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "ni-5",
+        "name": "Veg Kolhapuri",
+        "price": 110,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "tan-5",
+        "name": "Tandoori Naan",
+        "price": 30,
+        "quantity": 3,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "tan-6",
+        "name": "Butter Naan",
+        "price": 35,
+        "quantity": 3,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 465,
+    "tax": 23.25,
+    "total": 488.25,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-18T11:47:25.847Z",
+    "completedAt": "2026-10-18T11:47:49.963Z"
   }
 ]

@@ -75,8 +75,10 @@
     "capacity": 6,
     "section": "Patio Garden",
     "status": "available",
-    "sessionToken": "T8-4L2JG5",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "sessionToken": "T8-75SC26",
+    "tokenCreatedAt": "2026-10-18T11:47:49.962Z",
+    "manualStatus": "vacant",
+    "lastClearedAt": "2026-10-18T11:47:49.962Z"
   },
   {
     "id": 9,
