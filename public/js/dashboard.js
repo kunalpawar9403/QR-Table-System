@@ -1110,7 +1110,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editId) editId.value = '';
     if (title) title.textContent = 'Add New Dish';
     if (btnSave) btnSave.innerHTML = `<span>Save Dish to Menu</span>`;
-    document.getElementById('dishImage').value = '/images/veggie_burger.jpg';
+    document.getElementById('dishCategory').value = 'north-indian';
+    document.getElementById('dishImage').value = '/images/paneer_butter_masala.jpg';
 
     if (modal) modal.classList.add('active');
   };
@@ -1130,10 +1131,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnSave) btnSave.innerHTML = `<span>Update Dish Changes</span>`;
 
     document.getElementById('dishName').value = item.name;
-    document.getElementById('dishCategory').value = item.category || 'burgers';
+    document.getElementById('dishCategory').value = item.category || 'north-indian';
     document.getElementById('dishPrice').value = item.price;
     document.getElementById('dishDescription').value = item.description || '';
-    document.getElementById('dishImage').value = item.image || '/images/veggie_burger.jpg';
+    document.getElementById('dishImage').value = item.image || '/images/paneer_butter_masala.jpg';
     document.getElementById('dishIsVeg').value = item.isVeg ? 'true' : 'false';
     document.getElementById('dishPrepTime').value = item.prepTime || '12-15 mins';
     document.getElementById('dishIsSpecial').checked = Boolean(item.isSpecial);

@@ -197,10 +197,10 @@ app.post('/api/menu', (req, res) => {
   const newItem = {
     id: `item-${Date.now().toString().slice(-5)}`,
     name: name.trim(),
-    category: (category || 'burgers').toLowerCase(),
+    category: (category || 'north-indian').toLowerCase(),
     price: parseFloat(price) || 0,
     description: description ? description.trim() : '',
-    image: image || '/images/veggie_burger.jpg',
+    image: image || '/images/paneer_butter_masala.jpg',
     isVeg: isVeg !== undefined ? Boolean(isVeg) : true,
     isSpicy: false,
     isSpecial: Boolean(isSpecial),

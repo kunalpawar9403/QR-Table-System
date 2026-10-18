@@ -532,12 +532,14 @@
           <!-- Category filter buttons for menu manager -->
           <div style="display:flex; gap:8px; overflow-x:auto; margin-bottom:20px; padding-bottom:4px;">
             <button class="category-pill active dash-menu-cat" data-category="all" onclick="filterDashMenu('all', this)">All Items</button>
-            <button class="category-pill dash-menu-cat" data-category="burgers" onclick="filterDashMenu('burgers', this)">Burgers</button>
-            <button class="category-pill dash-menu-cat" data-category="pizza" onclick="filterDashMenu('pizza', this)">Pizza</button>
-            <button class="category-pill dash-menu-cat" data-category="pasta" onclick="filterDashMenu('pasta', this)">Pasta</button>
-            <button class="category-pill dash-menu-cat" data-category="drinks" onclick="filterDashMenu('drinks', this)">Beverages</button>
-            <button class="category-pill dash-menu-cat" data-category="bowls" onclick="filterDashMenu('bowls', this)">Bowls & Salads</button>
-            <button class="category-pill dash-menu-cat" data-category="desserts" onclick="filterDashMenu('desserts', this)">Desserts</button>
+            <button class="category-pill dash-menu-cat" data-category="north-indian" onclick="filterDashMenu('north-indian', this)">North Indian</button>
+            <button class="category-pill dash-menu-cat" data-category="tandoori" onclick="filterDashMenu('tandoori', this)">Tandoori & Breads</button>
+            <button class="category-pill dash-menu-cat" data-category="chinese" onclick="filterDashMenu('chinese', this)">Chinese</button>
+            <button class="category-pill dash-menu-cat" data-category="snacks" onclick="filterDashMenu('snacks', this)">Tandoori Snacks</button>
+            <button class="category-pill dash-menu-cat" data-category="soup" onclick="filterDashMenu('soup', this)">Soups</button>
+            <button class="category-pill dash-menu-cat" data-category="juice" onclick="filterDashMenu('juice', this)">Fruit Juices</button>
+            <button class="category-pill dash-menu-cat" data-category="milkshake" onclick="filterDashMenu('milkshake', this)">Milkshakes</button>
+            <button class="category-pill dash-menu-cat" data-category="ice-cream" onclick="filterDashMenu('ice-cream', this)">Ice Cream</button>
           </div>
 
           <!-- Cards Grid for Menu CRUD -->
@@ -567,44 +569,49 @@
         <div class="crud-modal-body">
           <div class="crud-form-group">
             <label class="crud-form-label">Dish Name *</label>
-            <input type="text" id="dishName" class="crud-form-input" required placeholder="e.g. Gourmet Truffle Veggie Burger">
+            <input type="text" id="dishName" class="crud-form-input" required placeholder="e.g. Paneer Butter Masala">
           </div>
 
           <div class="crud-form-row">
             <div class="crud-form-group">
               <label class="crud-form-label">Category *</label>
               <select id="dishCategory" class="crud-form-select">
-                <option value="burgers">Burgers</option>
-                <option value="pizza">Pizza</option>
-                <option value="pasta">Pasta</option>
-                <option value="drinks">Beverages</option>
-                <option value="bowls">Bowls & Salads</option>
-                <option value="desserts">Desserts</option>
+                <option value="north-indian">North Indian</option>
+                <option value="tandoori">Tandoori & Breads</option>
+                <option value="chinese">Chinese</option>
+                <option value="snacks">Tandoori Snacks</option>
+                <option value="soup">Soups</option>
+                <option value="juice">Fruit Juices</option>
+                <option value="milkshake">Milkshakes</option>
+                <option value="ice-cream">Ice Cream</option>
               </select>
             </div>
 
             <div class="crud-form-group">
               <label class="crud-form-label">Price in INR (₹) *</label>
-              <input type="number" id="dishPrice" class="crud-form-input" required min="1" step="1" placeholder="e.g. 299">
+              <input type="number" id="dishPrice" class="crud-form-input" required min="1" step="1" placeholder="e.g. 135">
             </div>
           </div>
 
           <div class="crud-form-group">
             <label class="crud-form-label">Description</label>
-            <textarea id="dishDescription" class="crud-form-textarea" rows="3" placeholder="Describe the ingredients, artisan bun, flavor profile..."></textarea>
+            <textarea id="dishDescription" class="crud-form-textarea" rows="3" placeholder="Describe the freshly prepared spices, rich aroma, and accompaniments..."></textarea>
           </div>
 
           <div class="crud-form-group">
             <label class="crud-form-label">Dish Image URL</label>
-            <input type="text" id="dishImage" class="crud-form-input" value="/images/veggie_burger.jpg">
+            <input type="text" id="dishImage" class="crud-form-input" value="/images/paneer_butter_masala.jpg">
             <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Quick Preset Photos:</div>
             <div class="crud-image-presets">
-              <span class="preset-chip" onclick="setDishImagePreset('/images/veggie_burger.jpg')">Burger</span>
-              <span class="preset-chip" onclick="setDishImagePreset('/images/artisan_pizza.jpg')">Pizza</span>
-              <span class="preset-chip" onclick="setDishImagePreset('/images/creamy_pasta.jpg')">Pasta</span>
-              <span class="preset-chip" onclick="setDishImagePreset('/images/craft_soda.jpg')">Soda</span>
-              <span class="preset-chip" onclick="setDishImagePreset('/images/green_salad.jpg')">Salad</span>
-              <span class="preset-chip" onclick="setDishImagePreset('/images/dessert.jpg')">Dessert</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/paneer_butter_masala.jpg')">Paneer Masala</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/daal_fry.jpg')">Daal</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/butter_naan.jpg')">Naan</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/gobi_manchurian.jpg')">Manchurian</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/paneer_tikka.jpg')">Tandoori</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/hot_sour_soup.jpg')">Soup</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/mango_juice.jpg')">Juice</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/chocolate_shake.jpg')">Shake</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/gadbad_icecream.jpg')">Ice Cream</span>
             </div>
           </div>
 
