@@ -1,0 +1,305 @@
+[
+  {
+    "id": "ORD-101",
+    "orderNumber": 101,
+    "tableId": 3,
+    "tableName": "Table 3",
+    "guestName": "Table 3 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T14:40:00.000Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 289,
+        "quantity": 1,
+        "options": [
+          "Smoked Gouda",
+          "Crispy Fries"
+        ],
+        "notes": "Extra crispy fries please"
+      },
+      {
+        "id": "item-4",
+        "name": "Sparkling Berry Citrus Soda",
+        "price": 149,
+        "quantity": 1,
+        "options": [
+          "Regular Ice",
+          "Standard Sweetness"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 438,
+    "tax": 21.9,
+    "total": 459.9,
+    "notes": "Acrylic stand scan order from Table 3",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T15:43:10.955Z",
+    "completedAt": "2026-10-17T16:28:38.681Z"
+  },
+  {
+    "id": "ORD-102",
+    "orderNumber": 102,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T15:41:55.536Z",
+    "items": [
+      {
+        "id": "item-2",
+        "name": "Artisan Wood-Fired Margherita",
+        "price": 529,
+        "quantity": 1,
+        "options": [
+          "Cheese Burst Crust",
+          "Roasted Garlic & Mushrooms"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 529,
+    "tax": 26.45,
+    "total": 555.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T15:43:05.121Z",
+    "completedAt": "2026-10-17T16:18:39.176Z"
+  },
+  {
+    "id": "ORD-103",
+    "orderNumber": 103,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T16:29:17.128Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 249,
+        "quantity": 1,
+        "options": [
+          "Aged Cheddar",
+          "Crispy Fries"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 249,
+    "tax": 12.45,
+    "total": 261.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T17:18:05.488Z",
+    "completedAt": "2026-10-17T17:18:19.345Z"
+  },
+  {
+    "id": "ORD-104",
+    "orderNumber": 104,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T17:19:28.731Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 249,
+        "quantity": 1,
+        "options": [
+          "Aged Cheddar",
+          "Crispy Fries"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 249,
+    "tax": 12.45,
+    "total": 261.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T17:20:27.725Z",
+    "completedAt": "2026-10-17T17:24:59.679Z"
+  },
+  {
+    "id": "ORD-105",
+    "orderNumber": 105,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Table 2 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T18:03:44.552Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 249,
+        "quantity": 1,
+        "options": [
+          "Aged Cheddar",
+          "Crispy Fries"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 249,
+    "tax": 12.45,
+    "total": 261.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T18:08:00.134Z",
+    "completedAt": "2026-10-17T18:08:08.054Z"
+  },
+  {
+    "id": "ORD-106",
+    "orderNumber": 106,
+    "tableId": 3,
+    "tableName": "Table 3",
+    "guestName": "Table 3 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T19:07:12.747Z",
+    "items": [
+      {
+        "id": "m1",
+        "name": "Butter Chicken",
+        "price": 380,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 380,
+    "tax": 19,
+    "total": 399,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T19:07:18.904Z",
+    "completedAt": "2026-10-17T19:07:18.904Z"
+  },
+  {
+    "id": "ORD-107",
+    "orderNumber": 107,
+    "tableId": 3,
+    "tableName": "Table 3",
+    "guestName": "Table 3 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T19:07:45.136Z",
+    "items": [
+      {
+        "id": "m1",
+        "name": "Butter Chicken",
+        "price": 380,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 380,
+    "tax": 19,
+    "total": 399,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "completedAt": "2026-10-17T19:08:08.367Z"
+  },
+  {
+    "id": "ORD-108",
+    "orderNumber": 108,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T19:09:37.173Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 249,
+        "quantity": 1,
+        "options": [
+          "Aged Cheddar",
+          "Crispy Fries"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 249,
+    "tax": 12.45,
+    "total": 261.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-17T19:09:51.432Z",
+    "completedAt": "2026-10-17T19:10:05.468Z"
+  },
+  {
+    "id": "ORD-109",
+    "orderNumber": 109,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-17T19:11:23.608Z",
+    "items": [
+      {
+        "id": "item-1",
+        "name": "Classic Gourmet Veggie Burger",
+        "price": 249,
+        "quantity": 1,
+        "options": [
+          "Aged Cheddar",
+          "Crispy Fries"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 249,
+    "tax": 12.45,
+    "total": 261.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "completedAt": "2026-10-17T19:11:26.531Z"
+  },
+  {
+    "id": "ORD-110",
+    "orderNumber": 110,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-18T04:02:28.678Z",
+    "items": [
+      {
+        "id": "item-4",
+        "name": "Sparkling Berry Citrus Soda",
+        "price": 149,
+        "quantity": 1,
+        "options": [
+          "Regular Ice",
+          "Standard Sweetness"
+        ],
+        "notes": ""
+      }
+    ],
+    "subtotal": 149,
+    "tax": 7.45,
+    "total": 156.45,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-18T04:02:44.783Z",
+    "completedAt": "2026-10-18T04:03:22.235Z"
+  }
+]

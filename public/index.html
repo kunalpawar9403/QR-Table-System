@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Spice Garden | Smart QR Table Ordering</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/customer.css">
+  <style>
+    /* Scanner Screen Styles */
+    .scanner-screen {
+      padding: 24px 20px 40px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 80vh;
+      justify-content: center;
+    }
+
+    .scanner-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-card);
+      padding: 28px 20px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .scanner-viewfinder {
+      width: 250px;
+      height: 250px;
+      margin: 20px auto;
+      border: 3px dashed var(--primary);
+      border-radius: 20px;
+      position: relative;
+      background: #0f172a;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scan-laser {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #10b981, #34d399, transparent);
+      box-shadow: 0 0 12px #10b981;
+      animation: scanLaser 2s infinite ease-in-out;
+      z-index: 10;
+    }
+
+    @keyframes scanLaser {
+      0% { top: 5%; }
+      50% { top: 90%; }
+      100% { top: 5%; }
+    }
+
+    .camera-feed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .scanner-corners {
+      position: absolute;
+      inset: 12px;
+      border: 2px solid rgba(52, 211, 153, 0.4);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+
+    .quick-scan-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .quick-table-btn {
+      padding: 10px 4px;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .quick-table-btn:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Table verified bar */
+    .table-verified-banner {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 14px 18px 0;
+    }
+
+    .btn-rescan {
+      background: transparent;
+      border: 1px solid #86efac;
+      color: #166534;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .btn-rescan:hover {
+      background: #dcfce7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mobile App Container (Clean for Customers - No Admin Bar) -->
+  <main class="app-wrapper">
+    
+    <!-- Top Bar (Shown when table is verified) -->
+    <div class="app-header" id="appHeader" style="display: none; top: 0;">
+      <div class="table-badge-header">
+        <span class="table-badge-dot"></span>
+        <span id="tableBadgeText">TABLE UNKNOWN</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="cart-icon-btn" onclick="openCartSheet()" title="View Cart">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="cart-count-badge" id="cartCountBadge" style="display: none;">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Restaurant Hero Banner -->
+    <div class="restaurant-hero">
+      <div class="brand-logo-wrap">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+        </svg>
+      </div>
+      <h1 class="brand-title">SPICE GARDEN</h1>
+      <p class="brand-subtitle">Artisan Kitchen & Botanical Bistro</p>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 1 & 2: SCANNER SCREEN (ONLY SHOWS UNTIL SCANNED) -->
+    <!-- ============================================== -->
+    <section id="scannerSection" class="scanner-screen">
+      <div class="scanner-card">
+        <div style="font-size:36px; margin-bottom:8px;">📷</div>
+        <h2 style="font-family:var(--font-display); font-size:20px; font-weight:800; margin-bottom:6px;">Scan Table QR Code</h2>
+        <p style="font-size:13px; color:#64748b; line-height:1.5;">
+          Point your phone camera at the acrylic QR stand on your table to unlock the menu & order.
+        </p>
+
+        <!-- Live Scanner Viewfinder Frame -->
+        <div class="scanner-viewfinder" id="reader">
+          <div class="scan-laser"></div>
+          <div class="scanner-corners"></div>
+          <video id="cameraVideo" playsinline autoplay muted style="width:100%; height:100%; object-fit:cover; display:none;"></video>
+          <div id="scannerPlaceholder" style="color:white; z-index:5; font-size:12px; font-weight:600; text-align:center; padding:10px; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-size:32px; margin-bottom:6px;">📱</div>
+            <div>Point Camera At Table QR Stand</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btnStartCamera" style="width:100%; margin-top:8px;">
+          <span>📷 Open Camera Scanner</span>
+        </button>
+
+        <div style="margin:20px 0 10px; display:flex; align-items:center; gap:10px;">
+          <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+          <span style="font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Or Simulate Scanned Table</span>
+          <div style="flex:1; height:1px; background:#e2e8f0;"></div>
+        </div>
+
+        <!-- Quick 1-tap table scan simulation buttons -->
+        <div class="quick-scan-grid">
+          <button class="quick-table-btn" onclick="simulateScanTable(1)">
+            <span>T-1</span>
+            <span style="font-size:9px; color:#64748b;">Indoor</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(2)">
+            <span>T-2</span>
+            <span style="font-size:9px; color:#64748b;">Indoor</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(3)" style="background:#dcfce7; border-color:#86efac; color:#166534;">
+            <span>⭐ T-3</span>
+            <span style="font-size:9px; font-weight:800; color:#15803d;">Demo</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(4)">
+            <span>T-4</span>
+            <span style="font-size:9px; color:#64748b;">Indoor</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(5)">
+            <span>T-5</span>
+            <span style="font-size:9px; color:#64748b;">Window</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(6)">
+            <span>T-6</span>
+            <span style="font-size:9px; color:#64748b;">Window</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(7)">
+            <span>T-7</span>
+            <span style="font-size:9px; color:#64748b;">Patio</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(8)">
+            <span>T-8</span>
+            <span style="font-size:9px; color:#64748b;">Patio</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(9)">
+            <span>Bar 1</span>
+            <span style="font-size:9px; color:#64748b;">Counter</span>
+          </button>
+          <button class="quick-table-btn" onclick="simulateScanTable(10)">
+            <span>Bar 2</span>
+            <span style="font-size:9px; color:#64748b;">Counter</span>
+          </button>
+        </div>
+
+        <p style="font-size:11px; color:#94a3b8; margin-top:14px;">
+          Tip: Tap <strong>Table 3</strong> to immediately simulate the acrylic stand scan from the diagram!
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- SESSION EXPIRED SCREEN (SHOWN WHEN OLD QR / COMPLETED ORDER LINK ACCESSED) -->
+    <!-- ============================================== -->
+    <section id="expiredSection" class="scanner-screen" style="display: none;">
+      <div class="scanner-card" style="border-top: 5px solid #ef4444; text-align: center;">
+        <div style="font-size:48px; margin-bottom:10px;">🔒</div>
+        <div style="display:inline-block; padding:4px 10px; background:#fef2f2; color:#ef4444; border:1px solid #fecaca; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; margin-bottom:12px;">
+          Session Expired & Closed
+        </div>
+        <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#1e293b; margin-bottom:10px;">
+          Dining Complete
+        </h2>
+        <p id="expiredReasonText" style="font-size:13px; color:#64748b; line-height:1.6; margin-bottom:20px;">
+          The previous dining session for <strong id="expiredTableName">Table</strong> was marked completed by restaurant staff. Old links or bookmarks are expired to prevent fraudulent orders.
+        </p>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; margin-bottom:20px; text-align:left;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <span style="font-size:16px;">💡</span>
+            <span style="font-size:12px; font-weight:700; color:#334155;">Sitting at this table right now?</span>
+          </div>
+          <p style="font-size:11px; color:#64748b; margin:0; line-height:1.5;">
+            Point your phone camera at the physical QR code on your acrylic stand to start a fresh dining session.
+          </p>
+        </div>
+
+        <button class="btn btn-primary" onclick="resetScanner()" style="width:100%; padding:14px;">
+          <span>📷 Scan Current Table QR</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- STEP 3: MENU SECTION (ONLY SHOWN AFTER SCANNER!) -->
+    <!-- ============================================== -->
+    <section id="menuAppSection" style="display: none;">
+
+      <!-- Table Verified Banner -->
+      <div class="table-verified-banner">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>✅</span>
+          <span>Verified: <strong id="verifiedTableText">Table 3</strong></span>
+        </div>
+        <button class="btn-rescan" onclick="resetScanner()">Change Table / Re-Scan</button>
+      </div>
+
+      <!-- Quick Service Call Bar -->
+      <div class="quick-service-strip">
+        <button class="service-chip" onclick="requestService('Water Request')">
+          <span>💧 Water</span>
+        </button>
+        <button class="service-chip" onclick="requestService('Call Waiter')">
+          <span>🙋 Call Waiter</span>
+        </button>
+        <button class="service-chip" onclick="requestService('Bill Request')">
+          <span>🧾 Request Bill</span>
+        </button>
+      </div>
+
+      <!-- Live Order Tracking Area (If Table has an active order) -->
+      <div id="trackingView" style="padding: 16px 18px 0; display: none;"></div>
+
+      <!-- Category Selector Tabs -->
+      <div class="categories-bar">
+        <div class="categories-scroll" id="categoriesContainer">
+          <button class="category-pill active" data-category="all">
+            <span>✨ All Menu</span>
+          </button>
+          <button class="category-pill" data-category="burgers">
+            <span>🍔 Burgers</span>
+          </button>
+          <button class="category-pill" data-category="pizza">
+            <span>🍕 Pizza</span>
+          </button>
+          <button class="category-pill" data-category="pasta">
+            <span>🍝 Pasta</span>
+          </button>
+          <button class="category-pill" data-category="drinks">
+            <span>🥤 Drinks</span>
+          </button>
+          <button class="category-pill" data-category="bowls">
+            <span>🥗 Bowls</span>
+          </button>
+          <button class="category-pill" data-category="desserts">
+            <span>🍰 Desserts</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu Items Cards List -->
+      <div class="menu-container" id="menuView">
+        <div class="section-heading">
+          <span>Popular Selections</span>
+          <span style="font-size:12px; font-weight:500; color:#64748b;">Direct Kitchen Ordering</span>
+        </div>
+        <div class="menu-items-grid" id="menuContainer">
+          <!-- Rendered dynamically after scan -->
+        </div>
+      </div>
+
+      <!-- Sticky Bottom Cart Bar -->
+      <div class="cart-floating-bar" id="cartBar" style="display: none;" onclick="openCartSheet()">
+        <div class="cart-bar-info">
+          <span class="cart-bar-count" id="cartBarCount">0 items</span>
+          <span class="cart-bar-total" id="cartBarTotal">₹0</span>
+        </div>
+        <div class="cart-bar-btn">
+          <span>View Order</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Item Customizer Modal -->
+  <div class="modal-overlay" id="customizerModal">
+    <div class="modal-content">
+      <div class="customizer-header">
+        <img id="customizerModalImg" src="" alt="" class="customizer-img">
+        <button class="btn-modal-close" onclick="closeModal('customizerModal')">&times;</button>
+      </div>
+      <div class="customizer-body">
+        <h3 class="customizer-title" id="customizerModalTitle">Item Title</h3>
+        <p class="customizer-desc" id="customizerModalDesc">Item description</p>
+
+        <div id="customizerModalBody">
+          <!-- Dynamic options here -->
+        </div>
+      </div>
+      <div class="customizer-footer">
+        <div class="qty-stepper">
+          <button class="qty-btn" onclick="changeModalQty(-1)">-</button>
+          <span class="qty-val" id="modalQtyVal">1</span>
+          <button class="qty-btn" onclick="changeModalQty(1)">+</button>
+        </div>
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmAddToCart()">
+          <span id="modalAddBtnText">Add to Order</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart / Checkout Modal Sheet -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal-content" style="max-height: 85vh;">
+      <div style="padding: 18px 20px; border-bottom: 1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800;">Your Table Order</h3>
+          <p style="font-size: 12px; color: #64748b;">Table will receive orders instantly in kitchen</p>
+        </div>
+        <button class="btn-modal-close" style="position:static; background:#f1f5f9; color:#0f172a;" onclick="closeModal('cartModal')">&times;</button>
+      </div>
+
+      <div style="padding: 16px 20px; overflow-y: auto; max-height: 50vh;">
+        <div id="cartItemsList">
+          <!-- Cart items render here -->
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px;">SPECIAL INSTRUCTIONS FOR KITCHEN</label>
+          <input type="text" id="orderNotes" placeholder="e.g., Less spicy, no onions, extra napkins..." 
+            style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-md); font-family:inherit; font-size:13px;">
+        </div>
+
+        <div style="margin-top: 14px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:6px;">GUEST NAME (OPTIONAL)</label>
+          <input type="text" id="guestNameInput" placeholder="Enter your name" 
+            style="width:100%; padding:10px 14px; border:1px solid var(--border-color); border-radius:var(--radius-md); font-family:inherit; font-size:13px;">
+        </div>
+
+        <!-- Bill breakdown in INR -->
+        <div style="margin-top: 20px; background:#f8fafc; border-radius:var(--radius-md); padding:14px; border:1px solid var(--border-light);">
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:6px;">
+            <span>Subtotal</span>
+            <span id="cartSubtotal" style="font-weight:600; color:#0f172a;">₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; color:#64748b; margin-bottom:6px;">
+            <span>GST (5%)</span>
+            <span id="cartTax" style="font-weight:600; color:#0f172a;">₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#0d5f3a; border-top:1px dashed #cbd5e1; padding-top:8px; margin-top:6px;">
+            <span>Total Amount</span>
+            <span id="cartTotal">₹0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 16px 20px; border-top: 1px solid var(--border-color); display:flex; gap:10px;">
+        <button class="btn btn-secondary" onclick="closeModal('cartModal')">Add More Items</button>
+        <button class="btn btn-primary" id="btnSubmitOrder" style="flex:1;" onclick="submitOrderToKitchen()">
+          <span>Send Order to Kitchen 🚀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts (100% Local and Instant) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js?v=2.2"></script>
+  <script src="/js/customer.js?v=2.2"></script>
+</body>
+</html>

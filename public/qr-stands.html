@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acrylic Table QR Stands | Spice Garden</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/qr-stands.css">
+</head>
+<body>
+
+  <!-- Demo Switcher Bar -->
+  <header class="system-demo-bar">
+    <div class="demo-bar-brand">
+      <span>🍽️ Smart Restaurant QR System</span>
+    </div>
+    <nav class="demo-bar-links">
+      <a href="/index.html" class="demo-bar-link">📱 Customer Scanner</a>
+      <a href="/dashboard.html" class="demo-bar-link">🖥️ Master Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="stands-page">
+    <header class="stands-header">
+      <span class="badge badge-table" style="margin-bottom: 8px;">STEP 1 & 2 OF SYSTEM</span>
+      <h1 class="stands-title">Table Acrylic Stand & QR Generator</h1>
+      <p class="stands-subtitle">
+        Printable acrylic stand inserts with live QR codes. Guests simply scan with any smartphone camera to order straight to the kitchen!
+      </p>
+    </header>
+
+    <div class="generator-layout">
+      <!-- Left: Table Selection & Settings -->
+      <div>
+        <div class="control-card">
+          <div class="card-title-bar">
+            <span>🏷️ Select Table to Generate</span>
+          </div>
+
+          <div class="table-chips-grid" id="tableChipsContainer">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div style="background:#f8fafc; border-radius:var(--radius-md); padding:16px; border:1px solid var(--border-color); margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:13px; font-weight:700;">Use Local Wi-Fi IP for Phone Camera Scanning:</span>
+              <input type="checkbox" id="networkIpToggle" checked style="width:18px; height:18px; cursor:pointer;">
+            </div>
+            <p style="font-size:12px; color:#64748b; margin-bottom:6px;">
+              When checked, the QR code uses your computer's local Wi-Fi IP so any physical smartphone connected to your Wi-Fi can scan it!
+            </p>
+            <span class="badge badge-table" id="hostInfoBadge">Detecting IP...</span>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label style="display:block; font-size:12px; font-weight:700; color:#64748b; margin-bottom:6px;">DIRECT SCAN URL:</label>
+            <a id="targetUrlText" href="#" target="_blank" style="font-size:13px; color:var(--primary); word-break:break-all; font-weight:600;">
+              http://localhost:3000/?table=3
+            </a>
+          </div>
+
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="simulateScan()" style="flex:1;">
+              <span>📱 Simulate Phone Camera Scan</span>
+            </button>
+            <button class="btn btn-secondary" onclick="printCurrentStand()" style="flex:1;">
+              <span>🖨️ Print Stand Insert</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- System Flow Explainer Box -->
+        <div class="control-card" style="margin-top:20px; border-left:4px solid var(--primary);">
+          <h4 style="font-size:14px; font-weight:800; margin-bottom:6px; color:var(--primary-dark);">How this matches the infographic:</h4>
+          <ol style="font-size:12px; color:#475569; padding-left:18px; line-height:1.6;">
+            <li><strong>Step 1:</strong> Guests sit at Table 3 and find the acrylic stand on the table.</li>
+            <li><strong>Step 2:</strong> Guest opens their iPhone or Android camera and points at the QR.</li>
+            <li><strong>Step 3:</strong> The phone opens the Spice Garden menu pre-configured for Table 3.</li>
+            <li><strong>Step 4:</strong> Guest submits order, and the kitchen screen chimes and displays the ticket!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Right: Acrylic Stand Showcase (As depicted in Illustration) -->
+      <div class="acrylic-stand-showcase">
+        <div class="acrylic-card">
+          <div class="stand-brand">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0d5f3a" stroke-width="2.2">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+            </svg>
+            <span>SPICE GARDEN</span>
+          </div>
+
+          <div class="stand-table-badge" id="standTableNum">TABLE 3</div>
+
+          <div class="stand-qr-box">
+            <img id="standQrImg" src="" alt="Table QR Code" class="stand-qr-img">
+          </div>
+
+          <div class="stand-cta">
+            <div class="stand-cta-pill">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>Scan to Order</span>
+            </div>
+          </div>
+
+          <p class="stand-instructions">
+            Point your phone camera at the QR code to view our live menu & place your order.
+          </p>
+        </div>
+
+        <!-- Stand Base Foot from illustration -->
+        <div class="stand-base-holder">
+          <span class="stand-base-label">Acrylic Stand 3</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/js/qr-stands.js"></script>
+</body>
+</html>

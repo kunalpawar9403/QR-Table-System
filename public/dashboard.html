@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spice Garden | Restaurant Operations Dashboard</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <link rel="stylesheet" href="/css/kitchen.css">
+  <link rel="stylesheet" href="/css/qr-stands.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/dashboard.css?v=2.2">
+</head>
+<body class="dashboard-body">
+
+  <!-- High Priority Floating Service Alert Banner (Direct Child of Body, z-index max) -->
+  <div id="serviceAlertFloatingBanner" class="service-alert-floating-banner"></div>
+
+  <div class="dash-app-layout">
+    
+    <!-- ============================================== -->
+    <!-- 1. FIXED PRO LEFT SIDEBAR                      -->
+    <!-- ============================================== -->
+    <aside class="dash-sidebar">
+      <!-- Brand Header -->
+      <div class="sidebar-brand-box">
+        <div class="brand-icon-shield">🌿</div>
+        <div>
+          <div class="brand-text-title">SPICE GARDEN</div>
+          <div class="brand-text-tag">
+            <span class="brand-live-dot"></span>
+            <span>Live POS Command</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-section-title">Operations</div>
+
+        <button class="nav-item-btn active" data-tab="overview">
+          <div class="nav-item-content">
+            <span class="nav-item-icon">📊</span>
+            <span>Dashboard Overview</span>
+          </div>
+        </button>
+
+        <button class="nav-item-btn" data-tab="kitchen">
+          <div class="nav-item-content">
+            <span class="nav-item-icon">🍳</span>
+            <span>Kitchen Orders (KDS)</span>
+          </div>
+          <span class="nav-pill-count" id="kitchenBadgeCount">0</span>
+        </button>
+
+        <button class="nav-item-btn" data-tab="tables">
+          <div class="nav-item-content">
+            <span class="nav-item-icon">🪑</span>
+            <span>Floor & Table Stands</span>
+          </div>
+        </button>
+
+        <div class="sidebar-nav-section-title" style="margin-top:10px;">Management</div>
+
+        <button class="nav-item-btn" data-tab="orders">
+          <div class="nav-item-content">
+            <span class="nav-item-icon">🧾</span>
+            <span>Orders & Billing</span>
+          </div>
+        </button>
+
+        <button class="nav-item-btn" data-tab="menu">
+          <div class="nav-item-content">
+            <span class="nav-item-icon">🍽️</span>
+            <span>Menu & 86'd Stock</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="footer-user-avatar">👨‍💼</div>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#fff;">Manager Terminal</div>
+            <div style="font-size:10px; color:#10b981; font-weight:600;">Shift Active • Port 3000</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============================================== -->
+    <!-- 2. MAIN WORKSPACE                              -->
+    <!-- ============================================== -->
+    <main class="dash-main-workspace">
+      
+      <!-- Top Command Bar -->
+      <header class="dash-top-header">
+        <div class="header-search-bar">
+          <span style="font-size:14px; color:#64748b;">🔍</span>
+          <input type="text" id="dashSearchInput" class="header-search-input" placeholder="Search orders, tables, items...">
+        </div>
+
+        <div class="header-actions-group">
+          <!-- Active Service Requests Bell -->
+          <button class="header-alerts-bell" id="headerAlertsBell" onclick="toggleServiceAlertsDrawer()" title="Active Service Calls (Water, Waiter, Bill)">
+            <span>🔔</span>
+            <span>Alerts</span>
+            <span class="alerts-badge" id="serviceAlertsCount" style="display:none;">0</span>
+          </button>
+
+          <button class="btn-header-add" onclick="openAddDishModal()">
+            <span>+ Add Dish</span>
+          </button>
+
+          <button class="sound-toggle-btn" id="soundToggleBtn">
+            <span>🔔 Sound Active</span>
+          </button>
+
+          <div class="header-clock-chip">
+            <span>⏱️</span>
+            <span id="liveClock">12:00:00 PM</span>
+          </div>
+
+          <div class="header-avatar-circle" title="Manager Terminal">👨‍💼</div>
+        </div>
+
+        <!-- Service Alerts Dropdown Drawer -->
+        <div class="service-alerts-dropdown" id="serviceAlertsDropdown">
+          <div class="alerts-dropdown-header">
+            <span>Guest Table Calls</span>
+            <button class="btn-modal-close" style="position:static; padding:2px 8px; font-size:16px; background:#f1f5f9; border:none; border-radius:4px; cursor:pointer;" onclick="toggleServiceAlertsDrawer()">&times;</button>
+          </div>
+          <div class="alerts-dropdown-list" id="serviceAlertsDropdownList">
+            <div style="padding:20px; text-align:center; color:#94a3b8; font-size:12px;">No active service calls</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Canvas Area -->
+      <div class="dash-content-canvas">
+
+        <!-- ========================================== -->
+        <!-- TAB 1: EXECUTIVE DASHBOARD OVERVIEW        -->
+        <!-- ========================================== -->
+        <section class="tab-panel active" id="panel-overview">
+          
+          <!-- Welcome Banner matching Image -->
+          <div class="overview-welcome-banner">
+            <div class="welcome-banner-text">
+              <h2 class="welcome-banner-title" id="overviewGreeting">👋 Good Evening!</h2>
+              <p class="welcome-banner-subtitle">Here's what's happening at Spice Garden today</p>
+            </div>
+            <div class="welcome-banner-visual">
+              <span class="welcome-leaf-accent">🌿</span>
+              <img src="/images/creamy_pasta.jpg" alt="Featured Dish" class="welcome-dish-img" onerror="this.src='/images/veggie_burger.jpg'">
+            </div>
+          </div>
+
+          <!-- KPI Metrics Row matching Image -->
+          <div class="kpi-metrics-row">
+            <!-- Metric 1: Revenue -->
+            <div class="kpi-card">
+              <div class="kpi-card-header">
+                <div class="kpi-card-icon" style="background:#e8f5ee; color:#00874e;">₹</div>
+                <div class="kpi-sparkline emerald">
+                  <span style="height:35%;"></span>
+                  <span style="height:55%;"></span>
+                  <span style="height:45%;"></span>
+                  <span style="height:70%;"></span>
+                  <span style="height:90%;"></span>
+                </div>
+              </div>
+              <div class="kpi-card-title">Today's Sales (INR)</div>
+              <div class="kpi-card-val" id="kpiRevenue">₹0.00</div>
+              <div class="kpi-trend-text" style="color:#00874e;">↑ Live Table Orders</div>
+            </div>
+
+            <!-- Metric 2: Orders Count -->
+            <div class="kpi-card">
+              <div class="kpi-card-header">
+                <div class="kpi-card-icon" style="background:#e8f0fe; color:#1a73e8;">🧾</div>
+                <div class="kpi-sparkline blue">
+                  <span style="height:40%;"></span>
+                  <span style="height:60%;"></span>
+                  <span style="height:50%;"></span>
+                  <span style="height:80%;"></span>
+                  <span style="height:100%;"></span>
+                </div>
+              </div>
+              <div class="kpi-card-title">Total Orders</div>
+              <div class="kpi-card-val" id="kpiOrders">0</div>
+              <div class="kpi-trend-text" style="color:#64748b;">Processed today</div>
+            </div>
+
+            <!-- Metric 3: Table Occupancy -->
+            <div class="kpi-card">
+              <div class="kpi-card-header">
+                <div class="kpi-card-icon" style="background:#fef3c7; color:#d97706;">🪑</div>
+                <div class="kpi-sparkline amber">
+                  <span style="height:30%;"></span>
+                  <span style="height:45%;"></span>
+                  <span style="height:65%;"></span>
+                  <span style="height:50%;"></span>
+                  <span style="height:75%;"></span>
+                </div>
+              </div>
+              <div class="kpi-card-title">Table Occupancy</div>
+              <div class="kpi-card-val" id="kpiOccupancy">0 / 10</div>
+              <div class="kpi-trend-text" style="color:#d97706; font-weight:700;">Live dining status</div>
+            </div>
+
+            <!-- Metric 4: Average Order Value -->
+            <div class="kpi-card">
+              <div class="kpi-card-header">
+                <div class="kpi-card-icon" style="background:#f3e8ff; color:#7e22ce;">📈</div>
+                <div class="kpi-sparkline purple">
+                  <span style="height:35%;"></span>
+                  <span style="height:50%;"></span>
+                  <span style="height:70%;"></span>
+                  <span style="height:60%;"></span>
+                  <span style="height:85%;"></span>
+                </div>
+              </div>
+              <div class="kpi-card-title">Average Ticket</div>
+              <div class="kpi-card-val" id="kpiAvgTicket">₹0.00</div>
+              <div class="kpi-trend-text" style="color:#64748b;">Per seated table</div>
+            </div>
+          </div>
+
+          <!-- Overview Split Grid matching Image -->
+          <div class="overview-grid-split">
+            <!-- Left: Active Kitchen Queue -->
+            <div class="dash-panel-card">
+              <div class="panel-card-head">
+                <div class="panel-card-title">
+                  <span>🔥</span>
+                  <span>Active Kitchen Queue</span>
+                </div>
+                <button class="panel-link-btn" onclick="switchTab('kitchen')">
+                  <span>View Full KDS</span>
+                  <span>➔</span>
+                </button>
+              </div>
+              <div class="overview-kds-mini-row" id="overviewKdsStream">
+                <!-- Loaded by JS -->
+              </div>
+            </div>
+
+            <!-- Right: Floor Seating Status -->
+            <div class="dash-panel-card">
+              <div class="panel-card-head">
+                <div class="panel-card-title">
+                  <span>🪑</span>
+                  <span>Floor Seating Status</span>
+                </div>
+                <button class="panel-link-btn" onclick="switchTab('tables')">
+                  <span>View Floor Plan</span>
+                  <span>➔</span>
+                </button>
+              </div>
+              <div id="overviewTablesMiniGrid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
+                <!-- Mini tables loaded by JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: LIVE KITCHEN TICKETS (KDS)          -->
+        <!-- ========================================== -->
+        <section class="tab-panel" id="panel-kitchen">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px;">
+            <div>
+              <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#0f172a;">Live Kitchen Tickets</h2>
+              <p style="font-size:12px; color:#64748b;">Orders from customer table scans with status bump controls</p>
+            </div>
+
+            <div class="kds-filter-tabs">
+              <button class="kds-filter-tab active" data-filter="active" onclick="setKdsFilter('active', this)">Active</button>
+              <button class="kds-filter-tab" data-filter="new" onclick="setKdsFilter('new', this)">New</button>
+              <button class="kds-filter-tab" data-filter="preparing" onclick="setKdsFilter('preparing', this)">Cooking</button>
+              <button class="kds-filter-tab" data-filter="ready" onclick="setKdsFilter('ready', this)">Ready</button>
+              <button class="kds-filter-tab" data-filter="all" onclick="setKdsFilter('all', this)">All</button>
+            </div>
+          </div>
+
+          <div class="kds-board" id="dashKdsBoard">
+            <!-- 3 Columns: New Orders (Red), Cooking (Orange), Ready (Green) -->
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: TABLES & ACRYLIC STANDS             -->
+        <!-- ========================================== -->
+        <section class="tab-panel" id="panel-tables">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:14px;">
+            <div>
+              <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#0f172a;">Table Occupancy & QR Stands</h2>
+              <p style="font-size:12px; color:#64748b;">Click any table to view or print its acrylic QR code stand</p>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <!-- Occupancy Status Filters -->
+              <div class="kds-filter-tabs">
+                <button class="kds-filter-tab active table-filter-pill" data-status="all" onclick="filterFloorTables('all', this)">
+                  All (<span id="countAllTables">10</span>)
+                </button>
+                <button class="kds-filter-tab table-filter-pill" data-status="occupied" onclick="filterFloorTables('occupied', this)">
+                  🔴 Occupied (<span id="countOccupiedTables">0</span>)
+                </button>
+                <button class="kds-filter-tab table-filter-pill" data-status="vacant" onclick="filterFloorTables('vacant', this)">
+                  🟢 Vacant (<span id="countVacantTables">10</span>)
+                </button>
+              </div>
+
+              <!-- Add New Table Button -->
+              <button class="btn btn-primary" onclick="openAddTableModal()" style="display:inline-flex; align-items:center; gap:6px;">
+                <span style="font-size:16px;">+</span>
+                <span>Add Table</span>
+              </button>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px; align-items:start;">
+            <div>
+              <div class="dash-tables-grid" id="dashTablesGrid">
+                <!-- Tables rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Stand Preview & Quick Controls -->
+            <div class="stand-preview-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h3 style="font-family:var(--font-display); font-size:13px; font-weight:800; color:#00874e; text-transform:uppercase;">
+                  ⭐ Selected Acrylic Stand
+                </h3>
+                <span id="dashStandStatusBadge" class="badge badge-ready" style="font-size:11px;">🟢 VACANT</span>
+              </div>
+
+              <!-- Quick Occupancy & Edit Actions for Selected Table -->
+              <div id="dashStandQuickActions" style="margin-bottom:16px; display:flex; flex-direction:column; gap:8px;">
+                <!-- Dynamically rendered -->
+              </div>
+
+              <div class="acrylic-card" style="margin:0 auto; transform:none; width:100%; max-width:260px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+                <div class="stand-brand" style="background:#0a1c13; color:#fff; border-radius:10px 10px 0 0; padding:12px;">
+                  <span>🌿 SPICE GARDEN</span>
+                </div>
+
+                <div class="stand-table-badge" id="dashStandTitle" style="background:#00874e; color:#fff;">TABLE 1</div>
+
+                <div class="stand-qr-box" style="padding:14px; background:#fff;">
+                  <img id="dashStandQrImg" src="" alt="Table QR Code" style="width:140px; height:140px; display:block; margin:0 auto;">
+                </div>
+
+                <div class="stand-cta">
+                  <div class="stand-cta-pill" style="font-size:10px; padding:6px 12px; background:#00874e; color:#fff;">
+                    <span>SCAN TO ORDER</span>
+                  </div>
+                </div>
+
+                <p class="stand-instructions" style="font-size:10px; margin-top:8px; color:#64748b;">
+                  Scan with phone camera to view menu & order.
+                </p>
+              </div>
+
+              <div style="margin-top:14px; padding:10px 12px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:10px; text-align:left;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                  <span style="font-size:11px; font-weight:700; color:#475569;">Anti-Fraud Session Token:</span>
+                  <span id="dashStandTokenBadge" class="badge" style="background:#047857; color:#fff; font-size:10px; font-family:monospace; font-weight:700;">ACTIVE</span>
+                </div>
+                <div style="font-size:10px; color:#64748b; line-height:1.4; margin-bottom:8px;">
+                  Auto-expires & regenerates when an order is completed or table is cleared. Customers outside cannot reuse old links.
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="regenerateSelectedTableToken()" style="width:100%; font-size:11px; padding:6px 10px; background:#ffffff;">
+                  <span>🔄 Force Regenerate QR Token</span>
+                </button>
+              </div>
+
+              <div style="margin-top:14px; text-align:center;">
+                <a id="dashStandUrl" href="#" target="_blank" style="font-size:11px; color:#00874e; word-break:break-all; display:block; margin-bottom:12px; font-weight:600;">
+                  http://localhost:3000/?table=1
+                </a>
+                <button class="btn btn-primary" onclick="printDashStand()" style="width:100%;">
+                  <span>🖨️ Print Acrylic Stand</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: ORDERS & BILLING AUDIT (TABLE VIEW) -->
+        <!-- ========================================== -->
+        <section class="tab-panel" id="panel-orders">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#0f172a;">Orders & Billing Audit</h2>
+              <p style="font-size:12px; color:#64748b;">Full transaction ledger in Indian Rupees (₹)</p>
+            </div>
+            
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="sound-toggle-btn" style="border-radius:20px; font-size:12px; padding:6px 14px;">
+                <span>📅 Today ▾</span>
+              </button>
+              <button class="btn btn-primary" onclick="exportOrdersSummary()" style="padding:7px 16px; border-radius:20px;">
+                <span>📥 Export</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Orders Search & Channel Pills matching image -->
+          <div class="orders-toolbar-card">
+            <div class="orders-search-input-box">
+              <span style="color:#64748b;">🔍</span>
+              <input type="text" id="orderSearchFilter" placeholder="Search orders, items, tables..." oninput="filterOrdersLedger(this.value)">
+            </div>
+
+            <div class="order-channel-filters">
+              <button class="order-channel-pill active" onclick="filterOrderChannel('all', this)">All</button>
+              <button class="order-channel-pill" onclick="filterOrderChannel('dine-in', this)">Dine-in</button>
+              <button class="order-channel-pill" onclick="filterOrderChannel('takeaway', this)">Takeaway</button>
+              <button class="order-channel-pill" onclick="filterOrderChannel('online', this)">Online</button>
+              <button class="order-channel-pill" onclick="filterOrderChannel('cancelled', this)">Cancelled</button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="orders-table-card">
+            <table class="dash-orders-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>Table</th>
+                  <th>Items</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th style="text-align:right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashOrdersTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 5: MENU INVENTORY & DISH MANAGER       -->
+        <!-- ========================================== -->
+        <section class="tab-panel" id="panel-menu">
+          <div class="menu-crud-header">
+            <div>
+              <h2 style="font-family:var(--font-display); font-size:22px; font-weight:800; color:#0f172a;">Menu Inventory & Dish Manager</h2>
+              <p style="font-size:12px; color:#64748b;">Add, edit, delete dishes and toggle 86'd availability in real-time</p>
+            </div>
+            
+            <button class="btn-header-add" onclick="openAddDishModal()">
+              <span style="font-size:16px;">+</span>
+              <span>Add New Dish</span>
+            </button>
+
+            <!-- Leaf watermark matching image -->
+            <div class="menu-header-watermark">🌿</div>
+          </div>
+
+          <!-- Category filter buttons for menu manager -->
+          <div style="display:flex; gap:8px; overflow-x:auto; margin-bottom:20px; padding-bottom:4px;">
+            <button class="category-pill active dash-menu-cat" data-category="all" onclick="filterDashMenu('all', this)">All Items</button>
+            <button class="category-pill dash-menu-cat" data-category="burgers" onclick="filterDashMenu('burgers', this)">🍔 Burgers</button>
+            <button class="category-pill dash-menu-cat" data-category="pizza" onclick="filterDashMenu('pizza', this)">🍕 Pizza</button>
+            <button class="category-pill dash-menu-cat" data-category="pasta" onclick="filterDashMenu('pasta', this)">🍝 Pasta</button>
+            <button class="category-pill dash-menu-cat" data-category="drinks" onclick="filterDashMenu('drinks', this)">🥤 Drinks</button>
+            <button class="category-pill dash-menu-cat" data-category="bowls" onclick="filterDashMenu('bowls', this)">🥗 Bowls</button>
+            <button class="category-pill dash-menu-cat" data-category="desserts" onclick="filterDashMenu('desserts', this)">🍰 Desserts</button>
+          </div>
+
+          <!-- Cards Grid for Menu CRUD -->
+          <div class="menu-crud-grid" id="dashMenuList">
+            <!-- Rendered by JS -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ============================================== -->
+  <!-- ADD / EDIT DISH MODAL                          -->
+  <!-- ============================================== -->
+  <div class="crud-modal-backdrop" id="dishModal">
+    <div class="crud-modal-box">
+      <div class="crud-modal-header">
+        <h3 class="crud-modal-title" id="dishModalTitle">Add New Dish</h3>
+        <button class="btn-modal-close" style="position:static; background:#1e2436; color:#fff;" onclick="closeModal('dishModal')">&times;</button>
+      </div>
+
+      <form id="dishForm" onsubmit="handleDishFormSubmit(event)">
+        <input type="hidden" id="dishEditId" value="">
+
+        <div class="crud-modal-body">
+          <div class="crud-form-group">
+            <label class="crud-form-label">Dish Name *</label>
+            <input type="text" id="dishName" class="crud-form-input" required placeholder="e.g. Gourmet Truffle Veggie Burger">
+          </div>
+
+          <div class="crud-form-row">
+            <div class="crud-form-group">
+              <label class="crud-form-label">Category *</label>
+              <select id="dishCategory" class="crud-form-select">
+                <option value="burgers">🍔 Burgers</option>
+                <option value="pizza">🍕 Pizza</option>
+                <option value="pasta">🍝 Pasta</option>
+                <option value="drinks">🥤 Drinks</option>
+                <option value="bowls">🥗 Bowls / Salads</option>
+                <option value="desserts">🍰 Desserts</option>
+              </select>
+            </div>
+
+            <div class="crud-form-group">
+              <label class="crud-form-label">Price in INR (₹) *</label>
+              <input type="number" id="dishPrice" class="crud-form-input" required min="1" step="1" placeholder="e.g. 299">
+            </div>
+          </div>
+
+          <div class="crud-form-group">
+            <label class="crud-form-label">Description</label>
+            <textarea id="dishDescription" class="crud-form-textarea" rows="3" placeholder="Describe the ingredients, artisan bun, flavor profile..."></textarea>
+          </div>
+
+          <div class="crud-form-group">
+            <label class="crud-form-label">Dish Image URL</label>
+            <input type="text" id="dishImage" class="crud-form-input" value="/images/veggie_burger.jpg">
+            <div style="font-size:11px; color:#94a3b8; margin-top:4px;">Quick Preset Photos:</div>
+            <div class="crud-image-presets">
+              <span class="preset-chip" onclick="setDishImagePreset('/images/veggie_burger.jpg')">🍔 Burger</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/artisan_pizza.jpg')">🍕 Pizza</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/creamy_pasta.jpg')">🍝 Pasta</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/craft_soda.jpg')">🥤 Soda</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/green_salad.jpg')">🥗 Salad</span>
+              <span class="preset-chip" onclick="setDishImagePreset('/images/dessert.jpg')">🍰 Dessert</span>
+            </div>
+          </div>
+
+          <div class="crud-form-row">
+            <div class="crud-form-group">
+              <label class="crud-form-label">Dietary Type</label>
+              <select id="dishIsVeg" class="crud-form-select">
+                <option value="true">🟢 Vegetarian</option>
+                <option value="false">🔴 Non-Vegetarian</option>
+              </select>
+            </div>
+
+            <div class="crud-form-group">
+              <label class="crud-form-label">Prep Time</label>
+              <input type="text" id="dishPrepTime" class="crud-form-input" placeholder="e.g. 12-15 mins" value="12-15 mins">
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+            <input type="checkbox" id="dishIsSpecial" style="width:16px; height:16px; accent-color:#10b981; cursor:pointer;">
+            <label for="dishIsSpecial" style="font-size:13px; font-weight:600; color:#cbd5e1; cursor:pointer;">
+              Feature as Chef's Special ⭐
+            </label>
+          </div>
+        </div>
+
+        <div class="crud-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('dishModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveDish">
+            <span>Save Dish to Menu</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- DELETE CONFIRMATION MODAL                      -->
+  <!-- ============================================== -->
+  <div class="crud-modal-backdrop" id="deleteConfirmModal">
+    <div class="crud-modal-box" style="max-width:420px; text-align:center; padding:28px 24px;">
+      <div style="font-size:44px; margin-bottom:12px;">🗑️</div>
+      <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:#fff; margin-bottom:8px;">Delete Menu Item?</h3>
+      <p style="font-size:13px; color:#94a3b8; line-height:1.5; margin-bottom:24px;" id="deleteConfirmText">
+        Are you sure you want to remove this dish? It will disappear from customer menus immediately.
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+        <button class="btn btn-danger" style="flex:1;" id="btnConfirmDelete">Delete Dish</button>
+  <!-- ============================================== -->
+  <!-- ADD / EDIT TABLE MODAL                         -->
+  <!-- ============================================== -->
+  <div class="crud-modal-backdrop" id="tableModal">
+    <div class="crud-modal-box" style="max-width:480px;">
+      <div class="crud-modal-header">
+        <h3 class="crud-modal-title" id="tableModalTitle">Add New Table</h3>
+        <button class="btn-modal-close" style="position:static; background:#1e2436; color:#fff;" onclick="closeModal('tableModal')">&times;</button>
+      </div>
+
+      <form id="tableForm" onsubmit="handleTableFormSubmit(event)">
+        <input type="hidden" id="tableEditId" value="">
+
+        <div class="crud-modal-body">
+          <div class="crud-form-group">
+            <label class="crud-form-label">Table Name / Number *</label>
+            <input type="text" id="tableNameInput" class="crud-form-input" required placeholder="e.g. Table 11 or Patio 3">
+          </div>
+
+          <div class="crud-form-row">
+            <div class="crud-form-group">
+              <label class="crud-form-label">Seating Capacity (Guests)</label>
+              <input type="number" id="tableCapacityInput" class="crud-form-input" required min="1" max="50" value="4">
+            </div>
+
+            <div class="crud-form-group">
+              <label class="crud-form-label">Dining Section</label>
+              <select id="tableSectionInput" class="crud-form-select">
+                <option value="Indoor Dining">Indoor Dining</option>
+                <option value="Window View">Window View</option>
+                <option value="Patio Garden">Patio Garden</option>
+                <option value="Counter Bar">Counter Bar</option>
+                <option value="Rooftop Terrace">Rooftop Terrace</option>
+                <option value="VIP Lounge">VIP Lounge</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="crud-modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('tableModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveTable">
+            <span>Save Table</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- DELETE TABLE CONFIRMATION MODAL                -->
+  <!-- ============================================== -->
+  <div class="crud-modal-backdrop" id="deleteTableModal">
+    <div class="crud-modal-box" style="max-width:420px; text-align:center; padding:28px 24px;">
+      <div style="font-size:44px; margin-bottom:12px;">🪑</div>
+      <h3 style="font-family:var(--font-display); font-size:18px; font-weight:800; color:#fff; margin-bottom:8px;">Delete Table?</h3>
+      <p style="font-size:13px; color:#94a3b8; line-height:1.5; margin-bottom:24px;" id="deleteTableConfirmText">
+        Are you sure you want to remove this table and its QR stand?
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="closeModal('deleteTableModal')">Cancel</button>
+        <button class="btn btn-danger" style="flex:1;" id="btnConfirmDeleteTable">Delete Table</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts with Cache Busting -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/audio.js?v=2.2"></script>
+  <script src="/js/dashboard.js?v=2.2"></script>
+</body>
+</html>

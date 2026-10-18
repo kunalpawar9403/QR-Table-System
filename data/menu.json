@@ -1,0 +1,242 @@
+[
+  {
+    "id": "item-1",
+    "name": "Classic Gourmet Veggie Burger",
+    "category": "burgers",
+    "price": 249,
+    "description": "Handcrafted plant-protein patty with melted cheddar, crisp lettuce, farm tomato, caramelized onions, and house special herb mayo on a toasted brioche bun. Served with golden fries.",
+    "image": "/images/veggie_burger.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": true,
+    "available": true,
+    "prepTime": "12-15 mins",
+    "customizations": [
+      {
+        "name": "Cheese Option",
+        "options": [
+          {
+            "name": "Aged Cheddar",
+            "price": 0
+          },
+          {
+            "name": "Smoked Gouda",
+            "price": 40
+          },
+          {
+            "name": "Vegan Cheese",
+            "price": 30
+          }
+        ]
+      },
+      {
+        "name": "Sides",
+        "options": [
+          {
+            "name": "Crispy Fries",
+            "price": 0
+          },
+          {
+            "name": "Peri Peri Fries",
+            "price": 50
+          },
+          {
+            "name": "Side Garden Salad",
+            "price": 40
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "item-2",
+    "name": "Artisan Wood-Fired Margherita",
+    "category": "pizza",
+    "price": 399,
+    "description": "Slow-fermented sourdough crust topped with San Marzano tomato sauce, fresh buffalo mozzarella, aromatic sweet basil, and extra virgin olive oil drizzle.",
+    "image": "/images/artisan_pizza.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": true,
+    "available": true,
+    "prepTime": "15-18 mins",
+    "customizations": [
+      {
+        "name": "Crust Style",
+        "options": [
+          {
+            "name": "Classic Neapolitan",
+            "price": 0
+          },
+          {
+            "name": "Thin & Crispy",
+            "price": 0
+          },
+          {
+            "name": "Cheese Burst Crust",
+            "price": 80
+          }
+        ]
+      },
+      {
+        "name": "Extra Toppings",
+        "options": [
+          {
+            "name": "Fresh Basil & Olive Oil",
+            "price": 0
+          },
+          {
+            "name": "Roasted Garlic & Mushrooms",
+            "price": 50
+          },
+          {
+            "name": "Spicy Jalapeños",
+            "price": 30
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "item-3",
+    "name": "Creamy Fettuccine Alfredo",
+    "category": "pasta",
+    "price": 349,
+    "description": "Fresh handcrafted fettuccine pasta tossed in silky rich aged Parmigiano-Reggiano sauce, sweet cream butter, cracked tellicherry pepper, and garden parsley.",
+    "image": "/images/creamy_pasta.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": false,
+    "available": true,
+    "prepTime": "12-14 mins",
+    "customizations": [
+      {
+        "name": "Spice Level",
+        "options": [
+          {
+            "name": "Mild / Creamy",
+            "price": 0
+          },
+          {
+            "name": "Add Chili Flakes",
+            "price": 0
+          }
+        ]
+      },
+      {
+        "name": "Add-ons",
+        "options": [
+          {
+            "name": "Extra Shaved Parmesan",
+            "price": 50
+          },
+          {
+            "name": "Garlic Butter Toast",
+            "price": 60
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "item-4",
+    "name": "Sparkling Berry Citrus Soda",
+    "category": "drinks",
+    "price": 149,
+    "description": "Artisanal crushed wild blackberry and raspberry reduction, sparkling mineral water, fresh mint leaves, and hand-squeezed Key lime over pebble ice.",
+    "image": "/images/craft_soda.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": false,
+    "available": true,
+    "prepTime": "4-6 mins",
+    "customizations": [
+      {
+        "name": "Ice Level",
+        "options": [
+          {
+            "name": "Regular Ice",
+            "price": 0
+          },
+          {
+            "name": "Less Ice",
+            "price": 0
+          },
+          {
+            "name": "No Ice",
+            "price": 0
+          }
+        ]
+      },
+      {
+        "name": "Sweetness",
+        "options": [
+          {
+            "name": "Standard Sweetness",
+            "price": 0
+          },
+          {
+            "name": "Low Sugar",
+            "price": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "item-5",
+    "name": "Mediterranean Garden Harvest Bowl",
+    "category": "bowls",
+    "price": 289,
+    "description": "Crisp baby greens, heirloom cherry tomatoes, Persian cucumbers, Kalamata olives, creamy feta, roasted chickpeas, and lemon oregano vinaigrette.",
+    "image": "/images/green_salad.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": false,
+    "available": true,
+    "prepTime": "8-10 mins",
+    "customizations": [
+      {
+        "name": "Dressing",
+        "options": [
+          {
+            "name": "Lemon Oregano Vinaigrette",
+            "price": 0
+          },
+          {
+            "name": "Creamy Tahini Garlic",
+            "price": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "item-6",
+    "name": "Signature Espresso Tiramisu",
+    "category": "desserts",
+    "price": 229,
+    "description": "House-baked savoiardi ladyfingers soaked in single-origin espresso, whipped mascarpone cream, dark cocoa powder, and fresh raspberries.",
+    "image": "/images/dessert.jpg",
+    "isVeg": true,
+    "isSpicy": false,
+    "isSpecial": true,
+    "available": true,
+    "prepTime": "5 mins",
+    "customizations": [
+      {
+        "name": "Topping",
+        "options": [
+          {
+            "name": "Traditional Cocoa",
+            "price": 0
+          },
+          {
+            "name": "Dark Chocolate Shavings",
+            "price": 30
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Side-by-Side Demo | Smart QR Ordering System</title>
+  <link rel="stylesheet" href="/css/common.css">
+  <style>
+    body {
+      background: #0f172a;
+      color: #fff;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .split-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      height: calc(100vh - 41px);
+    }
+
+    @media (max-width: 960px) {
+      .split-container {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    .phone-pane {
+      background: #1e293b;
+      border-right: 2px solid #334155;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .pane-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Smartphone Device Frame */
+    .phone-mockup-frame {
+      width: 100%;
+      max-width: 400px;
+      height: 100%;
+      background: #000;
+      border-radius: 40px;
+      border: 8px solid #334155;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      position: relative;
+    }
+
+    .phone-speaker-notch {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 14px;
+      background: #334155;
+      border-radius: 10px;
+      z-index: 20;
+    }
+
+    .phone-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: white;
+    }
+
+    .kitchen-pane {
+      background: #0b1120;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .kitchen-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Demo Switcher Bar -->
+  <header class="system-demo-bar">
+    <div class="demo-bar-brand">
+      <span>🍽️ Smart Restaurant QR System</span>
+    </div>
+    <nav class="demo-bar-links">
+      <a href="/index.html" class="demo-bar-link">📱 Customer Scanner</a>
+      <a href="/dashboard.html" class="demo-bar-link">🖥️ Master Dashboard</a>
+      <a href="/split-demo.html" class="demo-bar-link active"><span class="demo-badge-pill">Live Split</span> Side-by-Side</a>
+    </nav>
+  </header>
+
+  <div class="split-container">
+    <!-- Left: Customer Smartphone View (Table 3) -->
+    <div class="phone-pane">
+      <div class="pane-title">
+        <span>📱 Step 2 & 3: Customer Scans Table 3</span>
+      </div>
+      <div class="phone-mockup-frame">
+        <div class="phone-speaker-notch"></div>
+        <iframe src="/index.html?table=3" class="phone-iframe" title="Customer Ordering App"></iframe>
+      </div>
+    </div>
+
+    <!-- Right: Kitchen Display System (KDS) -->
+    <div class="kitchen-pane">
+      <div style="background:#111827; padding:10px 20px; border-bottom:1px solid #1f2937; display:flex; justify-content:space-between; align-items:center;">
+        <span class="pane-title" style="color:#34d399; margin-bottom:0;">
+          <span>👨‍🍳 Step 4: Live Kitchen Display System (KDS)</span>
+        </span>
+        <span style="font-size:12px; color:#94a3b8;">Add food on the phone to test real-time chime & tickets!</span>
+      </div>
+      <iframe src="/kitchen.html" class="kitchen-iframe" title="Kitchen Display System"></iframe>
+    </div>
+  </div>
+
+</body>
+</html>
