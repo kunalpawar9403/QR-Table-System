@@ -57,6 +57,13 @@
   // Show Session Expired Gate
   function showSessionExpiredScreen(tableName, reason) {
     stopCamera();
+    if (orderTrackingTimer) {
+      clearInterval(orderTrackingTimer);
+      orderTrackingTimer = null;
+    }
+    if (currentTableId) {
+      sessionStorage.removeItem('spice_token_' + currentTableId);
+    }
     currentTableId = null;
     currentTableToken = null;
     activeOrder = null;

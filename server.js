@@ -388,14 +388,19 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     writeData(TABLES_FILE, tables);
   }
 
+  // Verify token matches the active rotated sessionToken
+  const isValid = Boolean(token && token.trim() === table.sessionToken.trim());
+
   res.json({
-    valid: true,
+    valid: isValid,
     tableId: table.id,
     tableName: table.name,
     status: table.status,
     manualStatus: table.manualStatus,
     activeToken: table.sessionToken,
-    message: 'Table session is active and verified.'
+    message: isValid
+      ? 'Table session is active and verified.'
+      : 'Dining session has been completed by staff. Previous session links are expired. Please scan the active QR code on your table to order.'
   });
 });
 
@@ -504,13 +509,18 @@ app.post('/api/orders', (req, res) => {
 
   // Ensure table has an active token
   if (!table.sessionToken) {
-    table.sessionToken = token || generateTableToken(table.id);
+    table.sessionToken = generateTableToken(table.id);
     table.tokenCreatedAt = new Date().toISOString();
     writeData(TABLES_FILE, tables);
-  } else if (token && token.trim() !== table.sessionToken.trim()) {
-    // Synchronize token if client is on active dining session
-    table.sessionToken = token.trim();
-    writeData(TABLES_FILE, tables);
+  }
+
+  // ENFORCE TOKEN SECURITY:
+  // Reject order if token is missing or does not match the active session token
+  if (!token || token.trim() !== table.sessionToken.trim()) {
+    return res.status(403).json({
+      error: 'TOKEN_EXPIRED',
+      message: 'This dining session has ended. The previous session link is expired. Please scan the active QR code on your table to order.'
+    });
   }
 
   const orders = readData(ORDERS_FILE);
