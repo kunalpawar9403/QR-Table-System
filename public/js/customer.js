@@ -812,6 +812,30 @@
     `;
 
     trackingView.style.display = 'block';
+    startOrderTrackingPoll(order.id);
+  }
+
+  let orderTrackingTimer = null;
+  function startOrderTrackingPoll(orderId) {
+    if (orderTrackingTimer) clearInterval(orderTrackingTimer);
+    orderTrackingTimer = setInterval(async () => {
+      if (!currentTableId) return;
+      try {
+        const res = await fetch(`/api/orders/table/${currentTableId}`);
+        if (res.ok) {
+          const tableOrders = await res.json();
+          const latest = tableOrders.find(o => o.id === orderId) || tableOrders[tableOrders.length - 1];
+          if (latest && activeOrder && latest.status !== activeOrder.status) {
+            activeOrder = latest;
+            renderTrackingView(latest);
+            showToast(`Kitchen status updated: ${latest.status.toUpperCase()}`, 'info');
+            if (latest.status === 'ready' && window.soundManager) {
+              window.soundManager.playOrderReady();
+            }
+          }
+        }
+      } catch(e) {}
+    }, 3000);
   }
 
   // Service Request - User simply clicks button; notification sound and message go to Admin

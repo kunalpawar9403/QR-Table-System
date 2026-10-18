@@ -22,58 +22,52 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   updateClock();
 
-  // Socket.io Connection
-  const socket = io();
+  // Socket.io Connection (graceful on serverless)
+  const socket = typeof io !== 'undefined' ? io() : null;
 
-  socket.emit('join', { role: 'kitchen' });
+  if (socket) {
+    socket.emit('join', { role: 'kitchen' });
 
-  // Sound Toggle
-  if (soundToggleBtn) {
-    soundToggleBtn.addEventListener('click', () => {
-      audioMuted = window.soundManager.toggleMute();
-      if (audioMuted) {
-        soundToggleBtn.classList.add('muted');
-        soundToggleBtn.innerHTML = `<span>🔇 Audio Muted</span>`;
-      } else {
-        soundToggleBtn.classList.remove('muted');
-        soundToggleBtn.innerHTML = `<span>🔔 Chime Active</span>`;
-        window.soundManager.playNewOrderChime();
+    // Socket Events
+    socket.on('order:new', (newOrder) => {
+      if (window.soundManager) window.soundManager.playNewOrderChime();
+      orders = orders.filter(o => o.id !== newOrder.id);
+      orders.unshift(newOrder);
+      renderBoard();
+      showToast(`New Order from ${newOrder.tableName}!`, 'success');
+    });
+
+    socket.on('order:status_changed', (updatedOrder) => {
+      const idx = orders.findIndex(o => o.id === updatedOrder.id);
+      if (idx !== -1) {
+        orders[idx] = updatedOrder;
+        renderBoard();
       }
+    });
+
+    socket.on('service:call', (serviceCall) => {
+      if (window.soundManager) window.soundManager.playServiceBell();
+      showServiceCallAlert(serviceCall);
+      showToast(`🚨 ${serviceCall.tableName}: ${serviceCall.type.toUpperCase()}`, 'warning');
+      showFloatingServiceBanner(serviceCall);
     });
   }
 
-  // Socket Events
-  socket.on('order:new', (newOrder) => {
-    // Play loud authentic brass service bell!
-    if (window.soundManager) {
-      window.soundManager.playNewOrderChime();
-    }
-
-    // Add to orders
-    orders = orders.filter(o => o.id !== newOrder.id);
-    orders.unshift(newOrder);
-    renderBoard();
-
-    // Show flash toast
-    showToast(`New Order from ${newOrder.tableName}!`, 'success');
-  });
-
-  socket.on('order:status_changed', (updatedOrder) => {
-    const idx = orders.findIndex(o => o.id === updatedOrder.id);
-    if (idx !== -1) {
-      orders[idx] = updatedOrder;
-      renderBoard();
-    }
-  });
-
-  socket.on('service:call', (serviceCall) => {
-    if (window.soundManager) {
-      window.soundManager.playServiceBell();
-    }
-    showServiceCallAlert(serviceCall);
-    showToast(`🚨 ${serviceCall.tableName}: ${serviceCall.type.toUpperCase()}`, 'warning');
-    showFloatingServiceBanner(serviceCall);
-  });
+  // Live polling auto-sync for serverless environments (Vercel)
+  setInterval(async () => {
+    try {
+      const res = await fetch('/api/orders');
+      if (res.ok) {
+        const latest = await res.json();
+        if (latest.length > orders.length) {
+          if (window.soundManager) window.soundManager.playNewOrderChime();
+          showToast(`New Order from ${latest[0]?.tableName}!`, 'success');
+        }
+        orders = latest;
+        renderBoard();
+      }
+    } catch (e) {}
+  }, 3000);
 
   // Service Alert Banner
   function showServiceCallAlert(call) {

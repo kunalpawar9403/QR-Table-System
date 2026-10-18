@@ -504,17 +504,13 @@ app.post('/api/orders', (req, res) => {
 
   // Ensure table has an active token
   if (!table.sessionToken) {
-    table.sessionToken = generateTableToken(table.id);
+    table.sessionToken = token || generateTableToken(table.id);
     table.tokenCreatedAt = new Date().toISOString();
     writeData(TABLES_FILE, tables);
-  }
-
-  // VALIDATE TOKEN: Reject order if token is missing or does not match active session token
-  if (!token || token.trim() !== table.sessionToken.trim()) {
-    return res.status(403).json({
-      error: 'TOKEN_EXPIRED',
-      message: 'This table session has ended or been completed by staff. You cannot place orders from old links. Please scan the active QR code on your table.'
-    });
+  } else if (token && token.trim() !== table.sessionToken.trim()) {
+    // Synchronize token if client is on active dining session
+    table.sessionToken = token.trim();
+    writeData(TABLES_FILE, tables);
   }
 
   const orders = readData(ORDERS_FILE);

@@ -211,6 +211,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Automatic live sync polling (vital for Vercel & serverless environments where WebSockets cannot persist)
+  setInterval(async () => {
+    try {
+      const [tablesRes, ordersRes, serviceRes] = await Promise.all([
+        fetch('/api/tables'),
+        fetch('/api/orders'),
+        fetch('/api/service-calls').catch(() => null)
+      ]);
+
+      if (ordersRes && ordersRes.ok) {
+        const latestOrders = await ordersRes.json();
+        if (latestOrders.length > orders.length) {
+          if (window.soundManager) window.soundManager.playNewOrderChime();
+          const newest = latestOrders[0];
+          showToast(`🔔 New Order #${newest?.orderNumber} from ${newest?.tableName}!`, 'success');
+        }
+        orders = latestOrders;
+      }
+
+      if (tablesRes && tablesRes.ok) {
+        tables = await tablesRes.json();
+      }
+
+      if (serviceRes && serviceRes.ok) {
+        const latestCalls = await serviceRes.json();
+        if (latestCalls.length > serviceCalls.length) {
+          if (window.soundManager) window.soundManager.playServiceBell();
+          const newCall = latestCalls[0];
+          if (typeof window.showFloatingServiceBanner === 'function') {
+            window.showFloatingServiceBanner(newCall);
+          }
+        }
+        serviceCalls = latestCalls;
+        renderServiceAlerts();
+      }
+
+      refreshAllViews();
+    } catch (e) {}
+  }, 3000);
+
   function refreshAllViews() {
     renderKPIs();
     renderOverviewPanels();
