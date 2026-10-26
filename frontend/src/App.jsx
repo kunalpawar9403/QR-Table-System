@@ -66,8 +66,8 @@ export default function App() {
   return (
     <ToastProvider>
       <div className="app-root">
-        {/* Top App Role Switcher Bar (Only shown on non-dashboard screens or as discrete floater) */}
-        {currentView !== 'dashboard' && (
+        {/* Top App Role Switcher Bar (Only shown on staff screens like Kitchen/Stands, NEVER on Customer Menu or Dashboard) */}
+        {currentView !== 'dashboard' && currentView !== 'customer' && !new URLSearchParams(window.location.search).get('table') && (
           <div
             className="no-print"
             style={{
@@ -97,19 +97,11 @@ export default function App() {
                 SPICE GARDEN
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                React + Vite Suite
+                Staff Terminal
               </span>
             </div>
 
             <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                className={`filter-pill-btn ${currentView === 'customer' ? 'active' : ''}`}
-                onClick={() => switchView('customer')}
-                title="Customer Phone Menu View"
-              >
-                <Utensils size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                Customer Menu
-              </button>
               <button
                 className={`filter-pill-btn ${currentView === 'dashboard' ? 'active' : ''}`}
                 onClick={() => switchView('dashboard')}
@@ -140,7 +132,14 @@ export default function App() {
 
         {/* Current Active View */}
         <main>
-          {currentView === 'customer' && <CustomerApp />}
+          {currentView === 'customer' && (
+            <CustomerApp
+              initialTable={
+                parseInt(new URLSearchParams(window.location.search).get('table'), 10) || 1
+              }
+              initialToken={new URLSearchParams(window.location.search).get('token') || ''}
+            />
+          )}
           {currentView === 'dashboard' && (
             <DashboardApp onLockStaff={() => setStaffAuthModalOpen(true)} />
           )}

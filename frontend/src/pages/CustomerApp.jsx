@@ -36,9 +36,32 @@ const CATEGORIES = [
 export default function CustomerApp({ initialTable = null, initialToken = null }) {
   const { addToast } = useToast();
 
-  // Navigation & Table Session
-  const [tableId, setTableId] = useState(initialTable);
-  const [tableToken, setTableToken] = useState(initialToken);
+  // Navigation & Table Session - Directly initialize from URL or default to Table 1
+  const [tableId, setTableId] = useState(() => {
+    if (initialTable) return initialTable;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tbl = params.get('table');
+      if (tbl) {
+        const parsed = parseInt(tbl, 10);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    }
+    return 1;
+  });
+
+  const [tableToken, setTableToken] = useState(() => {
+    if (initialToken) return initialToken;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tok = params.get('token');
+      if (tok) return tok;
+      const tbl = params.get('table') || 1;
+      return sessionStorage.getItem(`spice_token_${tbl}`) || '';
+    }
+    return '';
+  });
+
   const [sessionExpired, setSessionExpired] = useState(false);
   const [expiredReason, setExpiredReason] = useState('');
 
@@ -69,17 +92,13 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const videoRef = useRef(null);
   const streamRef = useRef(null);
 
-  // Check URL parameters on mount
+  // Check URL parameters and unlock table immediately
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tbl = params.get('table');
     const tok = params.get('token');
-    if (tbl) {
-      const parsed = parseInt(tbl, 10);
-      if (!isNaN(parsed) && parsed > 0) {
-        unlockTable(parsed, tok);
-      }
-    }
+    const effectiveTable = initialTable || (tbl ? parseInt(tbl, 10) : tableId) || 1;
+    unlockTable(effectiveTable, tok || initialToken);
   }, []);
 
   // Fetch Menu
@@ -404,10 +423,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             className="btn-primary"
             onClick={() => {
               setSessionExpired(false);
-              setTableId(null);
+              unlockTable(tableId || 1);
             }}
           >
-            <RotateCcw size={16} /> Scan Another Table
+            <RotateCcw size={16} /> Open Table Menu
           </button>
         </div>
       </div>
