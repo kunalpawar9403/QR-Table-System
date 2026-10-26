@@ -6,10 +6,12 @@
   max-width: 520px;
   margin: 0 auto;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
-  padding-bottom: 90px;
+  padding-bottom: max(110px, calc(90px + env(safe-area-inset-bottom)));
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Header */
@@ -17,11 +19,14 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
-  padding: 12px 18px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: 12px;
 }
 .customer-header-top {
   display: flex;
@@ -412,20 +417,21 @@
 /* Floating Bottom Bar */
 .cart-floating-bar {
   position: fixed;
-  bottom: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 32px);
+  width: calc(100% - 28px);
   max-width: 480px;
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.96));
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: var(--radius-xl);
-  padding: 12px 18px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(245, 158, 11, 0.2);
   z-index: 200;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -631,4 +637,231 @@
 }
 .stepper-step.completed .step-title {
   color: #cbd5e1;
+}
+
+/* =========================================================
+   COMPREHENSIVE MOBILE VIEW OPTIMIZATIONS (100% Mobile Ready)
+   ========================================================= */
+
+/* Mobile Touch & Tap Polish */
+button,
+.qty-btn,
+.btn-add-cart,
+.btn-view-cart,
+.veg-only-toggle,
+.category-pill,
+.modal-close-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+.qty-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.qty-count {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+/* Tablets and Mobile Devices */
+@media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zooming into inputs */
+  .search-input-box input,
+  .customer-name-input,
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Mobile Screens (Under 640px) */
+@media (max-width: 640px) {
+  .customer-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Full Native Mobile Bottom-Sheet Cart Drawer */
+  .modal-backdrop {
+    display: flex;
+    align-items: flex-end !important;
+    justify-content: center;
+    padding: 0 !important;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .cart-drawer-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 88vh !important;
+    max-height: 88dvh !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-top: 1px solid rgba(245, 158, 11, 0.35);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
+    animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Sheet Drag Indicator Handle */
+  .cart-drawer-card::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    margin: 12px auto 2px;
+  }
+
+  .cart-drawer-header {
+    padding: 12px 18px 14px;
+  }
+
+  .cart-items-scroll {
+    padding: 12px 18px;
+    max-height: 38vh;
+  }
+
+  .cart-drawer-footer {
+    padding: 14px 18px max(18px, env(safe-area-inset-bottom)) !important;
+    gap: 10px;
+  }
+
+  .dish-card {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 16px;
+  }
+
+  .dish-img-wrap {
+    width: 95px;
+    height: 95px;
+    border-radius: 12px;
+  }
+
+  .dish-title {
+    font-size: 0.96rem;
+  }
+
+  .dish-price {
+    font-size: 1.1rem;
+  }
+
+  /* Service & Action Modals */
+  .staff-modal-card {
+    width: calc(100% - 32px) !important;
+    max-width: 360px !important;
+    padding: 24px 18px !important;
+    margin: auto !important;
+    border-radius: 20px !important;
+  }
+
+  /* Order Tracker Stepper */
+  .tracking-card {
+    margin: 12px 14px 0;
+    padding: 16px;
+    border-radius: 18px;
+    gap: 14px;
+  }
+
+  .stepper-steps {
+    gap: 14px;
+  }
+
+  .step-dot {
+    width: 32px;
+    height: 32px;
+  }
+
+  .step-title {
+    font-size: 0.88rem;
+  }
+}
+
+/* Compact Mobile Screens (e.g. iPhone SE, Galaxy S compact <= 380px) */
+@media (max-width: 380px) {
+  .customer-header {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+
+  .search-diet-wrap {
+    padding-left: 12px;
+    padding-right: 12px;
+    gap: 8px;
+  }
+
+  .category-filter-bar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .category-pill {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .dishes-list {
+    padding: 0 12px;
+    gap: 10px;
+  }
+
+  .dish-card {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .dish-img-wrap {
+    width: 82px;
+    height: 82px;
+  }
+
+  .dish-title {
+    font-size: 0.9rem;
+  }
+
+  .dish-desc {
+    font-size: 0.74rem;
+    margin-bottom: 6px;
+  }
+
+  .dish-price {
+    font-size: 1.02rem;
+  }
+
+  .btn-add-cart {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .cart-floating-bar {
+    width: calc(100% - 20px);
+    padding: 10px 14px;
+  }
+
+  .cart-total-price {
+    font-size: 1.05rem;
+  }
+
+  .btn-view-cart {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
 }

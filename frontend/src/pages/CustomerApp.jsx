@@ -101,6 +101,21 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     unlockTable(effectiveTable, tok || initialToken);
   }, []);
 
+  // Lock background scroll on mobile when modals or cart drawer are open
+  useEffect(() => {
+    if (isCartOpen || serviceModalOpen || splitModalOpen || Boolean(customizingDish)) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isCartOpen, serviceModalOpen, splitModalOpen, customizingDish]);
+
   // Fetch Menu
   useEffect(() => {
     fetchMenu();
