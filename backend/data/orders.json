@@ -379,5 +379,32 @@
     "paymentMethod": "Pay at Counter / UPI",
     "updatedAt": "2026-10-26T11:03:13.356Z",
     "completedAt": "2026-10-26T11:03:31.925Z"
+  },
+  {
+    "id": "ORD-113",
+    "orderNumber": 113,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-26T16:29:58.112Z",
+    "items": [
+      {
+        "id": 1,
+        "name": "Butter Chicken",
+        "price": 320,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 320,
+    "tax": 16,
+    "total": 336,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-26T16:30:58.562Z",
+    "completedAt": "2026-10-26T16:30:58.562Z"
   }
 ]

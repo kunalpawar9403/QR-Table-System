@@ -128,6 +128,9 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       if (data.tableId === tableId) {
         setSessionExpired(true);
         setExpiredReason(data.message || 'Table dining session completed by staff.');
+        setTableToken('');
+        setCart([]);
+        sessionStorage.removeItem(`spice_token_${tableId}`);
         soundManager.playClick();
       }
     };
@@ -161,6 +164,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         if (data && data.valid === false) {
           setSessionExpired(true);
           setExpiredReason(data.message || 'Session expired. Please scan current QR stand.');
+          setTableToken('');
+          sessionStorage.removeItem(`spice_token_${tId}`);
           return;
         }
         if (data && data.activeToken) {
@@ -320,7 +325,13 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
         addToast(`Order #${data.order.orderNumber} sent to kitchen!`, 'success', 5000);
       } else {
-        addToast(data.error || 'Failed to place order', 'error');
+        if (res.status === 403 || data.error === 'TOKEN_EXPIRED') {
+          setSessionExpired(true);
+          setExpiredReason(data.message || 'Dining session has ended. Please scan the active table QR stand to order.');
+          setTableToken('');
+          sessionStorage.removeItem(`spice_token_${tableId}`);
+        }
+        addToast(data.message || data.error || 'Failed to place order', 'error');
       }
     } catch (err) {
       addToast('Network error while placing order', 'error');
@@ -338,6 +349,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tableId,
+          token: tableToken,
           tableName: `Table ${tableId}`,
           type
         })
@@ -346,6 +358,15 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         soundManager.playServiceBell();
         addToast(`Staff alerted: ${type.toUpperCase()}`, 'success', 4000);
         setServiceModalOpen(false);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 403 || data.error === 'TOKEN_EXPIRED') {
+          setSessionExpired(true);
+          setExpiredReason(data.message || 'Dining session has ended. Please scan current table QR stand.');
+          setTableToken('');
+          sessionStorage.removeItem(`spice_token_${tableId}`);
+        }
+        addToast(data.message || 'Failed to alert staff', 'error');
       }
     } catch (e) {
       addToast('Failed to alert staff', 'error');

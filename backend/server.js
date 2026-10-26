@@ -453,6 +453,15 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     table.sessionToken = generateTableToken(table.id);
     table.tokenCreatedAt = new Date().toISOString();
     writeData(TABLES_FILE, tables);
+  } else {
+    // 8-hour automatic token expiration TTL if no orders active
+    const MAX_TOKEN_AGE_MS = 8 * 60 * 60 * 1000;
+    const tokenAge = table.tokenCreatedAt ? (Date.now() - new Date(table.tokenCreatedAt).getTime()) : 0;
+    if (tokenAge > MAX_TOKEN_AGE_MS && table.status === 'available') {
+      table.sessionToken = generateTableToken(table.id);
+      table.tokenCreatedAt = new Date().toISOString();
+      writeData(TABLES_FILE, tables);
+    }
   }
 
   // Verify token matches the active rotated sessionToken
@@ -464,7 +473,7 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     tableName: table.name,
     status: table.status,
     manualStatus: table.manualStatus,
-    activeToken: table.sessionToken,
+    activeToken: isValid ? table.sessionToken : undefined,
     message: isValid
       ? 'Table session is active and verified.'
       : 'Dining session has been completed by staff. Previous session links are expired. Please scan the active QR code on your table to order.'
@@ -699,10 +708,22 @@ app.get('/api/service-calls', (req, res) => {
 
 // Call Waiter / Service Request
 app.post('/api/service-call', (req, res) => {
-  const { tableId, type, note } = req.body;
+  const { tableId, token, type, note } = req.body;
   const tables = readData(TABLES_FILE);
   const foundTable = tables.find(t => t.id === parseInt(tableId, 10));
-  const tableName = foundTable ? foundTable.name : `Table ${tableId}`;
+  if (!foundTable) {
+    return res.status(404).json({ error: 'Table not found' });
+  }
+
+  // Verify session token
+  if (foundTable.sessionToken && (!token || token.trim() !== foundTable.sessionToken.trim())) {
+    return res.status(403).json({
+      error: 'TOKEN_EXPIRED',
+      message: 'Dining session has ended. Service call unavailable.'
+    });
+  }
+
+  const tableName = foundTable.name || `Table ${tableId}`;
 
   const callPayload = {
     id: 'SVC-' + Date.now().toString().slice(-4),
