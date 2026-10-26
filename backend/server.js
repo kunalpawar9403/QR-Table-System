@@ -732,7 +732,7 @@ app.patch('/api/service-call/:id/dismiss', requireStaffAuth, (req, res) => {
   res.json({ success: true, activeServiceCalls });
 });
 
-// QR Code Generator (Data URL PNG)
+// QR Code Generator (Binary PNG Image or JSON data URL)
 app.get('/api/qrcode/:tableId', async (req, res) => {
   try {
     const tableId = parseInt(req.params.tableId, 10);
@@ -758,22 +758,40 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
     const protocol = isHttps ? 'https' : 'http';
     const targetUrl = `${protocol}://${host}/?table=${tableId}&token=${table.sessionToken}`;
     
-    const qrDataUrl = await QRCode.toDataURL(targetUrl, {
+    if (req.query.format === 'json') {
+      const qrDataUrl = await QRCode.toDataURL(targetUrl, {
+        width: 400,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff'
+        }
+      });
+
+      return res.json({
+        tableId,
+        sessionToken: table.sessionToken,
+        targetUrl,
+        qrDataUrl
+      });
+    }
+
+    // Default: Return raw PNG image stream so <img src="/api/qrcode/:id"> displays natively
+    const qrBuffer = await QRCode.toBuffer(targetUrl, {
+      type: 'png',
       width: 400,
       margin: 2,
       color: {
-        dark: '#0f3825',
+        dark: '#000000',
         light: '#ffffff'
       }
     });
 
-    res.json({
-      tableId,
-      sessionToken: table.sessionToken,
-      targetUrl,
-      qrDataUrl
-    });
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.send(qrBuffer);
   } catch (err) {
+    console.error('Failed to generate QR Code:', err);
     res.status(500).json({ error: 'Failed to generate QR Code' });
   }
 });

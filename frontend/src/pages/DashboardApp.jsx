@@ -71,6 +71,7 @@ export default function DashboardApp({ onLockStaff }) {
   const [menuModalOpen, setMenuModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState(null);
   const [tableModalOpen, setTableModalOpen] = useState(false);
+  const [viewQrTable, setViewQrTable] = useState(null);
 
   // Form states
   const [dishForm, setDishForm] = useState({
@@ -773,7 +774,7 @@ export default function DashboardApp({ onLockStaff }) {
                       </div>
 
                       {/* Bottom Actions: Table Menu & Clear Table */}
-                      <div className="floor-card-actions">
+                      <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 6 }}>
                         <button
                           className="btn-table-menu"
                           onClick={() =>
@@ -782,14 +783,24 @@ export default function DashboardApp({ onLockStaff }) {
                               '_blank'
                             )
                           }
+                          title="Open Table Menu"
                         >
-                          <ExternalLink size={13} /> Table Menu
+                          <ExternalLink size={13} /> Menu
                         </button>
                         <button
                           className="btn-clear-table"
                           onClick={() => handleVacateTable(table.id)}
+                          title="Clear & Vacate Table"
                         >
-                          <UtensilsCrossed size={13} /> Clear Table
+                          Clear
+                        </button>
+                        <button
+                          className="btn-icon"
+                          style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0 10px' }}
+                          onClick={() => setViewQrTable(table)}
+                          title="View Table QR Code"
+                        >
+                          <QrCode size={15} />
                         </button>
                       </div>
                     </div>
@@ -846,7 +857,7 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
                   </div>
 
-                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 6 }}>
+                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto auto', gap: 6 }}>
                     <button
                       className="btn-table-menu"
                       onClick={() =>
@@ -855,18 +866,28 @@ export default function DashboardApp({ onLockStaff }) {
                           '_blank'
                         )
                       }
+                      title="Open Table Menu"
                     >
                       <ExternalLink size={13} /> Menu
                     </button>
                     <button
                       className="btn-clear-table"
                       onClick={() => handleVacateTable(table.id)}
+                      title="Clear & Vacate Table"
                     >
-                      Clear Table
+                      Clear
                     </button>
                     <button
                       className="btn-icon"
-                      style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 10, padding: '0 10px' }}
+                      style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: 10, padding: '0 9px' }}
+                      onClick={() => setViewQrTable(table)}
+                      title="View QR Code"
+                    >
+                      <QrCode size={15} />
+                    </button>
+                    <button
+                      className="btn-icon"
+                      style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 10, padding: '0 9px' }}
                       onClick={() => handleDeleteTable(table.id)}
                       title="Delete Table"
                     >
@@ -1925,6 +1946,53 @@ export default function DashboardApp({ onLockStaff }) {
               <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Table QR Modal */}
+      {viewQrTable && (
+        <div className="modal-backdrop" onClick={() => setViewQrTable(null)}>
+          <div className="dash-modal-card" style={{ maxWidth: 420, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+            <div className="dash-modal-header">
+              <h3>{viewQrTable.name || `Table ${viewQrTable.id}`} QR Code</h3>
+              <button className="modal-close-btn" onClick={() => setViewQrTable(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="dash-modal-body" style={{ alignItems: 'center' }}>
+              <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+                <img
+                  src={`/api/qrcode/${viewQrTable.id}?t=${Date.now()}`}
+                  alt={`Table ${viewQrTable.id} QR Code`}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                />
+              </div>
+
+              <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px', fontSize: '0.8rem', color: '#cbd5e1', wordBreak: 'break-all' }}>
+                <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>
+                  Scan Target Link:
+                </div>
+                {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}` : ''}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
+                <button
+                  className="btn-primary"
+                  onClick={() =>
+                    window.open(`/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}`, '_blank')
+                  }
+                >
+                  <ExternalLink size={15} /> Open Menu
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => window.open(`/api/qrcode/${viewQrTable.id}`, '_blank')}
+                >
+                  <Download size={15} /> Download PNG
+                </button>
+              </div>
             </div>
           </div>
         </div>
