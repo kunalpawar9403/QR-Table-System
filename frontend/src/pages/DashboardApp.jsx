@@ -887,30 +887,19 @@ export default function DashboardApp({ onLockStaff }) {
                         </div>
                       </div>
 
-                      {/* Bottom Actions: Table Menu & Clear Table */}
-                      <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 6 }}>
-                        <button
-                          className="btn-table-menu"
-                          onClick={() =>
-                            window.open(
-                              `/?table=${table.id}&token=${table.sessionToken || ''}`,
-                              '_blank'
-                            )
-                          }
-                          title="Open Table Menu"
-                        >
-                          <ExternalLink size={13} /> Menu
-                        </button>
+                      {/* Bottom Actions: Clear Table & QR Code */}
+                      <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr auto', gap: 6 }}>
                         <button
                           className="btn-clear-table"
+                          style={isOccupied ? { background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
                           onClick={() => handleVacateTable(table.id)}
                           title="Clear & Vacate Table"
                         >
-                          Clear
+                          {isOccupied ? 'Vacate Table' : 'Clear Table'}
                         </button>
                         <button
                           className="btn-icon"
-                          style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0 10px' }}
+                          style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0 12px' }}
                           onClick={() => setViewQrTable(table)}
                           title="View Table QR Code"
                         >
@@ -977,25 +966,14 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
                   </div>
 
-                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto auto', gap: 6 }}>
-                    <button
-                      className="btn-table-menu"
-                      onClick={() =>
-                        window.open(
-                          `/?table=${table.id}&token=${table.sessionToken || ''}`,
-                          '_blank'
-                        )
-                      }
-                      title="Open Table Menu"
-                    >
-                      <ExternalLink size={13} /> Menu
-                    </button>
+                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr auto auto', gap: 6 }}>
                     <button
                       className="btn-clear-table"
+                      style={isTableOccupied ? { background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
                       onClick={() => handleVacateTable(table.id)}
                       title="Clear & Vacate Table"
                     >
-                      Clear
+                      {isTableOccupied ? 'Vacate' : 'Clear'}
                     </button>
                     <button
                       className="btn-icon"
@@ -1407,7 +1385,7 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
 
                     {/* Action Buttons (Screen Only - Hidden in Print) */}
-                    <div className="stand-card-actions no-print">
+                    <div className="stand-card-actions no-print" style={{ gridTemplateColumns: '1fr 1fr' }}>
                       <button
                         type="button"
                         className="btn-primary stand-print-btn"
@@ -1422,20 +1400,7 @@ export default function DashboardApp({ onLockStaff }) {
                         onClick={() => setViewQrTable(t)}
                         title="Preview & Download High-Res QR"
                       >
-                        <QrCode size={14} /> Preview
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={() =>
-                          window.open(
-                            `/?table=${t.id}&token=${t.sessionToken || ''}`,
-                            '_blank'
-                          )
-                        }
-                        title="Test Live Customer Menu in New Tab"
-                      >
-                        <ExternalLink size={14} /> Menu
+                        <QrCode size={14} /> Preview QR
                       </button>
                     </div>
                   </div>
@@ -2259,22 +2224,13 @@ export default function DashboardApp({ onLockStaff }) {
                 {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}` : ''}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, width: '100%' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
                 <button
                   type="button"
                   className="btn-primary"
                   onClick={() => handlePrintSingleStand(viewQrTable)}
                 >
                   <Printer size={15} /> Print Stand
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() =>
-                    window.open(`/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}`, '_blank')
-                  }
-                >
-                  <ExternalLink size={15} /> Open Menu
                 </button>
                 <button
                   type="button"

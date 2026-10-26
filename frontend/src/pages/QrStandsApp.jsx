@@ -148,23 +148,14 @@ export default function QrStandsApp({ onBack }) {
               <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>Powered by QR Table System</div>
             </div>
 
-            <div className="no-print" style={{ display: 'flex', gap: 8, width: '100%', marginTop: 14 }}>
+            <div className="no-print" style={{ width: '100%', marginTop: 14 }}>
               <button
                 type="button"
                 className="btn-primary"
-                style={{ flex: 1, fontSize: '0.8rem', padding: '8px 12px' }}
+                style={{ width: '100%', fontSize: '0.82rem', padding: '9px 12px' }}
                 onClick={() => handlePrintSingle(t)}
               >
                 <Printer size={14} /> Print Stand
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                style={{ fontSize: '0.8rem', padding: '8px 12px' }}
-                onClick={() => window.open(`/?table=${t.id}`, '_blank')}
-                title="Test Live Customer Menu"
-              >
-                <ExternalLink size={14} /> Menu
               </button>
             </div>
           </div>
