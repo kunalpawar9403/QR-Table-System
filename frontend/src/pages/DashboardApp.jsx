@@ -39,7 +39,8 @@ import {
   KeyRound,
   Smartphone,
   Sparkles,
-  DollarSign
+  DollarSign,
+  Menu
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -52,6 +53,9 @@ export default function DashboardApp({ onLockStaff }) {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Mobile Bottom Admin Drawer
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
 
   // State
   const [orders, setOrders] = useState([]);
@@ -674,22 +678,31 @@ export default function DashboardApp({ onLockStaff }) {
         {/* Top Command Bar */}
         <header className="top-command-header">
           <div className="command-header-left">
+            <button
+              type="button"
+              className="mobile-sidebar-toggle-btn no-desktop"
+              onClick={() => setMobileMoreOpen((prev) => !prev)}
+              title="Open Admin Functions"
+            >
+              <Menu size={20} />
+            </button>
             <div className="command-logo-badge">SG</div>
             <div className="command-title-box">
               <h1>
-                Spice Garden Command Center <span className="live-pos-pill">LIVE POS</span>
+                Spice Garden <span className="hide-on-mobile">Command Center</span>{' '}
+                <span className="live-pos-pill">LIVE POS</span>
               </h1>
-              <p>Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
+              <p className="hide-on-mobile">Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
             </div>
           </div>
 
           <div className="command-header-right">
-            <div className="header-time-pill">
+            <div className="header-time-pill hide-on-mobile-sm">
               <Calendar size={15} style={{ color: '#f59e0b' }} />
               <span>{currentDate} • {currentTime}</span>
             </div>
 
-            <div className="header-sync-pill">
+            <div className="header-sync-pill hide-on-mobile-sm">
               <span className="status-dot-green" />
               <span>Live Sync Active</span>
             </div>
@@ -723,11 +736,12 @@ export default function DashboardApp({ onLockStaff }) {
                 clearStaffToken();
                 if (onLockStaff) onLockStaff();
               }}
+              title="Lock Station"
             >
-              <Lock size={15} style={{ color: '#f59e0b' }} /> Lock Station
+              <Lock size={15} style={{ color: '#f59e0b' }} /> <span className="hide-on-mobile-sm">Lock</span>
             </button>
 
-            <div className="user-avatar-circle">SG</div>
+            <div className="user-avatar-circle hide-on-mobile-sm">SG</div>
           </div>
         </header>
 
@@ -2356,6 +2370,231 @@ export default function DashboardApp({ onLockStaff }) {
           </div>
         </div>,
         document.body
+      )}
+
+      {/* ========================================================
+          MOBILE BOTTOM ADMIN BAR (Admin Function Buttons in Bottom)
+          ======================================================== */}
+      <nav className="admin-mobile-bottom-bar no-print">
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${activeTab === 'overview' && !mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('overview');
+            setMobileMoreOpen(false);
+          }}
+          title="Overview Dashboard"
+        >
+          <Home size={19} />
+          <span>Overview</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${activeTab === 'tables' && !mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('tables');
+            setMobileMoreOpen(false);
+          }}
+          title="Floor & Tables"
+        >
+          <LayoutGrid size={19} />
+          <span>Floor</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${activeTab === 'orders' && !mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('orders');
+            setMobileMoreOpen(false);
+          }}
+          title="Live Orders"
+        >
+          <div className="mobile-btn-badge-wrap">
+            <Receipt size={19} />
+            {orders.length > 0 && (
+              <span className="mobile-tab-badge">{orders.length}</span>
+            )}
+          </div>
+          <span>Orders</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${activeTab === 'kitchen' && !mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('kitchen');
+            setMobileMoreOpen(false);
+          }}
+          title="Kitchen KDS"
+        >
+          <ChefHat size={19} />
+          <span>Kitchen</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${['menu', 'stands', 'settings', 'reports', 'staff', 'integrations'].includes(activeTab) || mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => setMobileMoreOpen((prev) => !prev)}
+          title="More Admin Functions"
+        >
+          <Menu size={19} />
+          <span>Admin</span>
+        </button>
+      </nav>
+
+      {/* ========================================================
+          MOBILE ADMIN FUNCTIONS DRAWER SHEET (Bottom Sheet)
+          ======================================================== */}
+      {mobileMoreOpen && (
+        <div className="mobile-admin-drawer-backdrop no-print" onClick={() => setMobileMoreOpen(false)}>
+          <div className="mobile-admin-drawer-card" onClick={(e) => e.stopPropagation()}>
+            <div className="drawer-header-row">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div className="command-logo-badge" style={{ width: 36, height: 36, fontSize: '0.95rem' }}>
+                  SG
+                </div>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '0.98rem' }}>Admin Control Center</div>
+                  <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>Management & Hardware Functions</div>
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={() => setMobileMoreOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="drawer-actions-grid">
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'menu' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('menu');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                  <BookOpen size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">Menu Catalog</div>
+                  <div className="drawer-btn-sub">{menu.length} Dishes</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'stands' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('stands');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                  <QrCode size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">QR Stands</div>
+                  <div className="drawer-btn-sub">Print & Export</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'reports' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('reports');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                  <BarChart3 size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">Sales Reports</div>
+                  <div className="drawer-btn-sub">Ledger & KPIs</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'settings' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('settings');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
+                  <Settings size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">POS Settings</div>
+                  <div className="drawer-btn-sub">Taxes & PINs</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'staff' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('staff');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' }}>
+                  <Users size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">Staff Mgmt</div>
+                  <div className="drawer-btn-sub">Access & Roles</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'integrations' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('integrations');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
+                  <Link2 size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">Integrations</div>
+                  <div className="drawer-btn-sub">Hardware & ESC/POS</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="drawer-footer-actions">
+              <button
+                type="button"
+                className="drawer-lock-btn"
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  clearStaffToken();
+                  if (onLockStaff) onLockStaff();
+                }}
+              >
+                <Lock size={15} /> Lock Station
+              </button>
+              <button
+                type="button"
+                className="drawer-refresh-btn"
+                onClick={() => {
+                  fetchAllData();
+                  addToast('Data synchronized successfully', 'info');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <RotateCcw size={15} /> Sync Now
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
