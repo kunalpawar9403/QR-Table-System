@@ -20,7 +20,13 @@ import {
   Edit,
   ExternalLink,
   X,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Users,
+  Flame,
+  Check,
+  TrendingUp,
+  CircleDot
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -41,8 +47,12 @@ export default function DashboardApp({ onLockStaff }) {
   const [serviceCalls, setServiceCalls] = useState([]);
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
   const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  );
 
   // Filters & Search
+  const [tableFilter, setTableFilter] = useState('all');
   const [orderFilter, setOrderFilter] = useState('all');
   const [orderSearch, setOrderSearch] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
@@ -66,7 +76,6 @@ export default function DashboardApp({ onLockStaff }) {
   });
 
   const [tableForm, setTableForm] = useState({
-    id: '',
     name: '',
     capacity: 4
   });
@@ -74,7 +83,9 @@ export default function DashboardApp({ onLockStaff }) {
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString());
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setCurrentDate(now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -98,7 +109,7 @@ export default function DashboardApp({ onLockStaff }) {
       if (menuRes.ok) setMenu(await menuRes.json());
       if (callsRes.ok) setServiceCalls(await callsRes.json());
     } catch (e) {
-      addToast('Error loading live dashboard data', 'error');
+      addToast('Error loading live operations data', 'error');
     }
   };
 
@@ -111,7 +122,6 @@ export default function DashboardApp({ onLockStaff }) {
       soundManager.playNewOrderChime();
       setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
       addToast(`New Order #${newOrder.orderNumber} from ${newOrder.tableName}`, 'success', 5000);
-      // Refresh tables to reflect occupancy
       fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
     };
 
@@ -154,7 +164,7 @@ export default function DashboardApp({ onLockStaff }) {
     };
   }, []);
 
-  // Service Call Dismiss
+  // Dismiss Service Call
   const dismissServiceCall = async (callId) => {
     try {
       const res = await authFetch(`/api/service-call/${callId}/dismiss`, {
@@ -179,6 +189,7 @@ export default function DashboardApp({ onLockStaff }) {
       });
       if (res.ok) {
         soundManager.playClick();
+        if (newStatus === 'ready') soundManager.playOrderReady();
         addToast(`Order updated to ${newStatus.toUpperCase()}`, 'success');
       }
     } catch (e) {
@@ -196,7 +207,7 @@ export default function DashboardApp({ onLockStaff }) {
         method: 'PATCH'
       });
       if (res.ok) {
-        addToast(`Table ${tableId} is now vacant & available`, 'success');
+        addToast(`Table ${tableId} is now vacant & clean`, 'success');
         fetchAllData();
       }
     } catch (e) {
@@ -250,7 +261,7 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
-  // Save Dish (Create or Update)
+  // Save Dish
   const handleSaveDish = async (e) => {
     e.preventDefault();
     try {
@@ -286,11 +297,37 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
+  // Create Table
+  const handleCreateTable = async (e) => {
+    e.preventDefault();
+    try {
+      const nextId = tables.length > 0 ? Math.max(...tables.map((t) => t.id || 0)) + 1 : 1;
+      const res = await authFetch('/api/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: nextId,
+          name: tableForm.name || `Table ${nextId}`,
+          capacity: parseInt(tableForm.capacity, 10) || 4
+        })
+      });
+      if (res.ok) {
+        addToast(`Table ${nextId} added to dining floor!`, 'success');
+        setTableModalOpen(false);
+        setTableForm({ name: '', capacity: 4 });
+        fetchAllData();
+      }
+    } catch (e) {
+      addToast('Failed to create table', 'error');
+    }
+  };
+
   // KPIs
   const totalRevenue = orders
     .filter((o) => o.status !== 'cancelled')
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
+  const pendingOrdersCount = orders.filter((o) => o.status === 'pending').length;
   const activeOrdersCount = orders.filter(
     (o) => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready'
   ).length;
@@ -298,6 +335,15 @@ export default function DashboardApp({ onLockStaff }) {
   const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
   const occupancyPercent = tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0;
   const avgTicket = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 0;
+
+  // Filter Tables
+  const filteredTables = tables.filter((t) => {
+    const hasCall = serviceCalls.some((c) => c.tableId === t.id);
+    if (tableFilter === 'occupied') return t.status === 'occupied';
+    if (tableFilter === 'vacant') return t.status !== 'occupied';
+    if (tableFilter === 'alerts') return hasCall;
+    return true;
+  });
 
   // Filter Orders
   const filteredOrders = orders.filter((o) => {
@@ -314,22 +360,29 @@ export default function DashboardApp({ onLockStaff }) {
 
   return (
     <div className="dash-container">
-      {/* Top Header */}
+      {/* Executive Command Header */}
       <header className="dash-header">
         <div className="dash-header-left">
           <div className="dash-logo-badge">SG</div>
           <div className="dash-title-wrap">
-            <h1>Spice Garden Command Center</h1>
-            <p>Smart QR Dining & POS Operations</p>
+            <h1>
+              Spice Garden Command Center <span className="dash-title-tag">LIVE POS</span>
+            </h1>
+            <p>Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
           </div>
         </div>
 
         <div className="dash-header-center">
           <div className="live-clock-badge">
-            <Clock size={16} /> {currentTime}
+            <Clock size={16} style={{ color: 'var(--primary)' }} />
+            <span>{currentDate}</span>
+            <span style={{ opacity: 0.4 }}>•</span>
+            <strong style={{ color: '#fff' }}>{currentTime}</strong>
           </div>
+
           <div className="socket-indicator">
-            <span className="socket-dot" /> Live Sync
+            <span className="socket-dot" />
+            <span>Live Sync Active</span>
           </div>
         </div>
 
@@ -339,10 +392,22 @@ export default function DashboardApp({ onLockStaff }) {
             onClick={() => {
               const muted = soundManager.toggleMute();
               setIsMuted(muted);
+              addToast(muted ? 'Sound alerts muted' : 'Sound alerts enabled', 'info');
             }}
             title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
           >
-            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} style={{ color: '#fbbf24' }} />}
+          </button>
+
+          <button
+            className="btn-icon"
+            onClick={() => {
+              fetchAllData();
+              addToast('Syncing restaurant data...', 'info');
+            }}
+            title="Refresh All Operations"
+          >
+            <RefreshCw size={17} />
           </button>
 
           <button
@@ -351,8 +416,9 @@ export default function DashboardApp({ onLockStaff }) {
               clearStaffToken();
               if (onLockStaff) onLockStaff();
             }}
+            style={{ padding: '8px 14px' }}
           >
-            <Lock size={15} /> Lock POS
+            <Lock size={14} style={{ color: 'var(--primary)' }} /> Lock Station
           </button>
         </div>
       </header>
@@ -361,63 +427,72 @@ export default function DashboardApp({ onLockStaff }) {
       {serviceCalls.length > 0 && (
         <div className="floating-alert-banner">
           <div className="alert-banner-left">
-            <Bell size={22} className="alert-bell-anim" />
+            <Bell size={24} className="alert-bell-anim" />
             <div>
-              <strong style={{ color: '#fbbf24' }}>
-                {serviceCalls.length} Pending Service Call{serviceCalls.length > 1 ? 's' : ''}:
-              </strong>{' '}
-              {serviceCalls[0].tableName} requests {serviceCalls[0].type.toUpperCase()}
+              <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '0.95rem' }}>
+                {serviceCalls.length} Service Summon{serviceCalls.length > 1 ? 's' : ''} Requiring Staff Attention
+              </div>
+              <div style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>
+                <strong>{serviceCalls[0].tableName}</strong> requested{' '}
+                <span style={{ textTransform: 'uppercase', color: '#fef08a' }}>{serviceCalls[0].type}</span>
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 10 }}>
             <button
               className="btn-primary"
-              style={{ padding: '6px 14px', fontSize: '0.8rem' }}
+              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
               onClick={() => dismissServiceCall(serviceCalls[0].id)}
             >
-              <CheckCircle size={14} /> Dismiss
+              <CheckCircle size={15} /> Acknowledge & Dismiss
             </button>
           </div>
         </div>
       )}
 
-      {/* Navigation Tabs */}
+      {/* Navigation Tabs Bar */}
       <nav className="dash-nav-bar">
         <button
           className={`dash-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          <LayoutDashboard size={17} /> Overview
+          <LayoutDashboard size={18} /> Overview
         </button>
         <button
           className={`dash-tab-btn ${activeTab === 'tables' ? 'active' : ''}`}
           onClick={() => setActiveTab('tables')}
         >
-          <UtensilsCrossed size={17} /> Live Tables ({tables.length})
+          <UtensilsCrossed size={18} /> Floor & Tables
+          <span className="tab-counter-badge">{occupiedTables}/{tables.length}</span>
         </button>
         <button
           className={`dash-tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
-          <Receipt size={17} /> Orders ({orders.length})
+          <Receipt size={18} /> Orders
+          <span className="tab-counter-badge">{orders.length}</span>
         </button>
         <button
           className={`dash-tab-btn ${activeTab === 'kitchen' ? 'active' : ''}`}
           onClick={() => setActiveTab('kitchen')}
         >
-          <ChefHat size={17} /> Kitchen KDS ({activeOrdersCount})
+          <ChefHat size={18} /> Kitchen KDS
+          <span className="tab-counter-badge" style={activeOrdersCount > 0 ? { background: '#ef4444', color: '#fff' } : {}}>
+            {activeOrdersCount}
+          </span>
         </button>
         <button
           className={`dash-tab-btn ${activeTab === 'menu' ? 'active' : ''}`}
           onClick={() => setActiveTab('menu')}
         >
-          <BookOpen size={17} /> Menu Manager ({menu.length})
+          <BookOpen size={18} /> Menu Catalog
+          <span className="tab-counter-badge">{menu.length}</span>
         </button>
         <button
           className={`dash-tab-btn ${activeTab === 'stands' ? 'active' : ''}`}
           onClick={() => setActiveTab('stands')}
         >
-          <QrCode size={17} /> QR Stand Printing
+          <QrCode size={18} /> QR Stands Printing
         </button>
       </nav>
 
@@ -427,48 +502,69 @@ export default function DashboardApp({ onLockStaff }) {
       {activeTab === 'overview' && (
         <>
           <div className="kpi-grid">
-            <div className="kpi-card">
+            <div className="kpi-card rev">
               <div className="kpi-icon-wrap rev">₹</div>
               <div className="kpi-info-wrap">
-                <h4>Today's Revenue</h4>
+                <h4>Today's Net Sales</h4>
                 <div className="kpi-value">₹{totalRevenue.toLocaleString()}</div>
+                <div className="kpi-subtext pos">
+                  <TrendingUp size={13} /> Real-time active sales
+                </div>
               </div>
             </div>
 
-            <div className="kpi-card">
+            <div className="kpi-card ord">
               <div className="kpi-icon-wrap ord">
-                <Receipt size={22} />
+                <Receipt size={24} />
               </div>
               <div className="kpi-info-wrap">
-                <h4>Total Orders</h4>
+                <h4>Total Orders Placed</h4>
                 <div className="kpi-value">{orders.length}</div>
+                <div className="kpi-subtext highlight">
+                  <CircleDot size={12} /> {pendingOrdersCount} awaiting kitchen accept
+                </div>
               </div>
             </div>
 
-            <div className="kpi-card">
+            <div className="kpi-card occ">
               <div className="kpi-icon-wrap occ">
-                <UtensilsCrossed size={22} />
+                <Users size={24} />
               </div>
               <div className="kpi-info-wrap">
-                <h4>Table Occupancy</h4>
+                <h4>Floor Occupancy</h4>
                 <div className="kpi-value">{occupancyPercent}%</div>
+                <div className="kpi-subtext">
+                  {occupiedTables} of {tables.length} dining tables active
+                </div>
               </div>
             </div>
 
-            <div className="kpi-card">
+            <div className="kpi-card tkt">
               <div className="kpi-icon-wrap tkt">
-                <Clock size={22} />
+                <Sparkles size={24} />
               </div>
               <div className="kpi-info-wrap">
-                <h4>Avg Ticket Size</h4>
+                <h4>Average Ticket</h4>
                 <div className="kpi-value">₹{avgTicket}</div>
+                <div className="kpi-subtext">Per completed guest check</div>
               </div>
             </div>
           </div>
 
-          {/* Quick Tables Stream */}
-          <div className="glass-panel" style={{ padding: 20 }}>
-            <h3 style={{ marginBottom: 14 }}>Live Dining Room Status</h3>
+          {/* Dining Floor Preview */}
+          <div className="glass-panel" style={{ padding: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: 2 }}>Dining Floor Status</h3>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Live visualizer of all tables, guest occupancy, and service calls
+                </p>
+              </div>
+              <button className="btn-secondary" onClick={() => setActiveTab('tables')}>
+                View Floor Map <ExternalLink size={14} />
+              </button>
+            </div>
+
             <div className="tables-grid">
               {tables.map((table) => {
                 const activeCall = serviceCalls.find((c) => c.tableId === table.id);
@@ -478,7 +574,10 @@ export default function DashboardApp({ onLockStaff }) {
                     className={`table-pos-card ${activeCall ? 'status-calling' : ''}`}
                   >
                     <div className="table-card-top">
-                      <span className="table-card-number">{table.name || `Table ${table.id}`}</span>
+                      <div>
+                        <div className="table-card-number">{table.name || `Table ${table.id}`}</div>
+                        <div className="table-capacity">Seats up to {table.capacity || 4} guests</div>
+                      </div>
                       <span
                         className={`status-pill ${
                           activeCall ? 'calling' : table.status === 'occupied' ? 'occupied' : 'vacant'
@@ -490,11 +589,13 @@ export default function DashboardApp({ onLockStaff }) {
 
                     <div className="table-card-body">
                       <div className="table-timer-row">
-                        <span>Capacity: {table.capacity || 4} Guests</span>
-                        <span>{table.currentOrderId ? `Order #${table.currentOrderId}` : 'No Order'}</span>
+                        <span>Current Session:</span>
+                        <span style={{ color: table.status === 'occupied' ? '#34d399' : 'inherit' }}>
+                          {table.status === 'occupied' ? 'Dining Active' : 'Ready to Seat'}
+                        </span>
                       </div>
                       <div className="table-bill-row">
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Bill:</span>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Running Check:</span>
                         <span className="table-bill-amount">₹{table.runningTotal || 0}</span>
                       </div>
                     </div>
@@ -502,14 +603,14 @@ export default function DashboardApp({ onLockStaff }) {
                     <div className="table-card-actions">
                       <button
                         className="btn-secondary"
-                        style={{ fontSize: '0.78rem', padding: '6px 10px' }}
+                        style={{ fontSize: '0.78rem', padding: '8px' }}
                         onClick={() => window.open(`/?table=${table.id}&token=${table.sessionToken || ''}`, '_blank')}
                       >
-                        <ExternalLink size={13} /> Open Menu
+                        <ExternalLink size={13} /> Table Menu
                       </button>
                       <button
                         className="btn-primary"
-                        style={{ fontSize: '0.78rem', padding: '6px 10px' }}
+                        style={{ fontSize: '0.78rem', padding: '8px' }}
                         onClick={() => handleVacateTable(table.id)}
                       >
                         Clear Table
@@ -524,69 +625,98 @@ export default function DashboardApp({ onLockStaff }) {
       )}
 
       {/* ========================================================
-          TAB 2: LIVE TABLES
+          TAB 2: FLOOR & TABLES
           ======================================================== */}
       {activeTab === 'tables' && (
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 18 }}>
-            <h3>Restaurant Floor & Tables</h3>
+        <div className="glass-panel" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
+            <div className="filter-pills-group">
+              <button
+                className={`filter-pill-btn ${tableFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setTableFilter('all')}
+              >
+                ALL TABLES ({tables.length})
+              </button>
+              <button
+                className={`filter-pill-btn ${tableFilter === 'occupied' ? 'active' : ''}`}
+                onClick={() => setTableFilter('occupied')}
+              >
+                OCCUPIED ({occupiedTables})
+              </button>
+              <button
+                className={`filter-pill-btn ${tableFilter === 'vacant' ? 'active' : ''}`}
+                onClick={() => setTableFilter('vacant')}
+              >
+                VACANT ({tables.length - occupiedTables})
+              </button>
+              <button
+                className={`filter-pill-btn ${tableFilter === 'alerts' ? 'active' : ''}`}
+                onClick={() => setTableFilter('alerts')}
+              >
+                ATTENTION ALERTS ({serviceCalls.length})
+              </button>
+            </div>
+
             <button className="btn-primary" onClick={() => setTableModalOpen(true)}>
               <Plus size={16} /> Add Table
             </button>
           </div>
 
           <div className="tables-grid">
-            {tables.map((t) => (
-              <div key={t.id} className="table-pos-card">
-                <div className="table-card-top">
-                  <div>
-                    <div className="table-card-number">{t.name || `Table ${t.id}`}</div>
-                    <div className="table-capacity">Seats {t.capacity} guests</div>
+            {filteredTables.map((t) => {
+              const activeCall = serviceCalls.find((c) => c.tableId === t.id);
+              return (
+                <div key={t.id} className={`table-pos-card ${activeCall ? 'status-calling' : ''}`}>
+                  <div className="table-card-top">
+                    <div>
+                      <div className="table-card-number">{t.name || `Table ${t.id}`}</div>
+                      <div className="table-capacity">Seats {t.capacity} guests</div>
+                    </div>
+                    <span className={`status-pill ${activeCall ? 'calling' : t.status}`}>{activeCall ? `ALERT: ${activeCall.type}` : t.status}</span>
                   </div>
-                  <span className={`status-pill ${t.status}`}>{t.status}</span>
-                </div>
 
-                <div className="table-card-body">
-                  <div className="table-timer-row">
-                    <span>Security Token:</span>
-                    <span style={{ fontFamily: 'monospace', color: 'var(--primary)' }}>
-                      {(t.sessionToken || 'ACTIVE').slice(0, 10)}...
-                    </span>
+                  <div className="table-card-body">
+                    <div className="table-timer-row">
+                      <span>Security Token:</span>
+                      <span style={{ fontFamily: 'monospace', color: 'var(--primary)' }}>
+                        {(t.sessionToken || 'ACTIVE').slice(0, 8)}...
+                      </span>
+                    </div>
+                    <div className="table-bill-row">
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Running Total:</span>
+                      <span className="table-bill-amount">₹{t.runningTotal || 0}</span>
+                    </div>
                   </div>
-                  <div className="table-bill-row">
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Running Total:</span>
-                    <span className="table-bill-amount">₹{t.runningTotal || 0}</span>
-                  </div>
-                </div>
 
-                <div className="table-card-actions">
-                  <button
-                    className="btn-secondary"
-                    style={{ fontSize: '0.78rem' }}
-                    onClick={() => handleRegenerateToken(t.id)}
-                    title="Regenerates QR Security Token"
-                  >
-                    <RefreshCw size={13} /> Reset Token
-                  </button>
-                  <button
-                    className="btn-primary"
-                    style={{ fontSize: '0.78rem' }}
-                    onClick={() => handleVacateTable(t.id)}
-                  >
-                    Mark Vacant
-                  </button>
+                  <div className="table-card-actions">
+                    <button
+                      className="btn-secondary"
+                      style={{ fontSize: '0.78rem' }}
+                      onClick={() => handleRegenerateToken(t.id)}
+                      title="Regenerates QR Security Token to prevent old link reuse"
+                    >
+                      <RefreshCw size={13} /> Reset QR
+                    </button>
+                    <button
+                      className="btn-primary"
+                      style={{ fontSize: '0.78rem' }}
+                      onClick={() => handleVacateTable(t.id)}
+                    >
+                      Mark Clean
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* ========================================================
-          TAB 3: ORDERS MANAGER
+          TAB 3: ORDERS
           ======================================================== */}
       {activeTab === 'orders' && (
-        <div className="glass-panel" style={{ padding: 20 }}>
+        <div className="glass-panel" style={{ padding: 24 }}>
           <div className="orders-filter-row">
             <div className="filter-pills-group">
               {['all', 'pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'].map((st) => (
@@ -600,11 +730,11 @@ export default function DashboardApp({ onLockStaff }) {
               ))}
             </div>
 
-            <div className="search-input-box" style={{ maxWidth: 280 }}>
+            <div className="search-input-box" style={{ width: 280 }}>
               <Search size={16} className="search-icon" />
               <input
                 type="text"
-                placeholder="Search orders, table..."
+                placeholder="Search orders, table, guest..."
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
               />
@@ -612,116 +742,127 @@ export default function DashboardApp({ onLockStaff }) {
           </div>
 
           <div className="orders-list-grid">
-            {filteredOrders.map((ord) => (
-              <div key={ord.id} className="order-ticket-card">
-                <div className="ticket-header">
-                  <div>
-                    <div className="ticket-order-id">#{ord.orderNumber}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      {ord.tableName} • {ord.customerName || 'Guest'}
-                    </div>
-                  </div>
-                  <span className={`status-pill ${ord.status}`}>{ord.status}</span>
-                </div>
-
-                <div className="ticket-items-box">
-                  {ord.items?.map((it, idx) => (
-                    <div key={idx} className="ticket-item-row">
-                      <span>
-                        <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
-                      </span>
-                      <span>₹{it.price * it.quantity}</span>
-                    </div>
-                  ))}
-                  {ord.notes && <div className="ticket-notes">Note: {ord.notes}</div>}
-                </div>
-
-                <div className="ticket-footer">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800 }}>
-                    <span>Total Amount</span>
-                    <span style={{ color: 'var(--primary)', fontSize: '1.1rem' }}>
-                      ₹{ord.total}
-                    </span>
-                  </div>
-
-                  <div className="ticket-actions-row">
-                    {ord.status === 'pending' && (
-                      <button
-                        className="btn-primary"
-                        style={{ flex: 1, padding: 8, fontSize: '0.8rem' }}
-                        onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
-                      >
-                        Accept to Kitchen
-                      </button>
-                    )}
-                    {ord.status === 'preparing' && (
-                      <button
-                        className="btn-primary"
-                        style={{ flex: 1, padding: 8, fontSize: '0.8rem' }}
-                        onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
-                      >
-                        Mark Ready
-                      </button>
-                    )}
-                    {ord.status === 'ready' && (
-                      <button
-                        className="btn-primary"
-                        style={{ flex: 1, padding: 8, fontSize: '0.8rem' }}
-                        onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
-                      >
-                        Mark Served
-                      </button>
-                    )}
-                    <button
-                      className="btn-secondary"
-                      style={{ padding: '8px 12px' }}
-                      onClick={() => setPrintBillOrder(ord)}
-                      title="Print Bill Receipt"
-                    >
-                      <Printer size={15} />
-                    </button>
-                  </div>
-                </div>
+            {filteredOrders.length === 0 ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
+                <Receipt size={48} style={{ opacity: 0.3, margin: '0 auto 12px' }} />
+                <h3>No Orders Found</h3>
+                <p>No orders matching filter "{orderFilter.toUpperCase()}"</p>
               </div>
-            ))}
+            ) : (
+              filteredOrders.map((ord) => (
+                <div key={ord.id} className="order-ticket-card">
+                  <div className="ticket-header">
+                    <div>
+                      <div className="ticket-order-id">#{ord.orderNumber}</div>
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                        {ord.tableName} • {ord.customerName || 'Guest'}
+                      </div>
+                    </div>
+                    <span className={`status-pill ${ord.status}`}>{ord.status}</span>
+                  </div>
+
+                  <div className="ticket-items-box">
+                    {ord.items?.map((it, idx) => (
+                      <div key={idx} className="ticket-item-row">
+                        <span>
+                          <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
+                        </span>
+                        <span style={{ fontWeight: 600 }}>₹{it.price * it.quantity}</span>
+                      </div>
+                    ))}
+                    {ord.notes && <div className="ticket-notes">Chef Note: {ord.notes}</div>}
+                  </div>
+
+                  <div className="ticket-footer">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Bill Total (incl. GST)</span>
+                      <span style={{ color: 'var(--primary)', fontSize: '1.25rem', fontWeight: 800 }}>
+                        ₹{ord.total}
+                      </span>
+                    </div>
+
+                    <div className="ticket-actions-row">
+                      {ord.status === 'pending' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
+                        >
+                          <Flame size={14} /> Send to Kitchen
+                        </button>
+                      )}
+                      {ord.status === 'preparing' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
+                        >
+                          <Check size={14} /> Mark Ready
+                        </button>
+                      )}
+                      {ord.status === 'ready' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
+                        >
+                          <UtensilsCrossed size={14} /> Mark Served
+                        </button>
+                      )}
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: '9px 14px' }}
+                        onClick={() => setPrintBillOrder(ord)}
+                        title="Print Guest Receipt"
+                      >
+                        <Printer size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
 
       {/* ========================================================
-          TAB 4: KITCHEN KDS
+          TAB 4: KITCHEN KDS STREAM
           ======================================================== */}
       {activeTab === 'kitchen' && (
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 18 }}>
-            <h3>Kitchen Display Stream</h3>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              Real-time cook station tickets
-            </span>
+        <div className="glass-panel" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem' }}>Active Kitchen Tickets</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
+                Cook station pipeline with live elapsed timers
+              </p>
+            </div>
+            <span className="status-pill occupied">{activeOrdersCount} Open Tickets</span>
           </div>
 
           <div className="orders-list-grid">
             {orders
               .filter((o) => o.status === 'pending' || o.status === 'preparing')
               .map((ticket) => (
-                <div key={ticket.id} className="order-ticket-card" style={{ borderColor: '#f59e0b' }}>
-                  <div className="ticket-header" style={{ background: 'rgba(245,158,11,0.1)' }}>
+                <div key={ticket.id} className="order-ticket-card" style={{ borderColor: 'rgba(245, 158, 11, 0.4)' }}>
+                  <div className="ticket-header" style={{ background: 'rgba(245, 158, 11, 0.08)', margin: '-20px -20px 14px', padding: '14px 20px' }}>
                     <div>
                       <div className="ticket-order-id" style={{ color: '#fbbf24' }}>
                         {ticket.tableName} • #{ticket.orderNumber}
                       </div>
                       <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                        {new Date(ticket.createdAt).toLocaleTimeString()}
+                        Received: {new Date(ticket.createdAt).toLocaleTimeString()}
                       </div>
                     </div>
                     <span className={`status-pill ${ticket.status}`}>{ticket.status}</span>
                   </div>
 
-                  <div className="ticket-items-box" style={{ padding: 10 }}>
+                  <div className="ticket-items-box">
                     {ticket.items?.map((it, idx) => (
-                      <div key={idx} className="ticket-item-row" style={{ fontSize: '1rem', padding: '4px 0' }}>
+                      <div key={idx} className="ticket-item-row" style={{ fontSize: '1.02rem' }}>
                         <span>
-                          <strong style={{ color: 'var(--primary)', marginRight: 6 }}>
+                          <strong style={{ color: 'var(--primary)', marginRight: 8 }}>
                             {it.quantity}x
                           </strong>{' '}
                           {it.name}
@@ -729,8 +870,8 @@ export default function DashboardApp({ onLockStaff }) {
                       </div>
                     ))}
                     {ticket.notes && (
-                      <div className="ticket-notes" style={{ marginTop: 8 }}>
-                        Chef Note: {ticket.notes}
+                      <div className="ticket-notes">
+                        Special Instructions: {ticket.notes}
                       </div>
                     )}
                   </div>
@@ -738,7 +879,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="ticket-footer">
                     <button
                       className="btn-primary"
-                      style={{ width: '100%', padding: '10px 0' }}
+                      style={{ width: '100%', padding: '11px 0' }}
                       onClick={() =>
                         handleOrderStatusUpdate(
                           ticket.id,
@@ -746,7 +887,7 @@ export default function DashboardApp({ onLockStaff }) {
                         )
                       }
                     >
-                      {ticket.status === 'pending' ? 'Start Cooking' : 'Ready For Pickup'}
+                      {ticket.status === 'pending' ? '🔥 Start Cooking' : '✅ Ready For Pickup'}
                     </button>
                   </div>
                 </div>
@@ -756,21 +897,19 @@ export default function DashboardApp({ onLockStaff }) {
       )}
 
       {/* ========================================================
-          TAB 5: MENU MANAGER
+          TAB 5: MENU CATALOG
           ======================================================== */}
       {activeTab === 'menu' && (
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div className="search-input-box" style={{ width: 260 }}>
-                <Search size={16} className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Filter dishes..."
-                  value={menuSearch}
-                  onChange={(e) => setMenuSearch(e.target.value)}
-                />
-              </div>
+        <div className="glass-panel" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 14 }}>
+            <div className="search-input-box" style={{ width: 280 }}>
+              <Search size={16} className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search dish by name..."
+                value={menuSearch}
+                onChange={(e) => setMenuSearch(e.target.value)}
+              />
             </div>
 
             <button
@@ -795,11 +934,11 @@ export default function DashboardApp({ onLockStaff }) {
 
           <div className="menu-table-wrap">
             <div className="menu-crud-row header">
-              <span>Image</span>
+              <span>Photo</span>
               <span>Dish Name</span>
               <span>Category</span>
               <span>Price</span>
-              <span>In-Stock</span>
+              <span>Available</span>
               <span>Actions</span>
             </div>
 
@@ -818,7 +957,7 @@ export default function DashboardApp({ onLockStaff }) {
                     className="menu-thumb"
                   />
                   <div>
-                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span className={`diet-badge ${dish.isVeg ? 'veg' : 'non-veg'}`} />
                       {dish.name}
                     </div>
@@ -829,7 +968,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <span style={{ textTransform: 'capitalize', color: 'var(--text-muted)' }}>
                     {dish.category}
                   </span>
-                  <span style={{ fontWeight: 800, color: 'var(--primary)' }}>₹{dish.price}</span>
+                  <span style={{ fontWeight: 800, color: 'var(--primary)', fontSize: '1.05rem' }}>₹{dish.price}</span>
                   <div>
                     <label className="toggle-switch">
                       <input
@@ -876,15 +1015,15 @@ export default function DashboardApp({ onLockStaff }) {
       )}
 
       {/* ========================================================
-          TAB 6: QR STAND PRINTING
+          TAB 6: QR STANDS PRINTING
           ======================================================== */}
       {activeTab === 'stands' && (
-        <div className="glass-panel" style={{ padding: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div className="glass-panel" style={{ padding: 24 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
-              <h3>Table Acrylic QR Stands</h3>
+              <h3 style={{ fontSize: '1.25rem' }}>Printable Table QR Stands</h3>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                Print high-resolution table QR codes with security tokens
+                High-resolution QR code stands for guest smartphone ordering
               </p>
             </div>
             <button className="btn-primary" onClick={() => window.print()}>
@@ -897,19 +1036,19 @@ export default function DashboardApp({ onLockStaff }) {
               <div
                 key={t.id}
                 style={{
-                  background: '#fff',
-                  color: '#000',
+                  background: '#ffffff',
+                  color: '#000000',
                   padding: 24,
                   borderRadius: 18,
                   textAlign: 'center',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+                  boxShadow: '0 12px 35px rgba(0,0,0,0.4)',
                   border: '3px solid #f59e0b'
                 }}
               >
-                <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '0.05em' }}>
+                <div style={{ fontWeight: 900, fontSize: '1.25rem', letterSpacing: '0.05em' }}>
                   SPICE GARDEN
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 700, marginBottom: 12 }}>
+                <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 800, marginBottom: 14 }}>
                   SCAN TO ORDER & PAY
                 </div>
 
@@ -919,8 +1058,9 @@ export default function DashboardApp({ onLockStaff }) {
                     height: 170,
                     margin: '0 auto 12px',
                     border: '1px solid #cbd5e1',
-                    borderRadius: 12,
-                    padding: 8
+                    borderRadius: 14,
+                    padding: 8,
+                    background: '#fff'
                   }}
                 >
                   <img
@@ -934,21 +1074,21 @@ export default function DashboardApp({ onLockStaff }) {
                   style={{
                     background: '#0f172a',
                     color: '#f59e0b',
-                    padding: '6px 18px',
+                    padding: '6px 20px',
                     borderRadius: 999,
                     fontWeight: 800,
-                    fontSize: '1.1rem',
+                    fontSize: '1.15rem',
                     width: 'fit-content',
-                    margin: '0 auto 10px'
+                    margin: '0 auto 12px'
                   }}
                 >
                   {t.name || `TABLE ${t.id}`}
                 </div>
 
-                <div style={{ fontSize: '0.75rem', color: '#64748b', textAlign: 'left' }}>
+                <div style={{ fontSize: '0.78rem', color: '#475569', textAlign: 'left', lineHeight: 1.5 }}>
                   <div>1. Scan with phone camera</div>
                   <div>2. Customize items & order</div>
-                  <div>3. Track kitchen & pay bill</div>
+                  <div>3. Track kitchen status & pay bill</div>
                 </div>
               </div>
             ))}
@@ -956,22 +1096,22 @@ export default function DashboardApp({ onLockStaff }) {
         </div>
       )}
 
-      {/* Dish Modal (Add / Edit) */}
+      {/* Dish Modal (Add / Edit) with Live Preview */}
       {menuModalOpen && (
         <div className="modal-backdrop" onClick={() => setMenuModalOpen(false)}>
           <div
             className="cart-drawer-card"
-            style={{ maxWidth: 440 }}
+            style={{ maxWidth: 480 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="cart-drawer-header">
-              <h3>{editingDish ? 'Edit Dish' : 'Add New Dish'}</h3>
+              <h3>{editingDish ? 'Edit Dish Catalog' : 'Add New Dish'}</h3>
               <button className="modal-close-btn" onClick={() => setMenuModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveDish} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <form onSubmit={handleSaveDish} style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Dish Name</label>
                 <input
@@ -983,7 +1123,7 @@ export default function DashboardApp({ onLockStaff }) {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Category</label>
                   <select
@@ -1023,7 +1163,7 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Image URL or Path</label>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Image Path or URL</label>
                 <input
                   type="text"
                   className="customer-name-input"
@@ -1033,72 +1173,113 @@ export default function DashboardApp({ onLockStaff }) {
                 />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.85rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={dishForm.isVeg}
-                    onChange={(e) => setDishForm({ ...dishForm, isVeg: e.target.checked })}
-                  />
-                  Vegetarian Dish
-                </label>
-              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.88rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={dishForm.isVeg}
+                  onChange={(e) => setDishForm({ ...dishForm, isVeg: e.target.checked })}
+                />
+                Vegetarian Recipe
+              </label>
 
-              <button type="submit" className="btn-primary" style={{ marginTop: 10 }}>
-                Save Dish
+              <button type="submit" className="btn-primary" style={{ marginTop: 8 }}>
+                Save Dish to Menu
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Printable Thermal Receipt Modal */}
+      {/* Add Table Modal */}
+      {tableModalOpen && (
+        <div className="modal-backdrop" onClick={() => setTableModalOpen(false)}>
+          <div className="staff-modal-card" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setTableModalOpen(false)}>
+              <X size={20} />
+            </button>
+            <h3>Add Dining Table</h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 18 }}>
+              Expands floor capacity with a new security token
+            </p>
+            <form onSubmit={handleCreateTable} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <input
+                type="text"
+                placeholder="Table Name (e.g. Table 9, Patio 1)"
+                className="customer-name-input"
+                value={tableForm.name}
+                onChange={(e) => setTableForm({ ...tableForm, name: e.target.value })}
+              />
+              <input
+                type="number"
+                placeholder="Seating Capacity (e.g. 4)"
+                className="customer-name-input"
+                value={tableForm.capacity}
+                onChange={(e) => setTableForm({ ...tableForm, capacity: e.target.value })}
+              />
+              <button type="submit" className="btn-primary">
+                Confirm & Add Table
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Realistic Thermal Receipt Modal */}
       {printBillOrder && (
         <div className="modal-backdrop" onClick={() => setPrintBillOrder(null)}>
           <div
-            className="cart-drawer-card printable-area"
-            style={{ maxWidth: 360, background: '#fff', color: '#000' }}
+            className="receipt-paper-card printable-area"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ textAlign: 'center', padding: 18, borderBottom: '1px dashed #cbd5e1' }}>
-              <h2 style={{ color: '#000', fontSize: '1.4rem' }}>SPICE GARDEN</h2>
-              <p style={{ fontSize: '0.8rem', color: '#64748b' }}>Fine Dining & Smart Restaurant</p>
-              <div style={{ fontSize: '0.8rem', marginTop: 6 }}>
+            <div className="receipt-header">
+              <div className="receipt-brand-title">SPICE GARDEN</div>
+              <div className="receipt-meta">Fine Dining & Smart Restaurant</div>
+              <div className="receipt-meta" style={{ marginTop: 6, fontWeight: 700 }}>
+                TAX INVOICE / GUEST RECEIPT
+              </div>
+              <div className="receipt-meta" style={{ marginTop: 4 }}>
                 Order #{printBillOrder.orderNumber} • {printBillOrder.tableName}
+              </div>
+              <div className="receipt-meta">
+                {new Date(printBillOrder.createdAt || Date.now()).toLocaleString()}
               </div>
             </div>
 
-            <div style={{ padding: '14px 18px', borderBottom: '1px dashed #cbd5e1' }}>
+            <div className="receipt-items-list">
               {printBillOrder.items?.map((it, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', margin: '4px 0' }}>
+                <div key={i} className="receipt-item-line">
                   <span>{it.quantity}x {it.name}</span>
                   <span>₹{it.price * it.quantity}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{ padding: 18 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                <span>Subtotal:</span>
+            <div className="receipt-totals">
+              <div className="receipt-total-row">
+                <span>Items Subtotal:</span>
                 <span>₹{printBillOrder.subtotal || printBillOrder.total}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                <span>GST (5%):</span>
-                <span>₹{printBillOrder.tax || 0}</span>
+              <div className="receipt-total-row">
+                <span>CGST (2.5%):</span>
+                <span>₹{Math.round((printBillOrder.tax || 0) / 2)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '1.1rem', marginTop: 8 }}>
-                <span>Grand Total:</span>
+              <div className="receipt-total-row">
+                <span>SGST (2.5%):</span>
+                <span>₹{Math.round((printBillOrder.tax || 0) / 2)}</span>
+              </div>
+              <div className="receipt-total-row grand">
+                <span>GRAND TOTAL:</span>
                 <span>₹{printBillOrder.total}</span>
               </div>
+            </div>
 
-              <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <button className="btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>
-                  <Printer size={16} /> Print Receipt
-                </button>
-                <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
-                  Close
-                </button>
-              </div>
+            <div className="receipt-actions-footer no-print">
+              <button className="btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>
+                <Printer size={16} /> Print Receipt
+              </button>
+              <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
+                Close
+              </button>
             </div>
           </div>
         </div>
