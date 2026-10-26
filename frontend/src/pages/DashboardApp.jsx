@@ -141,18 +141,57 @@ export default function DashboardApp({ onLockStaff }) {
 
   // Socket setup
   useEffect(() => {
-    socket.emit('join-dashboard');
-    socket.emit('join-kitchen');
+    const handleConnect = () => {
+      socket.emit('join-admin');
+      socket.emit('join-kitchen');
+      socket.emit('join', { role: 'admin' });
+      socket.emit('join', { role: 'kitchen' });
+    };
+
+    handleConnect();
+    socket.on('connect', handleConnect);
 
     const handleNewOrder = (newOrder) => {
       soundManager.playNewOrderChime();
       setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
-      addToast(`New Order #${newOrder.orderNumber} from ${newOrder.tableName}`, 'success', 5000);
-      fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
+      addToast(`🔔 New Order #${newOrder.orderNumber || newOrder.id} from ${newOrder.tableName}`, 'success', 6000);
+
+      // Immediately set the table to occupied in state
+      setTables((prev) =>
+        prev.map((t) =>
+          t.id === newOrder.tableId
+            ? { ...t, status: 'occupied', manualStatus: 'occupied', currentStatus: 'occupied' }
+            : t
+        )
+      );
+
+      // Refetch latest server table state
+      fetch('/api/tables')
+        .then((r) => r.json())
+        .then(setTables)
+        .catch(() => {});
     };
 
     const handleStatusChanged = (updated) => {
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+      fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
+    };
+
+    const handleTablesUpdated = (newTables) => {
+      if (Array.isArray(newTables)) {
+        setTables(newTables);
+      }
+    };
+
+    const handleTableStatusChanged = ({ tableId, status }) => {
+      setTables((prev) =>
+        prev.map((t) =>
+          t.id === tableId
+            ? { ...t, status, manualStatus: status, currentStatus: status }
+            : t
+        )
+      );
+      fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
     };
 
     const handleServiceCall = (call) => {
@@ -175,18 +214,23 @@ export default function DashboardApp({ onLockStaff }) {
 
     socket.on('order:new', handleNewOrder);
     socket.on('order:status_changed', handleStatusChanged);
+    socket.on('tables:updated', handleTablesUpdated);
+    socket.on('table:status_changed', handleTableStatusChanged);
+    socket.on('table:updated', handleTableUpdated);
     socket.on('service:call', handleServiceCall);
     socket.on('service:dismissed', handleServiceDismissed);
     socket.on('menu:updated', handleMenuUpdated);
-    socket.on('table:updated', handleTableUpdated);
 
     return () => {
+      socket.off('connect', handleConnect);
       socket.off('order:new', handleNewOrder);
       socket.off('order:status_changed', handleStatusChanged);
+      socket.off('tables:updated', handleTablesUpdated);
+      socket.off('table:status_changed', handleTableStatusChanged);
+      socket.off('table:updated', handleTableUpdated);
       socket.off('service:call', handleServiceCall);
       socket.off('service:dismissed', handleServiceDismissed);
       socket.off('menu:updated', handleMenuUpdated);
-      socket.off('table:updated', handleTableUpdated);
     };
   }, []);
 
@@ -460,14 +504,22 @@ export default function DashboardApp({ onLockStaff }) {
     .filter((o) => o.status !== 'cancelled')
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
-  const pendingOrdersCount = orders.filter((o) => o.status === 'pending').length;
-  const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
+  const pendingOrdersCount = orders.filter((o) => o.status === 'pending' || o.status === 'new').length;
+  const occupiedTables = tables.filter(
+    (t) => t.status === 'occupied' || t.currentStatus === 'occupied' || (t.activeOrdersCount && t.activeOrdersCount > 0)
+  ).length;
   const occupancyPercent = tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0;
   const avgTicket = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 328;
 
   // Filter Orders
   const filteredOrders = orders.filter((o) => {
-    if (orderFilter !== 'all' && o.status !== orderFilter) return false;
+    if (orderFilter !== 'all') {
+      if (orderFilter === 'pending') {
+        if (o.status !== 'pending' && o.status !== 'new') return false;
+      } else if (o.status !== orderFilter) {
+        return false;
+      }
+    }
     if (orderSearch.trim()) {
       const q = orderSearch.toLowerCase();
       const matchId = String(o.orderNumber || o.id).toLowerCase().includes(q);
@@ -793,7 +845,10 @@ export default function DashboardApp({ onLockStaff }) {
                 {tables.map((table) => {
                   const isBar = (table.name || '').toLowerCase().includes('bar');
                   const activeCall = serviceCalls.find((c) => c.tableId === table.id);
-                  const isOccupied = table.status === 'occupied';
+                  const isOccupied =
+                    table.status === 'occupied' ||
+                    table.currentStatus === 'occupied' ||
+                    (table.activeOrdersCount && table.activeOrdersCount > 0);
 
                   return (
                     <div key={table.id} className="floor-card">
@@ -886,22 +941,28 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
 
             <div className="floor-table-grid">
-              {tables.map((table) => (
-                <div key={table.id} className="floor-card">
-                  <div className="floor-card-top">
-                    <div className="floor-card-identity">
-                      <div className={`table-type-icon-box ${(table.name || '').includes('Bar') ? 'bar' : ''}`}>
-                        <Armchair size={18} />
+              {tables.map((table) => {
+                const isTableOccupied =
+                  table.status === 'occupied' ||
+                  table.currentStatus === 'occupied' ||
+                  (table.activeOrdersCount && table.activeOrdersCount > 0);
+
+                return (
+                  <div key={table.id} className="floor-card">
+                    <div className="floor-card-top">
+                      <div className="floor-card-identity">
+                        <div className={`table-type-icon-box ${(table.name || '').includes('Bar') ? 'bar' : ''}`}>
+                          <Armchair size={18} />
+                        </div>
+                        <div>
+                          <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
+                          <div className="table-seats-text">Seats {table.capacity} guests</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
-                        <div className="table-seats-text">Seats {table.capacity} guests</div>
-                      </div>
+                      <span className={`table-status-pill ${isTableOccupied ? 'occupied' : 'available'}`}>
+                        {isTableOccupied ? 'OCCUPIED' : 'AVAILABLE'}
+                      </span>
                     </div>
-                    <span className={`table-status-pill ${table.status === 'occupied' ? 'occupied' : 'available'}`}>
-                      {table.status === 'occupied' ? 'OCCUPIED' : 'AVAILABLE'}
-                    </span>
-                  </div>
 
                   <div className="floor-card-meta">
                     <div className="meta-info-row">
@@ -954,8 +1015,9 @@ export default function DashboardApp({ onLockStaff }) {
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
+          </div>
           </section>
         )}
 
@@ -1022,7 +1084,7 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
 
                     <div className="ticket-actions-row">
-                      {ord.status === 'pending' && (
+                      {(ord.status === 'pending' || ord.status === 'new') && (
                         <button
                           className="btn-primary"
                           style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
@@ -1047,6 +1109,33 @@ export default function DashboardApp({ onLockStaff }) {
                           onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
                         >
                           Mark Served
+                        </button>
+                      )}
+                      {ord.status === 'served' && (
+                        <button
+                          className="btn-primary"
+                          style={{
+                            flex: 1,
+                            padding: 9,
+                            fontSize: '0.82rem',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            border: 'none',
+                            color: '#fff',
+                            fontWeight: 700
+                          }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
+                        >
+                          ✓ Dinner Completed
+                        </button>
+                      )}
+                      {ord.status !== 'completed' && ord.status !== 'cancelled' && ord.status !== 'served' && (
+                        <button
+                          className="btn-secondary"
+                          style={{ padding: '9px 12px', fontSize: '0.78rem', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
+                          title="Complete dining and expire table token"
+                        >
+                          Done
                         </button>
                       )}
                       <button

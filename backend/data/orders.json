@@ -512,5 +512,59 @@
     "paymentMethod": "Pay at Counter / UPI",
     "updatedAt": "2026-10-26T17:34:15.528Z",
     "completedAt": "2026-10-26T17:34:15.528Z"
+  },
+  {
+    "id": "ORD-118",
+    "orderNumber": 118,
+    "tableId": 3,
+    "tableName": "Table 3",
+    "guestName": "Kunal",
+    "status": "completed",
+    "createdAt": "2026-10-26T17:46:10.340Z",
+    "items": [
+      {
+        "id": 1,
+        "name": "Chicken Biryani",
+        "price": 340,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 340,
+    "tax": 17,
+    "total": 357,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-26T17:46:11.866Z",
+    "completedAt": "2026-10-26T17:46:11.866Z"
+  },
+  {
+    "id": "ORD-119",
+    "orderNumber": 119,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Table 1 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-26T18:00:07.894Z",
+    "items": [
+      {
+        "id": "starters-1",
+        "name": "Paneer Tikka Angara",
+        "price": 280,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 280,
+    "tax": 14,
+    "total": 294,
+    "notes": "Extra spicy",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-26T18:01:47.739Z",
+    "completedAt": "2026-10-26T18:01:47.739Z"
   }
 ]

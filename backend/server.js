@@ -438,6 +438,7 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   const token = req.query.token;
   const tables = readData(TABLES_FILE);
+  const orders = readData(ORDERS_FILE);
   let table = tables.find(t => t.id === tableId);
   if (!table) {
     table = {
@@ -455,14 +456,25 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     writeData(TABLES_FILE, tables);
   }
 
-  // Verify token matches the active rotated sessionToken
-  const isValid = Boolean(token && token.trim() === table.sessionToken.trim());
+  const activeOrders = orders.filter(
+    o => o.tableId === table.id && !['completed', 'cancelled'].includes(o.status)
+  );
+  const isOccupied = activeOrders.length > 0 || table.manualStatus === 'occupied' || table.status === 'occupied';
+
+  // If token matches active sessionToken, it is always valid
+  // If no token was provided, but table is vacant/ready to seat, let guest claim the active token!
+  let isValid = false;
+  if (token && token.trim() === table.sessionToken.trim()) {
+    isValid = true;
+  } else if (!token && !isOccupied) {
+    isValid = true;
+  }
 
   res.json({
     valid: isValid,
     tableId: table.id,
     tableName: table.name,
-    status: table.status,
+    status: isOccupied ? 'occupied' : 'available',
     manualStatus: table.manualStatus,
     activeToken: isValid ? table.sessionToken : undefined,
     message: isValid
@@ -526,19 +538,17 @@ app.get('/api/tables', (req, res) => {
       o => o.tableId === table.id && !['completed', 'cancelled'].includes(o.status)
     );
 
-    // If active orders exist, table is occupied
-    // Otherwise check table.manualStatus
-    let currentStatus = 'vacant';
-    if (activeOrders.length > 0) {
-      currentStatus = 'occupied';
-    } else if (table.manualStatus) {
-      currentStatus = table.manualStatus;
-    }
+    const isOccupied = activeOrders.length > 0 || table.manualStatus === 'occupied' || table.status === 'occupied';
+    const currentStatus = isOccupied ? 'occupied' : 'vacant';
+    const status = isOccupied ? 'occupied' : 'available';
+    const runningTotal = activeOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
     return {
       ...table,
-      activeOrdersCount: activeOrders.length,
+      status,
       currentStatus,
+      activeOrdersCount: activeOrders.length,
+      runningTotal: +runningTotal.toFixed(2),
       latestOrder: activeOrders[activeOrders.length - 1] || null
     };
   });
@@ -583,8 +593,13 @@ app.post('/api/orders', (req, res) => {
   }
 
   // ENFORCE TOKEN SECURITY:
-  // Reject order if token is missing or does not match the active session token
-  if (!token || token.trim() !== table.sessionToken.trim()) {
+  // If token is missing, but table is vacant/ready, allow binding to active sessionToken
+  let validOrderToken = token;
+  if (!validOrderToken && table.status !== 'occupied') {
+    validOrderToken = table.sessionToken;
+  }
+
+  if (!validOrderToken || validOrderToken.trim() !== table.sessionToken.trim()) {
     return res.status(403).json({
       error: 'TOKEN_EXPIRED',
       message: 'This dining session has ended. The previous session link is expired. Please scan the active QR code on your table to order.'
@@ -604,7 +619,7 @@ app.post('/api/orders', (req, res) => {
     tableId: parseInt(tableId, 10),
     tableName: table.name,
     guestName: guestName || `${table.name} Guest`,
-    status: 'new', // new -> preparing -> ready -> served -> completed
+    status: 'pending', // pending -> preparing -> ready -> served -> completed
     createdAt: new Date().toISOString(),
     items: items.map(item => ({
       id: item.id,
@@ -632,6 +647,7 @@ app.post('/api/orders', (req, res) => {
   writeData(TABLES_FILE, tables);
 
   // Notify Kitchen Display System, Admin, Table room, and Floor dashboards
+  io.emit('order:new', newOrder);
   io.to('kitchen').emit('order:new', newOrder);
   io.to('admin').emit('order:new', newOrder);
   io.to(`table_${tableId}`).emit('order:updated', newOrder);
@@ -644,7 +660,7 @@ app.post('/api/orders', (req, res) => {
 // Update order status
 app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
   const { status } = req.body;
-  const validStatuses = ['new', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
+  const validStatuses = ['new', 'pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
   }
@@ -664,6 +680,7 @@ app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
   writeData(ORDERS_FILE, orders);
 
   // Broadcast to kitchen, admin, and the table room
+  io.emit('order:status_changed', order);
   io.to('kitchen').emit('order:status_changed', order);
   io.to('admin').emit('order:status_changed', order);
   io.to(`table_${order.tableId}`).emit('order:status_changed', order);
@@ -778,7 +795,16 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
       host = req.query.host;
     }
 
-    const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (req.headers.host && !req.headers.host.includes('localhost') && !req.headers.host.includes('127.0.0.1'));
+    // For local development on Wi-Fi, ensure real phones can scan the QR code using the machine's LAN IP
+    if (!isVercel && LOCAL_IP && LOCAL_IP !== 'localhost') {
+      if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        const isVite = (req.headers.referer && req.headers.referer.includes(':5173')) || host.includes('5173');
+        const port = isVite ? '5173' : (host.split(':')[1] || '5173');
+        host = `${LOCAL_IP}:${port}`;
+      }
+    }
+
+    const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (!host.includes('localhost') && !host.includes('127.0.0.1') && !host.startsWith('192.168.') && !host.startsWith('10.') && !host.startsWith('172.'));
     const protocol = isHttps ? 'https' : 'http';
     const targetUrl = `${protocol}://${host}/?table=${tableId}&token=${table.sessionToken}`;
     
@@ -823,16 +849,24 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
 // Socket.io Connection Logic
 io.on('connection', (socket) => {
   // Join role or table room
-  socket.on('join', ({ role, tableId }) => {
-    if (role === 'kitchen') {
-      socket.join('kitchen');
-    } else if (role === 'admin') {
-      socket.join('admin');
-    }
-    
-    if (tableId) {
-      socket.join(`table_${tableId}`);
-    }
+  socket.on('join', (data = {}) => {
+    const { role, tableId } = typeof data === 'object' ? data : {};
+    if (role === 'kitchen') socket.join('kitchen');
+    if (role === 'admin') socket.join('admin');
+    if (tableId) socket.join(`table_${tableId}`);
+  });
+
+  socket.on('join-admin', () => {
+    socket.join('admin');
+  });
+
+  socket.on('join-kitchen', () => {
+    socket.join('kitchen');
+  });
+
+  socket.on('join-table', (data = {}) => {
+    const tableId = typeof data === 'object' ? data.tableId : data;
+    if (tableId) socket.join(`table_${tableId}`);
   });
 
   socket.on('disconnect', () => {

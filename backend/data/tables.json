@@ -6,10 +6,10 @@
     "section": "Indoor Dining",
     "status": "available",
     "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-26T16:44:50.557Z",
-    "occupiedAt": "2026-10-17T16:20:19.992Z",
-    "sessionToken": "T1-8MEUV9",
-    "tokenCreatedAt": "2026-10-26T16:44:50.557Z"
+    "lastClearedAt": "2026-10-26T18:01:47.741Z",
+    "occupiedAt": "2026-10-26T18:00:07.895Z",
+    "sessionToken": "T1-BNGZ86",
+    "tokenCreatedAt": "2026-10-26T18:01:47.741Z"
   },
   {
     "id": 2,
@@ -30,9 +30,10 @@
     "section": "Indoor Dining",
     "status": "available",
     "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-26T11:03:31.923Z",
-    "sessionToken": "T3-HUBN4Q",
-    "tokenCreatedAt": "2026-10-26T11:03:31.923Z"
+    "lastClearedAt": "2026-10-26T17:46:11.868Z",
+    "sessionToken": "T3-L8PY54",
+    "tokenCreatedAt": "2026-10-26T17:46:11.868Z",
+    "occupiedAt": "2026-10-26T17:46:10.341Z"
   },
   {
     "id": 4,
