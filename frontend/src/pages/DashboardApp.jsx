@@ -1187,31 +1187,30 @@ export default function DashboardApp({ onLockStaff }) {
 
             <div className="floor-table-grid">
               {tables.map((t) => (
-                <div
-                  key={t.id}
-                  style={{
-                    background: '#fff',
-                    color: '#000',
-                    padding: 24,
-                    borderRadius: 18,
-                    textAlign: 'center',
-                    border: '3px solid #f59e0b'
-                  }}
-                >
-                  <div style={{ fontWeight: 900, fontSize: '1.25rem' }}>SPICE GARDEN</div>
-                  <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 800, marginBottom: 14 }}>
+                <div key={t.id} className="qr-stand-print-card">
+                  <div style={{ fontWeight: 900, fontSize: '1.3rem', letterSpacing: '0.04em' }}>SPICE GARDEN</div>
+                  <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 800, margin: '4px 0 14px' }}>
                     SCAN TO ORDER & PAY
                   </div>
-                  <div style={{ width: 160, height: 160, margin: '0 auto 12px', border: '1px solid #cbd5e1', borderRadius: 12, padding: 8 }}>
+                  <div style={{ width: 160, height: 160, margin: '0 auto 14px', background: '#fff', border: '2px solid #000', borderRadius: 12, padding: 8 }}>
                     <img src={`/api/qrcode/${t.id}`} alt={`Table ${t.id} QR`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                  <div style={{ background: '#0f172a', color: '#f59e0b', padding: '6px 20px', borderRadius: 999, fontWeight: 800, fontSize: '1.1rem', width: 'fit-content', margin: '0 auto 10px' }}>
+                  <div style={{ background: '#0f172a', color: '#f59e0b', padding: '6px 20px', borderRadius: 999, fontWeight: 900, fontSize: '1.15rem', width: 'fit-content', margin: '0 auto 12px' }}>
                     {t.name || `TABLE ${t.id}`}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', textAlign: 'left', lineHeight: 1.5 }}>
-                    <div>1. Scan with phone camera</div>
-                    <div>2. Customize items & order</div>
-                    <div>3. Track kitchen & pay bill</div>
+                  <div style={{ fontSize: '0.75rem', color: '#475569', textAlign: 'left', lineHeight: 1.6, maxWidth: 220, margin: '0 auto' }}>
+                    <div><strong>1.</strong> Scan with phone camera</div>
+                    <div><strong>2.</strong> Browse menu & customize</div>
+                    <div><strong>3.</strong> Track cooking & settle bill</div>
+                  </div>
+                  <div className="no-print" style={{ marginTop: 14 }}>
+                    <button
+                      className="btn-secondary"
+                      style={{ fontSize: '0.78rem', padding: '6px 14px', width: '100%' }}
+                      onClick={() => setViewQrTable(t)}
+                    >
+                      <QrCode size={14} /> View & Download QR
+                    </button>
                   </div>
                 </div>
               ))}
@@ -1905,21 +1904,37 @@ export default function DashboardApp({ onLockStaff }) {
       {/* Thermal Bill Receipt Modal */}
       {printBillOrder && (
         <div className="modal-backdrop" onClick={() => setPrintBillOrder(null)}>
-          <div className="receipt-paper-card printable-area" onClick={(e) => e.stopPropagation()}>
+          <div className="receipt-paper-card" onClick={(e) => e.stopPropagation()}>
             <div className="receipt-header">
               <div className="receipt-brand-title">SPICE GARDEN</div>
-              <div className="receipt-meta">Fine Dining & Smart Restaurant</div>
-              <div className="receipt-meta" style={{ marginTop: 6, fontWeight: 700 }}>
-                TAX INVOICE / GUEST RECEIPT
+              <div className="receipt-meta">Fine Dining Restaurant & Bar</div>
+              <div className="receipt-meta">Plot 42, Green Avenue, MG Road</div>
+              <div className="receipt-meta" style={{ fontSize: '0.7rem' }}>
+                GSTIN: 27AAACS1234M1Z5 • FSSAI: 11521034000456
               </div>
-              <div className="receipt-meta">Order #{printBillOrder.orderNumber} • {printBillOrder.tableName}</div>
+              <div style={{ margin: '8px 0 4px', borderTop: '1px dashed #9ca3af' }} />
+              <div className="receipt-meta" style={{ fontWeight: 800, color: '#000' }}>
+                TAX INVOICE / CASH BILL
+              </div>
+              <div className="receipt-meta">
+                Bill #{printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
+              </div>
+              <div className="receipt-meta" style={{ fontSize: '0.72rem' }}>
+                Date: {new Date(printBillOrder.createdAt || Date.now()).toLocaleDateString()} {new Date(printBillOrder.createdAt || Date.now()).toLocaleTimeString()}
+              </div>
             </div>
 
             <div className="receipt-items-list">
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#6b7280', fontWeight: 700, paddingBottom: 4 }}>
+                <span>ITEM</span>
+                <span>QTY x RATE</span>
+                <span>AMOUNT</span>
+              </div>
               {printBillOrder.items?.map((it, i) => (
                 <div key={i} className="receipt-item-line">
-                  <span>{it.quantity}x {it.name}</span>
-                  <span>₹{it.price * it.quantity}</span>
+                  <span style={{ flex: 1, paddingRight: 8 }}>{it.name}</span>
+                  <span style={{ minWidth: 60, textAlign: 'center' }}>{it.quantity} x {it.price}</span>
+                  <span style={{ minWidth: 60, textAlign: 'right' }}>₹{it.price * it.quantity}</span>
                 </div>
               ))}
             </div>
@@ -1927,21 +1942,34 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="receipt-totals">
               <div className="receipt-total-row">
                 <span>Subtotal:</span>
-                <span>₹{printBillOrder.subtotal || printBillOrder.total}</span>
+                <span>₹{printBillOrder.subtotal || Math.round((printBillOrder.total || 0) / 1.05)}</span>
               </div>
               <div className="receipt-total-row">
-                <span>GST (5%):</span>
-                <span>₹{printBillOrder.tax || 0}</span>
+                <span>CGST (2.5%):</span>
+                <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
+              </div>
+              <div className="receipt-total-row">
+                <span>SGST (2.5%):</span>
+                <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
               </div>
               <div className="receipt-total-row grand">
-                <span>TOTAL:</span>
+                <span>TOTAL AMOUNT:</span>
                 <span>₹{printBillOrder.total}</span>
               </div>
+              <div className="receipt-total-row" style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>
+                <span>Payment Status:</span>
+                <span>PAID (UPI / COUNTER)</span>
+              </div>
+            </div>
+
+            <div className="receipt-footer-msg">
+              <div>*** THANK YOU FOR DINING WITH US ***</div>
+              <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit Spice Garden Again!</div>
             </div>
 
             <div className="receipt-actions-footer no-print">
               <button className="btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>
-                <Printer size={16} /> Print Receipt
+                <Printer size={16} /> Print Receipt (80mm)
               </button>
               <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
                 Close

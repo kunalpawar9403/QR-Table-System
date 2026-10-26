@@ -1459,3 +1459,188 @@
     padding: 16px 14px;
   }
 }
+
+/* =========================================================
+   THERMAL BILL RECEIPT (SCREEN & ESC/POS PRINT)
+   ========================================================= */
+.receipt-paper-card {
+  width: 100%;
+  max-width: 380px;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  font-family: 'Courier New', Courier, monospace;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receipt-header {
+  text-align: center;
+  border-bottom: 1px dashed #9ca3af;
+  padding-bottom: 12px;
+}
+
+.receipt-brand-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #000000;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+  font-family: var(--font-display, inherit);
+}
+
+.receipt-meta {
+  font-size: 0.76rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.receipt-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #9ca3af;
+}
+
+.receipt-item-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.receipt-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 0 10px;
+  border-bottom: 1px dashed #9ca3af;
+}
+
+.receipt-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #4b5563;
+}
+
+.receipt-total-row.grand {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #000000;
+  padding-top: 6px;
+  border-top: 1px dashed #9ca3af;
+}
+
+.receipt-footer-msg {
+  text-align: center;
+  font-size: 0.74rem;
+  color: #6b7280;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.receipt-actions-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* =========================================================
+   COMPREHENSIVE PRINT MEDIA RULES
+   ========================================================= */
+@media print {
+  /* Hide non-printable app chrome */
+  .no-print,
+  .dash-sidebar,
+  .top-command-header,
+  .floating-alert-banner,
+  .orders-filter-row,
+  .panel-header-row button,
+  .receipt-actions-footer,
+  .modal-close-btn,
+  .btn-table-menu,
+  .btn-clear-table,
+  .btn-icon {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .dash-layout-container,
+  .dash-main-area,
+  .floor-status-panel {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: block !important;
+  }
+
+  /* Thermal Receipt Printing */
+  .modal-backdrop {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .receipt-paper-card {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    font-size: 11pt !important;
+  }
+
+  /* QR Stand Printing */
+  .floor-table-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15mm !important;
+    padding: 10mm !important;
+  }
+
+  .qr-stand-print-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    border-radius: 14px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .qr-stand-print-card img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
