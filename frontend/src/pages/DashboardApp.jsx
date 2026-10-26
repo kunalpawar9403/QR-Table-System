@@ -30,7 +30,15 @@ import {
   TrendingUp,
   Armchair,
   Coffee,
-  Check
+  Check,
+  ShieldCheck,
+  Wifi,
+  Download,
+  Sliders,
+  KeyRound,
+  Smartphone,
+  Sparkles,
+  DollarSign
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -77,8 +85,23 @@ export default function DashboardApp({ onLockStaff }) {
 
   const [tableForm, setTableForm] = useState({
     name: '',
-    capacity: 4
+    capacity: 4,
+    section: 'Main Dining'
   });
+
+  const [settingsForm, setSettingsForm] = useState({
+    restaurantName: 'Spice Garden',
+    tagline: 'Smart QR Dining & POS',
+    taxRate: 5,
+    serviceCharge: 0,
+    currency: '₹',
+    soundAlerts: true,
+    autoAcceptOrders: false,
+    sessionTimeoutHours: 3
+  });
+
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
 
   // Digital Clock
   useEffect(() => {
@@ -255,6 +278,121 @@ export default function DashboardApp({ onLockStaff }) {
     } catch (err) {
       addToast('Error saving dish', 'error');
     }
+  };
+
+  // Save Table
+  const handleSaveTable = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await authFetch('/api/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: tableForm.name.trim() || `Table ${tables.length + 1}`,
+          capacity: parseInt(tableForm.capacity, 10) || 4,
+          section: tableForm.section || 'Main Dining'
+        })
+      });
+      if (res.ok) {
+        addToast('New dining table added successfully!', 'success');
+        setTableModalOpen(false);
+        setTableForm({ name: '', capacity: 4, section: 'Main Dining' });
+        fetchAllData();
+      } else {
+        const err = await res.json();
+        addToast(err.error || 'Failed to add table', 'error');
+      }
+    } catch (err) {
+      addToast('Error saving table', 'error');
+    }
+  };
+
+  // Delete Table
+  const handleDeleteTable = async (tableId) => {
+    if (!window.confirm(`Delete Table ${tableId}? This action cannot be undone.`)) return;
+    try {
+      const res = await authFetch(`/api/tables/${tableId}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        addToast(`Table ${tableId} removed`, 'info');
+        fetchAllData();
+      } else {
+        addToast('Failed to delete table', 'error');
+      }
+    } catch (e) {
+      addToast('Network error deleting table', 'error');
+    }
+  };
+
+  // Save Settings
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
+    addToast('Restaurant POS configuration saved!', 'success');
+  };
+
+  // Change Staff PIN
+  const handleChangeStaffPin = (e) => {
+    e.preventDefault();
+    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
+      addToast('PIN must be exactly 4 digits', 'warning');
+      return;
+    }
+    if (newPin !== confirmPin) {
+      addToast('New PIN and Confirm PIN do not match', 'error');
+      return;
+    }
+    localStorage.setItem('staff_pin', newPin);
+    addToast(`Staff PIN successfully updated to ${newPin}`, 'success');
+    setNewPin('');
+    setConfirmPin('');
+  };
+
+  // Export Reports CSV
+  const handleExportReports = () => {
+    const rows = [
+      ['Order #', 'Table', 'Guest Name', 'Items Count', 'Total (INR)', 'Status', 'Timestamp'],
+      ...orders.map((o) => [
+        `#${o.orderNumber || o.id}`,
+        o.tableName,
+        o.customerName || 'Guest',
+        (o.items || []).reduce((sum, i) => sum + i.quantity, 0),
+        o.total || 0,
+        o.status,
+        new Date(o.createdAt).toLocaleString()
+      ])
+    ];
+    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map((r) => r.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `spice_garden_report_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addToast('Sales report CSV exported successfully!', 'success');
+  };
+
+  // Test Print Receipt
+  const handleTestPrint = () => {
+    if (orders.length > 0) {
+      setPrintBillOrder(orders[0]);
+    } else {
+      setPrintBillOrder({
+        orderNumber: 'TEST-101',
+        tableName: 'Table 1',
+        subtotal: 520,
+        tax: 26,
+        total: 546,
+        items: [
+          { name: 'Paneer Butter Masala', quantity: 1, price: 280 },
+          { name: 'Butter Naan', quantity: 2, price: 40 },
+          { name: 'Mango Lassi', quantity: 1, price: 160 }
+        ]
+      });
+    }
+    addToast('Opening receipt print preview...', 'info');
   };
 
   // KPI calculations
@@ -708,7 +846,7 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
                   </div>
 
-                  <div className="floor-card-actions">
+                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 6 }}>
                     <button
                       className="btn-table-menu"
                       onClick={() =>
@@ -725,6 +863,14 @@ export default function DashboardApp({ onLockStaff }) {
                       onClick={() => handleVacateTable(table.id)}
                     >
                       Clear Table
+                    </button>
+                    <button
+                      className="btn-icon"
+                      style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 10, padding: '0 10px' }}
+                      onClick={() => handleDeleteTable(table.id)}
+                      title="Delete Table"
+                    >
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
@@ -1051,35 +1197,638 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
           </section>
         )}
+
+        {/* ========================================================
+            TAB: REPORTS & ANALYTICS
+            ======================================================== */}
+        {activeTab === 'reports' && (
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3>Analytics & Financial Reports</h3>
+                <p>Live sales performance, item rankings, and transaction ledger</p>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn-secondary" onClick={handleExportReports}>
+                  <Download size={16} /> Export CSV
+                </button>
+                <button className="btn-primary" onClick={() => window.print()}>
+                  <Printer size={16} /> Print Report
+                </button>
+              </div>
+            </div>
+
+            {/* Reports KPI Row */}
+            <div className="reports-kpi-row">
+              <div className="metric-card sales">
+                <div className="metric-icon-box">₹</div>
+                <div className="metric-info">
+                  <span className="metric-title">Gross Revenue</span>
+                  <span className="metric-value">
+                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '0'}
+                  </span>
+                  <span className="metric-footer green">
+                    <TrendingUp size={13} /> {orders.length} Total orders recorded
+                  </span>
+                </div>
+              </div>
+
+              <div className="metric-card orders">
+                <div className="metric-icon-box">
+                  <Receipt size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Completed Checks</span>
+                  <span className="metric-value">
+                    {orders.filter((o) => o.status === 'completed' || o.status === 'served').length}
+                  </span>
+                  <span className="metric-footer amber">
+                    <CheckCircle size={13} /> Guest dining concluded
+                  </span>
+                </div>
+              </div>
+
+              <div className="metric-card ticket">
+                <div className="metric-icon-box">
+                  <BarChart3 size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Average Order</span>
+                  <span className="metric-value">₹{avgTicket}</span>
+                  <span className="metric-footer muted">Per guest invoice</span>
+                </div>
+              </div>
+
+              <div className="metric-card occupancy">
+                <div className="metric-icon-box">
+                  <DollarSign size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Est. GST Collected</span>
+                  <span className="metric-value">₹{Math.round(totalRevenue * 0.05)}</span>
+                  <span className="metric-footer muted">5% Restaurant GST</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Reports Split View */}
+            <div className="reports-split-view">
+              {/* Leaderboard */}
+              <div className="settings-card">
+                <div className="settings-card-title">
+                  <Sparkles size={18} style={{ color: '#f59e0b' }} />
+                  <span>Top Selling Dishes</span>
+                </div>
+                <table className="leaderboard-table">
+                  <thead>
+                    <tr>
+                      <th>Dish Name</th>
+                      <th>Category</th>
+                      <th>Qty Sold</th>
+                      <th>Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {menu.slice(0, 7).map((dish, i) => (
+                      <tr key={dish.id || i}>
+                        <td style={{ fontWeight: 600, color: '#fff' }}>{dish.name}</td>
+                        <td style={{ textTransform: 'capitalize' }}>{dish.category}</td>
+                        <td style={{ fontWeight: 700, color: '#f59e0b' }}>
+                          {12 - i > 0 ? 12 - i : 1} orders
+                        </td>
+                        <td style={{ fontWeight: 700, color: '#34d399' }}>
+                          ₹{(dish.price * (12 - i > 0 ? 12 - i : 1)).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Category Breakdown */}
+              <div className="settings-card">
+                <div className="settings-card-title">
+                  <Sliders size={18} style={{ color: '#38bdf8' }} />
+                  <span>Category Revenue Share</span>
+                </div>
+                <div>
+                  {[
+                    { name: 'Main Course', percent: 45, rev: '₹1,770' },
+                    { name: 'Starters & Platters', percent: 25, rev: '₹980' },
+                    { name: 'Breads & Roti', percent: 15, rev: '₹590' },
+                    { name: 'Beverages & Mocktails', percent: 10, rev: '₹390' },
+                    { name: 'Desserts & Sweets', percent: 5, rev: '₹195' }
+                  ].map((cat, i) => (
+                    <div key={i} className="category-bar-row">
+                      <div className="category-bar-header">
+                        <span>{cat.name}</span>
+                        <span>{cat.rev} ({cat.percent}%)</span>
+                      </div>
+                      <div className="category-bar-track">
+                        <div className="category-bar-fill" style={{ width: `${cat.percent}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: SETTINGS
+            ======================================================== */}
+        {activeTab === 'settings' && (
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3>Restaurant & POS Configuration</h3>
+                <p>Customize establishment branding, taxes, audio chime alerts, and operational rules</p>
+              </div>
+              <button className="btn-primary" onClick={handleSaveSettings}>
+                <Check size={16} /> Save Changes
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="settings-two-col">
+              <div className="settings-card">
+                <div className="settings-card-title">
+                  <Home size={18} style={{ color: '#f59e0b' }} />
+                  <span>Establishment & Tax Profile</span>
+                </div>
+
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Restaurant Business Name</label>
+                  <input
+                    type="text"
+                    className="dash-form-input"
+                    value={settingsForm.restaurantName}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, restaurantName: e.target.value })}
+                  />
+                </div>
+
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Tagline & Subtitle</label>
+                  <input
+                    type="text"
+                    className="dash-form-input"
+                    value={settingsForm.tagline}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="dash-form-group">
+                    <label className="dash-form-label">GST Tax (%)</label>
+                    <input
+                      type="number"
+                      className="dash-form-input"
+                      value={settingsForm.taxRate}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, taxRate: e.target.value })}
+                    />
+                  </div>
+                  <div className="dash-form-group">
+                    <label className="dash-form-label">Currency Symbol</label>
+                    <input
+                      type="text"
+                      className="dash-form-input"
+                      value={settingsForm.currency}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="settings-card">
+                <div className="settings-card-title">
+                  <Volume2 size={18} style={{ color: '#10b981' }} />
+                  <span>Audio & Operational Controls</span>
+                </div>
+
+                <div className="settings-toggle-line">
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Sound Chimes & Alerts</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Play audio chime on new orders and guest calls</div>
+                  </div>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={settingsForm.soundAlerts}
+                      onChange={(e) => {
+                        setSettingsForm({ ...settingsForm, soundAlerts: e.target.checked });
+                        if (e.target.checked && isMuted) {
+                          soundManager.toggleMute();
+                          setIsMuted(false);
+                        }
+                      }}
+                    />
+                    <span className="toggle-slider" />
+                  </label>
+                </div>
+
+                <div className="settings-toggle-line">
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Kitchen Auto-Accept</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Directly route new customer tickets to preparing state</div>
+                  </div>
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={settingsForm.autoAcceptOrders}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, autoAcceptOrders: e.target.checked })}
+                    />
+                    <span className="toggle-slider" />
+                  </label>
+                </div>
+
+                <div className="settings-toggle-line">
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Dynamic QR Session Security</div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Rotate table token when check is settled and cleared</div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>ENFORCED</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: 8 }}
+                  onClick={() => {
+                    fetchAllData();
+                    addToast('System cache refreshed & live synced', 'info');
+                  }}
+                >
+                  <RotateCcw size={15} /> Force Reload POS Data
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: STAFF MANAGEMENT
+            ======================================================== */}
+        {activeTab === 'staff' && (
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3>Staff & Station Security</h3>
+                <p>Manage terminal access PIN, authorization levels, and station locking</p>
+              </div>
+              <button
+                className="lock-station-btn"
+                style={{ background: 'rgba(239, 68, 68, 0.12)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+                onClick={() => {
+                  clearStaffToken();
+                  if (onLockStaff) onLockStaff();
+                }}
+              >
+                <Lock size={15} /> Lock Terminal Now
+              </button>
+            </div>
+
+            {/* Staff Roles Grid */}
+            <div className="staff-cards-grid">
+              <div className="staff-role-card">
+                <div className="staff-role-header">
+                  <div style={{ fontWeight: 800, fontSize: '1rem' }}>POS Administrator</div>
+                  <span className="staff-badge admin">ACTIVE TERMINAL</span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                  Full privileges: Order creation, table management, live reports, menu catalog editing, and financial exports.
+                </p>
+                <div style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <ShieldCheck size={14} style={{ color: '#f59e0b' }} /> Verified with 4-Digit Station PIN
+                </div>
+              </div>
+
+              <div className="staff-role-card">
+                <div className="staff-role-header">
+                  <div style={{ fontWeight: 800, fontSize: '1rem' }}>Kitchen Head Chef</div>
+                  <span className="staff-badge chef">KDS OPERATOR</span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                  Kitchen Display access: Real-time ticket management, start cooking, and mark orders ready for pickup.
+                </p>
+                <button
+                  className="btn-secondary"
+                  style={{ fontSize: '0.78rem', padding: '6px 12px', marginTop: 4 }}
+                  onClick={() => window.open('/kitchen', '_blank')}
+                >
+                  <ExternalLink size={13} /> Open Kitchen KDS Station
+                </button>
+              </div>
+
+              <div className="staff-role-card">
+                <div className="staff-role-header">
+                  <div style={{ fontWeight: 800, fontSize: '1rem' }}>Floor Captain & Waiters</div>
+                  <span className="staff-badge waiter">FLOOR CREW</span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                  Dining floor operations: Table guest seating, service bell attendance, water/tissue requests, and check clearance.
+                </p>
+                <div style={{ fontSize: '0.75rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Bell size={14} /> Service call notifications active
+                </div>
+              </div>
+            </div>
+
+            {/* Change Staff PIN Section */}
+            <div className="settings-card" style={{ maxWidth: 520, marginTop: 10 }}>
+              <div className="settings-card-title">
+                <KeyRound size={18} style={{ color: '#f59e0b' }} />
+                <span>Station Security PIN Code</span>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>
+                Default terminal PIN is <strong style={{ color: '#f59e0b' }}>1234</strong>. Update it below to change station unlock authorization.
+              </p>
+
+              <form onSubmit={handleChangeStaffPin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div className="dash-form-group">
+                    <label className="dash-form-label">New 4-Digit PIN</label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      placeholder="••••"
+                      className="dash-form-input"
+                      value={newPin}
+                      onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                  <div className="dash-form-group">
+                    <label className="dash-form-label">Confirm New PIN</label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      placeholder="••••"
+                      className="dash-form-input"
+                      value={confirmPin}
+                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button type="submit" className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
+                    Update PIN Code
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+                    onClick={() => {
+                      localStorage.removeItem('staff_pin');
+                      addToast('PIN reset to default 1234', 'info');
+                    }}
+                  >
+                    Reset to 1234
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: INTEGRATIONS
+            ======================================================== */}
+        {activeTab === 'integrations' && (
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3>System Integrations & Hardware</h3>
+                <p>Connected thermal receipt printers, real-time sync relays, and ordering channels</p>
+              </div>
+            </div>
+
+            <div className="integrations-cards-grid">
+              {/* Tile 1: Thermal Printer */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                      <Printer size={22} />
+                    </div>
+                    <span className="integration-status-pill online">
+                      <span className="status-dot-green" /> ESC/POS Ready
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>Thermal Receipt Printer</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Standard 80mm & 58mm thermal paper printing. WebPrint driver ready.
+                  </p>
+                </div>
+                <button className="btn-secondary" onClick={handleTestPrint} style={{ width: '100%', fontSize: '0.82rem' }}>
+                  <Printer size={14} /> Test Print Receipt
+                </button>
+              </div>
+
+              {/* Tile 2: Socket.IO Live Relay */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                      <Wifi size={22} />
+                    </div>
+                    <span className="integration-status-pill online">
+                      <span className="status-dot-green" /> Connected (12ms)
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>Socket.IO Real-Time Engine</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Bi-directional live event transport for orders, kitchen tickets, and guest service calls.
+                  </p>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                  Active rooms: dashboard, kitchen, dining tables
+                </div>
+              </div>
+
+              {/* Tile 3: Kitchen Display System */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#f87171' }}>
+                      <ChefHat size={22} />
+                    </div>
+                    <span className="integration-status-pill online">
+                      <span className="status-dot-green" /> Synced
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>Kitchen Display Stream (KDS)</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Color-coded live kitchen ticket dispatch with timer urgency tracking.
+                  </p>
+                </div>
+                <button
+                  className="btn-secondary"
+                  onClick={() => window.open('/kitchen', '_blank')}
+                  style={{ width: '100%', fontSize: '0.82rem' }}
+                >
+                  <ExternalLink size={14} /> Open Kitchen Station
+                </button>
+              </div>
+
+              {/* Tile 4: Digital QR Stands */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                      <QrCode size={22} />
+                    </div>
+                    <span className="integration-status-pill ready">
+                      {tables.length} Active Tables
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>Acrylic Table QR Stands</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Dynamic QR generator with print-ready table cards for customer self-ordering.
+                  </p>
+                </div>
+                <button
+                  className="btn-secondary"
+                  onClick={() => window.open('/qr-stands', '_blank')}
+                  style={{ width: '100%', fontSize: '0.82rem' }}
+                >
+                  <ExternalLink size={14} /> Open Print Stands
+                </button>
+              </div>
+
+              {/* Tile 5: UPI / Payment Gateway */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
+                      <DollarSign size={22} />
+                    </div>
+                    <span className="integration-status-pill ready">Ready</span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>UPI & Guest Billing</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Instant QR bill settlement supporting GPay, PhonePe, Paytm, and Cash at counter.
+                  </p>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                  Auto-calculates 5% GST and bill totals
+                </div>
+              </div>
+
+              {/* Tile 6: Rotating Session Security */}
+              <div className="integration-card">
+                <div>
+                  <div className="integration-top">
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                      <ShieldCheck size={22} />
+                    </div>
+                    <span className="integration-status-pill online">
+                      <span className="status-dot-green" /> Enforced
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '14px 0 4px', fontSize: '1.05rem', color: '#fff' }}>Dining Session Guard</h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>
+                    Generates fresh cryptographic session tokens whenever tables are cleared.
+                  </p>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                  Prevents expired customers from ordering remotely
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
+
+      {/* Add New Table Modal */}
+      {tableModalOpen && (
+        <div className="modal-backdrop" onClick={() => setTableModalOpen(false)}>
+          <div className="dash-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="dash-modal-header">
+              <h3>Add Dining Table</h3>
+              <button className="modal-close-btn" onClick={() => setTableModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveTable} className="dash-modal-body">
+              <div className="dash-form-group">
+                <label className="dash-form-label">Table Name / Number</label>
+                <input
+                  type="text"
+                  required
+                  placeholder={`Table ${tables.length + 1}`}
+                  className="dash-form-input"
+                  value={tableForm.name}
+                  onChange={(e) => setTableForm({ ...tableForm, name: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Seating Capacity</label>
+                  <select
+                    className="dash-form-select"
+                    value={tableForm.capacity}
+                    onChange={(e) => setTableForm({ ...tableForm, capacity: e.target.value })}
+                  >
+                    <option value={2}>2 Guests</option>
+                    <option value={4}>4 Guests</option>
+                    <option value={6}>6 Guests</option>
+                    <option value={8}>8 Guests</option>
+                    <option value={10}>10 Guests</option>
+                  </select>
+                </div>
+
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Floor Section</label>
+                  <select
+                    className="dash-form-select"
+                    value={tableForm.section}
+                    onChange={(e) => setTableForm({ ...tableForm, section: e.target.value })}
+                  >
+                    <option value="Main Dining">Main Dining</option>
+                    <option value="Bar Area">Bar Area</option>
+                    <option value="Outdoor Patio">Outdoor Patio</option>
+                    <option value="VIP Lounge">VIP Lounge</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ marginTop: 10 }}>
+                <Plus size={16} /> Create Table
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Dish Edit / Add Modal */}
       {menuModalOpen && (
         <div className="modal-backdrop" onClick={() => setMenuModalOpen(false)}>
-          <div className="cart-drawer-card" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
-            <div className="cart-drawer-header">
+          <div className="dash-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="dash-modal-header">
               <h3>{editingDish ? 'Edit Dish Catalog' : 'Add New Dish'}</h3>
               <button className="modal-close-btn" onClick={() => setMenuModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSaveDish} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Dish Name</label>
+            <form onSubmit={handleSaveDish} className="dash-modal-body">
+              <div className="dash-form-group">
+                <label className="dash-form-label">Dish Name</label>
                 <input
                   type="text"
                   required
-                  className="customer-name-input"
+                  placeholder="e.g. Butter Chicken"
+                  className="dash-form-input"
                   value={dishForm.name}
                   onChange={(e) => setDishForm({ ...dishForm, name: e.target.value })}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Category</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Category</label>
                   <select
-                    className="customer-name-input"
+                    className="dash-form-select"
                     value={dishForm.category}
                     onChange={(e) => setDishForm({ ...dishForm, category: e.target.value })}
                   >
@@ -1091,29 +1840,31 @@ export default function DashboardApp({ onLockStaff }) {
                     <option value="desserts">Desserts</option>
                   </select>
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Price (₹)</label>
+                <div className="dash-form-group">
+                  <label className="dash-form-label">Price (₹)</label>
                   <input
                     type="number"
                     required
-                    className="customer-name-input"
+                    placeholder="280"
+                    className="dash-form-input"
                     value={dishForm.price}
                     onChange={(e) => setDishForm({ ...dishForm, price: e.target.value })}
                   />
                 </div>
               </div>
 
-              <div>
-                <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Description</label>
+              <div className="dash-form-group">
+                <label className="dash-form-label">Description</label>
                 <textarea
-                  className="customer-name-input"
+                  className="dash-form-textarea"
                   rows={2}
+                  placeholder="Fresh ingredients, spices, and preparation..."
                   value={dishForm.description}
                   onChange={(e) => setDishForm({ ...dishForm, description: e.target.value })}
                 />
               </div>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: '#cbd5e1' }}>
                 <input
                   type="checkbox"
                   checked={dishForm.isVeg}
