@@ -798,18 +798,21 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server if executed directly (e.g., node server.js) and not in Vercel serverless
-if (require.main === module && !process.env.VERCEL) {
+function startServer() {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`====================================================`);
     console.log(`  Smart Restaurant QR Ordering System Started!     `);
-    console.log(`  Local Access:      http://localhost:${PORT}      `);
-    console.log(`  Phone on Wi-Fi:    http://${LOCAL_IP}:${PORT}    `);
-    console.log(`  Kitchen Display:   http://localhost:${PORT}/kitchen.html `);
-    console.log(`  Table QR Stands:   http://localhost:${PORT}/qr-stands.html`);
-    console.log(`  Admin Dashboard:   http://localhost:${PORT}/admin.html   `);
+    console.log(`  Access URL:        http://localhost:${PORT}      `);
+    console.log(`  Network Access:    http://${LOCAL_IP}:${PORT}    `);
     console.log(`====================================================`);
   });
 }
 
+// Start server if not in Vercel serverless environment
+if (!process.env.VERCEL) {
+  startServer();
+}
+
 module.exports = app;
+module.exports.server = server;
+module.exports.startServer = startServer;

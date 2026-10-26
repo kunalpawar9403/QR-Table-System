@@ -1,13 +1,13 @@
 {
   "name": "qr-table-system-",
   "version": "1.0.0",
-  "main": "backend/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node server.js",
     "backend": "node backend/server.js",
     "frontend": "npm --prefix frontend run dev",
     "dev": "npm --prefix frontend run dev",
-    "postinstall": "npm --prefix backend install && npm --prefix frontend install",
+    "postinstall": "npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build",
     "build": "npm --prefix backend install && npm --prefix frontend install && npm --prefix frontend run build"
   },
   "keywords": [],
