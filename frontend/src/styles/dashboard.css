@@ -1465,24 +1465,51 @@
    ========================================================= */
 .receipt-paper-card {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   background: #ffffff;
   color: #111827;
-  border-radius: 16px;
-  padding: 24px 20px;
+  border-radius: 18px;
+  padding: 24px 20px 20px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
   font-family: 'Courier New', Courier, monospace;
   position: relative;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Prominent Top-Right Floating Close Button */
+.receipt-modal-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 20;
+}
+.receipt-modal-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.08);
 }
 
 .receipt-header {
   text-align: center;
   border-bottom: 1px dashed #9ca3af;
   padding-bottom: 12px;
+  padding-top: 6px;
 }
 
 .receipt-brand-title {
@@ -1534,7 +1561,7 @@
 }
 
 .receipt-total-row.grand {
-  font-size: 1.15rem;
+  font-size: 1.18rem;
   font-weight: 900;
   color: #000000;
   padding-top: 6px;
@@ -1546,27 +1573,277 @@
   font-size: 0.74rem;
   color: #6b7280;
   line-height: 1.4;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .receipt-actions-footer {
+  position: sticky;
+  bottom: -4px;
+  background: #ffffff;
+  padding-top: 12px;
+  margin-top: 6px;
+  border-top: 1px dashed #e2e8f0;
   display: flex;
   gap: 10px;
-  margin-top: 6px;
+  z-index: 10;
 }
 
 /* =========================================================
-   COMPREHENSIVE PRINT MEDIA RULES
+   LUXURY ACRYLIC QR STAND CARDS
+   ========================================================= */
+.qr-stands-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 24px;
+}
+
+.qr-stand-print-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
+  color: #0f172a;
+  border-radius: 22px;
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+  position: relative;
+  border: 2px solid #d97706;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.qr-stand-print-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55), 0 0 25px rgba(217, 119, 6, 0.2);
+}
+
+/* Stand Top Acrylic Clip Accent */
+.stand-top-clip {
+  width: 54px;
+  height: 6px;
+  background: #d97706;
+  border-radius: 0 0 6px 6px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.stand-luxury-header {
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.stand-crest-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  font-size: 0.64rem;
+  font-weight: 800;
+  color: #b45309;
+  letter-spacing: 0.16em;
+  margin-bottom: 2px;
+}
+
+.stand-crest-icon {
+  color: #d97706;
+}
+
+.stand-brand-title {
+  font-family: var(--font-display, inherit);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.stand-brand-tagline {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Stand QR Frame */
+.stand-qr-holder {
+  position: relative;
+  width: 175px;
+  height: 175px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 6px auto;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.stand-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #d97706;
+  border-style: solid;
+  pointer-events: none;
+}
+.stand-corner.top-left {
+  top: 4px;
+  left: 4px;
+  border-width: 2.5px 0 0 2.5px;
+}
+.stand-corner.top-right {
+  top: 4px;
+  right: 4px;
+  border-width: 2.5px 2.5px 0 0;
+}
+.stand-corner.bottom-left {
+  bottom: 4px;
+  left: 4px;
+  border-width: 0 0 2.5px 2.5px;
+}
+.stand-corner.bottom-right {
+  bottom: 4px;
+  right: 4px;
+  border-width: 0 2.5px 2.5px 0;
+}
+
+.stand-qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.stand-scan-prompt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b45309;
+  margin: 6px 0 10px;
+}
+
+.stand-table-pill {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 6px 20px;
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+  border: 1.5px solid #f59e0b;
+  width: fit-content;
+  min-width: 165px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+}
+
+.stand-table-num {
+  font-family: var(--font-display, inherit);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: #f59e0b;
+}
+
+.stand-table-cap {
+  font-size: 0.66rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.stand-guide-steps {
+  width: 100%;
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.stand-step-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.stand-step-pill {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fef3c7;
+  color: #b45309;
+  font-weight: 800;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stand-hospitality-footer {
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stand-wifi-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: #475569;
+}
+
+.stand-brand-micro {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.stand-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.stand-print-btn {
+  background: #d97706 !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+.stand-print-btn:hover {
+  background: #b45309 !important;
+}
+
+/* =========================================================
+   COMPREHENSIVE PRINT MEDIA RULES (ISOLATED RECEIPT & STANDS)
    ========================================================= */
 @media print {
   /* Hide non-printable app chrome */
   .no-print,
+  .receipt-modal-close-btn,
+  .receipt-actions-footer,
   .dash-sidebar,
   .top-command-header,
   .floating-alert-banner,
   .orders-filter-row,
-  .panel-header-row button,
-  .receipt-actions-footer,
+  .panel-header-row,
+  .stand-card-actions,
   .modal-close-btn,
   .btn-table-menu,
   .btn-clear-table,
@@ -1583,64 +1860,114 @@
     print-color-adjust: exact !important;
   }
 
-  .dash-layout-container,
-  .dash-main-area,
-  .floor-status-panel {
-    background: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
+  /* ---------------------------------------------------------
+     1. THERMAL BILL RECEIPT PRINTING (80mm ESC/POS ROLL)
+     ONLY the receipt card prints, no dashboard background.
+     --------------------------------------------------------- */
+  body.printing-receipt-only {
+    width: 80mm !important;
     margin: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    display: block !important;
+    padding: 0 !important;
   }
 
-  /* Thermal Receipt Printing */
-  .modal-backdrop {
+  body.printing-receipt-only * {
+    visibility: hidden !important;
+  }
+
+  body.printing-receipt-only .modal-backdrop {
     position: static !important;
+    display: block !important;
     background: transparent !important;
     padding: 0 !important;
-    display: block !important;
+    margin: 0 !important;
   }
 
-  .receipt-paper-card {
+  body.printing-receipt-only #thermal-receipt-container,
+  body.printing-receipt-only #thermal-receipt-container * {
+    visibility: visible !important;
+  }
+
+  body.printing-receipt-only #thermal-receipt-container {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-    width: 80mm !important;
-    max-width: 80mm !important;
+    width: 76mm !important;
+    max-width: 76mm !important;
     margin: 0 !important;
-    padding: 4mm !important;
-    border: none !important;
+    padding: 2mm 3mm !important;
     box-shadow: none !important;
+    border: none !important;
     border-radius: 0 !important;
-    color: #000000 !important;
-    background: #ffffff !important;
-    font-size: 11pt !important;
-  }
-
-  /* QR Stand Printing */
-  .floor-table-grid {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 15mm !important;
-    padding: 10mm !important;
-  }
-
-  .qr-stand-print-card {
     background: #ffffff !important;
     color: #000000 !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 10pt !important;
+    line-height: 1.35 !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* ---------------------------------------------------------
+     2. SINGLE TABLE QR STAND PRINTING
+     ONLY the target stand card prints centered on page.
+     --------------------------------------------------------- */
+  body.printing-single-stand-only * {
+    visibility: hidden !important;
+  }
+
+  body.printing-single-stand-only .qr-stand-print-card.is-target-stand,
+  body.printing-single-stand-only .qr-stand-print-card.is-target-stand * {
+    visibility: visible !important;
+  }
+
+  body.printing-single-stand-only .qr-stand-print-card.is-target-stand {
+    position: absolute !important;
+    left: 50% !important;
+    top: 20mm !important;
+    transform: translateX(-50%) !important;
+    width: 105mm !important;
+    max-width: 105mm !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
     border: 2px solid #000000 !important;
     border-radius: 14px !important;
-    padding: 20px !important;
-    text-align: center !important;
+    background: #ffffff !important;
+    color: #000000 !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  .qr-stand-print-card img {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  /* ---------------------------------------------------------
+     3. ALL STANDS BATCH PRINTING
+     --------------------------------------------------------- */
+  body.printing-all-stands-only .dash-layout-container,
+  body.printing-all-stands-only .dash-main-area,
+  body.printing-all-stands-only .floor-status-panel {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: block !important;
+  }
+
+  body.printing-all-stands-only .qr-stands-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12mm !important;
+    padding: 6mm !important;
+  }
+
+  body.printing-all-stands-only .qr-stand-print-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

@@ -7,6 +7,7 @@
   margin: 0 auto;
   padding: 24px;
 }
+
 .stands-toolbar {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -17,102 +18,164 @@
   justify-content: space-between;
   margin-bottom: 24px;
 }
+
 .stands-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 24px;
 }
 
 /* Individual Printable Acrylic Stand Card */
 .qr-stand-card {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfbfc 100%);
   color: #0f172a;
-  border-radius: 20px;
-  padding: 28px 24px;
+  border-radius: 22px;
+  padding: 26px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
   position: relative;
-  border: 3px solid #f59e0b;
+  border: 2px solid #d97706;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.qr-stand-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55), 0 0 25px rgba(217, 119, 6, 0.2);
+}
+
+.stand-top-clip {
+  width: 52px;
+  height: 6px;
+  background: #d97706;
+  border-radius: 0 0 6px 6px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .stand-brand-header {
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  width: 100%;
 }
-.stand-brand-title {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
+
+.stand-crest-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  font-size: 0.64rem;
   font-weight: 800;
-  color: #0f172a;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  color: #b45309;
+  letter-spacing: 0.16em;
+  margin-bottom: 2px;
 }
-.stand-tagline {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #d97706;
+
+.stand-brand-title {
+  font-family: var(--font-display, inherit);
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  margin: 2px 0 0;
+}
+
+.stand-tagline {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .stand-qr-box {
-  width: 200px;
-  height: 200px;
+  width: 175px;
+  height: 175px;
   background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
   padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px 0;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  margin: 6px auto;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
-.stand-qr-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+
+.stand-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: #d97706;
+  border-style: solid;
+  pointer-events: none;
+}
+.stand-corner.top-left {
+  top: 4px;
+  left: 4px;
+  border-width: 2.5px 0 0 2.5px;
+}
+.stand-corner.top-right {
+  top: 4px;
+  right: 4px;
+  border-width: 2.5px 2.5px 0 0;
+}
+.stand-corner.bottom-left {
+  bottom: 4px;
+  left: 4px;
+  border-width: 0 0 2.5px 2.5px;
+}
+.stand-corner.bottom-right {
+  bottom: 4px;
+  right: 4px;
+  border-width: 0 2.5px 2.5px 0;
 }
 
 .stand-table-badge {
   background: #0f172a;
   color: #f59e0b;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 800;
-  padding: 8px 24px;
-  border-radius: var(--radius-full);
-  margin-bottom: 16px;
-  letter-spacing: 0.04em;
+  font-family: var(--font-display, inherit);
+  font-size: 1.15rem;
+  font-weight: 900;
+  padding: 6px 22px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+  border: 1.5px solid #f59e0b;
 }
 
 .stand-steps-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   text-align: left;
   border-top: 1px dashed #cbd5e1;
-  padding-top: 14px;
+  padding-top: 10px;
 }
+
 .stand-step-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #334155;
 }
+
 .stand-step-num {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: #fef3c7;
   color: #b45309;
   font-weight: 800;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,23 +187,65 @@
   body {
     background: #fff !important;
     color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
   .no-print {
     display: none !important;
   }
-  .stands-screen-wrap {
-    padding: 0;
-    max-width: 100%;
+
+  /* Single Stand Printing */
+  body.printing-single-stand-only * {
+    visibility: hidden !important;
   }
-  .stands-grid {
-    display: block;
+
+  body.printing-single-stand-only .qr-stand-card.is-target-stand,
+  body.printing-single-stand-only .qr-stand-card.is-target-stand * {
+    visibility: visible !important;
   }
-  .qr-stand-card {
-    page-break-after: always;
-    box-shadow: none;
-    border: 2px solid #000;
-    margin: 20px auto;
-    width: 100mm;
-    min-height: 145mm;
+
+  body.printing-single-stand-only .qr-stand-card.is-target-stand {
+    position: absolute !important;
+    left: 50% !important;
+    top: 20mm !important;
+    transform: translateX(-50%) !important;
+    width: 105mm !important;
+    max-width: 105mm !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
+    border: 2px solid #000000 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* All Stands Printing */
+  body.printing-all-stands-only .stands-screen-wrap {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  body.printing-all-stands-only .stands-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12mm !important;
+    padding: 6mm !important;
+  }
+
+  body.printing-all-stands-only .qr-stand-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    border-radius: 14px !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 }

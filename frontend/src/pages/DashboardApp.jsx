@@ -72,6 +72,7 @@ export default function DashboardApp({ onLockStaff }) {
   const [editingDish, setEditingDish] = useState(null);
   const [tableModalOpen, setTableModalOpen] = useState(false);
   const [viewQrTable, setViewQrTable] = useState(null);
+  const [printingSingleTable, setPrintingSingleTable] = useState(null);
 
   // Form states
   const [dishForm, setDishForm] = useState({
@@ -395,6 +396,61 @@ export default function DashboardApp({ onLockStaff }) {
     }
     addToast('Opening receipt print preview...', 'info');
   };
+
+  // Dedicated Print Handlers
+  const handlePrintReceipt = () => {
+    document.body.classList.add('printing-receipt-only');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-receipt-only');
+    }, 1200);
+  };
+
+  const handlePrintSingleStand = (table) => {
+    setPrintingSingleTable(table);
+    document.body.classList.add('printing-single-stand-only');
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-single-stand-only');
+        setPrintingSingleTable(null);
+      }, 1200);
+    }, 150);
+  };
+
+  const handlePrintAllStands = () => {
+    document.body.classList.add('printing-all-stands-only');
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('printing-all-stands-only');
+    }, 1200);
+  };
+
+  // Clean up printing classes on print dialog dismissal
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      document.body.classList.remove('printing-receipt-only');
+      document.body.classList.remove('printing-single-stand-only');
+      document.body.classList.remove('printing-all-stands-only');
+      setPrintingSingleTable(null);
+    };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (printBillOrder) setPrintBillOrder(null);
+        if (viewQrTable) setViewQrTable(null);
+        if (menuModalOpen) setMenuModalOpen(false);
+        if (tableModalOpen) setTableModalOpen(false);
+      }
+    };
+
+    window.addEventListener('afterprint', handleAfterPrint);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('afterprint', handleAfterPrint);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [printBillOrder, viewQrTable, menuModalOpen, tableModalOpen]);
 
   // KPI calculations
   const totalRevenue = orders
@@ -1177,43 +1233,122 @@ export default function DashboardApp({ onLockStaff }) {
           <section className="floor-status-panel">
             <div className="panel-header-row">
               <div>
-                <h3>Print Table Acrylic Stands</h3>
-                <p>Generate QR cards for customer phone ordering</p>
+                <h3>Table Acrylic QR Stands</h3>
+                <p>Luxury printable standees for contactless guest phone ordering</p>
               </div>
-              <button className="btn-primary" onClick={() => window.print()}>
-                <Printer size={16} /> Print All Stands
-              </button>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn-primary" onClick={handlePrintAllStands}>
+                  <Printer size={16} /> Print All Stands ({tables.length})
+                </button>
+              </div>
             </div>
 
-            <div className="floor-table-grid">
-              {tables.map((t) => (
-                <div key={t.id} className="qr-stand-print-card">
-                  <div style={{ fontWeight: 900, fontSize: '1.3rem', letterSpacing: '0.04em' }}>SPICE GARDEN</div>
-                  <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 800, margin: '4px 0 14px' }}>
-                    SCAN TO ORDER & PAY
+            <div className="floor-table-grid qr-stands-grid-container">
+              {tables.map((t) => {
+                const isTargetForPrint = printingSingleTable?.id === t.id;
+                return (
+                  <div
+                    key={t.id}
+                    data-table-id={t.id}
+                    className={`qr-stand-print-card ${isTargetForPrint ? 'is-target-stand' : ''}`}
+                  >
+                    {/* Stand Top Acrylic Clip Accent */}
+                    <div className="stand-top-clip" />
+
+                    {/* Brand Header with Crest */}
+                    <div className="stand-luxury-header">
+                      <div className="stand-crest-badge">
+                        <Sparkles size={13} className="stand-crest-icon" />
+                        <span className="stand-crest-text">LUXURY DINING</span>
+                        <Sparkles size={13} className="stand-crest-icon" />
+                      </div>
+                      <div className="stand-brand-title">SPICE GARDEN</div>
+                      <div className="stand-brand-tagline">FINE DINING & ROOFTOP LOUNGE</div>
+                    </div>
+
+                    {/* QR Code Container with High-Contrast Precision Frame */}
+                    <div className="stand-qr-holder">
+                      <div className="stand-corner top-left" />
+                      <div className="stand-corner top-right" />
+                      <div className="stand-corner bottom-left" />
+                      <div className="stand-corner bottom-right" />
+                      <img
+                        src={`/api/qrcode/${t.id}`}
+                        alt={`Table ${t.id} QR Code`}
+                        className="stand-qr-image"
+                        loading="eager"
+                      />
+                    </div>
+                    <div className="stand-scan-prompt">
+                      <span>Point camera & tap link to open menu</span>
+                    </div>
+
+                    {/* Prominent Table Number Pill Badge */}
+                    <div className="stand-table-pill">
+                      <span className="stand-table-num">{t.name || `TABLE ${t.id}`}</span>
+                      <span className="stand-table-cap">Capacity: {t.capacity || 4} Guests</span>
+                    </div>
+
+                    {/* 3 Step Guidance */}
+                    <div className="stand-guide-steps">
+                      <div className="stand-step-row">
+                        <span className="stand-step-pill">1</span>
+                        <span>Open camera or Google Lens & scan QR</span>
+                      </div>
+                      <div className="stand-step-row">
+                        <span className="stand-step-pill">2</span>
+                        <span>Browse live specials & customize dishes</span>
+                      </div>
+                      <div className="stand-step-row">
+                        <span className="stand-step-pill">3</span>
+                        <span>Order straight to kitchen & settle bill</span>
+                      </div>
+                    </div>
+
+                    {/* Hospitality Bar with Wi-Fi & System */}
+                    <div className="stand-hospitality-footer">
+                      <div className="stand-wifi-info">
+                        <Wifi size={13} />
+                        <span>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Pass)</span>
+                      </div>
+                      <div className="stand-brand-micro">Powered by QR Table System</div>
+                    </div>
+
+                    {/* Action Buttons (Screen Only - Hidden in Print) */}
+                    <div className="stand-card-actions no-print">
+                      <button
+                        type="button"
+                        className="btn-primary stand-print-btn"
+                        onClick={() => handlePrintSingleStand(t)}
+                        title="Print only this table stand"
+                      >
+                        <Printer size={15} /> Print Stand
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={() => setViewQrTable(t)}
+                        title="Preview & Download High-Res QR"
+                      >
+                        <QrCode size={14} /> Preview
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={() =>
+                          window.open(
+                            `/?table=${t.id}&token=${t.sessionToken || ''}`,
+                            '_blank'
+                          )
+                        }
+                        title="Test Live Customer Menu in New Tab"
+                      >
+                        <ExternalLink size={14} /> Menu
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ width: 160, height: 160, margin: '0 auto 14px', background: '#fff', border: '2px solid #000', borderRadius: 12, padding: 8 }}>
-                    <img src={`/api/qrcode/${t.id}`} alt={`Table ${t.id} QR`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  </div>
-                  <div style={{ background: '#0f172a', color: '#f59e0b', padding: '6px 20px', borderRadius: 999, fontWeight: 900, fontSize: '1.15rem', width: 'fit-content', margin: '0 auto 12px' }}>
-                    {t.name || `TABLE ${t.id}`}
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#475569', textAlign: 'left', lineHeight: 1.6, maxWidth: 220, margin: '0 auto' }}>
-                    <div><strong>1.</strong> Scan with phone camera</div>
-                    <div><strong>2.</strong> Browse menu & customize</div>
-                    <div><strong>3.</strong> Track cooking & settle bill</div>
-                  </div>
-                  <div className="no-print" style={{ marginTop: 14 }}>
-                    <button
-                      className="btn-secondary"
-                      style={{ fontSize: '0.78rem', padding: '6px 14px', width: '100%' }}
-                      onClick={() => setViewQrTable(t)}
-                    >
-                      <QrCode size={14} /> View & Download QR
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
@@ -1904,7 +2039,22 @@ export default function DashboardApp({ onLockStaff }) {
       {/* Thermal Bill Receipt Modal */}
       {printBillOrder && (
         <div className="modal-backdrop" onClick={() => setPrintBillOrder(null)}>
-          <div className="receipt-paper-card" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="receipt-paper-card"
+            id="thermal-receipt-container"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top-Right Floating Close Button - ALWAYS visible on screen */}
+            <button
+              type="button"
+              className="receipt-modal-close-btn no-print"
+              onClick={() => setPrintBillOrder(null)}
+              title="Close Receipt (Esc)"
+              aria-label="Close"
+            >
+              <X size={18} />
+            </button>
+
             <div className="receipt-header">
               <div className="receipt-brand-title">SPICE GARDEN</div>
               <div className="receipt-meta">Fine Dining Restaurant & Bar</div>
@@ -1963,15 +2113,27 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
 
             <div className="receipt-footer-msg">
-              <div>*** THANK YOU FOR DINING WITH US ***</div>
+              <div style={{ fontWeight: 700 }}>*** THANK YOU FOR DINING WITH US ***</div>
               <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit Spice Garden Again!</div>
+              <div style={{ fontSize: '0.62rem', color: '#9ca3af', marginTop: 4 }}>
+                Powered by QR Table System ESC/POS v2.0
+              </div>
             </div>
 
             <div className="receipt-actions-footer no-print">
-              <button className="btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ flex: 1 }}
+                onClick={handlePrintReceipt}
+              >
                 <Printer size={16} /> Print Receipt (80mm)
               </button>
-              <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setPrintBillOrder(null)}
+              >
                 Close
               </button>
             </div>
@@ -1982,7 +2144,7 @@ export default function DashboardApp({ onLockStaff }) {
       {/* View Table QR Modal */}
       {viewQrTable && (
         <div className="modal-backdrop" onClick={() => setViewQrTable(null)}>
-          <div className="dash-modal-card" style={{ maxWidth: 420, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
+          <div className="dash-modal-card" style={{ maxWidth: 440, textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
             <div className="dash-modal-header">
               <h3>{viewQrTable.name || `Table ${viewQrTable.id}`} QR Code</h3>
               <button className="modal-close-btn" onClick={() => setViewQrTable(null)}>
@@ -2005,9 +2167,17 @@ export default function DashboardApp({ onLockStaff }) {
                 {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}` : ''}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, width: '100%' }}>
                 <button
+                  type="button"
                   className="btn-primary"
+                  onClick={() => handlePrintSingleStand(viewQrTable)}
+                >
+                  <Printer size={15} /> Print Stand
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
                   onClick={() =>
                     window.open(`/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}`, '_blank')
                   }
@@ -2015,6 +2185,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <ExternalLink size={15} /> Open Menu
                 </button>
                 <button
+                  type="button"
                   className="btn-secondary"
                   onClick={() => window.open(`/api/qrcode/${viewQrTable.id}`, '_blank')}
                 >
