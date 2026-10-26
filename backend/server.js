@@ -453,15 +453,6 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     table.sessionToken = generateTableToken(table.id);
     table.tokenCreatedAt = new Date().toISOString();
     writeData(TABLES_FILE, tables);
-  } else {
-    // 8-hour automatic token expiration TTL if no orders active
-    const MAX_TOKEN_AGE_MS = 8 * 60 * 60 * 1000;
-    const tokenAge = table.tokenCreatedAt ? (Date.now() - new Date(table.tokenCreatedAt).getTime()) : 0;
-    if (tokenAge > MAX_TOKEN_AGE_MS && table.status === 'available') {
-      table.sessionToken = generateTableToken(table.id);
-      table.tokenCreatedAt = new Date().toISOString();
-      writeData(TABLES_FILE, tables);
-    }
   }
 
   // Verify token matches the active rotated sessionToken
@@ -572,7 +563,8 @@ app.get('/api/orders/table/:tableId', (req, res) => {
 
 // Place new order
 app.post('/api/orders', (req, res) => {
-  const { tableId, token, items, notes, guestName } = req.body;
+  const { tableId, items, notes, guestName } = req.body;
+  const token = req.body.token || req.body.sessionToken;
   if (!tableId || !items || !items.length) {
     return res.status(400).json({ error: 'Invalid order parameters' });
   }
@@ -633,13 +625,20 @@ app.post('/api/orders', (req, res) => {
   orders.push(newOrder);
   writeData(ORDERS_FILE, orders);
 
-  // Notify Kitchen Display System, Admin, and Table
+  // Update table occupancy status to OCCUPIED
+  table.status = 'occupied';
+  table.manualStatus = 'occupied';
+  table.occupiedAt = new Date().toISOString();
+  writeData(TABLES_FILE, tables);
+
+  // Notify Kitchen Display System, Admin, Table room, and Floor dashboards
   io.to('kitchen').emit('order:new', newOrder);
   io.to('admin').emit('order:new', newOrder);
   io.to(`table_${tableId}`).emit('order:updated', newOrder);
   io.emit('table:status_changed', { tableId: parseInt(tableId, 10), status: 'occupied' });
+  io.emit('tables:updated', tables);
 
-  res.status(201).json(newOrder);
+  res.status(201).json({ success: true, order: newOrder, ...newOrder });
 });
 
 // Update order status
@@ -679,6 +678,9 @@ app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
       const tables = readData(TABLES_FILE);
       const table = tables.find(t => t.id === order.tableId);
       if (table) {
+        table.status = 'available';
+        table.manualStatus = 'vacant';
+        table.lastClearedAt = new Date().toISOString();
         const oldToken = table.sessionToken;
         table.sessionToken = generateTableToken(table.id);
         table.tokenCreatedAt = new Date().toISOString();
@@ -690,6 +692,7 @@ app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
           tableName: table.name,
           message: 'All orders for this table are completed! Dining session closed.'
         });
+        io.emit('table:status_changed', { tableId: table.id, status: 'vacant' });
         io.emit('tables:updated', tables);
       }
     }

@@ -288,6 +288,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         tableId: tableId,
         tableNumber: tableId,
         tableName: `Table ${tableId}`,
+        token: tableToken,
         sessionToken: tableToken,
         customerName: customerName.trim() || `Guest (T${tableId})`,
         items: cart.map((item) => ({
@@ -310,8 +311,9 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
-        setActiveOrder(data.order);
+      if (res.ok && (data.success || data.order || data.id || data.orderNumber)) {
+        const placedOrder = data.order || data;
+        setActiveOrder(placedOrder);
         setCart([]);
         setIsCartOpen(false);
         soundManager.playNewOrderChime();
@@ -323,7 +325,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           origin: { y: 0.6 }
         });
 
-        addToast(`Order #${data.order.orderNumber} sent to kitchen!`, 'success', 5000);
+        addToast(`Order #${placedOrder.orderNumber || placedOrder.id} sent to kitchen!`, 'success', 5000);
       } else {
         if (res.status === 403 || data.error === 'TOKEN_EXPIRED') {
           setSessionExpired(true);

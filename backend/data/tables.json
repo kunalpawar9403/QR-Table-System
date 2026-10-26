@@ -18,9 +18,10 @@
     "section": "Indoor Dining",
     "status": "available",
     "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-17T18:08:08.053Z",
-    "sessionToken": "T2-X5ZGZM",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "lastClearedAt": "2026-10-26T17:34:15.529Z",
+    "sessionToken": "T2-F32DPE",
+    "tokenCreatedAt": "2026-10-26T17:34:15.529Z",
+    "occupiedAt": "2026-10-26T17:34:15.515Z"
   },
   {
     "id": 3,
