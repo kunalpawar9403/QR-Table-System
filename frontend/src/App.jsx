@@ -66,75 +66,77 @@ export default function App() {
   return (
     <ToastProvider>
       <div className="app-root">
-        {/* Top App Role Switcher Bar */}
-        <div
-          className="no-print"
-          style={{
-            background: 'rgba(11, 16, 29, 0.95)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            padding: '8px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            position: 'sticky',
-            top: 0,
-            zIndex: 900,
-            backdropFilter: 'blur(16px)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span
-              style={{
-                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                color: '#000',
-                fontWeight: 900,
-                fontSize: '0.72rem',
-                padding: '3px 8px',
-                borderRadius: 6
-              }}
-            >
-              SPICE GARDEN
-            </span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              React + Vite Suite
-            </span>
-          </div>
+        {/* Top App Role Switcher Bar (Only shown on non-dashboard screens or as discrete floater) */}
+        {currentView !== 'dashboard' && (
+          <div
+            className="no-print"
+            style={{
+              background: 'rgba(11, 16, 29, 0.95)',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '8px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              position: 'sticky',
+              top: 0,
+              zIndex: 900,
+              backdropFilter: 'blur(16px)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  color: '#000',
+                  fontWeight: 900,
+                  fontSize: '0.72rem',
+                  padding: '3px 8px',
+                  borderRadius: 6
+                }}
+              >
+                SPICE GARDEN
+              </span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                React + Vite Suite
+              </span>
+            </div>
 
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button
-              className={`filter-pill-btn ${currentView === 'customer' ? 'active' : ''}`}
-              onClick={() => switchView('customer')}
-              title="Customer Phone Menu View"
-            >
-              <Utensils size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              Customer Menu
-            </button>
-            <button
-              className={`filter-pill-btn ${currentView === 'dashboard' ? 'active' : ''}`}
-              onClick={() => switchView('dashboard')}
-              title="Admin & POS Dashboard"
-            >
-              <LayoutDashboard size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              POS Dashboard
-            </button>
-            <button
-              className={`filter-pill-btn ${currentView === 'kitchen' ? 'active' : ''}`}
-              onClick={() => switchView('kitchen')}
-              title="Kitchen Display System"
-            >
-              <ChefHat size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              Kitchen KDS
-            </button>
-            <button
-              className={`filter-pill-btn ${currentView === 'stands' ? 'active' : ''}`}
-              onClick={() => switchView('stands')}
-              title="Print QR Acrylic Stands"
-            >
-              <QrCode size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-              QR Stands
-            </button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button
+                className={`filter-pill-btn ${currentView === 'customer' ? 'active' : ''}`}
+                onClick={() => switchView('customer')}
+                title="Customer Phone Menu View"
+              >
+                <Utensils size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                Customer Menu
+              </button>
+              <button
+                className={`filter-pill-btn ${currentView === 'dashboard' ? 'active' : ''}`}
+                onClick={() => switchView('dashboard')}
+                title="Admin & POS Dashboard"
+              >
+                <LayoutDashboard size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                POS Dashboard
+              </button>
+              <button
+                className={`filter-pill-btn ${currentView === 'kitchen' ? 'active' : ''}`}
+                onClick={() => switchView('kitchen')}
+                title="Kitchen Display System"
+              >
+                <ChefHat size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                Kitchen KDS
+              </button>
+              <button
+                className={`filter-pill-btn ${currentView === 'stands' ? 'active' : ''}`}
+                onClick={() => switchView('stands')}
+                title="Print QR Acrylic Stands"
+              >
+                <QrCode size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                QR Stands
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Current Active View */}
         <main>

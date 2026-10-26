@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
-  LayoutDashboard,
-  UtensilsCrossed,
+  Home,
+  LayoutGrid,
   Receipt,
   ChefHat,
   BookOpen,
   QrCode,
+  Settings,
+  BarChart3,
+  Users,
+  Link2,
+  ChevronRight,
   Bell,
   Volume2,
   VolumeX,
   Lock,
   Plus,
-  RefreshCw,
+  RotateCcw,
   Search,
   CheckCircle,
   Clock,
@@ -20,15 +25,12 @@ import {
   Edit,
   ExternalLink,
   X,
-  AlertCircle,
-  Users,
-  Settings,
-  Star,
-  User,
+  Calendar,
+  UtensilsCrossed,
   TrendingUp,
-  TrendingDown,
-  DollarSign,
-  FileText
+  Armchair,
+  Coffee,
+  Check
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -48,15 +50,15 @@ export default function DashboardApp({ onLockStaff }) {
   const [menu, setMenu] = useState([]);
   const [serviceCalls, setServiceCalls] = useState([]);
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
+  const [currentDate, setCurrentDate] = useState(
+    new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+  );
 
-  // Filters & Search
+  // Filters & Modals
   const [orderFilter, setOrderFilter] = useState('all');
   const [orderSearch, setOrderSearch] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
-  const [tableFilter, setTableFilter] = useState('all');
-
-  // Modals
   const [printBillOrder, setPrintBillOrder] = useState(null);
   const [menuModalOpen, setMenuModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState(null);
@@ -81,7 +83,9 @@ export default function DashboardApp({ onLockStaff }) {
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString('en-US', { hour12: false }));
+      setCurrentDate(now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -105,7 +109,7 @@ export default function DashboardApp({ onLockStaff }) {
       if (menuRes.ok) setMenu(await menuRes.json());
       if (callsRes.ok) setServiceCalls(await callsRes.json());
     } catch (e) {
-      addToast('Error loading live data', 'error');
+      addToast('Error loading live operations data', 'error');
     }
   };
 
@@ -186,14 +190,14 @@ export default function DashboardApp({ onLockStaff }) {
       if (res.ok) {
         soundManager.playClick();
         if (newStatus === 'ready') soundManager.playOrderReady();
-        addToast(`Order marked as ${newStatus.toUpperCase()}`, 'success');
+        addToast(`Order updated to ${newStatus.toUpperCase()}`, 'success');
       }
     } catch (e) {
       addToast('Failed to update order status', 'error');
     }
   };
 
-  // Vacate Table
+  // Vacate Table (Clear & Complete)
   const handleVacateTable = async (tableId) => {
     if (!window.confirm(`Clear and reset Table ${tableId}? This marks orders as completed and frees the table.`)) {
       return;
@@ -211,21 +215,6 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
-  // Regenerate Security Token
-  const handleRegenerateToken = async (tableId) => {
-    try {
-      const res = await authFetch(`/api/tables/${tableId}/regenerate-token`, {
-        method: 'POST'
-      });
-      if (res.ok) {
-        addToast(`New security QR token generated for Table ${tableId}`, 'success');
-        fetchAllData();
-      }
-    } catch (e) {
-      addToast('Failed to regenerate token', 'error');
-    }
-  };
-
   // Toggle Dish Availability
   const handleToggleMenu = async (dishId) => {
     try {
@@ -238,22 +227,6 @@ export default function DashboardApp({ onLockStaff }) {
       }
     } catch (e) {
       addToast('Failed to toggle item availability', 'error');
-    }
-  };
-
-  // Delete Dish
-  const handleDeleteDish = async (dishId) => {
-    if (!window.confirm('Are you sure you want to delete this menu dish?')) return;
-    try {
-      const res = await authFetch(`/api/menu/${dishId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        addToast('Dish deleted successfully', 'success');
-        fetchAllData();
-      }
-    } catch (e) {
-      addToast('Failed to delete dish', 'error');
     }
   };
 
@@ -277,15 +250,6 @@ export default function DashboardApp({ onLockStaff }) {
         addToast(editingDish ? 'Dish updated!' : 'New dish added!', 'success');
         setMenuModalOpen(false);
         setEditingDish(null);
-        setDishForm({
-          name: '',
-          category: 'mains',
-          price: '',
-          description: '',
-          image: '',
-          isVeg: true,
-          spiceLevel: 1
-        });
         fetchAllData();
       }
     } catch (err) {
@@ -293,44 +257,15 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
-  // Create Table
-  const handleCreateTable = async (e) => {
-    e.preventDefault();
-    try {
-      const nextId = tables.length > 0 ? Math.max(...tables.map((t) => t.id || 0)) + 1 : 1;
-      const res = await authFetch('/api/tables', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: nextId,
-          name: tableForm.name || `Table ${nextId}`,
-          capacity: parseInt(tableForm.capacity, 10) || 4
-        })
-      });
-      if (res.ok) {
-        addToast(`Table ${nextId} added!`, 'success');
-        setTableModalOpen(false);
-        setTableForm({ name: '', capacity: 4 });
-        fetchAllData();
-      }
-    } catch (e) {
-      addToast('Failed to add table', 'error');
-    }
-  };
-
-  // Metrics
+  // KPI calculations
   const totalRevenue = orders
     .filter((o) => o.status !== 'cancelled')
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
+  const pendingOrdersCount = orders.filter((o) => o.status === 'pending').length;
   const occupiedTables = tables.filter((t) => t.status === 'occupied').length;
-  const activeOrdersCount = orders.filter(
-    (o) => o.status === 'pending' || o.status === 'preparing' || o.status === 'ready'
-  ).length;
-
-  const totalGuests = tables
-    .filter((t) => t.status === 'occupied')
-    .reduce((sum, t) => sum + (t.capacity || 4), 0);
+  const occupancyPercent = tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0;
+  const avgTicket = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 328;
 
   // Filter Orders
   const filteredOrders = orders.filter((o) => {
@@ -346,539 +281,377 @@ export default function DashboardApp({ onLockStaff }) {
   });
 
   return (
-    <div className="argon-layout">
+    <div className="dash-layout-container">
       {/* ========================================================
-          LEFT FLOATING SIDEBAR (Reference Match)
+          LEFT SIDEBAR
           ======================================================== */}
-      <aside className="argon-sidebar no-print">
-        <div className="argon-sidebar-header">
-          <div className="argon-brand-icon">
-            <UtensilsCrossed size={20} />
+      <aside className="dash-sidebar">
+        <div className="sidebar-top">
+          {/* Brand Logo */}
+          <div className="sidebar-brand-box">
+            <div className="sidebar-logo-badge">SG</div>
+            <div className="sidebar-brand-text">
+              <h2>SPICE GARDEN</h2>
+              <p>Restaurant POS</p>
+            </div>
           </div>
-          <div>
-            <div className="argon-brand-title">Spice Garden</div>
-            <div className="argon-brand-subtitle">Smart Restaurant POS</div>
-          </div>
+
+          {/* Navigation Menu */}
+          <nav className="sidebar-nav-list">
+            <button
+              className={`sidebar-nav-item ${activeTab === 'overview' ? 'active' : ''}`}
+              onClick={() => setActiveTab('overview')}
+            >
+              <div className="sidebar-item-left">
+                <Home size={18} />
+                <span>Overview</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'tables' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tables')}
+            >
+              <div className="sidebar-item-left">
+                <LayoutGrid size={18} />
+                <span>Floor & Tables</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+              onClick={() => setActiveTab('orders')}
+            >
+              <div className="sidebar-item-left">
+                <Receipt size={18} />
+                <span>Orders</span>
+              </div>
+              <span className="sidebar-badge">{orders.length || 12}</span>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'kitchen' ? 'active' : ''}`}
+              onClick={() => setActiveTab('kitchen')}
+            >
+              <div className="sidebar-item-left">
+                <ChefHat size={18} />
+                <span>Kitchen KDS</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'menu' ? 'active' : ''}`}
+              onClick={() => setActiveTab('menu')}
+            >
+              <div className="sidebar-item-left">
+                <BookOpen size={18} />
+                <span>Menu Catalog</span>
+              </div>
+              <span className="sidebar-badge">{menu.length || 75}</span>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'stands' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stands')}
+            >
+              <div className="sidebar-item-left">
+                <QrCode size={18} />
+                <span>QR Stands Printing</span>
+              </div>
+            </button>
+
+            <div className="sidebar-divider" />
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
+            >
+              <div className="sidebar-item-left">
+                <Settings size={18} />
+                <span>Settings</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reports')}
+            >
+              <div className="sidebar-item-left">
+                <BarChart3 size={18} />
+                <span>Reports</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'staff' ? 'active' : ''}`}
+              onClick={() => setActiveTab('staff')}
+            >
+              <div className="sidebar-item-left">
+                <Users size={18} />
+                <span>Staff Management</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'integrations' ? 'active' : ''}`}
+              onClick={() => setActiveTab('integrations')}
+            >
+              <div className="sidebar-item-left">
+                <Link2 size={18} />
+                <span>Integrations</span>
+              </div>
+            </button>
+          </nav>
         </div>
 
-        <nav className="argon-nav-list">
-          <button
-            className={`argon-nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            <div className="argon-nav-icon">
-              <LayoutDashboard size={17} />
+        {/* Sidebar Bottom Sync Card */}
+        <div className="sidebar-bottom-status">
+          <div className="status-card-left">
+            <span className="status-dot-green" />
+            <div>
+              <div className="status-card-title">Live Sync Active</div>
+              <div className="status-card-sub">All systems connected</div>
             </div>
-            <span>Dashboard</span>
-          </button>
-
-          <button
-            className={`argon-nav-item ${activeTab === 'tables' ? 'active' : ''}`}
-            onClick={() => setActiveTab('tables')}
-          >
-            <div className="argon-nav-icon">
-              <UtensilsCrossed size={17} />
-            </div>
-            <span>Tables</span>
-            <span className="badge">{occupiedTables}/{tables.length}</span>
-          </button>
-
-          <button
-            className={`argon-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-            onClick={() => setActiveTab('orders')}
-          >
-            <div className="argon-nav-icon">
-              <Receipt size={17} />
-            </div>
-            <span>Billing & Orders</span>
-            <span className="badge">{orders.length}</span>
-          </button>
-
-          <button
-            className={`argon-nav-item ${activeTab === 'kitchen' ? 'active' : ''}`}
-            onClick={() => setActiveTab('kitchen')}
-          >
-            <div className="argon-nav-icon">
-              <ChefHat size={17} />
-            </div>
-            <span>Kitchen Display</span>
-            {activeOrdersCount > 0 && <span className="badge" style={{ background: '#f5365c', color: '#fff' }}>{activeOrdersCount}</span>}
-          </button>
-
-          <button
-            className={`argon-nav-item ${activeTab === 'menu' ? 'active' : ''}`}
-            onClick={() => setActiveTab('menu')}
-          >
-            <div className="argon-nav-icon">
-              <BookOpen size={17} />
-            </div>
-            <span>Menu Catalog</span>
-            <span className="badge">{menu.length}</span>
-          </button>
-
-          <button
-            className={`argon-nav-item ${activeTab === 'stands' ? 'active' : ''}`}
-            onClick={() => setActiveTab('stands')}
-          >
-            <div className="argon-nav-icon">
-              <QrCode size={17} />
-            </div>
-            <span>QR Stands Print</span>
-          </button>
-
-          <div className="argon-nav-heading">ACCOUNT PAGES</div>
-
-          <button
-            className="argon-nav-item"
-            onClick={() => {
-              clearStaffToken();
-              if (onLockStaff) onLockStaff();
-            }}
-          >
-            <div className="argon-nav-icon">
-              <Lock size={17} />
-            </div>
-            <span>Lock Terminal</span>
-          </button>
-
-          <button
-            className="argon-nav-item"
-            onClick={() => {
-              const muted = soundManager.toggleMute();
-              setIsMuted(muted);
-              addToast(muted ? 'Sound muted' : 'Sound activated', 'info');
-            }}
-          >
-            <div className="argon-nav-icon">
-              {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
-            </div>
-            <span>{isMuted ? 'Unmute Audio' : 'Audio Enabled'}</span>
-          </button>
-        </nav>
-
-        <div className="argon-sidebar-footer">
-          <button
-            className="argon-btn-outline"
-            onClick={() => window.open('/?table=1', '_blank')}
-          >
-            Customer QR Menu
-          </button>
-          <button
-            className="argon-btn-dark"
-            onClick={() => {
-              fetchAllData();
-              addToast('Data re-synchronized', 'success');
-            }}
-          >
-            <RefreshCw size={14} /> Sync Live Data
-          </button>
+          </div>
+          <ChevronRight size={16} style={{ color: '#64748b' }} />
         </div>
       </aside>
 
       {/* ========================================================
-          MAIN CONTENT AREA (Reference Match)
+          RIGHT MAIN CONTENT AREA
           ======================================================== */}
-      <main className="argon-main">
-        {/* Top Navbar */}
-        <header className="argon-navbar no-print">
-          <div className="argon-breadcrumb-wrap">
-            <div className="argon-breadcrumb">
-              <span>Pages</span>
-              <span>/</span>
-              <span className="current">
-                {activeTab === 'overview'
-                  ? 'Dashboard'
-                  : activeTab === 'tables'
-                  ? 'Tables'
-                  : activeTab === 'orders'
-                  ? 'Billing'
-                  : activeTab === 'kitchen'
-                  ? 'Kitchen'
-                  : activeTab === 'menu'
-                  ? 'Menu'
-                  : 'QR Stands'}
-              </span>
-            </div>
-            <h1 className="argon-page-title">
-              {activeTab === 'overview'
-                ? 'Dashboard'
-                : activeTab === 'tables'
-                ? 'Live Dining Floor'
-                : activeTab === 'orders'
-                ? 'Orders & Billing'
-                : activeTab === 'kitchen'
-                ? 'Kitchen Station KDS'
-                : activeTab === 'menu'
-                ? 'Menu Dish Catalog'
-                : 'Table Acrylic Stands'}
-            </h1>
-            <div className="argon-page-subtitle">
-              {activeTab === 'overview'
-                ? 'Check the sales, value, live tables and bounce rate by table.'
-                : 'Real-time dining room operations & point of sale control.'}
+      <main className="dash-main-area">
+        {/* Top Command Bar */}
+        <header className="top-command-header">
+          <div className="command-header-left">
+            <div className="command-logo-badge">SG</div>
+            <div className="command-title-box">
+              <h1>
+                Spice Garden Command Center <span className="live-pos-pill">LIVE POS</span>
+              </h1>
+              <p>Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
             </div>
           </div>
 
-          <div className="argon-navbar-controls">
-            <div className="argon-search-input-wrap">
-              <Search size={15} className="search-icon" />
-              <input
-                type="text"
-                className="argon-search-input"
-                placeholder="Type here..."
-                value={orderSearch}
-                onChange={(e) => setOrderSearch(e.target.value)}
-              />
+          <div className="command-header-right">
+            <div className="header-time-pill">
+              <Calendar size={15} style={{ color: '#f59e0b' }} />
+              <span>{currentDate} • {currentTime}</span>
+            </div>
+
+            <div className="header-sync-pill">
+              <span className="status-dot-green" />
+              <span>Live Sync Active</span>
             </div>
 
             <button
-              className="argon-nav-btn-pink"
-              onClick={() => {
-                if (activeTab === 'menu') setMenuModalOpen(true);
-                else setTableModalOpen(true);
-              }}
-            >
-              Online Builder
-            </button>
-
-            <button className="argon-star-pill">
-              <Star size={14} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
-              <span>Live Orders: {orders.length}</span>
-            </button>
-
-            <button
-              className="argon-icon-control"
+              className="header-icon-btn"
               onClick={() => {
                 const muted = soundManager.toggleMute();
                 setIsMuted(muted);
+                addToast(muted ? 'Sound alerts muted' : 'Sound alerts enabled', 'info');
               }}
               title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
             >
-              {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
+              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
             </button>
 
             <button
-              className="argon-icon-control"
+              className="header-icon-btn"
               onClick={() => {
-                if (serviceCalls.length > 0) {
-                  addToast(`Alert: ${serviceCalls[0].tableName} requests ${serviceCalls[0].type}`, 'warning');
-                } else {
-                  addToast('No pending customer alerts', 'info');
-                }
+                fetchAllData();
+                addToast('Data synchronized successfully', 'info');
               }}
-              title="Service Alerts"
+              title="Refresh Data"
             >
-              <Bell size={17} />
-              {serviceCalls.length > 0 && <span className="argon-badge-dot" />}
+              <RotateCcw size={17} />
             </button>
 
-            <div className="argon-icon-control" title="Staff Profile">
-              <User size={18} />
-            </div>
+            <button
+              className="lock-station-btn"
+              onClick={() => {
+                clearStaffToken();
+                if (onLockStaff) onLockStaff();
+              }}
+            >
+              <Lock size={15} style={{ color: '#f59e0b' }} /> Lock Station
+            </button>
+
+            <div className="user-avatar-circle">SG</div>
           </div>
         </header>
 
-        {/* Floating Active Service Alerts Banner */}
+        {/* Floating Service Alert Banner */}
         {serviceCalls.length > 0 && (
           <div className="floating-alert-banner">
             <div className="alert-banner-left">
-              <Bell size={22} className="alert-bell-anim" />
+              <Bell size={24} className="alert-bell-anim" />
               <div>
-                <strong style={{ color: '#fbbf24' }}>
-                  {serviceCalls.length} Service Call{serviceCalls.length > 1 ? 's' : ''}:
+                <strong style={{ color: '#fbbf24', fontSize: '0.95rem' }}>
+                  {serviceCalls.length} Pending Service Call{serviceCalls.length > 1 ? 's' : ''}:
                 </strong>{' '}
-                {serviceCalls[0].tableName} requested {serviceCalls[0].type.toUpperCase()}
+                {serviceCalls[0].tableName} requests <span style={{ textTransform: 'uppercase', color: '#fff' }}>{serviceCalls[0].type}</span>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button
-                className="btn-primary"
-                style={{ padding: '6px 14px', fontSize: '0.8rem' }}
-                onClick={() => dismissServiceCall(serviceCalls[0].id)}
-              >
-                <CheckCircle size={14} /> Dismiss
-              </button>
-            </div>
+            <button
+              className="btn-primary"
+              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              onClick={() => dismissServiceCall(serviceCalls[0].id)}
+            >
+              <CheckCircle size={15} /> Dismiss
+            </button>
           </div>
         )}
 
         {/* ========================================================
-            TAB: OVERVIEW (Exact Creative Tim Argon Layout)
+            TAB: OVERVIEW (MATCHING REFERENCE IMAGE)
             ======================================================== */}
         {activeTab === 'overview' && (
           <>
-            {/* Top 4 KPI Stat Cards */}
-            <section className="argon-stats-grid">
-              {/* Card 1 */}
-              <div className="argon-stat-card">
-                <div className="argon-stat-top">
+            {/* 4 Metric Cards */}
+            <div className="kpi-four-grid">
+              {/* Card 1: Today's Net Sales */}
+              <div className="metric-card sales">
+                <div className="metric-icon-box">₹</div>
+                <div className="metric-info">
+                  <span className="metric-title">Today's Net Sales</span>
+                  <span className="metric-value">
+                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 1 }) : '3,933.3'}
+                  </span>
+                  <span className="metric-footer green">
+                    <TrendingUp size={13} /> Real-time active sales
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Total Orders Placed */}
+              <div className="metric-card orders">
+                <div className="metric-icon-box">
+                  <Receipt size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Total Orders Placed</span>
+                  <span className="metric-value">{orders.length || 12}</span>
+                  <span className="metric-footer amber">
+                    <Clock size={12} /> {pendingOrdersCount} awaiting kitchen accept
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 3: Floor Occupancy */}
+              <div className="metric-card occupancy">
+                <div className="metric-icon-box">
+                  <Users size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Floor Occupancy</span>
+                  <span className="metric-value">{occupancyPercent}%</span>
+                  <span className="metric-footer muted">
+                    {occupiedTables} of {tables.length} dining tables active
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 4: Average Ticket */}
+              <div className="metric-card ticket">
+                <div className="metric-icon-box">
+                  <BarChart3 size={24} />
+                </div>
+                <div className="metric-info">
+                  <span className="metric-title">Average Ticket</span>
+                  <span className="metric-value">₹{avgTicket || 328}</span>
+                  <span className="metric-footer muted">
+                    Per completed guest check
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Dining Floor Status Panel */}
+            <section className="floor-status-panel">
+              <div className="panel-header-row">
+                <div className="panel-header-left">
+                  <div className="panel-header-icon">
+                    <UtensilsCrossed size={20} />
+                  </div>
                   <div>
-                    <div className="argon-stat-label">Today's Money</div>
-                    <div className="argon-stat-val">₹{totalRevenue > 0 ? `${(totalRevenue / 1000).toFixed(1)}k` : '₹53k'}</div>
-                  </div>
-                  <div className="argon-stat-icon-box">
-                    <DollarSign size={22} />
-                  </div>
-                </div>
-                <div className="argon-stat-trend">
-                  <span className="argon-trend-green">+55%</span> than last week
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="argon-stat-card">
-                <div className="argon-stat-top">
-                  <div>
-                    <div className="argon-stat-label">Today's Users</div>
-                    <div className="argon-stat-val">{totalGuests > 0 ? totalGuests : '2300'}</div>
-                  </div>
-                  <div className="argon-stat-icon-box">
-                    <User size={22} />
-                  </div>
-                </div>
-                <div className="argon-stat-trend">
-                  <span className="argon-trend-green">+3%</span> than last month
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="argon-stat-card">
-                <div className="argon-stat-top">
-                  <div>
-                    <div className="argon-stat-label">Ads Views</div>
-                    <div className="argon-stat-val">{orders.length > 0 ? orders.length * 192 : '3,462'}</div>
-                  </div>
-                  <div className="argon-stat-icon-box">
-                    <Receipt size={22} />
-                  </div>
-                </div>
-                <div className="argon-stat-trend">
-                  <span className="argon-trend-red">-2%</span> than yesterday
-                </div>
-              </div>
-
-              {/* Card 4 */}
-              <div className="argon-stat-card">
-                <div className="argon-stat-top">
-                  <div>
-                    <div className="argon-stat-label">Sales</div>
-                    <div className="argon-stat-val">₹{totalRevenue > 0 ? totalRevenue.toLocaleString() : '103,430'}</div>
-                  </div>
-                  <div className="argon-stat-icon-box">
-                    <TrendingUp size={22} />
-                  </div>
-                </div>
-                <div className="argon-stat-trend">
-                  <span className="argon-trend-green">+5%</span> than yesterday
-                </div>
-              </div>
-            </section>
-
-            {/* Middle 3 Charts Row (Reference Match!) */}
-            <section className="argon-charts-grid">
-              {/* Chart 1: Website Views / Weekly Traffic */}
-              <div className="argon-chart-card">
-                <div>
-                  <h3 className="argon-chart-title">Website Views</h3>
-                  <div className="argon-chart-subtitle">Last Campaign Performance</div>
-                </div>
-
-                <div className="argon-chart-svg-wrap">
-                  <svg className="argon-chart-svg" viewBox="0 0 320 140">
-                    {/* Gridlines */}
-                    <line x1="30" y1="20" x2="310" y2="20" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="60" x2="310" y2="60" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="100" x2="310" y2="100" stroke="#f0f2f5" strokeWidth="1" />
-
-                    {/* Y-axis labels */}
-                    <text x="5" y="24" fill="#8392ab" fontSize="10">100</text>
-                    <text x="12" y="64" fill="#8392ab" fontSize="10">50</text>
-                    <text x="18" y="104" fill="#8392ab" fontSize="10">0</text>
-
-                    {/* Bars (M, T, W, T, F, S, S) */}
-                    <rect x="42" y="55" width="22" height="45" rx="4" fill="#2dce89" />
-                    <rect x="80" y="65" width="22" height="35" rx="4" fill="#2dce89" />
-                    <rect x="118" y="85" width="22" height="15" rx="4" fill="#2dce89" />
-                    <rect x="156" y="80" width="22" height="20" rx="4" fill="#2dce89" />
-                    <rect x="194" y="55" width="22" height="45" rx="4" fill="#2dce89" />
-                    <rect x="232" y="45" width="22" height="55" rx="4" fill="#2dce89" />
-                    <rect x="270" y="30" width="22" height="70" rx="4" fill="#2dce89" />
-
-                    {/* X-axis labels */}
-                    <text x="49" y="122" fill="#8392ab" fontSize="11" fontWeight="600">M</text>
-                    <text x="87" y="122" fill="#8392ab" fontSize="11" fontWeight="600">T</text>
-                    <text x="123" y="122" fill="#8392ab" fontSize="11" fontWeight="600">W</text>
-                    <text x="163" y="122" fill="#8392ab" fontSize="11" fontWeight="600">T</text>
-                    <text x="202" y="122" fill="#8392ab" fontSize="11" fontWeight="600">F</text>
-                    <text x="240" y="122" fill="#8392ab" fontSize="11" fontWeight="600">S</text>
-                    <text x="278" y="122" fill="#8392ab" fontSize="11" fontWeight="600">S</text>
-                  </svg>
-                </div>
-
-                <div className="argon-chart-footer">
-                  <Clock size={14} />
-                  <span>campaign sent 2 days ago</span>
-                </div>
-              </div>
-
-              {/* Chart 2: Daily Sales Line Chart */}
-              <div className="argon-chart-card">
-                <div>
-                  <h3 className="argon-chart-title">Daily Sales</h3>
-                  <div className="argon-chart-subtitle">
-                    <strong style={{ color: '#2dce89' }}>(+15%)</strong> increase in today sales.
+                    <h3>Dining Floor Status</h3>
+                    <p>Live visualizer of all tables, guest occupancy, and service calls</p>
                   </div>
                 </div>
 
-                <div className="argon-chart-svg-wrap">
-                  <svg className="argon-chart-svg" viewBox="0 0 320 140">
-                    {/* Gridlines */}
-                    <line x1="30" y1="20" x2="310" y2="20" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="50" x2="310" y2="50" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="80" x2="310" y2="80" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="110" x2="310" y2="110" stroke="#f0f2f5" strokeWidth="1" />
-
-                    {/* Y-axis labels */}
-                    <text x="5" y="24" fill="#8392ab" fontSize="10">600</text>
-                    <text x="5" y="54" fill="#8392ab" fontSize="10">400</text>
-                    <text x="5" y="84" fill="#8392ab" fontSize="10">200</text>
-                    <text x="16" y="114" fill="#8392ab" fontSize="10">0</text>
-
-                    {/* Polyline */}
-                    <polyline
-                      fill="none"
-                      stroke="#2dce89"
-                      strokeWidth="2.5"
-                      points="38,98 62,82 86,96 110,48 134,68 158,58 182,75 206,102 230,68 254,66 278,82 302,96"
-                    />
-
-                    {/* Points */}
-                    {[[38,98],[62,82],[86,96],[110,48],[134,68],[158,58],[182,75],[206,102],[230,68],[254,66],[278,82],[302,96]].map(([cx, cy], i) => (
-                      <circle key={i} cx={cx} cy={cy} r="3.5" fill="#2dce89" stroke="#fff" strokeWidth="1.5" />
-                    ))}
-
-                    {/* X-axis months */}
-                    {['J','F','M','A','M','J','J','A','S','O','N','D'].map((m, i) => (
-                      <text key={i} x={36 + i * 24} y="130" fill="#8392ab" fontSize="10" fontWeight="600">{m}</text>
-                    ))}
-                  </svg>
-                </div>
-
-                <div className="argon-chart-footer">
-                  <Clock size={14} />
-                  <span>updated 4 min ago</span>
-                </div>
-              </div>
-
-              {/* Chart 3: Completed Tasks / Kitchen Output */}
-              <div className="argon-chart-card">
-                <div>
-                  <h3 className="argon-chart-title">Completed Tasks</h3>
-                  <div className="argon-chart-subtitle">Last Campaign Performance</div>
-                </div>
-
-                <div className="argon-chart-svg-wrap">
-                  <svg className="argon-chart-svg" viewBox="0 0 320 140">
-                    {/* Gridlines */}
-                    <line x1="30" y1="20" x2="310" y2="20" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="50" x2="310" y2="50" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="80" x2="310" y2="80" stroke="#f0f2f5" strokeWidth="1" />
-                    <line x1="30" y1="110" x2="310" y2="110" stroke="#f0f2f5" strokeWidth="1" />
-
-                    {/* Y-axis labels */}
-                    <text x="5" y="24" fill="#8392ab" fontSize="10">600</text>
-                    <text x="5" y="54" fill="#8392ab" fontSize="10">400</text>
-                    <text x="5" y="84" fill="#8392ab" fontSize="10">200</text>
-                    <text x="16" y="114" fill="#8392ab" fontSize="10">0</text>
-
-                    {/* Polyline */}
-                    <polyline
-                      fill="none"
-                      stroke="#2dce89"
-                      strokeWidth="2.5"
-                      points="38,102 68,104 98,68 128,82 158,45 188,72 218,52 248,78 278,42"
-                    />
-
-                    {/* Points */}
-                    {[[38,102],[68,104],[98,68],[128,82],[158,45],[188,72],[218,52],[248,78],[278,42]].map(([cx, cy], i) => (
-                      <circle key={i} cx={cx} cy={cy} r="3.5" fill="#2dce89" stroke="#fff" strokeWidth="1.5" />
-                    ))}
-
-                    {/* X-axis months */}
-                    {['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, i) => (
-                      <text key={i} x={32 + i * 30} y="130" fill="#8392ab" fontSize="9" fontWeight="600">{m}</text>
-                    ))}
-                  </svg>
-                </div>
-
-                <div className="argon-chart-footer">
-                  <Clock size={14} />
-                  <span>just updated</span>
-                </div>
-              </div>
-            </section>
-
-            {/* Live Dining Floor Section */}
-            <section className="argon-card">
-              <div className="argon-card-header">
-                <div>
-                  <h3 className="argon-card-title">Live Dining Floor Overview</h3>
-                  <div className="argon-card-desc">Active tables, customer session timers and running totals</div>
-                </div>
-                <button className="argon-btn-dark" onClick={() => setActiveTab('tables')}>
-                  Manage Floor & Seats
+                <button
+                  className="view-floor-map-btn"
+                  onClick={() => setActiveTab('tables')}
+                >
+                  <LayoutGrid size={15} />
+                  <span>View Floor Map</span>
+                  <ExternalLink size={13} />
                 </button>
               </div>
 
-              <div className="argon-table-pos-grid">
+              {/* 4-Column Table Grid (10 Tables) */}
+              <div className="floor-table-grid">
                 {tables.map((table) => {
+                  const isBar = (table.name || '').toLowerCase().includes('bar');
                   const activeCall = serviceCalls.find((c) => c.tableId === table.id);
+                  const isOccupied = table.status === 'occupied';
+
                   return (
-                    <div
-                      key={table.id}
-                      className={`argon-dining-card ${activeCall ? 'active-call' : ''}`}
-                    >
-                      <div className="argon-dining-card-header">
-                        <div>
-                          <strong style={{ fontSize: '1.15rem', color: '#344767' }}>
-                            {table.name || `Table ${table.id}`}
-                          </strong>
-                          <div style={{ fontSize: '0.78rem', color: '#8392ab' }}>
-                            Seats {table.capacity || 4} Guests
+                    <div key={table.id} className="floor-card">
+                      {/* Top: Icon + Name + Status */}
+                      <div className="floor-card-top">
+                        <div className="floor-card-identity">
+                          <div className={`table-type-icon-box ${isBar ? 'bar' : ''}`}>
+                            {isBar ? <Coffee size={18} /> : <Armchair size={18} />}
+                          </div>
+                          <div>
+                            <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
+                            <div className="table-seats-text">Seats up to {table.capacity || 4} guests</div>
                           </div>
                         </div>
-                        <span className={`argon-badge ${activeCall ? 'warning' : table.status === 'occupied' ? 'success' : 'secondary'}`}>
-                          {activeCall ? `ALERT: ${activeCall.type}` : table.status}
+
+                        <span
+                          className={`table-status-pill ${
+                            activeCall ? 'calling' : isOccupied ? 'occupied' : 'available'
+                          }`}
+                        >
+                          {activeCall ? `ALERT: ${activeCall.type}` : isOccupied ? 'OCCUPIED' : 'AVAILABLE'}
                         </span>
                       </div>
 
-                      <div className="argon-dining-card-body">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#67748e' }}>
-                          <span>Session:</span>
-                          <strong style={{ color: table.status === 'occupied' ? '#2dce89' : 'inherit' }}>
-                            {table.status === 'occupied' ? 'Dining Active' : 'Vacant'}
-                          </strong>
+                      {/* Middle: Session & Check */}
+                      <div className="floor-card-meta">
+                        <div className="meta-info-row">
+                          <span className="meta-label">Current Session:</span>
+                          <span className="meta-value-session">
+                            {isOccupied ? 'Dining Active' : 'Ready to Seat'}
+                          </span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', paddingTop: 6, borderTop: '1px dashed #e9ecef' }}>
-                          <span style={{ color: '#8392ab' }}>Running Bill:</span>
-                          <strong style={{ color: '#344767', fontSize: '1.05rem' }}>₹{table.runningTotal || 0}</strong>
+                        <div className="meta-info-row">
+                          <span className="meta-label">Running Check:</span>
+                          <span className="meta-value-price">₹{table.runningTotal || 0}</span>
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {/* Bottom Actions: Table Menu & Clear Table */}
+                      <div className="floor-card-actions">
                         <button
-                          className="argon-btn-outline"
-                          style={{ padding: '7px 10px', fontSize: '0.75rem' }}
-                          onClick={() => window.open(`/?table=${table.id}&token=${table.sessionToken || ''}`, '_blank')}
+                          className="btn-table-menu"
+                          onClick={() =>
+                            window.open(
+                              `/?table=${table.id}&token=${table.sessionToken || ''}`,
+                              '_blank'
+                            )
+                          }
                         >
-                          <ExternalLink size={12} /> Open QR
+                          <ExternalLink size={13} /> Table Menu
                         </button>
                         <button
-                          className="argon-btn-dark"
-                          style={{ padding: '7px 10px', fontSize: '0.75rem' }}
+                          className="btn-clear-table"
                           onClick={() => handleVacateTable(table.id)}
                         >
-                          Clear
+                          <UtensilsCrossed size={13} /> Clear Table
                         </button>
                       </div>
                     </div>
@@ -890,247 +663,229 @@ export default function DashboardApp({ onLockStaff }) {
         )}
 
         {/* ========================================================
-            TAB: TABLES (Floor Map & Tables Management)
+            TAB: FLOOR & TABLES
             ======================================================== */}
         {activeTab === 'tables' && (
-          <section className="argon-card">
-            <div className="argon-card-header">
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
               <div>
-                <h3 className="argon-card-title">Dining Room Floor Management</h3>
-                <div className="argon-card-desc">Configure seating, occupancy and security tokens</div>
+                <h3>Dining Floor Management</h3>
+                <p>Configure seating, reset QR tokens, and manage guest capacity</p>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button className="argon-btn-dark" onClick={() => setTableModalOpen(true)}>
-                  <Plus size={15} /> Add Table
-                </button>
-              </div>
+              <button className="btn-primary" onClick={() => setTableModalOpen(true)}>
+                <Plus size={16} /> Add Table
+              </button>
             </div>
 
-            <div className="argon-table-pos-grid">
-              {tables.map((t) => {
-                const activeCall = serviceCalls.find((c) => c.tableId === t.id);
-                return (
-                  <div key={t.id} className={`argon-dining-card ${activeCall ? 'active-call' : ''}`}>
-                    <div className="argon-dining-card-header">
-                      <div>
-                        <strong style={{ fontSize: '1.2rem', color: '#344767' }}>{t.name || `Table ${t.id}`}</strong>
-                        <div style={{ fontSize: '0.78rem', color: '#8392ab' }}>Capacity: {t.capacity} Guests</div>
+            <div className="floor-table-grid">
+              {tables.map((table) => (
+                <div key={table.id} className="floor-card">
+                  <div className="floor-card-top">
+                    <div className="floor-card-identity">
+                      <div className={`table-type-icon-box ${(table.name || '').includes('Bar') ? 'bar' : ''}`}>
+                        <Armchair size={18} />
                       </div>
-                      <span className={`argon-badge ${activeCall ? 'warning' : t.status === 'occupied' ? 'success' : 'secondary'}`}>
-                        {activeCall ? `ALERT: ${activeCall.type}` : t.status}
+                      <div>
+                        <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
+                        <div className="table-seats-text">Seats {table.capacity} guests</div>
+                      </div>
+                    </div>
+                    <span className={`table-status-pill ${table.status === 'occupied' ? 'occupied' : 'available'}`}>
+                      {table.status === 'occupied' ? 'OCCUPIED' : 'AVAILABLE'}
+                    </span>
+                  </div>
+
+                  <div className="floor-card-meta">
+                    <div className="meta-info-row">
+                      <span className="meta-label">Security QR Token:</span>
+                      <span style={{ fontFamily: 'monospace', color: '#f59e0b', fontSize: '0.8rem' }}>
+                        {(table.sessionToken || 'ACTIVE').slice(0, 8)}...
                       </span>
                     </div>
-
-                    <div className="argon-dining-card-body">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#67748e' }}>
-                        <span>Token:</span>
-                        <span style={{ fontFamily: 'monospace', color: '#111827' }}>
-                          {(t.sessionToken || 'ACTIVE').slice(0, 10)}...
-                        </span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', paddingTop: 6, borderTop: '1px dashed #e9ecef' }}>
-                        <span style={{ color: '#8392ab' }}>Bill Total:</span>
-                        <strong style={{ color: '#344767', fontSize: '1.1rem' }}>₹{t.runningTotal || 0}</strong>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      <button
-                        className="argon-btn-outline"
-                        style={{ fontSize: '0.75rem', padding: '7px' }}
-                        onClick={() => handleRegenerateToken(t.id)}
-                        title="Regenerates QR Security Token"
-                      >
-                        <RefreshCw size={12} /> Reset Token
-                      </button>
-                      <button
-                        className="argon-btn-dark"
-                        style={{ fontSize: '0.75rem', padding: '7px' }}
-                        onClick={() => handleVacateTable(t.id)}
-                      >
-                        Mark Vacant
-                      </button>
+                    <div className="meta-info-row">
+                      <span className="meta-label">Running Check:</span>
+                      <span className="meta-value-price">₹{table.runningTotal || 0}</span>
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className="floor-card-actions">
+                    <button
+                      className="btn-table-menu"
+                      onClick={() =>
+                        window.open(
+                          `/?table=${table.id}&token=${table.sessionToken || ''}`,
+                          '_blank'
+                        )
+                      }
+                    >
+                      <ExternalLink size={13} /> Menu
+                    </button>
+                    <button
+                      className="btn-clear-table"
+                      onClick={() => handleVacateTable(table.id)}
+                    >
+                      Clear Table
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         )}
 
         {/* ========================================================
-            TAB: ORDERS / BILLING TABLE
+            TAB: ORDERS
             ======================================================== */}
         {activeTab === 'orders' && (
-          <section className="argon-card">
-            <div className="argon-card-header">
-              <div>
-                <h3 className="argon-card-title">Live Orders & Billing Stream</h3>
-                <div className="argon-card-desc">Real-time guest tickets and settlement</div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <section className="floor-status-panel">
+            <div className="orders-filter-row">
+              <div className="filter-pills-group">
                 {['all', 'pending', 'preparing', 'ready', 'served', 'completed'].map((st) => (
                   <button
                     key={st}
-                    className={`argon-btn-outline ${orderFilter === st ? 'active' : ''}`}
-                    style={orderFilter === st ? { background: '#111827', color: '#fff' } : {}}
+                    className={`filter-pill-btn ${orderFilter === st ? 'active' : ''}`}
                     onClick={() => setOrderFilter(st)}
                   >
                     {st.toUpperCase()}
                   </button>
                 ))}
               </div>
+
+              <div className="search-input-box" style={{ width: 280 }}>
+                <Search size={16} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search orders, table, guest..."
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                />
+              </div>
             </div>
 
-            <div className="argon-table-wrap">
-              <table className="argon-table">
-                <thead>
-                  <tr>
-                    <th>Order #</th>
-                    <th>Table & Guest</th>
-                    <th>Items Ordered</th>
-                    <th>Status</th>
-                    <th>Total (₹)</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOrders.length === 0 ? (
-                    <tr>
-                      <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#8392ab' }}>
-                        No orders matching current filter.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredOrders.map((ord) => (
-                      <tr key={ord.id}>
-                        <td>
-                          <strong>#{ord.orderNumber}</strong>
-                          <div style={{ fontSize: '0.75rem', color: '#8392ab' }}>
-                            {new Date(ord.createdAt || Date.now()).toLocaleTimeString()}
-                          </div>
-                        </td>
-                        <td>
-                          <div style={{ fontWeight: 600 }}>{ord.tableName}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#8392ab' }}>{ord.customerName || 'Guest'}</div>
-                        </td>
-                        <td>
-                          {ord.items?.map((it, i) => (
-                            <div key={i} style={{ fontSize: '0.82rem' }}>
-                              <strong>{it.quantity}x</strong> {it.name}
-                            </div>
-                          ))}
-                          {ord.notes && (
-                            <div style={{ fontSize: '0.75rem', color: '#ea580c', marginTop: 2 }}>
-                              Note: {ord.notes}
-                            </div>
-                          )}
-                        </td>
-                        <td>
-                          <span className={`argon-badge ${ord.status === 'ready' || ord.status === 'served' ? 'success' : ord.status === 'preparing' ? 'info' : 'warning'}`}>
-                            {ord.status}
-                          </span>
-                        </td>
-                        <td>
-                          <strong style={{ fontSize: '1rem', color: '#344767' }}>₹{ord.total}</strong>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', gap: 6 }}>
-                            {ord.status === 'pending' && (
-                              <button
-                                className="argon-btn-dark"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                                onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
-                              >
-                                Accept
-                              </button>
-                            )}
-                            {ord.status === 'preparing' && (
-                              <button
-                                className="argon-btn-dark"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem', background: '#2dce89' }}
-                                onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
-                              >
-                                Ready
-                              </button>
-                            )}
-                            {ord.status === 'ready' && (
-                              <button
-                                className="argon-btn-dark"
-                                style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                                onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
-                              >
-                                Served
-                              </button>
-                            )}
-                            <button
-                              className="argon-btn-outline"
-                              style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-                              onClick={() => setPrintBillOrder(ord)}
-                              title="Print Receipt"
-                            >
-                              <Printer size={13} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+            <div className="orders-list-grid">
+              {filteredOrders.map((ord) => (
+                <div key={ord.id} className="order-ticket-card">
+                  <div className="ticket-header">
+                    <div>
+                      <div className="ticket-order-id">#{ord.orderNumber}</div>
+                      <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                        {ord.tableName} • {ord.customerName || 'Guest'}
+                      </div>
+                    </div>
+                    <span className={`status-pill ${ord.status}`}>{ord.status}</span>
+                  </div>
+
+                  <div className="ticket-items-box">
+                    {ord.items?.map((it, idx) => (
+                      <div key={idx} className="ticket-item-row">
+                        <span>
+                          <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
+                        </span>
+                        <span style={{ fontWeight: 600 }}>₹{it.price * it.quantity}</span>
+                      </div>
+                    ))}
+                    {ord.notes && <div className="ticket-notes">Chef Note: {ord.notes}</div>}
+                  </div>
+
+                  <div className="ticket-footer">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Total Amount</span>
+                      <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 800 }}>
+                        ₹{ord.total}
+                      </span>
+                    </div>
+
+                    <div className="ticket-actions-row">
+                      {ord.status === 'pending' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
+                        >
+                          Send to Kitchen
+                        </button>
+                      )}
+                      {ord.status === 'preparing' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
+                        >
+                          Mark Ready
+                        </button>
+                      )}
+                      {ord.status === 'ready' && (
+                        <button
+                          className="btn-primary"
+                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                          onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
+                        >
+                          Mark Served
+                        </button>
+                      )}
+                      <button
+                        className="btn-secondary"
+                        style={{ padding: '9px 14px' }}
+                        onClick={() => setPrintBillOrder(ord)}
+                        title="Print Receipt"
+                      >
+                        <Printer size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         )}
 
         {/* ========================================================
-          TAB: KITCHEN DISPLAY KDS
-          ======================================================== */}
+            TAB: KITCHEN KDS
+            ======================================================== */}
         {activeTab === 'kitchen' && (
-          <section className="argon-card">
-            <div className="argon-card-header">
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
               <div>
-                <h3 className="argon-card-title">Live Kitchen Display Station</h3>
-                <div className="argon-card-desc">Active tickets for the cook line</div>
+                <h3>Kitchen Display Stream</h3>
+                <p>Real-time tickets and preparation queue</p>
               </div>
-              <span className="argon-badge success">{activeOrdersCount} Open Orders</span>
             </div>
 
             <div className="orders-list-grid">
               {orders
                 .filter((o) => o.status === 'pending' || o.status === 'preparing')
                 .map((ticket) => (
-                  <div key={ticket.id} className="order-ticket-card" style={{ background: '#fff', border: '1px solid #e9ecef', color: '#344767' }}>
-                    <div className="ticket-header" style={{ borderBottom: '1px solid #f0f2f5' }}>
+                  <div key={ticket.id} className="order-ticket-card" style={{ borderColor: '#f59e0b' }}>
+                    <div className="ticket-header" style={{ background: 'rgba(245, 158, 11, 0.08)', margin: '-20px -20px 14px', padding: '14px 20px' }}>
                       <div>
-                        <strong style={{ fontSize: '1.15rem', color: '#111827' }}>
+                        <div className="ticket-order-id" style={{ color: '#fbbf24' }}>
                           {ticket.tableName} • #{ticket.orderNumber}
-                        </strong>
-                        <div style={{ fontSize: '0.78rem', color: '#8392ab' }}>
-                          {new Date(ticket.createdAt).toLocaleTimeString()}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
+                          Received: {new Date(ticket.createdAt).toLocaleTimeString()}
                         </div>
                       </div>
-                      <span className="argon-badge warning">{ticket.status}</span>
+                      <span className={`status-pill ${ticket.status}`}>{ticket.status}</span>
                     </div>
 
                     <div className="ticket-items-box">
                       {ticket.items?.map((it, idx) => (
-                        <div key={idx} className="ticket-item-row" style={{ color: '#344767', fontSize: '0.98rem' }}>
+                        <div key={idx} className="ticket-item-row" style={{ fontSize: '1rem' }}>
                           <span>
-                            <strong style={{ color: '#111827', marginRight: 6 }}>{it.quantity}x</strong> {it.name}
+                            <strong style={{ color: '#f59e0b', marginRight: 8 }}>
+                              {it.quantity}x
+                            </strong>{' '}
+                            {it.name}
                           </span>
                         </div>
                       ))}
-                      {ticket.notes && (
-                        <div className="ticket-notes" style={{ background: '#fff4de', color: '#ea580c', borderLeftColor: '#ea580c' }}>
-                          Note: {ticket.notes}
-                        </div>
-                      )}
+                      {ticket.notes && <div className="ticket-notes">Instructions: {ticket.notes}</div>}
                     </div>
 
-                    <div className="ticket-footer" style={{ borderTop: '1px solid #f0f2f5' }}>
+                    <div className="ticket-footer">
                       <button
-                        className="argon-btn-dark"
-                        style={{ width: '100%', padding: '10px 0' }}
+                        className="btn-primary"
+                        style={{ width: '100%', padding: '11px 0' }}
                         onClick={() =>
                           handleOrderStatusUpdate(
                             ticket.id,
@@ -1138,7 +893,7 @@ export default function DashboardApp({ onLockStaff }) {
                           )
                         }
                       >
-                        {ticket.status === 'pending' ? 'Start Cooking' : 'Mark Ready For Pickup'}
+                        {ticket.status === 'pending' ? '🔥 Start Cooking' : '✅ Ready For Pickup'}
                       </button>
                     </div>
                   </div>
@@ -1148,17 +903,23 @@ export default function DashboardApp({ onLockStaff }) {
         )}
 
         {/* ========================================================
-          TAB: MENU CATALOG
-          ======================================================== */}
+            TAB: MENU CATALOG
+            ======================================================== */}
         {activeTab === 'menu' && (
-          <section className="argon-card">
-            <div className="argon-card-header">
-              <div>
-                <h3 className="argon-card-title">Restaurant Menu Catalog</h3>
-                <div className="argon-card-desc">Control dishes, categories, pricing & availability</div>
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div className="search-input-box" style={{ width: 280 }}>
+                <Search size={16} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search dish by name..."
+                  value={menuSearch}
+                  onChange={(e) => setMenuSearch(e.target.value)}
+                />
               </div>
+
               <button
-                className="argon-btn-dark"
+                className="btn-primary"
                 onClick={() => {
                   setEditingDish(null);
                   setDishForm({
@@ -1173,135 +934,117 @@ export default function DashboardApp({ onLockStaff }) {
                   setMenuModalOpen(true);
                 }}
               >
-                <Plus size={15} /> Add Dish
+                <Plus size={16} /> Add New Dish
               </button>
             </div>
 
-            <div className="argon-table-wrap">
-              <table className="argon-table">
-                <thead>
-                  <tr>
-                    <th>Photo</th>
-                    <th>Dish Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Available</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {menu.map((dish) => (
-                    <tr key={dish.id}>
-                      <td>
-                        <img
-                          src={dish.image || '/images/paneer_butter_masala.jpg'}
-                          alt={dish.name}
-                          style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }}
+            <div className="menu-table-wrap">
+              <div className="menu-crud-row header">
+                <span>Photo</span>
+                <span>Dish Name</span>
+                <span>Category</span>
+                <span>Price</span>
+                <span>Available</span>
+                <span>Actions</span>
+              </div>
+
+              {menu
+                .filter((d) => (!menuSearch.trim() || d.name.toLowerCase().includes(menuSearch.toLowerCase())))
+                .map((dish) => (
+                  <div key={dish.id} className="menu-crud-row">
+                    <img
+                      src={dish.image || '/images/paneer_butter_masala.jpg'}
+                      alt={dish.name}
+                      className="menu-thumb"
+                    />
+                    <div>
+                      <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span className={`diet-badge ${dish.isVeg ? 'veg' : 'non-veg'}`} />
+                        {dish.name}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                        {dish.description}
+                      </div>
+                    </div>
+                    <span style={{ textTransform: 'capitalize', color: '#94a3b8' }}>{dish.category}</span>
+                    <span style={{ fontWeight: 800, color: '#f59e0b', fontSize: '1.05rem' }}>₹{dish.price}</span>
+                    <div>
+                      <label className="toggle-switch">
+                        <input
+                          type="checkbox"
+                          checked={dish.available !== false}
+                          onChange={() => handleToggleMenu(dish.id)}
                         />
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 700, color: '#344767' }}>{dish.name}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#8392ab' }}>{dish.description}</div>
-                      </td>
-                      <td>
-                        <span style={{ textTransform: 'capitalize', color: '#67748e' }}>{dish.category}</span>
-                      </td>
-                      <td>
-                        <strong style={{ color: '#344767' }}>₹{dish.price}</strong>
-                      </td>
-                      <td>
-                        <label className="toggle-switch">
-                          <input
-                            type="checkbox"
-                            checked={dish.available !== false}
-                            onChange={() => handleToggleMenu(dish.id)}
-                          />
-                          <span className="toggle-slider" />
-                        </label>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button
-                            className="argon-btn-outline"
-                            style={{ padding: '6px 10px', fontSize: '0.75rem' }}
-                            onClick={() => {
-                              setEditingDish(dish);
-                              setDishForm({
-                                name: dish.name,
-                                category: dish.category,
-                                price: dish.price,
-                                description: dish.description || '',
-                                image: dish.image || '',
-                                isVeg: dish.isVeg !== false,
-                                spiceLevel: dish.spiceLevel || 1
-                              });
-                              setMenuModalOpen(true);
-                            }}
-                          >
-                            <Edit size={13} />
-                          </button>
-                          <button
-                            className="argon-btn-outline"
-                            style={{ padding: '6px 10px', fontSize: '0.75rem', borderColor: '#f5365c', color: '#f5365c' }}
-                            onClick={() => handleDeleteDish(dish.id)}
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <span className="toggle-slider" />
+                      </label>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        className="btn-icon"
+                        onClick={() => {
+                          setEditingDish(dish);
+                          setDishForm(dish);
+                          setMenuModalOpen(true);
+                        }}
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        className="btn-icon"
+                        style={{ color: '#ef4444' }}
+                        onClick={() => handleDeleteDish(dish.id)}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
             </div>
           </section>
         )}
 
         {/* ========================================================
-          TAB: QR STANDS PRINTING
-          ======================================================== */}
+            TAB: QR STANDS
+            ======================================================== */}
         {activeTab === 'stands' && (
-          <section className="argon-card">
-            <div className="argon-card-header">
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
               <div>
-                <h3 className="argon-card-title">Table Acrylic Stand QR Generator</h3>
-                <div className="argon-card-desc">Print-ready table QR stands with restaurant branding</div>
+                <h3>Print Table Acrylic Stands</h3>
+                <p>Generate QR cards for customer phone ordering</p>
               </div>
-              <button className="argon-btn-dark" onClick={() => window.print()}>
-                <Printer size={15} /> Print All Cards
+              <button className="btn-primary" onClick={() => window.print()}>
+                <Printer size={16} /> Print All Stands
               </button>
             </div>
 
-            <div className="tables-grid">
+            <div className="floor-table-grid">
               {tables.map((t) => (
                 <div
                   key={t.id}
                   style={{
-                    background: '#ffffff',
-                    border: '2px solid #e9ecef',
-                    borderRadius: 16,
+                    background: '#fff',
+                    color: '#000',
                     padding: 24,
+                    borderRadius: 18,
                     textAlign: 'center',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.04)'
+                    border: '3px solid #f59e0b'
                   }}
                 >
-                  <div style={{ fontWeight: 800, fontSize: '1.2rem', color: '#344767' }}>
-                    SPICE GARDEN
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: '#8392ab', fontWeight: 700, marginBottom: 12 }}>
+                  <div style={{ fontWeight: 900, fontSize: '1.25rem' }}>SPICE GARDEN</div>
+                  <div style={{ fontSize: '0.75rem', color: '#d97706', fontWeight: 800, marginBottom: 14 }}>
                     SCAN TO ORDER & PAY
                   </div>
-
-                  <div style={{ width: 160, height: 160, margin: '0 auto 12px', border: '1px solid #e2e8f0', borderRadius: 12, padding: 8 }}>
-                    <img
-                      src={`/api/qrcode/${t.id}`}
-                      alt={`Table ${t.id} QR`}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
+                  <div style={{ width: 160, height: 160, margin: '0 auto 12px', border: '1px solid #cbd5e1', borderRadius: 12, padding: 8 }}>
+                    <img src={`/api/qrcode/${t.id}`} alt={`Table ${t.id} QR`} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-
-                  <div style={{ background: '#111827', color: '#ffffff', padding: '6px 18px', borderRadius: 999, fontWeight: 800, width: 'fit-content', margin: '0 auto 10px', fontSize: '1rem' }}>
+                  <div style={{ background: '#0f172a', color: '#f59e0b', padding: '6px 20px', borderRadius: 999, fontWeight: 800, fontSize: '1.1rem', width: 'fit-content', margin: '0 auto 10px' }}>
                     {t.name || `TABLE ${t.id}`}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b', textAlign: 'left', lineHeight: 1.5 }}>
+                    <div>1. Scan with phone camera</div>
+                    <div>2. Customize items & order</div>
+                    <div>3. Track kitchen & pay bill</div>
                   </div>
                 </div>
               ))}
@@ -1310,38 +1053,23 @@ export default function DashboardApp({ onLockStaff }) {
         )}
       </main>
 
-      {/* Floating Bottom-Right Settings Cog (Reference Match!) */}
-      <button
-        className="argon-floating-settings no-print"
-        onClick={() => {
-          const muted = soundManager.toggleMute();
-          setIsMuted(muted);
-          addToast(muted ? 'Sound Muted' : 'Sound Enabled', 'info');
-        }}
-        title="Settings & Audio"
-      >
-        <Settings size={22} />
-      </button>
-
-      {/* Add / Edit Dish Modal */}
+      {/* Dish Edit / Add Modal */}
       {menuModalOpen && (
         <div className="modal-backdrop" onClick={() => setMenuModalOpen(false)}>
-          <div className="cart-drawer-card" style={{ maxWidth: 440, background: '#ffffff', color: '#344767' }} onClick={(e) => e.stopPropagation()}>
-            <div className="cart-drawer-header" style={{ borderBottom: '1px solid #f0f2f5' }}>
-              <h3 style={{ color: '#344767' }}>{editingDish ? 'Edit Dish' : 'Add New Dish'}</h3>
-              <button className="modal-close-btn" style={{ color: '#8392ab' }} onClick={() => setMenuModalOpen(false)}>
+          <div className="cart-drawer-card" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
+            <div className="cart-drawer-header">
+              <h3>{editingDish ? 'Edit Dish Catalog' : 'Add New Dish'}</h3>
+              <button className="modal-close-btn" onClick={() => setMenuModalOpen(false)}>
                 <X size={20} />
               </button>
             </div>
-
             <form onSubmit={handleSaveDish} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#67748e' }}>Dish Name</label>
+                <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Dish Name</label>
                 <input
                   type="text"
                   required
-                  className="argon-search-input"
-                  style={{ width: '100%', marginTop: 4 }}
+                  className="customer-name-input"
                   value={dishForm.name}
                   onChange={(e) => setDishForm({ ...dishForm, name: e.target.value })}
                 />
@@ -1349,10 +1077,9 @@ export default function DashboardApp({ onLockStaff }) {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#67748e' }}>Category</label>
+                  <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Category</label>
                   <select
-                    className="argon-search-input"
-                    style={{ width: '100%', marginTop: 4 }}
+                    className="customer-name-input"
                     value={dishForm.category}
                     onChange={(e) => setDishForm({ ...dishForm, category: e.target.value })}
                   >
@@ -1364,14 +1091,12 @@ export default function DashboardApp({ onLockStaff }) {
                     <option value="desserts">Desserts</option>
                   </select>
                 </div>
-
                 <div>
-                  <label style={{ fontSize: '0.8rem', color: '#67748e' }}>Price (₹)</label>
+                  <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Price (₹)</label>
                   <input
                     type="number"
                     required
-                    className="argon-search-input"
-                    style={{ width: '100%', marginTop: 4 }}
+                    className="customer-name-input"
                     value={dishForm.price}
                     onChange={(e) => setDishForm({ ...dishForm, price: e.target.value })}
                   />
@@ -1379,29 +1104,16 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', color: '#67748e' }}>Description</label>
+                <label style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Description</label>
                 <textarea
-                  className="argon-search-input"
-                  style={{ width: '100%', marginTop: 4 }}
+                  className="customer-name-input"
                   rows={2}
                   value={dishForm.description}
                   onChange={(e) => setDishForm({ ...dishForm, description: e.target.value })}
                 />
               </div>
 
-              <div>
-                <label style={{ fontSize: '0.8rem', color: '#67748e' }}>Image Path</label>
-                <input
-                  type="text"
-                  className="argon-search-input"
-                  style={{ width: '100%', marginTop: 4 }}
-                  placeholder="/images/paneer_butter_masala.jpg"
-                  value={dishForm.image}
-                  onChange={(e) => setDishForm({ ...dishForm, image: e.target.value })}
-                />
-              </div>
-
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: '#344767' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem' }}>
                 <input
                   type="checkbox"
                   checked={dishForm.isVeg}
@@ -1410,7 +1122,7 @@ export default function DashboardApp({ onLockStaff }) {
                 Vegetarian Recipe
               </label>
 
-              <button type="submit" className="argon-btn-dark" style={{ marginTop: 6 }}>
+              <button type="submit" className="btn-primary" style={{ marginTop: 8 }}>
                 Save Dish
               </button>
             </form>
@@ -1418,52 +1130,17 @@ export default function DashboardApp({ onLockStaff }) {
         </div>
       )}
 
-      {/* Add Table Modal */}
-      {tableModalOpen && (
-        <div className="modal-backdrop" onClick={() => setTableModalOpen(false)}>
-          <div className="staff-modal-card" style={{ maxWidth: 380, background: '#ffffff', color: '#344767' }} onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" style={{ color: '#8392ab' }} onClick={() => setTableModalOpen(false)}>
-              <X size={20} />
-            </button>
-            <h3 style={{ color: '#344767' }}>Add Dining Table</h3>
-            <p style={{ color: '#8392ab', fontSize: '0.85rem', marginBottom: 18 }}>
-              Expands floor capacity with a new security token
-            </p>
-            <form onSubmit={handleCreateTable} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <input
-                type="text"
-                placeholder="Table Name (e.g. Table 9, Patio 1)"
-                className="argon-search-input"
-                style={{ width: '100%' }}
-                value={tableForm.name}
-                onChange={(e) => setTableForm({ ...tableForm, name: e.target.value })}
-              />
-              <input
-                type="number"
-                placeholder="Capacity (e.g. 4)"
-                className="argon-search-input"
-                style={{ width: '100%' }}
-                value={tableForm.capacity}
-                onChange={(e) => setTableForm({ ...tableForm, capacity: e.target.value })}
-              />
-              <button type="submit" className="argon-btn-dark">
-                Confirm & Add
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Printable Thermal Receipt Modal */}
+      {/* Thermal Bill Receipt Modal */}
       {printBillOrder && (
         <div className="modal-backdrop" onClick={() => setPrintBillOrder(null)}>
           <div className="receipt-paper-card printable-area" onClick={(e) => e.stopPropagation()}>
             <div className="receipt-header">
               <div className="receipt-brand-title">SPICE GARDEN</div>
               <div className="receipt-meta">Fine Dining & Smart Restaurant</div>
-              <div className="receipt-meta" style={{ marginTop: 4 }}>
-                Order #{printBillOrder.orderNumber} • {printBillOrder.tableName}
+              <div className="receipt-meta" style={{ marginTop: 6, fontWeight: 700 }}>
+                TAX INVOICE / GUEST RECEIPT
               </div>
+              <div className="receipt-meta">Order #{printBillOrder.orderNumber} • {printBillOrder.tableName}</div>
             </div>
 
             <div className="receipt-items-list">
@@ -1485,16 +1162,16 @@ export default function DashboardApp({ onLockStaff }) {
                 <span>₹{printBillOrder.tax || 0}</span>
               </div>
               <div className="receipt-total-row grand">
-                <span>Total:</span>
+                <span>TOTAL:</span>
                 <span>₹{printBillOrder.total}</span>
               </div>
             </div>
 
             <div className="receipt-actions-footer no-print">
-              <button className="argon-btn-dark" style={{ flex: 1 }} onClick={() => window.print()}>
-                <Printer size={15} /> Print Receipt
+              <button className="btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>
+                <Printer size={16} /> Print Receipt
               </button>
-              <button className="argon-btn-outline" onClick={() => setPrintBillOrder(null)}>
+              <button className="btn-secondary" onClick={() => setPrintBillOrder(null)}>
                 Close
               </button>
             </div>
