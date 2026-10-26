@@ -1,4 +1,18 @@
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Environment Variables
+.env
+**/.env
+**/.env*.local
+
+# Build Outputs
+dist/
+**/dist/
+
+# OS / Editor junk
 .DS_Store
 *.log
-.env
+.idea/
+.vscode/

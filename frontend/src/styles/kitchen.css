@@ -1,0 +1,160 @@
+/* =========================================================
+   KITCHEN DISPLAY SYSTEM (KDS) STYLES
+   ========================================================= */
+
+.kds-container {
+  min-height: 100vh;
+  background: #060910;
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(18, 25, 41, 0.95);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.kds-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.kds-badge {
+  background: #ef4444;
+  color: #fff;
+  font-weight: 900;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.05em;
+}
+
+.kds-tickets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.kds-ticket {
+  background: #0f172a;
+  border: 2px solid #334155;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  transition: transform 0.2s ease;
+}
+.kds-ticket:hover {
+  transform: translateY(-2px);
+}
+
+/* Urgency Header colors based on elapsed cook time */
+.kds-ticket-header {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 800;
+}
+.kds-ticket-header.urgency-green {
+  background: #065f46;
+  border-bottom: 2px solid #10b981;
+}
+.kds-ticket-header.urgency-orange {
+  background: #9a3412;
+  border-bottom: 2px solid #f97316;
+}
+.kds-ticket-header.urgency-red {
+  background: #991b1b;
+  border-bottom: 2px solid #ef4444;
+  animation: pulseGlow 1.5s infinite;
+}
+
+.kds-ticket-table {
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+}
+.kds-timer-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.kds-ticket-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #111827;
+}
+.kds-item-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.kds-item-qty {
+  width: 28px;
+  height: 28px;
+  background: var(--primary);
+  color: #000;
+  font-weight: 900;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.kds-item-details {
+  flex: 1;
+}
+.kds-item-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+.kds-item-mods {
+  font-size: 0.8rem;
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 2px;
+  display: inline-block;
+}
+
+.kds-ticket-footer {
+  padding: 12px 16px;
+  background: #0f172a;
+  border-top: 1px solid #1e293b;
+  display: flex;
+  gap: 8px;
+}
+.btn-kds-action {
+  flex: 1;
+  padding: 12px 0;
+  font-weight: 800;
+  font-size: 0.92rem;
+  border-radius: var(--radius-md);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}

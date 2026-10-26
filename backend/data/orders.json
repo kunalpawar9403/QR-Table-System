@@ -352,5 +352,32 @@
     "paymentMethod": "Pay at Counter / UPI",
     "updatedAt": "2026-10-18T11:47:25.847Z",
     "completedAt": "2026-10-18T11:47:49.963Z"
+  },
+  {
+    "id": "ORD-112",
+    "orderNumber": 112,
+    "tableId": 3,
+    "tableName": "Table 3",
+    "guestName": "Table 3 Guest",
+    "status": "completed",
+    "createdAt": "2026-10-26T11:03:01.787Z",
+    "items": [
+      {
+        "id": "ni-1",
+        "name": "Kaju Masala",
+        "price": 160,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 160,
+    "tax": 8,
+    "total": 168,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-26T11:03:13.356Z",
+    "completedAt": "2026-10-26T11:03:31.925Z"
   }
 ]

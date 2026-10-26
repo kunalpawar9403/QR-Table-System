@@ -6,6 +6,65 @@ const path = require('path');
 const cors = require('cors');
 const QRCode = require('qrcode');
 const os = require('os');
+const crypto = require('crypto');
+
+// Load environment variables from .env if present
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  try {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    envContent.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const idx = trimmed.indexOf('=');
+        if (idx !== -1) {
+          const key = trimmed.slice(0, idx).trim();
+          const val = trimmed.slice(idx + 1).trim().replace(/(^["']|["']$)/g, '');
+          if (!process.env[key]) {
+            process.env[key] = val;
+          }
+        }
+      }
+    });
+  } catch (e) {
+    console.error('Error reading .env file:', e.message);
+  }
+}
+
+// Staff PIN & Authentication Security
+const STAFF_PIN = (process.env.STAFF_PIN || '1234').toString().trim();
+const STAFF_SECRET = process.env.STAFF_SECRET || crypto.randomBytes(32).toString('hex');
+
+function generateStaffToken() {
+  const payload = `staff-${Date.now()}`;
+  const signature = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
+  return `${payload}.${signature}`;
+}
+
+function verifyStaffToken(token) {
+  if (!token || typeof token !== 'string') return false;
+  if (token === STAFF_PIN) return true;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [payload, sig] = parts;
+  try {
+    const expected = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+  } catch (e) {
+    return false;
+  }
+}
+
+function requireStaffAuth(req, res, next) {
+  const token = req.headers['x-staff-token'] || req.query.staff_token;
+  if (verifyStaffToken(token)) {
+    return next();
+  }
+  return res.status(401).json({
+    error: 'UNAUTHORIZED_STAFF',
+    message: 'Staff authentication required. Please enter valid Staff PIN.'
+  });
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -29,28 +88,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Direct route for root: open Admin Panel by default, or Customer Ordering if ?table= is given
-app.get('/', (req, res) => {
-  if (req.query.table) {
-    return res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Serve React Vite dist build from frontend/dist
+const distDir = fs.existsSync(path.join(__dirname, '..', 'frontend', 'dist'))
+  ? path.join(__dirname, '..', 'frontend', 'dist')
+  : path.join(__dirname, 'dist');
+app.use(express.static(distDir));
+app.use('/images', express.static(path.join(distDir, 'images')));
+
+// SPA Fallback for all navigation routes
+app.get(['/', '/dashboard', '/kitchen', '/admin', '/qr-stands', '/customer'], (req, res) => {
+  const indexPath = path.join(distDir, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
   }
-  res.redirect('/dashboard.html');
-});
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Direct route convenience
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-app.get('/kitchen', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'kitchen.html'));
-});
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-app.get('/qr-stands', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'qr-stands.html'));
+  res.status(404).send('React Vite build not found. Please run npm run build.');
 });
 
 // Helper to determine local network IP for real phone scanning
@@ -153,6 +204,22 @@ ensureTableTokens();
 
 // ----------------- API Endpoints -----------------
 
+// Staff Authentication Endpoints
+app.post('/api/auth/verify-pin', (req, res) => {
+  const { pin } = req.body || {};
+  if (!pin || pin.toString().trim() !== STAFF_PIN) {
+    return res.status(401).json({ success: false, error: 'Incorrect Staff PIN. Please try again.' });
+  }
+  const token = generateStaffToken();
+  res.json({ success: true, token, message: 'Authentication successful' });
+});
+
+app.get('/api/auth/check', (req, res) => {
+  const token = req.headers['x-staff-token'] || req.query.staff_token;
+  const isValid = verifyStaffToken(token);
+  res.json({ authenticated: isValid });
+});
+
 // Server info & host URLs for QR generation
 app.get('/api/info', (req, res) => {
   const isVercel = Boolean(process.env.VERCEL);
@@ -176,7 +243,7 @@ app.get('/api/menu', (req, res) => {
 });
 
 // Toggle Availability (86'd)
-app.patch('/api/menu/:id/toggle', (req, res) => {
+app.patch('/api/menu/:id/toggle', requireStaffAuth, (req, res) => {
   const menu = readData(MENU_FILE);
   const item = menu.find(i => i.id === req.params.id);
   if (!item) return res.status(404).json({ error: 'Item not found' });
@@ -187,7 +254,7 @@ app.patch('/api/menu/:id/toggle', (req, res) => {
 });
 
 // Add New Menu Item
-app.post('/api/menu', (req, res) => {
+app.post('/api/menu', requireStaffAuth, (req, res) => {
   const { name, category, price, description, image, isVeg, isSpecial, prepTime } = req.body;
   if (!name || !price) {
     return res.status(400).json({ error: 'Name and price are required' });
@@ -216,7 +283,7 @@ app.post('/api/menu', (req, res) => {
 });
 
 // Update / Edit Existing Menu Item
-app.put('/api/menu/:id', (req, res) => {
+app.put('/api/menu/:id', requireStaffAuth, (req, res) => {
   const menu = readData(MENU_FILE);
   const idx = menu.findIndex(i => i.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Item not found' });
@@ -240,7 +307,7 @@ app.put('/api/menu/:id', (req, res) => {
 });
 
 // Delete Menu Item
-app.delete('/api/menu/:id', (req, res) => {
+app.delete('/api/menu/:id', requireStaffAuth, (req, res) => {
   let menu = readData(MENU_FILE);
   const exists = menu.some(i => i.id === req.params.id);
   if (!exists) return res.status(404).json({ error: 'Item not found' });
@@ -252,7 +319,7 @@ app.delete('/api/menu/:id', (req, res) => {
 });
 
 // Tables Endpoints (CRUD & Occupancy Controls)
-app.post('/api/tables', (req, res) => {
+app.post('/api/tables', requireStaffAuth, (req, res) => {
   const { name, capacity, section } = req.body;
   const tables = readData(TABLES_FILE);
   const nextId = tables.length > 0 ? Math.max(...tables.map(t => t.id || 0)) + 1 : 1;
@@ -273,7 +340,7 @@ app.post('/api/tables', (req, res) => {
 });
 
 // Update / Edit Table details (Name, Capacity, Section)
-app.put('/api/tables/:id', (req, res) => {
+app.put('/api/tables/:id', requireStaffAuth, (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   const tables = readData(TABLES_FILE);
   const idx = tables.findIndex(t => t.id === tableId);
@@ -293,7 +360,7 @@ app.put('/api/tables/:id', (req, res) => {
 });
 
 // Delete Table
-app.delete('/api/tables/:id', (req, res) => {
+app.delete('/api/tables/:id', requireStaffAuth, (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   let tables = readData(TABLES_FILE);
   const exists = tables.some(t => t.id === tableId);
@@ -306,7 +373,7 @@ app.delete('/api/tables/:id', (req, res) => {
 });
 
 // MAKE VACANT: Called when customer finishes food / settles bill
-app.patch('/api/tables/:id/vacant', (req, res) => {
+app.patch('/api/tables/:id/vacant', requireStaffAuth, (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   const tables = readData(TABLES_FILE);
   const table = tables.find(t => t.id === tableId);
@@ -405,7 +472,7 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
 });
 
 // Manually Regenerate Table Token (from Admin Dashboard)
-app.post('/api/tables/:id/regenerate-token', (req, res) => {
+app.post('/api/tables/:id/regenerate-token', requireStaffAuth, (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   const tables = readData(TABLES_FILE);
   const table = tables.find(t => t.id === tableId);
@@ -432,7 +499,7 @@ app.post('/api/tables/:id/regenerate-token', (req, res) => {
 });
 
 // MARK OCCUPIED: Staff seats walk-in guests before QR scan
-app.patch('/api/tables/:id/occupy', (req, res) => {
+app.patch('/api/tables/:id/occupy', requireStaffAuth, (req, res) => {
   const tableId = parseInt(req.params.id, 10);
   const tables = readData(TABLES_FILE);
   const table = tables.find(t => t.id === tableId);
@@ -567,7 +634,7 @@ app.post('/api/orders', (req, res) => {
 });
 
 // Update order status
-app.patch('/api/orders/:id/status', (req, res) => {
+app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
   const { status } = req.body;
   const validStatuses = ['new', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
   if (!validStatuses.includes(status)) {
@@ -659,7 +726,7 @@ app.post('/api/service-call', (req, res) => {
 });
 
 // Dismiss / Attended service call
-app.patch('/api/service-call/:id/dismiss', (req, res) => {
+app.patch('/api/service-call/:id/dismiss', requireStaffAuth, (req, res) => {
   activeServiceCalls = activeServiceCalls.filter(c => c.id !== req.params.id);
   io.emit('service:updated', activeServiceCalls);
   res.json({ success: true, activeServiceCalls });
