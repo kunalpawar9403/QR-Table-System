@@ -182,8 +182,17 @@
   flex-shrink: 0;
 }
 
+#single-stand-print-root {
+  display: none !important;
+}
+
 /* Print Rules */
 @media print {
+  @page {
+    size: auto;
+    margin: 5mm;
+  }
+
   body {
     background: #fff !important;
     color: #000 !important;
@@ -197,29 +206,22 @@
     display: none !important;
   }
 
-  /* Single Stand Printing */
-  body.printing-single-stand-only * {
-    visibility: hidden !important;
+  /* Single Stand Printing: Hide #root so 0 pages of background exist */
+  body.printing-single-stand-only > #root {
+    display: none !important;
   }
 
-  body.printing-single-stand-only .qr-stand-card.is-target-stand,
-  body.printing-single-stand-only .qr-stand-card.is-target-stand * {
-    visibility: visible !important;
-  }
-
-  body.printing-single-stand-only .qr-stand-card.is-target-stand {
-    position: absolute !important;
-    left: 50% !important;
-    top: 20mm !important;
-    transform: translateX(-50%) !important;
+  body.printing-single-stand-only #single-stand-print-root {
+    display: block !important;
     width: 105mm !important;
     max-width: 105mm !important;
-    margin: 0 auto !important;
-    padding: 16px !important;
+    margin: 10mm auto !important;
+    padding: 18px !important;
     border: 2px solid #000000 !important;
     border-radius: 14px !important;
     background: #ffffff !important;
     color: #000000 !important;
+    text-align: center !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;

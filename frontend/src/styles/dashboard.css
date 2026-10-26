@@ -1830,11 +1830,22 @@
   background: #b45309 !important;
 }
 
+/* Hide portals from screen view */
+#thermal-receipt-print-root,
+#single-stand-print-root {
+  display: none !important;
+}
+
 /* =========================================================
    COMPREHENSIVE PRINT MEDIA RULES (ISOLATED RECEIPT & STANDS)
    ========================================================= */
 @media print {
-  /* Hide non-printable app chrome */
+  @page {
+    size: auto;
+    margin: 5mm;
+  }
+
+  /* Universal hide for non-printable UI */
   .no-print,
   .receipt-modal-close-btn,
   .receipt-actions-footer,
@@ -1861,78 +1872,52 @@
   }
 
   /* ---------------------------------------------------------
-     1. THERMAL BILL RECEIPT PRINTING (80mm ESC/POS ROLL)
-     ONLY the receipt card prints, no dashboard background.
+     1. ISOLATED 80mm THERMAL RECEIPT PRINTING
+     Completely removes #root (all 4 pages of dashboard disappear)
+     Renders ONLY the 80mm receipt card centered in middle.
      --------------------------------------------------------- */
-  body.printing-receipt-only {
-    width: 80mm !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  body.printing-receipt-only > #root {
+    display: none !important;
   }
 
-  body.printing-receipt-only * {
-    visibility: hidden !important;
-  }
-
-  body.printing-receipt-only .modal-backdrop {
-    position: static !important;
+  body.printing-receipt-only #thermal-receipt-print-root {
     display: block !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  body.printing-receipt-only #thermal-receipt-container,
-  body.printing-receipt-only #thermal-receipt-container * {
-    visibility: visible !important;
-  }
-
-  body.printing-receipt-only #thermal-receipt-container {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 76mm !important;
-    max-width: 76mm !important;
-    margin: 0 !important;
-    padding: 2mm 3mm !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 4mm auto !important; /* Centered in middle with proper crop size */
+    padding: 4mm 5mm !important;
     background: #ffffff !important;
     color: #000000 !important;
     font-family: 'Courier New', Courier, monospace !important;
-    font-size: 10pt !important;
+    font-size: 9.5pt !important;
     line-height: 1.35 !important;
-    overflow: visible !important;
-    max-height: none !important;
+    border: 1px dashed #4b5563 !important; /* 80mm paper roll cut/crop guide */
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* ---------------------------------------------------------
-     2. SINGLE TABLE QR STAND PRINTING
-     ONLY the target stand card prints centered on page.
+     2. ISOLATED SINGLE TABLE QR STAND PRINTING
+     Completely removes #root (zero dashboard chrome)
+     Renders ONLY the target stand card centered in middle.
      --------------------------------------------------------- */
-  body.printing-single-stand-only * {
-    visibility: hidden !important;
+  body.printing-single-stand-only > #root {
+    display: none !important;
   }
 
-  body.printing-single-stand-only .qr-stand-print-card.is-target-stand,
-  body.printing-single-stand-only .qr-stand-print-card.is-target-stand * {
-    visibility: visible !important;
-  }
-
-  body.printing-single-stand-only .qr-stand-print-card.is-target-stand {
-    position: absolute !important;
-    left: 50% !important;
-    top: 20mm !important;
-    transform: translateX(-50%) !important;
-    width: 105mm !important;
+  body.printing-single-stand-only #single-stand-print-root {
+    display: block !important;
+    width: 105mm !important; /* Standard 4x6" / A6 acrylic stand insert */
     max-width: 105mm !important;
-    margin: 0 auto !important;
-    padding: 16px !important;
+    margin: 10mm auto !important; /* Centered in middle */
+    padding: 18px !important;
     border: 2px solid #000000 !important;
     border-radius: 14px !important;
     background: #ffffff !important;
     color: #000000 !important;
+    text-align: center !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;

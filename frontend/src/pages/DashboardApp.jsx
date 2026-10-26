@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Home,
   LayoutGrid,
@@ -400,10 +401,12 @@ export default function DashboardApp({ onLockStaff }) {
   // Dedicated Print Handlers
   const handlePrintReceipt = () => {
     document.body.classList.add('printing-receipt-only');
-    window.print();
     setTimeout(() => {
-      document.body.classList.remove('printing-receipt-only');
-    }, 1200);
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-receipt-only');
+      }, 1000);
+    }, 120);
   };
 
   const handlePrintSingleStand = (table) => {
@@ -2195,6 +2198,119 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 80mm ESC/POS Thermal Receipt Portal (Isolated 1-Page Print Centered in Middle) */}
+      {typeof document !== 'undefined' && printBillOrder && createPortal(
+        <div id="thermal-receipt-print-root">
+          <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8 }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.04em' }}>SPICE GARDEN</div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Fine Dining Restaurant & Bar</div>
+            <div style={{ fontSize: '0.72rem', color: '#333' }}>Plot 42, Green Avenue, MG Road</div>
+            <div style={{ fontSize: '0.68rem', color: '#555' }}>GSTIN: 27AAACS1234M1Z5 • FSSAI: 11521034000456</div>
+            <div style={{ margin: '6px 0 3px', borderTop: '1px dashed #999' }} />
+            <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>TAX INVOICE / CASH BILL</div>
+            <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+              Bill #{printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
+            </div>
+            <div style={{ fontSize: '0.7rem' }}>
+              Date: {new Date(printBillOrder.createdAt || Date.now()).toLocaleDateString()} {new Date(printBillOrder.createdAt || Date.now()).toLocaleTimeString()}
+            </div>
+          </div>
+
+          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 800, paddingBottom: 4, borderBottom: '1px solid #ccc' }}>
+              <span>ITEM</span>
+              <span>QTY x RATE</span>
+              <span>AMOUNT</span>
+            </div>
+            {printBillOrder.items?.map((it, i) => (
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', fontWeight: 600, padding: '3px 0' }}>
+                <span style={{ flex: 1, paddingRight: 6 }}>{it.name}</span>
+                <span style={{ minWidth: 55, textAlign: 'center' }}>{it.quantity} x {it.price}</span>
+                <span style={{ minWidth: 55, textAlign: 'right' }}>₹{it.price * it.quantity}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8, fontSize: '0.76rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+              <span>Subtotal:</span>
+              <span>₹{printBillOrder.subtotal || Math.round((printBillOrder.total || 0) / 1.05)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+              <span>CGST (2.5%):</span>
+              <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+              <span>SGST (2.5%):</span>
+              <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 900, paddingTop: 4, marginTop: 4, borderTop: '1px dashed #000' }}>
+              <span>TOTAL AMOUNT:</span>
+              <span>₹{printBillOrder.total}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 700, marginTop: 3 }}>
+              <span>Payment Status:</span>
+              <span>PAID (UPI / COUNTER)</span>
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center', fontSize: '0.72rem', paddingTop: 2 }}>
+            <div style={{ fontWeight: 800 }}>*** THANK YOU FOR DINING WITH US ***</div>
+            <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit Spice Garden Again!</div>
+            <div style={{ fontSize: '0.6rem', color: '#666', marginTop: 6, borderTop: '1px dotted #ccc', paddingTop: 4 }}>
+              80mm ESC/POS Thermal Paper Roll Size
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Single Table QR Stand Portal (Isolated 1-Page Print Centered in Middle) */}
+      {typeof document !== 'undefined' && printingSingleTable && createPortal(
+        <div id="single-stand-print-root">
+          <div style={{ width: 50, height: 5, background: '#000', margin: '0 auto 10px', borderRadius: 4 }} />
+          <div style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 2 }}>
+            ★ LUXURY DINING ★
+          </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.06em', fontFamily: 'serif' }}>
+            SPICE GARDEN
+          </div>
+          <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#333', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+            Fine Dining & Rooftop Lounge
+          </div>
+
+          <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>
+            <img
+              src={`/api/qrcode/${printingSingleTable.id}`}
+              alt={`Table ${printingSingleTable.id} QR Code`}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          <div style={{ fontSize: '0.74rem', fontWeight: 700, marginBottom: 12 }}>
+            Point phone camera & tap link to open menu
+          </div>
+
+          <div style={{ background: '#000', color: '#fff', padding: '6px 20px', borderRadius: 999, fontWeight: 900, fontSize: '1.2rem', width: 'fit-content', margin: '0 auto 12px' }}>
+            {printingSingleTable.name || `TABLE ${printingSingleTable.id}`}
+          </div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#444', marginBottom: 12 }}>
+            Capacity: {printingSingleTable.capacity || 4} Guests • Dedicated Server
+          </div>
+
+          <div style={{ borderTop: '1px dashed #666', paddingTop: 10, textAlign: 'left', maxWidth: 220, margin: '0 auto 12px', fontSize: '0.74rem', lineHeight: 1.6 }}>
+            <div><strong>1.</strong> Open camera or Google Lens & scan QR</div>
+            <div><strong>2.</strong> Browse live specials & customize dishes</div>
+            <div><strong>3.</strong> Order straight to kitchen & settle bill</div>
+          </div>
+
+          <div style={{ borderTop: '1px solid #ccc', paddingTop: 8, fontSize: '0.7rem', color: '#333' }}>
+            <div>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Password)</div>
+            <div style={{ fontSize: '0.62rem', color: '#666', marginTop: 2 }}>Powered by QR Table System • 4x6" Acrylic Stand Insert</div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

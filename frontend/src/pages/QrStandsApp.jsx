@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Printer, ArrowLeft, QrCode, Sparkles, Wifi, ExternalLink } from 'lucide-react';
 import '../styles/qr-stands.css';
 
 export default function QrStandsApp({ onBack }) {
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState('all');
-  const [printingSingleId, setPrintingSingleId] = useState(null);
+  const [printingSingleTable, setPrintingSingleTable] = useState(null);
 
   useEffect(() => {
     fetch('/api/tables')
@@ -14,14 +15,14 @@ export default function QrStandsApp({ onBack }) {
       .catch(() => {});
   }, []);
 
-  const handlePrintSingle = (tableId) => {
-    setPrintingSingleId(tableId);
+  const handlePrintSingle = (table) => {
+    setPrintingSingleTable(table);
     document.body.classList.add('printing-single-stand-only');
     setTimeout(() => {
       window.print();
       setTimeout(() => {
         document.body.classList.remove('printing-single-stand-only');
-        setPrintingSingleId(null);
+        setPrintingSingleTable(null);
       }, 1000);
     }, 150);
   };
@@ -38,7 +39,7 @@ export default function QrStandsApp({ onBack }) {
     const handleAfterPrint = () => {
       document.body.classList.remove('printing-single-stand-only');
       document.body.classList.remove('printing-all-stands-only');
-      setPrintingSingleId(null);
+      setPrintingSingleTable(null);
     };
     window.addEventListener('afterprint', handleAfterPrint);
     return () => window.removeEventListener('afterprint', handleAfterPrint);
@@ -88,90 +89,133 @@ export default function QrStandsApp({ onBack }) {
       </div>
 
       <div className="stands-grid">
-        {displayedTables.map((t) => {
-          const isTarget = printingSingleId === t.id;
-          return (
-            <div
-              key={t.id}
-              className={`qr-stand-card ${isTarget ? 'is-target-stand' : ''}`}
-              data-table-id={t.id}
-            >
-              <div className="stand-top-clip" />
+        {displayedTables.map((t) => (
+          <div
+            key={t.id}
+            className="qr-stand-card"
+            data-table-id={t.id}
+          >
+            <div className="stand-top-clip" />
 
-              <div className="stand-brand-header">
-                <div className="stand-crest-badge">
-                  <Sparkles size={12} style={{ color: '#d97706' }} />
-                  <span>LUXURY DINING</span>
-                  <Sparkles size={12} style={{ color: '#d97706' }} />
-                </div>
-                <h2 className="stand-brand-title">Spice Garden</h2>
-                <div className="stand-tagline">Fine Dining & Smart Ordering</div>
+            <div className="stand-brand-header">
+              <div className="stand-crest-badge">
+                <Sparkles size={12} style={{ color: '#d97706' }} />
+                <span>LUXURY DINING</span>
+                <Sparkles size={12} style={{ color: '#d97706' }} />
               </div>
+              <h2 className="stand-brand-title">Spice Garden</h2>
+              <div className="stand-tagline">Fine Dining & Smart Ordering</div>
+            </div>
 
-              <div className="stand-qr-box">
-                <div className="stand-corner top-left" />
-                <div className="stand-corner top-right" />
-                <div className="stand-corner bottom-left" />
-                <div className="stand-corner bottom-right" />
-                <img
-                  src={`/api/qrcode/${t.id}`}
-                  alt={`Table ${t.id} QR`}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                />
+            <div className="stand-qr-box">
+              <div className="stand-corner top-left" />
+              <div className="stand-corner top-right" />
+              <div className="stand-corner bottom-left" />
+              <div className="stand-corner bottom-right" />
+              <img
+                src={`/api/qrcode/${t.id}`}
+                alt={`Table ${t.id} QR`}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              />
+            </div>
+
+            <div style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 700, margin: '4px 0 10px' }}>
+              Point camera & tap link to open menu
+            </div>
+
+            <div className="stand-table-badge">{t.name || `TABLE ${t.id}`}</div>
+
+            <div className="stand-steps-list">
+              <div className="stand-step-item">
+                <span className="stand-step-num">1</span>
+                <span>Open your phone camera & scan QR</span>
               </div>
-
-              <div style={{ fontSize: '0.72rem', color: '#b45309', fontWeight: 700, margin: '4px 0 10px' }}>
-                Point camera & tap link to open menu
+              <div className="stand-step-item">
+                <span className="stand-step-num">2</span>
+                <span>Browse our curated menu & customize dishes</span>
               </div>
-
-              <div className="stand-table-badge">{t.name || `TABLE ${t.id}`}</div>
-
-              <div className="stand-steps-list">
-                <div className="stand-step-item">
-                  <span className="stand-step-num">1</span>
-                  <span>Open your phone camera & scan QR</span>
-                </div>
-                <div className="stand-step-item">
-                  <span className="stand-step-num">2</span>
-                  <span>Browse our curated menu & customize dishes</span>
-                </div>
-                <div className="stand-step-item">
-                  <span className="stand-step-num">3</span>
-                  <span>Order directly to kitchen & track live status</span>
-                </div>
-              </div>
-
-              <div className="stand-hospitality-footer" style={{ width: '100%', marginTop: 12, paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: '0.72rem', color: '#475569' }}>
-                  <Wifi size={13} />
-                  <span>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Pass)</span>
-                </div>
-                <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>Powered by QR Table System</div>
-              </div>
-
-              <div className="no-print" style={{ display: 'flex', gap: 8, width: '100%', marginTop: 14 }}>
-                <button
-                  type="button"
-                  className="btn-primary"
-                  style={{ flex: 1, fontSize: '0.8rem', padding: '8px 12px' }}
-                  onClick={() => handlePrintSingle(t.id)}
-                >
-                  <Printer size={14} /> Print Stand
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ fontSize: '0.8rem', padding: '8px 12px' }}
-                  onClick={() => window.open(`/?table=${t.id}`, '_blank')}
-                  title="Test Live Customer Menu"
-                >
-                  <ExternalLink size={14} /> Menu
-                </button>
+              <div className="stand-step-item">
+                <span className="stand-step-num">3</span>
+                <span>Order directly to kitchen & track live status</span>
               </div>
             </div>
-          );
-        })}
+
+            <div className="stand-hospitality-footer" style={{ width: '100%', marginTop: 12, paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, fontSize: '0.72rem', color: '#475569' }}>
+                <Wifi size={13} />
+                <span>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Pass)</span>
+              </div>
+              <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>Powered by QR Table System</div>
+            </div>
+
+            <div className="no-print" style={{ display: 'flex', gap: 8, width: '100%', marginTop: 14 }}>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ flex: 1, fontSize: '0.8rem', padding: '8px 12px' }}
+                onClick={() => handlePrintSingle(t)}
+              >
+                <Printer size={14} /> Print Stand
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{ fontSize: '0.8rem', padding: '8px 12px' }}
+                onClick={() => window.open(`/?table=${t.id}`, '_blank')}
+                title="Test Live Customer Menu"
+              >
+                <ExternalLink size={14} /> Menu
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Single Stand Portal for 1-Page Clean Center Print */}
+      {typeof document !== 'undefined' && printingSingleTable && createPortal(
+        <div id="single-stand-print-root">
+          <div style={{ width: 50, height: 5, background: '#000', margin: '0 auto 10px', borderRadius: 4 }} />
+          <div style={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 2 }}>
+            ★ LUXURY DINING ★
+          </div>
+          <div style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.06em', fontFamily: 'serif' }}>
+            SPICE GARDEN
+          </div>
+          <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#333', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+            Fine Dining & Rooftop Lounge
+          </div>
+
+          <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>
+            <img
+              src={`/api/qrcode/${printingSingleTable.id}`}
+              alt={`Table ${printingSingleTable.id} QR Code`}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          </div>
+          <div style={{ fontSize: '0.74rem', fontWeight: 700, marginBottom: 12 }}>
+            Point phone camera & tap link to open menu
+          </div>
+
+          <div style={{ background: '#000', color: '#fff', padding: '6px 20px', borderRadius: 999, fontWeight: 900, fontSize: '1.2rem', width: 'fit-content', margin: '0 auto 12px' }}>
+            {printingSingleTable.name || `TABLE ${printingSingleTable.id}`}
+          </div>
+          <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#444', marginBottom: 12 }}>
+            Capacity: {printingSingleTable.capacity || 4} Guests • Dedicated Server
+          </div>
+
+          <div style={{ borderTop: '1px dashed #666', paddingTop: 10, textAlign: 'left', maxWidth: 220, margin: '0 auto 12px', fontSize: '0.74rem', lineHeight: 1.6 }}>
+            <div><strong>1.</strong> Open camera or Google Lens & scan QR</div>
+            <div><strong>2.</strong> Browse live specials & customize dishes</div>
+            <div><strong>3.</strong> Order straight to kitchen & settle bill</div>
+          </div>
+
+          <div style={{ borderTop: '1px solid #ccc', paddingTop: 8, fontSize: '0.7rem', color: '#333' }}>
+            <div>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Password)</div>
+            <div style={{ fontSize: '0.62rem', color: '#666', marginTop: 2 }}>Powered by QR Table System • 4x6" Acrylic Stand Insert</div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
