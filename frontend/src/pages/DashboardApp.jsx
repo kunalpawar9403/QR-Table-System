@@ -43,7 +43,10 @@ import {
   DollarSign,
   Menu,
   User,
-  LogOut
+  LogOut,
+  CreditCard,
+  Eye,
+  MoreVertical
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -224,6 +227,30 @@ export default function DashboardApp({ onLockStaff }) {
     autoAcceptOrders: false,
     sessionTimeoutHours: 3
   });
+
+  // Global Topbar Search
+  const [globalSearch, setGlobalSearch] = useState('');
+
+  // Customers State (Image 1 Panel 8)
+  const [customers, setCustomers] = useState([
+    { id: 1, name: 'Amit Patel', phone: '+91 9876543210', email: 'amit@email.com', totalOrders: 12, totalSpent: 3450, lastVisit: 'Oct 26, 2026' },
+    { id: 2, name: 'Priya Sharma', phone: '+91 9123456780', email: 'priya@email.com', totalOrders: 8, totalSpent: 2180, lastVisit: 'Oct 25, 2026' },
+    { id: 3, name: 'Rahul Kumar', phone: '+91 9988776655', email: 'rahul@email.com', totalOrders: 15, totalSpent: 4120, lastVisit: 'Oct 24, 2026' },
+    { id: 4, name: 'Sneha Joshi', phone: '+91 9871234567', email: 'sneha@email.com', totalOrders: 6, totalSpent: 1650, lastVisit: 'Oct 23, 2026' },
+    { id: 5, name: 'Vikram Singh', phone: '+91 9765432100', email: 'vikram@email.com', totalOrders: 10, totalSpent: 2880, lastVisit: 'Oct 22, 2026' },
+    { id: 6, name: 'Neha Desai', phone: '+91 9876543211', email: 'neha@email.com', totalOrders: 9, totalSpent: 2250, lastVisit: 'Oct 21, 2026' }
+  ]);
+  const [customerSearch, setCustomerSearch] = useState('');
+
+  // POS Billing State (Image 1 Panel 6)
+  const [selectedBillingTableId, setSelectedBillingTableId] = useState(12);
+  const [billingPaymentMethod, setBillingPaymentMethod] = useState('upi');
+  const [billingRecentBills, setBillingRecentBills] = useState([
+    { billNo: '#B1604', table: 'Table 12', amount: 525, time: '10:32 AM', payment: 'UPI' },
+    { billNo: '#B1603', table: 'Table 5', amount: 750, time: '10:25 AM', payment: 'Card' },
+    { billNo: '#B1602', table: 'Table 8', amount: 320, time: '10:18 AM', payment: 'Cash' },
+    { billNo: '#B1601', table: 'Table 3', amount: 600, time: '10:10 AM', payment: 'UPI' }
+  ]);
 
   // Digital Clock
   useEffect(() => {
@@ -757,7 +784,7 @@ export default function DashboardApp({ onLockStaff }) {
           {/* Brand Logo */}
           <div className="sidebar-brand-box">
             <div className="sidebar-logo-badge">
-              <img src="/images/tablemint_icon.png" alt="TableMint" className="sidebar-logo-img" />
+              <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="sidebar-logo-img" />
             </div>
             <div className="sidebar-brand-text">
               <h2>Table<span className="brand-mint-text">Mint</span></h2>
@@ -773,17 +800,7 @@ export default function DashboardApp({ onLockStaff }) {
             >
               <div className="sidebar-item-left">
                 <Home size={18} />
-                <span>Overview</span>
-              </div>
-            </button>
-
-            <button
-              className={`sidebar-nav-item ${activeTab === 'tables' ? 'active' : ''}`}
-              onClick={() => setActiveTab('tables')}
-            >
-              <div className="sidebar-item-left">
-                <LayoutGrid size={18} />
-                <span>Floor & Tables</span>
+                <span>Dashboard</span>
               </div>
             </button>
 
@@ -795,16 +812,16 @@ export default function DashboardApp({ onLockStaff }) {
                 <Receipt size={18} />
                 <span>Orders</span>
               </div>
-              <span className="sidebar-badge">{orders.length || 12}</span>
+              <span className="sidebar-badge">{orders.length || 24}</span>
             </button>
 
             <button
-              className={`sidebar-nav-item ${activeTab === 'kitchen' ? 'active' : ''}`}
-              onClick={() => setActiveTab('kitchen')}
+              className={`sidebar-nav-item ${activeTab === 'tables' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tables')}
             >
               <div className="sidebar-item-left">
-                <ChefHat size={18} />
-                <span>Kitchen KDS</span>
+                <LayoutGrid size={18} />
+                <span>Table Management</span>
               </div>
             </button>
 
@@ -814,30 +831,38 @@ export default function DashboardApp({ onLockStaff }) {
             >
               <div className="sidebar-item-left">
                 <BookOpen size={18} />
-                <span>Menu Catalog</span>
+                <span>Menu Management</span>
               </div>
-              <span className="sidebar-badge">{menu.length || 75}</span>
+              <span className="sidebar-badge">{menu.length || 24}</span>
             </button>
 
             <button
-              className={`sidebar-nav-item ${activeTab === 'stands' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stands')}
+              className={`sidebar-nav-item ${activeTab === 'kitchen' ? 'active' : ''}`}
+              onClick={() => setActiveTab('kitchen')}
             >
               <div className="sidebar-item-left">
-                <QrCode size={18} />
-                <span>QR Stands Printing</span>
+                <ChefHat size={18} />
+                <span>Kitchen Display</span>
               </div>
             </button>
 
-            <div className="sidebar-divider" />
-
             <button
-              className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('settings')}
+              className={`sidebar-nav-item ${activeTab === 'billing' ? 'active' : ''}`}
+              onClick={() => setActiveTab('billing')}
             >
               <div className="sidebar-item-left">
-                <Settings size={18} />
-                <span>Settings</span>
+                <CreditCard size={18} />
+                <span>POS Billing</span>
+              </div>
+            </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'customers' ? 'active' : ''}`}
+              onClick={() => setActiveTab('customers')}
+            >
+              <div className="sidebar-item-left">
+                <Users size={18} />
+                <span>Customers</span>
               </div>
             </button>
 
@@ -852,22 +877,24 @@ export default function DashboardApp({ onLockStaff }) {
             </button>
 
             <button
-              className={`sidebar-nav-item ${activeTab === 'staff' ? 'active' : ''}`}
-              onClick={() => setActiveTab('staff')}
+              className={`sidebar-nav-item ${activeTab === 'settings' ? 'active' : ''}`}
+              onClick={() => setActiveTab('settings')}
             >
               <div className="sidebar-item-left">
-                <Users size={18} />
-                <span>Staff Management</span>
+                <Settings size={18} />
+                <span>Settings</span>
               </div>
             </button>
 
+            <div className="sidebar-divider" />
+
             <button
-              className={`sidebar-nav-item ${activeTab === 'integrations' ? 'active' : ''}`}
-              onClick={() => setActiveTab('integrations')}
+              className={`sidebar-nav-item ${activeTab === 'stands' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stands')}
             >
               <div className="sidebar-item-left">
-                <Link2 size={18} />
-                <span>Integrations</span>
+                <QrCode size={18} />
+                <span>QR Stands Printing</span>
               </div>
             </button>
 
@@ -906,42 +933,32 @@ export default function DashboardApp({ onLockStaff }) {
           ======================================================== */}
       <main className="dash-main-area">
         {/* Top Command Bar */}
+        {/* Top Command Bar Matching Image 1 Reference */}
         <header className="top-command-header">
           <div className="command-header-left">
             <button
               type="button"
               className="mobile-sidebar-toggle-btn no-desktop"
               onClick={() => setMobileMoreOpen((prev) => !prev)}
-              title="Open Admin Functions"
+              title="Open Navigation"
             >
               <Menu size={20} />
             </button>
-            <div className="command-logo-badge">
-              <img src="/images/tablemint_icon.png" alt="TableMint" className="command-logo-img" />
-            </div>
-            <div className="command-title-box">
-              <h1>
-                Table<span className="brand-mint-text">Mint</span>{' '}
-                <span className="hide-on-mobile">Command Center</span>{' '}
-                <span className="live-pos-pill hide-on-mobile">LIVE POS</span>
-              </h1>
-              <p className="hide-on-mobile">Smart Restaurant Operations • Real-Time Kitchen KDS • QR Dining</p>
+            <div className="topbar-search-box">
+              <Search size={16} className="topbar-search-icon" />
+              <input
+                type="text"
+                placeholder="Search tables, orders, menu..."
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                className="topbar-search-input"
+              />
             </div>
           </div>
 
           <div className="command-header-right">
-            <div className="header-time-pill hide-on-mobile">
-              <Calendar size={15} style={{ color: '#00e676' }} />
-              <span>{currentDate} • {currentTime}</span>
-            </div>
-
-            <div className="header-sync-pill hide-on-mobile">
-              <span className="status-dot-green" />
-              <span>Live Sync Active</span>
-            </div>
-
             <button
-              className="header-icon-btn"
+              className="header-circle-btn"
               onClick={() => {
                 const muted = soundManager.toggleMute();
                 setIsMuted(muted);
@@ -953,7 +970,7 @@ export default function DashboardApp({ onLockStaff }) {
             </button>
 
             <button
-              className="header-icon-btn"
+              className="header-circle-btn"
               onClick={() => {
                 fetchAllData();
                 addToast('Data synchronized successfully', 'info');
@@ -964,28 +981,43 @@ export default function DashboardApp({ onLockStaff }) {
             </button>
 
             <button
-              className="lock-station-btn"
-              onClick={handleLogout}
-              title="Sign Out & Lock Station"
+              className="header-circle-btn"
+              onClick={() => setActiveTab('settings')}
+              title="Settings"
             >
-              <Lock size={15} /> <span className="hide-on-mobile">Sign Out / Lock</span>
+              <Settings size={17} />
             </button>
 
-            <div
-              className="user-avatar-circle hide-on-mobile"
-              title={currentUser ? `${currentUser.name} (${currentUser.role || 'Admin'}) • Click to open Profile` : 'TableMint Station'}
-              onClick={() => setActiveTab('profile')}
-              style={{ cursor: 'pointer' }}
+            <button
+              className="header-circle-btn relative"
+              onClick={() => setActiveTab('orders')}
+              title="Notifications"
             >
-              {currentUser?.name
-                ? currentUser.name
-                    .split(' ')
-                    .filter(Boolean)
-                    .map((n) => n[0])
-                    .join('')
-                    .slice(0, 2)
-                    .toUpperCase()
-                : 'TM'}
+              <Bell size={17} />
+              {serviceCalls.length > 0 && <span className="topbar-bell-dot" />}
+            </button>
+
+            {/* Profile Pill matching Rohit Sharma (Restaurant Owner) in Reference */}
+            <div
+              className="topbar-profile-pill"
+              onClick={() => setActiveTab('profile')}
+              title="View Profile / Logout"
+            >
+              <div className="topbar-avatar-wrap">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                  alt="Rohit Sharma"
+                  className="topbar-avatar-img"
+                  onError={(e) => {
+                    e.target.src = '/images/tablemint_leaf_icon.png';
+                  }}
+                />
+                <span className="topbar-online-dot" />
+              </div>
+              <div className="topbar-profile-meta hide-on-mobile">
+                <div className="topbar-profile-name">{currentUser?.name || 'Rohit Sharma'}</div>
+                <div className="topbar-profile-role">Restaurant Owner</div>
+              </div>
             </div>
           </div>
         </header>
@@ -1796,6 +1828,321 @@ export default function DashboardApp({ onLockStaff }) {
               onPageChange={setStandsPage}
               label="stands"
             />
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: POS BILLING (IMAGE 1 PANEL 6 & IMAGE 3 SCREEN 8)
+            ======================================================== */}
+        {activeTab === 'billing' && (
+          <section className="billing-view-container">
+            <div className="panel-header-row">
+              <div>
+                <h2>POS Billing</h2>
+                <p>Generate bills, accept payments and manage active tables</p>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    addToast('New bill created for Table 12', 'success');
+                  }}
+                >
+                  <Plus size={16} /> New Bill
+                </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => window.print()}
+                >
+                  <Printer size={16} /> Print Receipt
+                </button>
+              </div>
+            </div>
+
+            <div className="billing-grid-split">
+              {/* Left Column: Active Order Details & UPI Payment */}
+              <div className="billing-active-order-card">
+                <div className="billing-table-header">
+                  <div className="billing-table-info">
+                    <h3>Table {selectedBillingTableId} (#T1234)</h3>
+                    <span className="billing-dinein-badge">Dine-in</span>
+                  </div>
+                  <select
+                    className="billing-table-select"
+                    value={selectedBillingTableId}
+                    onChange={(e) => setSelectedBillingTableId(parseInt(e.target.value, 10))}
+                  >
+                    {tables.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        Table {t.id} ({t.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Items Breakdown Table */}
+                <div className="billing-items-table">
+                  <div className="billing-items-row header">
+                    <span>Item</span>
+                    <span style={{ textAlign: 'center' }}>Qty</span>
+                    <span style={{ textAlign: 'right' }}>Amount</span>
+                  </div>
+                  <div className="billing-items-row">
+                    <div className="billing-item-meta">
+                      <span className="dish-diet-badge veg" style={{ position: 'static', display: 'inline-flex' }}>
+                        <span className="diet-inner-dot" />
+                      </span>
+                      <span>Paneer Tikka</span>
+                    </div>
+                    <span style={{ textAlign: 'center' }}>1</span>
+                    <span style={{ textAlign: 'right' }}>₹220</span>
+                  </div>
+                  <div className="billing-items-row">
+                    <div className="billing-item-meta">
+                      <span className="dish-diet-badge non-veg" style={{ position: 'static', display: 'inline-flex' }}>
+                        <span className="diet-inner-dot" />
+                      </span>
+                      <span>Chicken Biryani</span>
+                    </div>
+                    <span style={{ textAlign: 'center' }}>1</span>
+                    <span style={{ textAlign: 'right' }}>₹280</span>
+                  </div>
+                </div>
+
+                {/* Calculation Summary */}
+                <div className="billing-calc-box">
+                  <div className="billing-calc-row">
+                    <span>Subtotal</span>
+                    <span>₹500</span>
+                  </div>
+                  <div className="billing-calc-row">
+                    <span>GST (5%)</span>
+                    <span>₹25</span>
+                  </div>
+                  <div className="billing-calc-row grand-total">
+                    <span>Total</span>
+                    <span>₹525</span>
+                  </div>
+                </div>
+
+                {/* Payment Methods */}
+                <div className="billing-payment-methods">
+                  {['cash', 'upi', 'card'].map((pm) => (
+                    <button
+                      key={pm}
+                      type="button"
+                      className={`billing-pm-pill ${billingPaymentMethod === pm ? 'active' : ''}`}
+                      onClick={() => setBillingPaymentMethod(pm)}
+                    >
+                      {pm.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+
+                {/* UPI QR Payment Box (Matching Image 1 Panel 6 & Image 3 Screen 8) */}
+                {billingPaymentMethod === 'upi' && (
+                  <div className="billing-upi-qr-card">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=525`}
+                      alt="UPI QR Code"
+                      className="billing-upi-qr-img"
+                    />
+                    <div className="billing-upi-info">
+                      <div className="upi-title">UPI Payment</div>
+                      <div className="upi-sub">Scan to Pay</div>
+                      <div className="upi-amount">₹ 525</div>
+                    </div>
+                    <div className="billing-upi-apps">
+                      <span className="upi-app-name gpay">GPay</span>
+                      <span className="upi-app-name phonepe">PhonePe</span>
+                      <span className="upi-app-name paytm">Paytm</span>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  className="btn-primary billing-complete-btn"
+                  onClick={() => {
+                    soundManager.playClick();
+                    addToast('Payment of ₹525 confirmed for Table 12!', 'success');
+                  }}
+                >
+                  <CheckCircle size={17} /> Generate Bill & Settle
+                </button>
+              </div>
+
+              {/* Right Column: Recent Bills & Thermal Receipt Preview */}
+              <div className="billing-right-col">
+                {/* Recent Bills */}
+                <div className="recent-bills-card">
+                  <div className="recent-bills-header">
+                    <h4>Recent Bills</h4>
+                    <span className="view-all-link" onClick={() => setActiveTab('orders')}>View All</span>
+                  </div>
+                  <div className="recent-bills-list">
+                    {billingRecentBills.map((b) => (
+                      <div key={b.billNo} className="recent-bill-item">
+                        <div className="recent-bill-left">
+                          <strong>{b.billNo}</strong>
+                          <span>{b.table}</span>
+                        </div>
+                        <div className="recent-bill-mid">
+                          <strong>₹{b.amount}</strong>
+                          <span>{b.time}</span>
+                        </div>
+                        <span className={`bill-pay-tag ${b.payment.toLowerCase()}`}>
+                          {b.payment}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Thermal Receipt Print Preview (Matching Image 1 Panel 6) */}
+                <div className="thermal-receipt-preview-card">
+                  <div className="thermal-receipt-header">
+                    <span>Print Preview</span>
+                    <span className="thermal-badge">Thermal 58mm</span>
+                  </div>
+                  <div className="thermal-paper-slip">
+                    <div className="thermal-shop-name">TableMint</div>
+                    <div className="thermal-shop-sub">Smart QR Restaurant</div>
+                    <div className="thermal-divider" />
+                    <div className="thermal-line">
+                      <span>Table 12</span>
+                      <span>Bill #B1604</span>
+                    </div>
+                    <div className="thermal-divider" />
+                    <div className="thermal-line">
+                      <span>Paneer Tikka</span>
+                      <span>1 x ₹220</span>
+                    </div>
+                    <div className="thermal-line">
+                      <span>Chicken Biryani</span>
+                      <span>1 x ₹280</span>
+                    </div>
+                    <div className="thermal-divider" />
+                    <div className="thermal-line">
+                      <span>Subtotal</span>
+                      <span>₹500</span>
+                    </div>
+                    <div className="thermal-line">
+                      <span>GST (5%)</span>
+                      <span>₹25</span>
+                    </div>
+                    <div className="thermal-line total">
+                      <span>Total</span>
+                      <span>₹525</span>
+                    </div>
+                    <div className="thermal-divider" />
+                    <div className="thermal-footer-msg">Thank You! Visit Again</div>
+                  </div>
+
+                  <div className="thermal-receipt-actions">
+                    <button className="btn-primary" onClick={() => window.print()}>
+                      <Printer size={15} /> Print
+                    </button>
+                    <button
+                      className="btn-secondary"
+                      onClick={() => addToast('Receipt downloaded as PDF', 'success')}
+                    >
+                      <Download size={15} /> Download
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: CUSTOMERS MANAGEMENT (IMAGE 1 PANEL 8 & IMAGE 3 SCREEN 10)
+            ======================================================== */}
+        {activeTab === 'customers' && (
+          <section className="customers-view-container">
+            <div className="panel-header-row">
+              <div>
+                <h2>Customers</h2>
+                <p>View and manage your registered dining customers</p>
+              </div>
+              <button
+                className="btn-primary"
+                onClick={() => addToast('Add Customer modal', 'info')}
+              >
+                <Plus size={16} /> Add Customer
+              </button>
+            </div>
+
+            <div className="customers-table-card">
+              <div className="customers-filter-row">
+                <div className="topbar-search-box" style={{ maxWidth: 320 }}>
+                  <Search size={15} className="topbar-search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search customers..."
+                    value={customerSearch}
+                    onChange={(e) => setCustomerSearch(e.target.value)}
+                    className="topbar-search-input"
+                  />
+                </div>
+                <select className="customers-select-filter">
+                  <option>All Customers</option>
+                  <option>Frequent Diners</option>
+                  <option>High Spenders</option>
+                </select>
+              </div>
+
+              <div className="table-responsive-wrapper">
+                <table className="customers-data-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Phone</th>
+                      <th>Email</th>
+                      <th>Total Orders</th>
+                      <th>Total Spent</th>
+                      <th>Last Visit</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers
+                      .filter((c) =>
+                        !customerSearch.trim() ||
+                        c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                        c.phone.includes(customerSearch)
+                      )
+                      .map((c) => (
+                        <tr key={c.id}>
+                          <td>
+                            <div className="customer-avatar-name-cell">
+                              <span className="customer-avatar-badge">
+                                {c.name.charAt(0)}
+                              </span>
+                              <span className="customer-cell-name">{c.name}</span>
+                            </div>
+                          </td>
+                          <td className="customer-cell-phone">{c.phone}</td>
+                          <td className="customer-cell-email">{c.email}</td>
+                          <td><strong>{c.totalOrders}</strong></td>
+                          <td className="customer-cell-spent">₹{c.totalSpent.toLocaleString()}</td>
+                          <td className="customer-cell-date">{c.lastVisit}</td>
+                          <td>
+                            <div className="action-buttons-cell">
+                              <button className="row-action-icon-btn" title="View Profile">
+                                <Eye size={15} />
+                              </button>
+                              <button className="row-action-icon-btn" title="Edit Customer">
+                                <Edit size={15} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </section>
         )}
 
@@ -2918,6 +3265,9 @@ export default function DashboardApp({ onLockStaff }) {
       {/* ========================================================
           MOBILE BOTTOM ADMIN BAR (Admin Function Buttons in Bottom)
           ======================================================== */}
+      {/* ========================================================
+          MOBILE BOTTOM ADMIN BAR (Image 3 - Staff Mobile App)
+          ======================================================== */}
       <nav className="admin-mobile-bottom-bar no-print">
         <button
           type="button"
@@ -2926,23 +3276,10 @@ export default function DashboardApp({ onLockStaff }) {
             setActiveTab('overview');
             setMobileMoreOpen(false);
           }}
-          title="Overview Dashboard"
+          title="Home Dashboard"
         >
           <Home size={19} />
-          <span>Overview</span>
-        </button>
-
-        <button
-          type="button"
-          className={`mobile-bottom-btn ${activeTab === 'tables' && !mobileMoreOpen ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('tables');
-            setMobileMoreOpen(false);
-          }}
-          title="Floor & Tables"
-        >
-          <LayoutGrid size={19} />
-          <span>Floor</span>
+          <span>Home</span>
         </button>
 
         <button
@@ -2965,42 +3302,60 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${activeTab === 'kitchen' && !mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'tables' && !mobileMoreOpen ? 'active' : ''}`}
           onClick={() => {
-            setActiveTab('kitchen');
+            setActiveTab('tables');
             setMobileMoreOpen(false);
           }}
-          title="Kitchen KDS"
+          title="Floor & Tables"
         >
-          <ChefHat size={19} />
-          <span>Kitchen</span>
+          <LayoutGrid size={19} />
+          <span>Tables</span>
         </button>
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${['menu', 'stands', 'settings', 'reports', 'staff', 'integrations'].includes(activeTab) || mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'menu' && !mobileMoreOpen ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('menu');
+            setMobileMoreOpen(false);
+          }}
+          title="Menu Management"
+        >
+          <BookOpen size={19} />
+          <span>Menu</span>
+        </button>
+
+        <button
+          type="button"
+          className={`mobile-bottom-btn ${['billing', 'kitchen', 'customers', 'reports', 'settings', 'stands', 'profile'].includes(activeTab) || mobileMoreOpen ? 'active' : ''}`}
           onClick={() => setMobileMoreOpen((prev) => !prev)}
-          title="More Admin Functions"
+          title="More Operations"
         >
           <Menu size={19} />
-          <span>Admin</span>
+          <span>More</span>
         </button>
       </nav>
 
       {/* ========================================================
-          MOBILE ADMIN FUNCTIONS DRAWER SHEET (Bottom Sheet)
+          MOBILE ADMIN FUNCTIONS DRAWER SHEET (Image 3 Screen 12 - Profile / More)
           ======================================================== */}
       {mobileMoreOpen && (
         <div className="mobile-admin-drawer-backdrop no-print" onClick={() => setMobileMoreOpen(false)}>
           <div className="mobile-admin-drawer-card" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header-row">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div className="command-logo-badge" style={{ width: 36, height: 36 }}>
-                  <img src="/images/tablemint_icon.png" alt="TableMint" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 9 }} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                  alt="Rohit Sharma"
+                  style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #10b981' }}
+                  onError={(e) => {
+                    e.target.src = '/images/tablemint_leaf_icon.png';
+                  }}
+                />
                 <div>
-                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '0.98rem' }}>Admin Control Center</div>
-                  <div style={{ fontSize: '0.74rem', color: '#94a3b8' }}>Management & Hardware Functions</div>
+                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.02rem' }}>{currentUser?.name || 'Rohit Sharma'}</div>
+                  <div style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 600 }}>Restaurant Owner</div>
                 </div>
               </div>
               <button className="modal-close-btn" onClick={() => setMobileMoreOpen(false)}>
@@ -3011,35 +3366,52 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="drawer-actions-grid">
               <button
                 type="button"
-                className={`drawer-action-btn ${activeTab === 'menu' ? 'active' : ''}`}
+                className={`drawer-action-btn ${activeTab === 'billing' ? 'active' : ''}`}
                 onClick={() => {
-                  setActiveTab('menu');
+                  setActiveTab('billing');
                   setMobileMoreOpen(false);
                 }}
               >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
-                  <BookOpen size={20} />
+                <div className="drawer-btn-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                  <CreditCard size={20} />
                 </div>
                 <div>
-                  <div className="drawer-btn-title">Menu Catalog</div>
-                  <div className="drawer-btn-sub">{menu.length} Dishes</div>
+                  <div className="drawer-btn-title">POS Billing</div>
+                  <div className="drawer-btn-sub">UPI & Thermal Print</div>
                 </div>
               </button>
 
               <button
                 type="button"
-                className={`drawer-action-btn ${activeTab === 'stands' ? 'active' : ''}`}
+                className={`drawer-action-btn ${activeTab === 'kitchen' ? 'active' : ''}`}
                 onClick={() => {
-                  setActiveTab('stands');
+                  setActiveTab('kitchen');
                   setMobileMoreOpen(false);
                 }}
               >
                 <div className="drawer-btn-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
-                  <QrCode size={20} />
+                  <ChefHat size={20} />
                 </div>
                 <div>
-                  <div className="drawer-btn-title">QR Stands</div>
-                  <div className="drawer-btn-sub">Print & Export</div>
+                  <div className="drawer-btn-title">Kitchen Display</div>
+                  <div className="drawer-btn-sub">KDS Orders</div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'customers' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('customers');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
+                  <Users size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">Customers</div>
+                  <div className="drawer-btn-sub">Registered Diners</div>
                 </div>
               </button>
 
@@ -3051,12 +3423,12 @@ export default function DashboardApp({ onLockStaff }) {
                   setMobileMoreOpen(false);
                 }}
               >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                <div className="drawer-btn-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
                   <BarChart3 size={20} />
                 </div>
                 <div>
-                  <div className="drawer-btn-title">Sales Reports</div>
-                  <div className="drawer-btn-sub">Ledger & KPIs</div>
+                  <div className="drawer-btn-title">Reports & Analytics</div>
+                  <div className="drawer-btn-sub">Revenue & Trends</div>
                 </div>
               </button>
 
@@ -3068,62 +3440,29 @@ export default function DashboardApp({ onLockStaff }) {
                   setMobileMoreOpen(false);
                 }}
               >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
+                <div className="drawer-btn-icon" style={{ background: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' }}>
                   <Settings size={20} />
                 </div>
                 <div>
-                  <div className="drawer-btn-title">POS Settings</div>
-                  <div className="drawer-btn-sub">Taxes & Policies</div>
+                  <div className="drawer-btn-title">Settings</div>
+                  <div className="drawer-btn-sub">Taxes & Profile</div>
                 </div>
               </button>
 
               <button
                 type="button"
-                className={`drawer-action-btn ${activeTab === 'staff' ? 'active' : ''}`}
+                className={`drawer-action-btn ${activeTab === 'stands' ? 'active' : ''}`}
                 onClick={() => {
-                  setActiveTab('staff');
-                  setMobileMoreOpen(false);
-                }}
-              >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(251, 146, 60, 0.15)', color: '#fb923c' }}>
-                  <Users size={20} />
-                </div>
-                <div>
-                  <div className="drawer-btn-title">Staff Mgmt</div>
-                  <div className="drawer-btn-sub">Access & Roles</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className={`drawer-action-btn ${activeTab === 'integrations' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveTab('integrations');
+                  setActiveTab('stands');
                   setMobileMoreOpen(false);
                 }}
               >
                 <div className="drawer-btn-icon" style={{ background: 'rgba(236, 72, 153, 0.15)', color: '#ec4899' }}>
-                  <Link2 size={20} />
+                  <QrCode size={20} />
                 </div>
                 <div>
-                  <div className="drawer-btn-title">Integrations</div>
-                  <div className="drawer-btn-sub">Hardware & ESC/POS</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                className={`drawer-action-btn ${activeTab === 'profile' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveTab('profile');
-                  setMobileMoreOpen(false);
-                }}
-              >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(0, 230, 118, 0.15)', color: '#00e676' }}>
-                  <User size={20} />
-                </div>
-                <div>
-                  <div className="drawer-btn-title">My Profile</div>
-                  <div className="drawer-btn-sub">Account & Sign Out</div>
+                  <div className="drawer-btn-title">QR Stands</div>
+                  <div className="drawer-btn-sub">Print Acrylic Inserts</div>
                 </div>
               </button>
             </div>
@@ -3136,8 +3475,9 @@ export default function DashboardApp({ onLockStaff }) {
                   setMobileMoreOpen(false);
                   handleLogout();
                 }}
+                style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
               >
-                <Lock size={15} /> Sign Out / Lock
+                <LogOut size={16} /> Logout Station
               </button>
               <button
                 type="button"

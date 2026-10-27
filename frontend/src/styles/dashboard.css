@@ -3047,3 +3047,629 @@
     break-inside: avoid !important;
   }
 }
+
+/* =========================================================
+   TABLEMINT REFERENCE DESIGN ENHANCEMENTS (IMAGE 1 & 3)
+   ========================================================= */
+
+/* Top Command Header - Clean and Elegant */
+.topbar-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+}
+
+.topbar-search-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.topbar-search-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 8px 14px 8px 38px;
+  font-size: 0.88rem;
+  color: #ffffff;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.topbar-search-input:focus {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.header-circle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.header-circle-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.topbar-bell-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.topbar-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.topbar-profile-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.topbar-avatar-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+}
+
+.topbar-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.topbar-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  background: #10b981;
+  border: 2px solid #0b0f19;
+  border-radius: 50%;
+}
+
+.topbar-profile-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-profile-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.topbar-profile-role {
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+/* =========================================================
+   POS BILLING PANEL (IMAGE 1 PANEL 6 & IMAGE 3 SCREEN 8)
+   ========================================================= */
+.billing-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.billing-grid-split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 20px;
+}
+
+.billing-active-order-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+}
+
+.billing-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 14px;
+}
+
+.billing-table-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.billing-table-info h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0;
+  color: #ffffff;
+}
+
+.billing-dinein-badge {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.billing-table-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.billing-items-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.billing-items-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 80px;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.billing-items-row.header {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 6px;
+}
+
+.billing-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.billing-calc-box {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.billing-calc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.billing-calc-row.grand-total {
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.billing-payment-methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.billing-pm-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.billing-pm-pill.active {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #34d399;
+}
+
+.billing-upi-qr-card {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.billing-upi-qr-img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.billing-upi-info .upi-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.billing-upi-info .upi-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.billing-upi-info .upi-amount {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 4px 0 10px;
+}
+
+.billing-upi-apps {
+  display: flex;
+  gap: 12px;
+}
+
+.upi-app-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.billing-complete-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 0.95rem;
+}
+
+.billing-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.recent-bills-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.recent-bills-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.recent-bills-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.view-all-link {
+  font-size: 0.75rem;
+  color: #34d399;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.recent-bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-bill-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.recent-bill-left,
+.recent-bill-mid {
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-bill-left strong,
+.recent-bill-mid strong {
+  color: #ffffff;
+  font-size: 0.88rem;
+}
+
+.recent-bill-left span,
+.recent-bill-mid span {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.bill-pay-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.bill-pay-tag.upi {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.bill-pay-tag.card {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.bill-pay-tag.cash {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+/* Thermal Paper Slip Preview */
+.thermal-receipt-preview-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.thermal-receipt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+
+.thermal-badge {
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.thermal-paper-slip {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.thermal-shop-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.thermal-shop-sub {
+  font-size: 0.72rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.thermal-divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 8px 0;
+}
+
+.thermal-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.thermal-line.total {
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.thermal-footer-msg {
+  text-align: center;
+  font-size: 0.75rem;
+  margin-top: 6px;
+}
+
+.thermal-receipt-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* =========================================================
+   CUSTOMERS VIEW (IMAGE 1 PANEL 8 & IMAGE 3 SCREEN 10)
+   ========================================================= */
+.customers-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.customers-table-card {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.customers-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+
+.customers-select-filter {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.customers-data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customers-data-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.customers-data-table td {
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.customer-avatar-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.customer-avatar-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.customer-cell-name {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.customer-cell-phone {
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.customer-cell-email {
+  color: #94a3b8;
+}
+
+.customer-cell-spent {
+  color: #34d399;
+  font-weight: 700;
+}
+
+.customer-cell-date {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.action-buttons-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-action-icon-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.row-action-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+@media (max-width: 900px) {
+  .billing-grid-split {
+    grid-template-columns: 1fr;
+  }
+}
+
