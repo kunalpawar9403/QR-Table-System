@@ -254,6 +254,10 @@
   letter-spacing: 0.06em;
 }
 
+.mobile-live-dot {
+  display: none;
+}
+
 .command-title-box p {
   font-size: 0.8rem;
   color: #64748b;
@@ -1451,27 +1455,30 @@
     display: none !important;
   }
 
-  /* Top command header: single clean row without messy wrapping */
+  /* Top command header: single clean row without messy wrapping or overlap */
   .top-command-header {
     flex-wrap: nowrap !important;
-    padding: 10px 14px;
-    gap: 8px;
+    padding: 8px 12px !important;
+    gap: 8px !important;
     align-items: center;
     justify-content: space-between;
+    overflow: hidden;
   }
 
   .command-header-left {
-    gap: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     min-width: 0;
-    flex: 1;
+    flex: 1 1 auto;
     overflow: hidden;
   }
 
   .command-logo-badge {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+    border-radius: 8px;
     flex-shrink: 0;
   }
 
@@ -1479,9 +1486,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     color: #cbd5e1;
@@ -1498,43 +1505,56 @@
   .command-title-box {
     min-width: 0;
     overflow: hidden;
+    flex: 1;
   }
 
   .command-title-box h1 {
-    font-size: 0.98rem;
+    font-size: 0.92rem;
+    font-weight: 800;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
     gap: 6px;
     line-height: 1.2;
+    margin: 0;
   }
 
   .live-pos-pill {
-    font-size: 0.58rem;
-    padding: 2px 6px;
+    display: none !important;
+  }
+
+  .mobile-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 6px #10b981;
+    display: inline-block;
     flex-shrink: 0;
   }
 
   .command-header-right {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: nowrap !important;
     flex-shrink: 0;
   }
 
   .header-icon-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     flex-shrink: 0;
   }
 
   .lock-station-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;

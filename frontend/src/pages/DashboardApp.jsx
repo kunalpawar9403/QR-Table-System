@@ -854,7 +854,8 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="command-title-box">
               <h1>
                 Spice Garden <span className="hide-on-mobile">Command Center</span>{' '}
-                <span className="live-pos-pill">LIVE POS</span>
+                <span className="live-pos-pill hide-on-mobile">LIVE POS</span>
+                <span className="mobile-live-dot" title="Live POS Active" />
               </h1>
               <p className="hide-on-mobile">Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
             </div>
