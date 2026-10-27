@@ -13,6 +13,7 @@ import {
   Link2,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   Bell,
   Volume2,
   VolumeX,
