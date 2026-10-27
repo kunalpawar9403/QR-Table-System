@@ -1493,18 +1493,19 @@ export default function DashboardApp({ onLockStaff }) {
                       alt={dish.name}
                       className="menu-thumb"
                     />
-                    <div>
-                      <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div className="menu-crud-details">
+                      <div className="menu-dish-title-line">
                         <span className={`diet-badge ${dish.isVeg ? 'veg' : 'non-veg'}`} />
-                        {dish.name}
+                        <span className="dish-name-text">{dish.name}</span>
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                      <div className="dish-desc-text">
                         {dish.description}
                       </div>
+                      <span className="menu-crud-cat-pill">{dish.category}</span>
                     </div>
-                    <span style={{ textTransform: 'capitalize', color: '#94a3b8' }}>{dish.category}</span>
-                    <span style={{ fontWeight: 800, color: '#f59e0b', fontSize: '1.05rem' }}>₹{dish.price}</span>
-                    <div>
+                    <span className="menu-crud-cat">{dish.category}</span>
+                    <span className="menu-crud-price">₹{dish.price}</span>
+                    <div className="menu-crud-avail">
                       <label className="toggle-switch">
                         <input
                           type="checkbox"
@@ -1513,8 +1514,9 @@ export default function DashboardApp({ onLockStaff }) {
                         />
                         <span className="toggle-slider" />
                       </label>
+                      <span className="avail-label">{dish.available !== false ? 'In Stock' : 'Out'}</span>
                     </div>
-                    <div style={{ display: 'flex', gap: 6 }}>
+                    <div className="menu-crud-actions">
                       <button
                         className="btn-icon"
                         onClick={() => {
@@ -1522,13 +1524,15 @@ export default function DashboardApp({ onLockStaff }) {
                           setDishForm(dish);
                           setMenuModalOpen(true);
                         }}
+                        title="Edit Dish"
                       >
                         <Edit size={14} />
                       </button>
                       <button
-                        className="btn-icon"
+                        className="btn-icon btn-delete"
                         style={{ color: '#ef4444' }}
                         onClick={() => handleDeleteDish(dish.id)}
+                        title="Delete Dish"
                       >
                         <Trash2 size={14} />
                       </button>

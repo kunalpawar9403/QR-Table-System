@@ -962,6 +962,14 @@
   background: #ef4444;
 }
 
+.menu-crud-cat-pill {
+  display: none;
+}
+
+.avail-label {
+  display: none;
+}
+
 /* Search Box */
 .search-input-box {
   display: flex;
@@ -1817,13 +1825,213 @@
   }
 }
 
+@media (max-width: 768px) {
+  /* Menu Catalog mobile card transformation */
+  .menu-table-wrap {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  .menu-crud-row.header {
+    display: none !important;
+  }
+
+  .menu-crud-row {
+    display: grid !important;
+    grid-template-columns: 56px 1fr auto !important;
+    grid-template-areas:
+      "thumb details price"
+      "avail avail actions" !important;
+    gap: 10px 12px !important;
+    padding: 14px 16px !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 16px !important;
+    align-items: center !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .menu-thumb {
+    grid-area: thumb;
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 12px !important;
+  }
+
+  .menu-crud-details {
+    grid-area: details;
+    min-width: 0;
+  }
+
+  .menu-dish-title-line {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .dish-name-text {
+    font-size: 0.94rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dish-desc-text {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+
+  .menu-crud-cat {
+    display: none !important;
+  }
+
+  .menu-crud-cat-pill {
+    display: inline-flex !important;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: #94a3b8;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .menu-crud-price {
+    grid-area: price;
+    font-weight: 800;
+    color: #f59e0b;
+    font-size: 1.05rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .menu-crud-avail {
+    grid-area: avail;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .avail-label {
+    display: inline-block !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  .menu-crud-actions {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  /* Orders filter row on mobile */
+  .orders-filter-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .filter-pills-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 6px !important;
+    gap: 6px !important;
+  }
+
+  .filter-pills-group::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-pill-btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding: 6px 14px !important;
+    font-size: 0.76rem !important;
+  }
+}
+
 @media (max-width: 640px) {
   .floor-table-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
+
+  /* Modern 2x2 Metric KPI Grid on Mobile */
   .kpi-four-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
+
+  .metric-card {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .metric-icon-box {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+
+  .metric-icon-box svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .metric-card h3 {
+    font-size: 1.15rem !important;
+  }
+
+  .metric-card .metric-label {
+    font-size: 0.68rem !important;
+  }
+
+  .metric-card .metric-sub {
+    display: none !important;
+  }
+
+  /* Table cards compact on mobile */
+  .floor-card {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .btn-clear-table {
+    padding: 8px 12px !important;
+    font-size: 0.82rem !important;
+  }
+
   .reports-kpi-row {
     grid-template-columns: 1fr;
   }
@@ -1840,7 +2048,7 @@
     grid-template-columns: 1fr;
   }
   .top-command-header {
-    padding: 10px 12px;
+    padding: 8px 12px;
   }
   .command-title-box h1 {
     font-size: 0.92rem;
