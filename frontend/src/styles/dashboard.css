@@ -1032,6 +1032,19 @@
   display: none;
 }
 
+.menu-crud-cat-pill-desktop {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
 /* Search Box */
 .search-input-box {
   display: flex;

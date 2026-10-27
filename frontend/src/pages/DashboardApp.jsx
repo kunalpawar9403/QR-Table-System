@@ -642,6 +642,27 @@ export default function DashboardApp({ onLockStaff }) {
     return true;
   });
 
+  // Category Formatter & Dynamic Categories
+  const formatCategoryLabel = (cat) => {
+    if (!cat || cat === 'all') return 'All Dishes';
+    const map = {
+      'north-indian': 'North Indian',
+      'chinese': 'Chinese',
+      'tandoori': 'Tandoori',
+      'soup': 'Soups',
+      'snacks': 'Snacks',
+      'juice': 'Fresh Juices',
+      'milkshake': 'Milkshakes',
+      'ice-cream': 'Ice Creams'
+    };
+    return map[cat] || cat.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
+  const activeMenuCategories = [
+    'all',
+    ...Array.from(new Set(menu.map((m) => m.category).filter(Boolean)))
+  ];
+
   // Filter Menu
   const filteredMenu = menu.filter((d) => {
     if (menuCategoryFilter !== 'all' && d.category !== menuCategoryFilter) {
@@ -1467,22 +1488,22 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Category Filter Pills */}
             <div className="catalog-category-filter no-print">
-              {['all', 'starters', 'soups', 'mains', 'breads', 'beverages', 'desserts'].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={`catalog-cat-pill ${menuCategoryFilter === cat ? 'active' : ''}`}
-                  onClick={() => {
-                    setMenuCategoryFilter(cat);
-                    setMenuPage(1);
-                  }}
-                >
-                  {cat === 'all' ? 'All Dishes' : cat}
-                  {cat === 'all'
-                    ? ` (${menu.length})`
-                    : ` (${menu.filter((m) => m.category === cat).length})`}
-                </button>
-              ))}
+              {activeMenuCategories.map((cat) => {
+                const count = cat === 'all' ? menu.length : menu.filter((m) => m.category === cat).length;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`catalog-cat-pill ${menuCategoryFilter === cat ? 'active' : ''}`}
+                    onClick={() => {
+                      setMenuCategoryFilter(cat);
+                      setMenuPage(1);
+                    }}
+                  >
+                    {formatCategoryLabel(cat)} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {filteredMenu.length === 0 ? (
@@ -1519,9 +1540,11 @@ export default function DashboardApp({ onLockStaff }) {
                       <div className="dish-desc-text">
                         {dish.description}
                       </div>
-                      <span className="menu-crud-cat-pill">{dish.category}</span>
+                      <span className="menu-crud-cat-pill">{formatCategoryLabel(dish.category)}</span>
                     </div>
-                    <span className="menu-crud-cat">{dish.category}</span>
+                    <span className="menu-crud-cat">
+                      <span className="menu-crud-cat-pill-desktop">{formatCategoryLabel(dish.category)}</span>
+                    </span>
                     <span className="menu-crud-price">₹{dish.price}</span>
                     <div className="menu-crud-avail">
                       <label className="toggle-switch">
@@ -2328,12 +2351,14 @@ export default function DashboardApp({ onLockStaff }) {
                     value={dishForm.category}
                     onChange={(e) => setDishForm({ ...dishForm, category: e.target.value })}
                   >
-                    <option value="starters">Starters</option>
-                    <option value="soups">Soups</option>
-                    <option value="mains">Main Course</option>
-                    <option value="breads">Breads & Roti</option>
-                    <option value="beverages">Beverages</option>
-                    <option value="desserts">Desserts</option>
+                    <option value="north-indian">North Indian</option>
+                    <option value="chinese">Chinese</option>
+                    <option value="tandoori">Tandoori</option>
+                    <option value="soup">Soups</option>
+                    <option value="snacks">Snacks</option>
+                    <option value="juice">Fresh Juices</option>
+                    <option value="milkshake">Milkshakes</option>
+                    <option value="ice-cream">Ice Creams</option>
                   </select>
                 </div>
                 <div className="dash-form-group">

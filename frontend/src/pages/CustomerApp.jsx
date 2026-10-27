@@ -25,12 +25,14 @@ import '../styles/customer.css';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Dishes' },
-  { id: 'starters', label: 'Starters' },
-  { id: 'soups', label: 'Soups' },
-  { id: 'mains', label: 'Main Course' },
-  { id: 'breads', label: 'Breads & Roti' },
-  { id: 'beverages', label: 'Beverages & Shakes' },
-  { id: 'desserts', label: 'Ice Creams & Sweets' }
+  { id: 'chinese', label: 'Chinese' },
+  { id: 'north-indian', label: 'North Indian' },
+  { id: 'tandoori', label: 'Tandoori' },
+  { id: 'soup', label: 'Soups' },
+  { id: 'snacks', label: 'Snacks' },
+  { id: 'milkshake', label: 'Milkshakes' },
+  { id: 'ice-cream', label: 'Ice Creams' },
+  { id: 'juice', label: 'Fresh Juices' }
 ];
 
 export default function CustomerApp({ initialTable = null, initialToken = null }) {
