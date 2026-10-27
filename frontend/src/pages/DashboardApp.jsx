@@ -46,7 +46,8 @@ import {
   LogOut,
   CreditCard,
   Eye,
-  MoreVertical
+  MoreVertical,
+  Tag
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -129,11 +130,74 @@ function PaginationBar({ currentPage, totalPages, totalItems, itemsPerPage, onPa
   );
 }
 
+const VALID_DASHBOARD_TABS = [
+  'overview',
+  'orders',
+  'tables',
+  'menu',
+  'kitchen',
+  'billing',
+  'customers',
+  'reports',
+  'settings',
+  'stands',
+  'profile',
+  'staff',
+  'integrations'
+];
+
+function getStoredDashboardTab() {
+  try {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam && VALID_DASHBOARD_TABS.includes(tabParam)) {
+        return tabParam;
+      }
+      const hash = window.location.hash.replace('#', '');
+      if (hash && VALID_DASHBOARD_TABS.includes(hash)) {
+        return hash;
+      }
+      const saved = localStorage.getItem('tablemint_active_tab');
+      if (saved && VALID_DASHBOARD_TABS.includes(saved)) {
+        return saved;
+      }
+    }
+  } catch (e) {
+    // Ignore storage/url parsing exceptions
+  }
+  return 'overview';
+}
+
 export default function DashboardApp({ onLockStaff }) {
   const { addToast } = useToast();
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState('overview');
+  // Active Tab with persistence across browser page refreshes
+  const [activeTab, setActiveTab] = useState(getStoredDashboardTab);
+
+  // Synchronize activeTab with LocalStorage and browser URL searchParams
+  useEffect(() => {
+    try {
+      localStorage.setItem('tablemint_active_tab', activeTab);
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('tab') !== activeTab) {
+        url.searchParams.set('tab', activeTab);
+        window.history.replaceState({ tab: activeTab }, '', url.toString());
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }, [activeTab]);
+
+  // Support browser Back/Forward navigation between sections
+  useEffect(() => {
+    const handlePopState = () => {
+      const targetTab = getStoredDashboardTab();
+      setActiveTab(targetTab);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Authenticated User
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
@@ -1719,21 +1783,26 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Category Filter Pills */}
             <div className="admin-filter-pills-row">
-              {[
-                { id: 'all', label: 'All Items', count: 24 },
-                { id: 'starters', label: 'Starters', count: 6 },
-                { id: 'mains', label: 'Main Course', count: 8 },
-                { id: 'beverages', label: 'Beverages', count: 6 },
-                { id: 'desserts', label: 'Desserts', count: 3 }
-              ].map((c) => (
-                <button
-                  key={c.id}
-                  className={`admin-filter-pill ${menuCategoryFilter === c.id ? 'active' : ''}`}
-                  onClick={() => setMenuCategoryFilter(c.id)}
-                >
-                  {c.label} ({c.count})
-                </button>
-              ))}
+              {activeMenuCategories.map((c) => {
+                const count = c === 'all'
+                  ? (menu.length || 24)
+                  : menu.filter((m) => m.category === c).length;
+                const label = c === 'all'
+                  ? 'All Items'
+                  : c.charAt(0).toUpperCase() + c.slice(1);
+                return (
+                  <button
+                    key={c}
+                    className={`admin-filter-pill ${menuCategoryFilter === c ? 'active' : ''}`}
+                    onClick={() => {
+                      setMenuCategoryFilter(c);
+                      setMenuPage(1);
+                    }}
+                  >
+                    {label} ({count})
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search & Filter Controls */}
@@ -1744,7 +1813,10 @@ export default function DashboardApp({ onLockStaff }) {
                   type="text"
                   placeholder="Search menu items..."
                   value={menuSearch}
-                  onChange={(e) => setMenuSearch(e.target.value)}
+                  onChange={(e) => {
+                    setMenuSearch(e.target.value);
+                    setMenuPage(1);
+                  }}
                   className="topbar-search-input"
                 />
               </div>
@@ -1753,22 +1825,16 @@ export default function DashboardApp({ onLockStaff }) {
                 className="btn-brand-outline"
                 style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
                 value={menuCategoryFilter}
-                onChange={(e) => setMenuCategoryFilter(e.target.value)}
+                onChange={(e) => {
+                  setMenuCategoryFilter(e.target.value);
+                  setMenuPage(1);
+                }}
               >
-                <option value="all">All Categories</option>
-                <option value="starters">Starters</option>
-                <option value="mains">Main Course</option>
-                <option value="beverages">Beverages</option>
-                <option value="desserts">Desserts</option>
-              </select>
-
-              <select
-                className="btn-brand-outline"
-                style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
+                {activeMenuCategories.map((c) => (
+                  <option key={c} value={c}>
+                    {c === 'all' ? 'All Categories' : c.charAt(0).toUpperCase() + c.slice(1)}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1788,30 +1854,29 @@ export default function DashboardApp({ onLockStaff }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, status: 'active', image: '/images/paneer_tikka.jpg' },
-                    { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, status: 'active', image: '/images/chicken_biryani.jpg' },
-                    { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, status: 'active', image: '/images/masala_dosa.jpg' },
-                    { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, status: 'active', image: '/images/artisan_pizza.jpg' },
-                    { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, status: 'inactive', image: '/images/green_salad.jpg' }
-                  ]
-                    .filter((dish) =>
-                      !menuSearch.trim() ||
-                      dish.name.toLowerCase().includes(menuSearch.toLowerCase())
-                    )
-                    .map((dish) => (
+                  {(paginatedMenu.length > 0 ? paginatedMenu : (filteredMenu.length > 0 ? filteredMenu : menu.length > 0 ? menu : [
+                    { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, available: true, image: '/images/paneer_tikka.jpg' },
+                    { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, available: true, image: '/images/chicken_biryani.jpg' },
+                    { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, available: true, image: '/images/masala_dosa.jpg' },
+                    { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, available: true, image: '/images/artisan_pizza.jpg' },
+                    { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, available: false, image: '/images/green_salad.jpg' }
+                  ])).map((dish) => {
+                    const isActive = dish.available !== false && dish.status !== 'inactive';
+                    return (
                       <tr key={dish.id}>
                         <td><input type="checkbox" /></td>
                         <td>
                           <img
-                            src={dish.image}
+                            src={dish.image || '/images/paneer_butter_masala.jpg'}
                             alt={dish.name}
                             style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
                             onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                           />
                         </td>
                         <td style={{ fontWeight: 700, color: '#0f172a' }}>{dish.name}</td>
-                        <td style={{ color: '#64748b' }}>{dish.category}</td>
+                        <td style={{ color: '#64748b' }}>
+                          {dish.category ? (dish.category.charAt(0).toUpperCase() + dish.category.slice(1)) : 'General'}
+                        </td>
                         <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {dish.price}</td>
                         <td>
                           <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
@@ -1820,9 +1885,15 @@ export default function DashboardApp({ onLockStaff }) {
                           </span>
                         </td>
                         <td>
-                          <span className={`status-badge-pill ${dish.status}`}>
-                            {dish.status === 'active' ? '• Active' : 'Inactive'}
-                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleMenu(dish.id)}
+                            className={`status-badge-pill ${isActive ? 'active' : 'inactive'}`}
+                            style={{ cursor: 'pointer', border: 'none' }}
+                            title="Click to toggle availability"
+                          >
+                            {isActive ? '• Active' : 'Inactive'}
+                          </button>
                         </td>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1830,21 +1901,54 @@ export default function DashboardApp({ onLockStaff }) {
                               className="btn-row-action"
                               onClick={() => {
                                 setEditingDish(dish);
-                                setDishForm(dish);
+                                setDishForm({
+                                  name: dish.name || '',
+                                  category: dish.category || 'Starters',
+                                  price: dish.price || '',
+                                  description: dish.description || '',
+                                  image: dish.image || '',
+                                  isVeg: !!dish.isVeg
+                                });
                                 setMenuModalOpen(true);
                               }}
                             >
                               Edit
                             </button>
-                            <button className="btn-row-dots" title="More options">
-                              <MoreVertical size={15} />
+                            <button
+                              className="btn-row-dots"
+                              title="Delete Item"
+                              onClick={async () => {
+                                if (window.confirm(`Delete ${dish.name}?`)) {
+                                  try {
+                                    const res = await authFetch(`/api/menu/${dish.id}`, { method: 'DELETE' });
+                                    if (res.ok) {
+                                      addToast(`${dish.name} deleted`, 'info');
+                                      fetchAllData();
+                                    }
+                                  } catch (err) {
+                                    addToast('Failed to delete item', 'error');
+                                  }
+                                }
+                              }}
+                            >
+                              <Trash2 size={14} style={{ color: '#ef4444' }} />
                             </button>
                           </div>
                         </td>
                       </tr>
-                    ))}
+                    );
+                  })}
                 </tbody>
               </table>
+
+              <PaginationBar
+                currentPage={currentMenuPage}
+                totalPages={totalMenuPages}
+                totalItems={filteredMenu.length}
+                itemsPerPage={menuPerPage}
+                onPageChange={(p) => setMenuPage(p)}
+                label="menu items"
+              />
             </div>
           </section>
         )}
