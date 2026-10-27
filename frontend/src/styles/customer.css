@@ -355,10 +355,12 @@
   font-size: 1rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.25;
-  white-space: nowrap;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 .dish-desc {
   font-size: 0.8rem;
