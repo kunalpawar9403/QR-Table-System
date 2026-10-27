@@ -881,9 +881,6 @@ export default function DashboardApp({ onLockStaff }) {
                 Table<span className="brand-mint-text">Mint</span>{' '}
                 <span className="hide-on-mobile">Command Center</span>{' '}
                 <span className="live-pos-pill hide-on-mobile">LIVE POS</span>
-                <span className="mobile-live-pill no-desktop">
-                  <span className="status-dot-green" /> LIVE
-                </span>
               </h1>
               <p className="hide-on-mobile">Smart Restaurant Operations • Real-Time Kitchen KDS • QR Dining</p>
             </div>

@@ -1810,28 +1810,6 @@
     display: none !important;
   }
 
-  .mobile-live-pill {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 4px;
-    background: rgba(0, 230, 118, 0.12);
-    border: 1px solid rgba(0, 230, 118, 0.25);
-    color: #00e676;
-    font-size: 0.62rem;
-    font-weight: 800;
-    padding: 2px 7px;
-    border-radius: 999px;
-    letter-spacing: 0.04em;
-  }
-
-  .mobile-live-pill .status-dot-green {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #00e676;
-    box-shadow: 0 0 6px #00e676;
-  }
-
   .command-header-right {
     display: flex;
     align-items: center;
