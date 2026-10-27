@@ -1292,453 +1292,542 @@ export default function DashboardApp({ onLockStaff }) {
         {/* ========================================================
             TAB: FLOOR & TABLES
             ======================================================== */}
+        {/* ========================================================
+            TAB: TABLE MANAGEMENT (MATCHING REFERENCE IMAGE 1 PANEL 3)
+            ======================================================== */}
         {activeTab === 'tables' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Dining Floor Management</h3>
-                <p>Configure seating, reset QR tokens, and manage guest capacity</p>
+                <h2 className="page-title">Table Management</h2>
+                <p className="page-subtitle">Manage your restaurant tables, view status and assign orders</p>
               </div>
-              <button className="btn-primary" onClick={() => setTableModalOpen(true)}>
+              <button
+                className="btn-brand-primary"
+                onClick={() => setTableModalOpen(true)}
+              >
                 <Plus size={16} /> Add Table
               </button>
             </div>
 
-            <div className="floor-table-grid">
-              {paginatedTables.map((table) => {
-                const isTableOccupied =
-                  table.status === 'occupied' ||
-                  table.currentStatus === 'occupied' ||
-                  (table.activeOrdersCount && table.activeOrdersCount > 0);
-
-                return (
-                  <div key={table.id} className="floor-card">
-                    <div className="floor-card-top">
-                      <div className="floor-card-identity">
-                        <div className={`table-type-icon-box ${(table.name || '').includes('Bar') ? 'bar' : ''}`}>
-                          <Armchair size={18} />
-                        </div>
-                        <div>
-                          <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
-                          <div className="table-seats-text">Seats {table.capacity} guests</div>
-                        </div>
-                      </div>
-                      <span className={`table-status-pill ${isTableOccupied ? 'occupied' : 'available'}`}>
-                        {isTableOccupied ? 'OCCUPIED' : 'AVAILABLE'}
-                      </span>
-                    </div>
-
-                  <div className="floor-card-meta">
-                    <div className="meta-info-row">
-                      <span className="meta-label">Security QR Token:</span>
-                      <span style={{ fontFamily: 'monospace', color: '#f59e0b', fontSize: '0.8rem' }}>
-                        {(table.sessionToken || 'ACTIVE').slice(0, 8)}...
-                      </span>
-                    </div>
-                    <div className="meta-info-row">
-                      <span className="meta-label">Running Check:</span>
-                      <span className="meta-value-price">₹{table.runningTotal || 0}</span>
-                    </div>
-                  </div>
-
-                  <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr auto auto', gap: 6 }}>
-                    <button
-                      className="btn-clear-table"
-                      style={isTableOccupied ? { background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
-                      onClick={() => handleVacateTable(table.id)}
-                      title="Clear & Vacate Table"
-                    >
-                      {isTableOccupied ? 'Vacate' : 'Clear'}
-                    </button>
-                    <button
-                      className="btn-icon"
-                      style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: 10, padding: '0 9px' }}
-                      onClick={() => setViewQrTable(table)}
-                      title="View QR Code"
-                    >
-                      <QrCode size={15} />
-                    </button>
-                    <button
-                      className="btn-icon"
-                      style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 10, padding: '0 9px' }}
-                      onClick={() => handleDeleteTable(table.id)}
-                      title="Delete Table"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <PaginationBar
-            currentPage={currentTablesPage}
-            totalPages={totalTablesPages}
-            totalItems={tables.length}
-            itemsPerPage={tablesPerPage}
-            onPageChange={setTablesPage}
-            label="tables"
-          />
-          </section>
-        )}
-
-        {/* ========================================================
-            TAB: ORDERS
-            ======================================================== */}
-        {activeTab === 'orders' && (
-          <section className="floor-status-panel">
-            <div className="orders-filter-row">
-              <div className="filter-pills-group">
-                {['all', 'pending', 'preparing', 'ready', 'served', 'completed'].map((st) => (
-                  <button
-                    key={st}
-                    className={`filter-pill-btn ${orderFilter === st ? 'active' : ''}`}
-                    onClick={() => setOrderFilter(st)}
-                  >
-                    {st.toUpperCase()}
-                  </button>
-                ))}
-              </div>
-
-              <div className="search-input-box" style={{ width: 280 }}>
-                <Search size={16} className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search orders, table, guest..."
-                  value={orderSearch}
-                  onChange={(e) => setOrderSearch(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {filteredOrders.length === 0 ? (
-              <div className="empty-state-box">
-                <Receipt size={38} style={{ color: '#64748b', opacity: 0.6 }} />
-                <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.05rem', marginTop: 10 }}>No Orders Found</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
-                  No tickets match the "{orderFilter.toUpperCase()}" filter or search query.
-                </div>
-              </div>
-            ) : (
-              <div className="orders-list-grid">
-                {paginatedOrders.map((ord) => (
-                  <div key={ord.id} className="order-ticket-card">
-                    <div className="ticket-header">
-                      <div>
-                        <div className="ticket-order-id">#{ord.orderNumber}</div>
-                        <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                          {ord.tableName} • {ord.customerName || 'Guest'}
-                        </div>
-                      </div>
-                      <span className={`status-pill ${ord.status}`}>{ord.status}</span>
-                    </div>
-
-                    <div className="ticket-items-box">
-                      {ord.items?.map((it, idx) => (
-                        <div key={idx} className="ticket-item-row">
-                          <span>
-                            <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
-                          </span>
-                          <span style={{ fontWeight: 600 }}>₹{it.price * it.quantity}</span>
-                        </div>
-                      ))}
-                      {ord.notes && <div className="ticket-notes">Chef Note: {ord.notes}</div>}
-                    </div>
-
-                    <div className="ticket-footer">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Total Amount</span>
-                        <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 800 }}>
-                          ₹{ord.total}
-                        </span>
-                      </div>
-
-                      <div className="ticket-actions-row">
-                        {(ord.status === 'pending' || ord.status === 'new') && (
-                          <button
-                            className="btn-primary"
-                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                            onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
-                          >
-                            Send to Kitchen
-                          </button>
-                        )}
-                        {ord.status === 'preparing' && (
-                          <button
-                            className="btn-primary"
-                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                            onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
-                          >
-                            Mark Ready
-                          </button>
-                        )}
-                        {ord.status === 'ready' && (
-                          <button
-                            className="btn-primary"
-                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                            onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
-                          >
-                            Mark Served
-                          </button>
-                        )}
-                        {ord.status === 'served' && (
-                          <button
-                            className="btn-primary"
-                            style={{
-                              flex: 1,
-                              padding: 9,
-                              fontSize: '0.82rem',
-                              background: 'linear-gradient(135deg, #10b981, #059669)',
-                              border: 'none',
-                              color: '#fff',
-                              fontWeight: 700
-                            }}
-                            onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
-                          >
-                            ✓ Dinner Completed
-                          </button>
-                        )}
-                        {ord.status !== 'completed' && ord.status !== 'cancelled' && ord.status !== 'served' && (
-                          <button
-                            className="btn-secondary"
-                            style={{ padding: '9px 12px', fontSize: '0.78rem', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
-                            onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
-                            title="Complete dining and expire table token"
-                          >
-                            Done
-                          </button>
-                        )}
-                        <button
-                          className="btn-secondary"
-                          style={{ padding: '9px 14px' }}
-                          onClick={() => setPrintBillOrder(ord)}
-                          title="Print Receipt"
-                        >
-                          <Printer size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <PaginationBar
-              currentPage={currentOrdersPage}
-              totalPages={totalOrdersPages}
-              totalItems={filteredOrders.length}
-              itemsPerPage={ordersPerPage}
-              onPageChange={setOrdersPage}
-              label="orders"
-            />
-          </section>
-        )}
-
-        {/* ========================================================
-            TAB: KITCHEN KDS
-            ======================================================== */}
-        {activeTab === 'kitchen' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
-              <div>
-                <h3>Kitchen Display Stream</h3>
-                <p>Real-time tickets and preparation queue</p>
-              </div>
-            </div>
-
-            <div className="orders-list-grid">
-              {orders
-                .filter((o) => o.status === 'pending' || o.status === 'preparing')
-                .map((ticket) => (
-                  <div key={ticket.id} className="order-ticket-card" style={{ borderColor: '#f59e0b' }}>
-                    <div className="ticket-header" style={{ background: 'rgba(245, 158, 11, 0.08)', margin: '-20px -20px 14px', padding: '14px 20px' }}>
-                      <div>
-                        <div className="ticket-order-id" style={{ color: '#fbbf24' }}>
-                          {ticket.tableName} • #{ticket.orderNumber}
-                        </div>
-                        <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                          Received: {new Date(ticket.createdAt).toLocaleTimeString()}
-                        </div>
-                      </div>
-                      <span className={`status-pill ${ticket.status}`}>{ticket.status}</span>
-                    </div>
-
-                    <div className="ticket-items-box">
-                      {ticket.items?.map((it, idx) => (
-                        <div key={idx} className="ticket-item-row" style={{ fontSize: '1rem' }}>
-                          <span>
-                            <strong style={{ color: '#f59e0b', marginRight: 8 }}>
-                              {it.quantity}x
-                            </strong>{' '}
-                            {it.name}
-                          </span>
-                        </div>
-                      ))}
-                      {ticket.notes && <div className="ticket-notes">Instructions: {ticket.notes}</div>}
-                    </div>
-
-                    <div className="ticket-footer">
-                      <button
-                        className="btn-primary"
-                        style={{ width: '100%', padding: '11px 0' }}
-                        onClick={() =>
-                          handleOrderStatusUpdate(
-                            ticket.id,
-                            ticket.status === 'pending' ? 'preparing' : 'ready'
-                          )
-                        }
-                      >
-                        {ticket.status === 'pending' ? '🔥 Start Cooking' : '✅ Ready For Pickup'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section>
-        )}
-
-        {/* ========================================================
-            TAB: MENU CATALOG
-            ======================================================== */}
-        {activeTab === 'menu' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
-              <div className="search-input-box" style={{ width: 280 }}>
-                <Search size={16} className="search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search dish by name..."
-                  value={menuSearch}
-                  onChange={(e) => setMenuSearch(e.target.value)}
-                />
-              </div>
-
+            {/* Filter Pills matching Reference Panel 3 */}
+            <div className="admin-filter-pills-row">
               <button
-                className="btn-primary"
-                onClick={() => {
-                  setEditingDish(null);
-                  setDishForm({
-                    name: '',
-                    category: 'mains',
-                    price: '',
-                    description: '',
-                    image: '',
-                    isVeg: true,
-                    spiceLevel: 1
-                  });
-                  setMenuModalOpen(true);
-                }}
+                className={`admin-filter-pill ${tableStatusFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('all')}
               >
-                <Plus size={16} /> Add New Dish
+                All (12)
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'available' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('available')}
+              >
+                <span className="status-dot green" /> Available (5)
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'occupied' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('occupied')}
+              >
+                <span className="status-dot red" /> Occupied (5)
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'serving' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('serving')}
+              >
+                <span className="status-dot blue" /> Serving (2)
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'reserved' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('reserved')}
+              >
+                <span className="status-dot amber" /> Reserved (0)
               </button>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="catalog-category-filter no-print">
-              {activeMenuCategories.map((cat) => {
-                const count = cat === 'all' ? menu.length : menu.filter((m) => m.category === cat).length;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`catalog-cat-pill ${menuCategoryFilter === cat ? 'active' : ''}`}
-                    onClick={() => {
-                      setMenuCategoryFilter(cat);
-                      setMenuPage(1);
-                    }}
+            {/* 4-Column Grid of Pastel Table Cards matching Panel 3 */}
+            <div className="overview-floor-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+              {[
+                { id: 1, name: 'T1', seats: 2, status: 'available' },
+                { id: 2, name: 'T2', seats: 4, status: 'occupied', code: '#T1234' },
+                { id: 3, name: 'T3', seats: 4, status: 'serving', code: '#T1235' },
+                { id: 4, name: 'T4', seats: 2, status: 'available' },
+                { id: 5, name: 'T5', seats: 4, status: 'serving', code: '#T1236' },
+                { id: 6, name: 'T6', seats: 2, status: 'available' },
+                { id: 7, name: 'T7', seats: 2, status: 'available' },
+                { id: 8, name: 'T8', seats: 6, status: 'occupied', code: '#T1237' },
+                { id: 9, name: 'T9', seats: 2, status: 'available' },
+                { id: 10, name: 'T10', seats: 4, status: 'occupied', code: '#T1238' },
+                { id: 11, name: 'T11', seats: 4, status: 'available' },
+                { id: 12, name: 'T12', seats: 4, status: 'available' }
+              ]
+                .filter((t) => tableStatusFilter === 'all' || t.status === tableStatusFilter)
+                .map((tbl) => (
+                  <div
+                    key={tbl.id}
+                    className={`ref-table-box ${tbl.status}`}
+                    style={{ padding: '24px 16px', borderRadius: 16 }}
+                    onClick={() => setActiveTab('billing')}
+                    title={`Table ${tbl.name} - ${tbl.status}`}
                   >
-                    {formatCategoryLabel(cat)} ({count})
-                  </button>
-                );
-              })}
-            </div>
-
-            {filteredMenu.length === 0 ? (
-              <div className="empty-state-box">
-                <BookOpen size={38} style={{ color: '#64748b', opacity: 0.6 }} />
-                <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.05rem', marginTop: 10 }}>No Dishes Found</div>
-                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
-                  No menu items matched your category filter or search query.
-                </div>
-              </div>
-            ) : (
-              <div className="menu-table-wrap">
-                <div className="menu-crud-row header">
-                  <span>Photo</span>
-                  <span>Dish Name</span>
-                  <span>Category</span>
-                  <span>Price</span>
-                  <span>Available</span>
-                  <span>Actions</span>
-                </div>
-
-                {paginatedMenu.map((dish) => (
-                  <div key={dish.id} className="menu-crud-row">
-                    <img
-                      src={dish.image || '/images/paneer_butter_masala.jpg'}
-                      alt={dish.name}
-                      className="menu-thumb"
-                    />
-                    <div className="menu-crud-details">
-                      <div className="menu-dish-title-line">
-                        <span className={`diet-badge ${dish.isVeg ? 'veg' : 'non-veg'}`} />
-                        <span className="dish-name-text">{dish.name}</span>
-                      </div>
-                      <div className="dish-desc-text">
-                        {dish.description}
-                      </div>
-                      <span className="menu-crud-cat-pill">{formatCategoryLabel(dish.category)}</span>
+                    <div className="ref-table-name" style={{ fontSize: '1.45rem', fontWeight: 900 }}>
+                      {tbl.name}
                     </div>
-                    <span className="menu-crud-cat">
-                      <span className="menu-crud-cat-pill-desktop">{formatCategoryLabel(dish.category)}</span>
-                    </span>
-                    <span className="menu-crud-price">₹{dish.price}</span>
-                    <div className="menu-crud-avail">
-                      <label className="toggle-switch">
-                        <input
-                          type="checkbox"
-                          checked={dish.available !== false}
-                          onChange={() => handleToggleMenu(dish.id)}
-                        />
-                        <span className="toggle-slider" />
-                      </label>
-                      <span className="avail-label">{dish.available !== false ? 'In Stock' : 'Out'}</span>
+                    <div className="ref-table-seats" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
+                      {tbl.seats} Seats
                     </div>
-                    <div className="menu-crud-actions">
-                      <button
-                        className="btn-icon"
-                        onClick={() => {
-                          setEditingDish(dish);
-                          setDishForm(dish);
-                          setMenuModalOpen(true);
-                        }}
-                        title="Edit Dish"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        className="btn-icon btn-delete"
-                        style={{ color: '#ef4444' }}
-                        onClick={() => handleDeleteDish(dish.id)}
-                        title="Delete Dish"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                    <div className="ref-table-state-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginTop: 4 }}>
+                      {tbl.status === 'occupied' && `Occupied ${tbl.code}`}
+                      {tbl.status === 'serving' && `Serving ${tbl.code}`}
+                      {tbl.status === 'available' && 'Available'}
+                      {tbl.status === 'reserved' && 'Reserved'}
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
+            </div>
+          </section>
+        )}
 
-            <PaginationBar
-              currentPage={currentMenuPage}
-              totalPages={totalMenuPages}
-              totalItems={filteredMenu.length}
-              itemsPerPage={menuPerPage}
-              onPageChange={setMenuPage}
-              label="dishes"
-            />
+        {/* ========================================================
+            TAB: LIVE ORDERS MANAGEMENT (MATCHING REFERENCE IMAGE 1 PANEL 2)
+            ======================================================== */}
+        {activeTab === 'orders' && (
+          <section className="admin-page-container">
+            <div className="page-header-row">
+              <div>
+                <h2 className="page-title">Orders</h2>
+                <p className="page-subtitle">View and manage all restaurant orders in real-time</p>
+              </div>
+              <button
+                className="btn-brand-primary"
+                onClick={() => addToast('New Order modal opened', 'info')}
+              >
+                <Plus size={16} /> New Order
+              </button>
+            </div>
+
+            {/* Filter Pills matching Reference Panel 2 */}
+            <div className="admin-filter-pills-row">
+              {[
+                { id: 'all', label: 'All Orders', count: 24 },
+                { id: 'pending', label: 'Pending', count: 6 },
+                { id: 'preparing', label: 'Preparing', count: 8 },
+                { id: 'ready', label: 'Ready', count: 4 },
+                { id: 'served', label: 'Served', count: 6 }
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  className={`admin-filter-pill ${orderFilter === p.id ? 'active' : ''}`}
+                  onClick={() => setOrderFilter(p.id)}
+                >
+                  {p.label} ({p.count})
+                </button>
+              ))}
+            </div>
+
+            {/* Clean Full-Width Data Table matching Reference Panel 2 */}
+            <div className="admin-table-card">
+              <table className="admin-clean-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Table</th>
+                    <th>Items</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', amount: 525, status: 'preparing', time: '2 mins' },
+                    { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', amount: 750, status: 'served', time: '8 mins' },
+                    { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', amount: 320, status: 'preparing', time: '12 mins' },
+                    { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', amount: 600, status: 'ready', time: '18 mins' },
+                    { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', amount: 420, status: 'ready', time: '22 mins' },
+                    { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', amount: 180, status: 'served', time: '25 mins' },
+                    { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', amount: 950, status: 'preparing', time: '28 mins' },
+                    { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', amount: 450, status: 'cancelled', time: '35 mins' }
+                  ]
+                    .filter((ord) => orderFilter === 'all' || ord.status === orderFilter)
+                    .map((ord) => (
+                      <tr key={ord.id}>
+                        <td style={{ fontWeight: 800, color: '#0f172a' }}>{ord.code}</td>
+                        <td style={{ color: '#475569', fontWeight: 600 }}>{ord.table}</td>
+                        <td style={{ color: '#64748b' }}>{ord.items}</td>
+                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {ord.amount}</td>
+                        <td>
+                          <span className={`status-badge-pill ${ord.status}`}>
+                            {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
+                          </span>
+                        </td>
+                        <td style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{ord.time}</td>
+                        <td>
+                          <button
+                            className="btn-row-action"
+                            onClick={() => {
+                              setSelectedBillingTableId(parseInt(ord.table.replace(/\D/g, ''), 10) || 12);
+                              setActiveTab('billing');
+                            }}
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: KITCHEN DISPLAY SYSTEM (MATCHING REFERENCE IMAGE 1 PANEL 5)
+            ======================================================== */}
+        {activeTab === 'kitchen' && (
+          <section className="admin-page-container">
+            <div className="page-header-row">
+              <div>
+                <h2 className="page-title">Kitchen Display System (KDS)</h2>
+                <p className="page-subtitle">Live kitchen orders with status and preparation timers</p>
+              </div>
+              <div className="page-header-actions">
+                <button className="btn-brand-outline">
+                  <ChefHat size={15} /> Kitchen ▾
+                </button>
+              </div>
+            </div>
+
+            {/* 4 Status Columns matching Reference Panel 5 */}
+            <div className="kds-four-col-grid">
+              {/* Column 1: Pending */}
+              <div className="kds-column">
+                <div className="kds-col-header pending">
+                  <span>Pending (3)</span>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1234</span>
+                    <span className="kds-order-timer" style={{ color: '#ea580c' }}>5 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 12</div>
+                  <div className="kds-order-items">
+                    <div>2 x Paneer Tikka</div>
+                    <div>1 x Chicken Biryani</div>
+                  </div>
+                  <button
+                    className="kds-btn-action pending"
+                    onClick={() => addToast('Order #T1234 moved to Preparing', 'info')}
+                  >
+                    Start Cooking
+                  </button>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1236</span>
+                    <span className="kds-order-timer" style={{ color: '#ea580c' }}>8 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 5</div>
+                  <div className="kds-order-items">
+                    <div>1 x Masala Dosa</div>
+                    <div>1 x Filter Coffee</div>
+                  </div>
+                  <button
+                    className="kds-btn-action pending"
+                    onClick={() => addToast('Order #T1236 moved to Preparing', 'info')}
+                  >
+                    Start Cooking
+                  </button>
+                </div>
+              </div>
+
+              {/* Column 2: Preparing */}
+              <div className="kds-column">
+                <div className="kds-col-header preparing">
+                  <span>Preparing (4)</span>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1235</span>
+                    <span className="kds-order-timer" style={{ color: '#0284c7' }}>3 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 3</div>
+                  <div className="kds-order-items">
+                    <div>1 x Veg Manchurian</div>
+                    <div>1 x Noodles</div>
+                  </div>
+                  <button
+                    className="kds-btn-action preparing"
+                    onClick={() => addToast('Order #T1235 is Ready', 'success')}
+                  >
+                    In Progress
+                  </button>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1238</span>
+                    <span className="kds-order-timer" style={{ color: '#0284c7' }}>6 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 10</div>
+                  <div className="kds-order-items">
+                    <div>1 x Chicken Curry</div>
+                    <div>2 x Naan</div>
+                  </div>
+                  <button
+                    className="kds-btn-action preparing"
+                    onClick={() => addToast('Order #T1238 is Ready', 'success')}
+                  >
+                    In Progress
+                  </button>
+                </div>
+              </div>
+
+              {/* Column 3: Ready */}
+              <div className="kds-column">
+                <div className="kds-col-header ready">
+                  <span>Ready (2)</span>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1231</span>
+                    <span className="kds-order-timer" style={{ color: '#059669' }}>2 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 1</div>
+                  <div className="kds-order-items">
+                    <div>2 x Margherita Pizza</div>
+                    <div>1 x Cold Coffee</div>
+                  </div>
+                  <button
+                    className="kds-btn-action ready"
+                    onClick={() => addToast('Order #T1231 Marked as Served', 'success')}
+                  >
+                    Mark as Served
+                  </button>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1237</span>
+                    <span className="kds-order-timer" style={{ color: '#059669' }}>2 mins</span>
+                  </div>
+                  <div className="kds-order-table">Table 8</div>
+                  <div className="kds-order-items">
+                    <div>1 x Caesar Salad</div>
+                    <div>1 x Lemonade</div>
+                  </div>
+                  <button
+                    className="kds-btn-action ready"
+                    onClick={() => addToast('Order #T1237 Marked as Served', 'success')}
+                  >
+                    Mark as Served
+                  </button>
+                </div>
+              </div>
+
+              {/* Column 4: Served */}
+              <div className="kds-column">
+                <div className="kds-col-header served">
+                  <span>Served (1)</span>
+                </div>
+                <div className="kds-order-card">
+                  <div className="kds-card-top">
+                    <span className="kds-order-id">#T1229</span>
+                    <span className="kds-order-timer">11:30 AM</span>
+                  </div>
+                  <div className="kds-order-table">Table 7</div>
+                  <div className="kds-order-items">
+                    <div>1 x Paneer Butter Masala</div>
+                  </div>
+                  <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                    ✓ Served
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Summary Strip matching Panel 5 */}
+            <div className="kds-summary-strip">
+              <span>📋 <strong>10</strong> Total Orders</span>
+              <span>⏳ <strong>3</strong> Pending</span>
+              <span>👨‍🍳 <strong>4</strong> Preparing</span>
+              <span>✅ <strong>2</strong> Ready</span>
+              <span>🍽️ <strong>1</strong> Served</span>
+              <span>⏱️ Average Prep Time: <strong>12 mins</strong></span>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================
+            TAB: MENU MANAGEMENT (MATCHING REFERENCE IMAGE 1 PANEL 4)
+            ======================================================== */}
+        {activeTab === 'menu' && (
+          <section className="admin-page-container">
+            <div className="page-header-row">
+              <div>
+                <h2 className="page-title">Menu Management</h2>
+                <p className="page-subtitle">Add, edit and organize your restaurant menu items</p>
+              </div>
+              <div className="page-header-actions">
+                <button
+                  className="btn-brand-outline"
+                  onClick={() => addToast('Manage Categories modal', 'info')}
+                >
+                  <Tag size={15} /> Category
+                </button>
+                <button
+                  className="btn-brand-outline"
+                  onClick={() => addToast('Import CSV modal', 'info')}
+                >
+                  <Download size={15} /> Import
+                </button>
+                <button
+                  className="btn-brand-primary"
+                  onClick={() => {
+                    setEditingDish(null);
+                    setDishForm({
+                      name: '',
+                      category: 'Starters',
+                      price: '',
+                      description: '',
+                      image: '',
+                      isVeg: true
+                    });
+                    setMenuModalOpen(true);
+                  }}
+                >
+                  <Plus size={16} /> Add Item
+                </button>
+              </div>
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="admin-filter-pills-row">
+              {[
+                { id: 'all', label: 'All Items', count: 24 },
+                { id: 'starters', label: 'Starters', count: 6 },
+                { id: 'mains', label: 'Main Course', count: 8 },
+                { id: 'beverages', label: 'Beverages', count: 6 },
+                { id: 'desserts', label: 'Desserts', count: 3 }
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  className={`admin-filter-pill ${menuCategoryFilter === c.id ? 'active' : ''}`}
+                  onClick={() => setMenuCategoryFilter(c.id)}
+                >
+                  {c.label} ({c.count})
+                </button>
+              ))}
+            </div>
+
+            {/* Search & Filter Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div className="topbar-search-box" style={{ maxWidth: 320 }}>
+                <Search size={15} className="topbar-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search menu items..."
+                  value={menuSearch}
+                  onChange={(e) => setMenuSearch(e.target.value)}
+                  className="topbar-search-input"
+                />
+              </div>
+
+              <select
+                className="btn-brand-outline"
+                style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
+                value={menuCategoryFilter}
+                onChange={(e) => setMenuCategoryFilter(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                <option value="starters">Starters</option>
+                <option value="mains">Main Course</option>
+                <option value="beverages">Beverages</option>
+                <option value="desserts">Desserts</option>
+              </select>
+
+              <select
+                className="btn-brand-outline"
+                style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+
+            {/* Menu Items Table matching Reference Panel 4 */}
+            <div className="admin-table-card">
+              <table className="admin-clean-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: 40 }}><input type="checkbox" /></th>
+                    <th>Image</th>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, status: 'active', image: '/images/paneer_tikka.jpg' },
+                    { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, status: 'active', image: '/images/chicken_biryani.jpg' },
+                    { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, status: 'active', image: '/images/masala_dosa.jpg' },
+                    { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, status: 'active', image: '/images/artisan_pizza.jpg' },
+                    { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, status: 'inactive', image: '/images/green_salad.jpg' }
+                  ]
+                    .filter((dish) =>
+                      !menuSearch.trim() ||
+                      dish.name.toLowerCase().includes(menuSearch.toLowerCase())
+                    )
+                    .map((dish) => (
+                      <tr key={dish.id}>
+                        <td><input type="checkbox" /></td>
+                        <td>
+                          <img
+                            src={dish.image}
+                            alt={dish.name}
+                            style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                            onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                          />
+                        </td>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{dish.name}</td>
+                        <td style={{ color: '#64748b' }}>{dish.category}</td>
+                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {dish.price}</td>
+                        <td>
+                          <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
+                          <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#059669' : '#dc2626' }}>
+                            {dish.isVeg ? 'Veg' : 'Non-Veg'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-badge-pill ${dish.status}`}>
+                            {dish.status === 'active' ? '• Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <button
+                              className="btn-row-action"
+                              onClick={() => {
+                                setEditingDish(dish);
+                                setDishForm(dish);
+                                setMenuModalOpen(true);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button className="btn-row-dots" title="More options">
+                              <MoreVertical size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 
@@ -1868,41 +1957,47 @@ export default function DashboardApp({ onLockStaff }) {
         {/* ========================================================
             TAB: POS BILLING (IMAGE 1 PANEL 6 & IMAGE 3 SCREEN 8)
             ======================================================== */}
+        {/* ========================================================
+            TAB: POS BILLING (MATCHING REFERENCE IMAGE 1 PANEL 6)
+            ======================================================== */}
         {activeTab === 'billing' && (
-          <section className="billing-view-container">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h2>POS Billing</h2>
-                <p>Generate bills, accept payments and manage active tables</p>
+                <h2 className="page-title">POS Billing</h2>
+                <p className="page-subtitle">Generate bills, accept payments and manage orders</p>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div className="page-header-actions">
                 <button
-                  className="btn-primary"
-                  onClick={() => {
-                    addToast('New bill created for Table 12', 'success');
-                  }}
+                  className="btn-brand-primary"
+                  onClick={() => addToast('New bill created for Table 12', 'success')}
                 >
                   <Plus size={16} /> New Bill
                 </button>
                 <button
-                  className="btn-secondary"
+                  className="btn-brand-outline"
                   onClick={() => window.print()}
                 >
-                  <Printer size={16} /> Print Receipt
+                  <Printer size={15} /> Print Receipt
                 </button>
               </div>
             </div>
 
-            <div className="billing-grid-split">
-              {/* Left Column: Active Order Details & UPI Payment */}
-              <div className="billing-active-order-card">
-                <div className="billing-table-header">
-                  <div className="billing-table-info">
-                    <h3>Table {selectedBillingTableId} (#T1234)</h3>
-                    <span className="billing-dinein-badge">Dine-in</span>
+            <div className="pos-billing-grid-split">
+              {/* Left Column: Active Bill & UPI QR Payment */}
+              <div className="pos-bill-active-card">
+                <div className="pos-bill-card-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                      Table {selectedBillingTableId} (#T1234)
+                    </h3>
+                    <span className="status-badge-pill served" style={{ fontSize: '0.74rem' }}>
+                      Dine-in
+                    </span>
                   </div>
                   <select
-                    className="billing-table-select"
+                    className="btn-brand-outline"
+                    style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#f8fafc' }}
                     value={selectedBillingTableId}
                     onChange={(e) => setSelectedBillingTableId(parseInt(e.target.value, 10))}
                   >
@@ -1915,132 +2010,145 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
 
                 {/* Items Breakdown Table */}
-                <div className="billing-items-table">
-                  <div className="billing-items-row header">
-                    <span>Item</span>
-                    <span style={{ textAlign: 'center' }}>Qty</span>
-                    <span style={{ textAlign: 'right' }}>Amount</span>
-                  </div>
-                  <div className="billing-items-row">
-                    <div className="billing-item-meta">
-                      <span className="dish-diet-badge veg" style={{ position: 'static', display: 'inline-flex' }}>
-                        <span className="diet-inner-dot" />
-                      </span>
-                      <span>Paneer Tikka</span>
+                <div className="pos-bill-items-list">
+                  <div className="pos-bill-item-row">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span className="diet-box veg" />
+                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Paneer Tikka</span>
                     </div>
-                    <span style={{ textAlign: 'center' }}>1</span>
-                    <span style={{ textAlign: 'right' }}>₹220</span>
+                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>₹ 220 x 1</span>
+                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 220</span>
                   </div>
-                  <div className="billing-items-row">
-                    <div className="billing-item-meta">
-                      <span className="dish-diet-badge non-veg" style={{ position: 'static', display: 'inline-flex' }}>
-                        <span className="diet-inner-dot" />
-                      </span>
-                      <span>Chicken Biryani</span>
+
+                  <div className="pos-bill-item-row">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span className="diet-box non-veg" />
+                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Chicken Biryani</span>
                     </div>
-                    <span style={{ textAlign: 'center' }}>1</span>
-                    <span style={{ textAlign: 'right' }}>₹280</span>
+                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>₹ 280 x 1</span>
+                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 280</span>
                   </div>
                 </div>
 
-                {/* Calculation Summary */}
-                <div className="billing-calc-box">
-                  <div className="billing-calc-row">
+                {/* Totals Summary */}
+                <div className="pos-bill-calc-box">
+                  <div className="pos-bill-calc-row">
                     <span>Subtotal</span>
-                    <span>₹500</span>
+                    <span>₹ 500</span>
                   </div>
-                  <div className="billing-calc-row">
+                  <div className="pos-bill-calc-row">
                     <span>GST (5%)</span>
-                    <span>₹25</span>
+                    <span>₹ 25</span>
                   </div>
-                  <div className="billing-calc-row grand-total">
+                  <div className="pos-bill-calc-row total">
                     <span>Total</span>
-                    <span>₹525</span>
+                    <span>₹ 525</span>
                   </div>
                 </div>
 
-                {/* Payment Methods */}
-                <div className="billing-payment-methods">
-                  {['cash', 'upi', 'card'].map((pm) => (
+                {/* Payment Method Tabs */}
+                <div className="pos-pay-tabs-row">
+                  {['Cash', 'UPI', 'Card'].map((pm) => (
                     <button
                       key={pm}
                       type="button"
-                      className={`billing-pm-pill ${billingPaymentMethod === pm ? 'active' : ''}`}
-                      onClick={() => setBillingPaymentMethod(pm)}
+                      className={`pos-pay-tab-btn ${billingPaymentMethod.toLowerCase() === pm.toLowerCase() ? 'active' : ''}`}
+                      onClick={() => setBillingPaymentMethod(pm.toLowerCase())}
                     >
-                      {pm.toUpperCase()}
+                      {pm}
                     </button>
                   ))}
                 </div>
 
-                {/* UPI QR Payment Box (Matching Image 1 Panel 6 & Image 3 Screen 8) */}
-                {billingPaymentMethod === 'upi' && (
-                  <div className="billing-upi-qr-card">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=525`}
-                      alt="UPI QR Code"
-                      className="billing-upi-qr-img"
-                    />
-                    <div className="billing-upi-info">
-                      <div className="upi-title">UPI Payment</div>
-                      <div className="upi-sub">Scan to Pay</div>
-                      <div className="upi-amount">₹ 525</div>
+                {/* UPI QR Payment Box */}
+                {billingPaymentMethod.toLowerCase() === 'upi' && (
+                  <div className="pos-upi-section">
+                    <div className="pos-upi-qr-wrapper">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=525`}
+                        alt="UPI QR Code"
+                        className="pos-upi-qr-image"
+                      />
                     </div>
-                    <div className="billing-upi-apps">
-                      <span className="upi-app-name gpay">GPay</span>
-                      <span className="upi-app-name phonepe">PhonePe</span>
-                      <span className="upi-app-name paytm">Paytm</span>
+                    <div className="pos-upi-meta-col">
+                      <div className="pos-upi-title">UPI Payment</div>
+                      <div className="pos-upi-subtitle">Scan to Pay</div>
+                      <div className="pos-upi-amount-display">₹ 525</div>
+                      <div className="pos-upi-app-logos">
+                        <span className="pos-upi-app gpay">G Pay</span>
+                        <span className="pos-upi-app phonepe">PhonePe</span>
+                        <span className="pos-upi-app paytm">Paytm</span>
+                      </div>
                     </div>
                   </div>
                 )}
-
-                <button
-                  className="btn-primary billing-complete-btn"
-                  onClick={() => {
-                    soundManager.playClick();
-                    addToast('Payment of ₹525 confirmed for Table 12!', 'success');
-                  }}
-                >
-                  <CheckCircle size={17} /> Generate Bill & Settle
-                </button>
               </div>
 
-              {/* Right Column: Recent Bills & Thermal Receipt Preview */}
-              <div className="billing-right-col">
-                {/* Recent Bills */}
-                <div className="recent-bills-card">
-                  <div className="recent-bills-header">
-                    <h4>Recent Bills</h4>
-                    <span className="view-all-link" onClick={() => setActiveTab('orders')}>View All</span>
+              {/* Right Column: Recent Bills & Thermal Print Preview */}
+              <div className="pos-bill-right-col">
+                {/* Recent Bills Card */}
+                <div className="pos-recent-bills-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Recent Bills</h4>
+                    <span
+                      style={{ fontSize: '0.78rem', fontWeight: 700, color: '#10b981', cursor: 'pointer' }}
+                      onClick={() => setActiveTab('orders')}
+                    >
+                      View All
+                    </span>
                   </div>
-                  <div className="recent-bills-list">
-                    {billingRecentBills.map((b) => (
-                      <div key={b.billNo} className="recent-bill-item">
-                        <div className="recent-bill-left">
-                          <strong>{b.billNo}</strong>
-                          <span>{b.table}</span>
-                        </div>
-                        <div className="recent-bill-mid">
-                          <strong>₹{b.amount}</strong>
-                          <span>{b.time}</span>
-                        </div>
-                        <span className={`bill-pay-tag ${b.payment.toLowerCase()}`}>
-                          {b.payment}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <table className="admin-clean-table" style={{ fontSize: '0.8rem' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding: '8px 10px' }}>Bill No</th>
+                        <th style={{ padding: '8px 10px' }}>Table</th>
+                        <th style={{ padding: '8px 10px' }}>Amount</th>
+                        <th style={{ padding: '8px 10px' }}>Time</th>
+                        <th style={{ padding: '8px 10px' }}>Payment</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { billNo: '#B1604', table: 'Table 12', amount: 525, time: '10:32 AM', payment: 'UPI' },
+                        { billNo: '#B1603', table: 'Table 5', amount: 750, time: '10:25 AM', payment: 'Card' },
+                        { billNo: '#B1602', table: 'Table 8', amount: 320, time: '10:15 AM', payment: 'Cash' },
+                        { billNo: '#B1601', table: 'Table 3', amount: 600, time: '10:10 AM', payment: 'UPI' }
+                      ].map((b) => (
+                        <tr key={b.billNo}>
+                          <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>{b.billNo}</td>
+                          <td style={{ color: '#64748b', padding: '9px 10px' }}>{b.table}</td>
+                          <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>₹ {b.amount}</td>
+                          <td style={{ color: '#94a3b8', fontSize: '0.76rem', padding: '9px 10px' }}>{b.time}</td>
+                          <td style={{ padding: '9px 10px' }}>
+                            <span style={{
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              color: b.payment === 'UPI' ? '#059669' : (b.payment === 'Card' ? '#0284c7' : '#d97706'),
+                              background: b.payment === 'UPI' ? '#ecfdf5' : (b.payment === 'Card' ? '#f0f9ff' : '#fef3c7'),
+                              padding: '2px 8px',
+                              borderRadius: 9999
+                            }}>
+                              {b.payment}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Thermal Receipt Print Preview (Matching Image 1 Panel 6) */}
-                <div className="thermal-receipt-preview-card">
-                  <div className="thermal-receipt-header">
-                    <span>Print Preview</span>
-                    <span className="thermal-badge">Thermal 58mm</span>
+                {/* Print Preview Card */}
+                <div className="pos-print-preview-card">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>Print Preview</span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '3px 8px', borderRadius: 9999 }}>
+                      Thermal 58mm
+                    </span>
                   </div>
+
                   <div className="thermal-paper-slip">
                     <div className="thermal-shop-name">TableMint</div>
-                    <div className="thermal-shop-sub">Smart QR Restaurant</div>
+                    <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', marginTop: 2 }}>Spice Garden</div>
                     <div className="thermal-divider" />
                     <div className="thermal-line">
                       <span>Table 12</span>
@@ -2069,15 +2177,16 @@ export default function DashboardApp({ onLockStaff }) {
                       <span>₹525</span>
                     </div>
                     <div className="thermal-divider" />
-                    <div className="thermal-footer-msg">Thank You! Visit Again</div>
+                    <div className="thermal-footer-msg">Thank You!</div>
                   </div>
 
-                  <div className="thermal-receipt-actions">
-                    <button className="btn-primary" onClick={() => window.print()}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+                    <button className="btn-brand-primary" style={{ justifyContent: 'center' }} onClick={() => window.print()}>
                       <Printer size={15} /> Print
                     </button>
                     <button
-                      className="btn-secondary"
+                      className="btn-brand-outline"
+                      style={{ justifyContent: 'center' }}
                       onClick={() => addToast('Receipt downloaded as PDF', 'success')}
                     >
                       <Download size={15} /> Download
@@ -2093,89 +2202,92 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: CUSTOMERS MANAGEMENT (IMAGE 1 PANEL 8 & IMAGE 3 SCREEN 10)
             ======================================================== */}
         {activeTab === 'customers' && (
-          <section className="customers-view-container">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h2>Customers</h2>
-                <p>View and manage your registered dining customers</p>
+                <h2 className="page-title">Customers</h2>
+                <p className="page-subtitle">View and manage your customers</p>
               </div>
               <button
-                className="btn-primary"
-                onClick={() => addToast('Add Customer modal', 'info')}
+                className="btn-brand-primary"
+                onClick={() => addToast('Add Customer modal opened', 'info')}
               >
                 <Plus size={16} /> Add Customer
               </button>
             </div>
 
-            <div className="customers-table-card">
-              <div className="customers-filter-row">
-                <div className="topbar-search-box" style={{ maxWidth: 320 }}>
-                  <Search size={15} className="topbar-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search customers..."
-                    value={customerSearch}
-                    onChange={(e) => setCustomerSearch(e.target.value)}
-                    className="topbar-search-input"
-                  />
-                </div>
-                <select className="customers-select-filter">
-                  <option>All Customers</option>
-                  <option>Frequent Diners</option>
-                  <option>High Spenders</option>
-                </select>
+            {/* Filter and Search Bar matching Reference Panel 8 */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+              <div className="topbar-search-box" style={{ maxWidth: 360 }}>
+                <Search size={15} className="topbar-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search customers..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="topbar-search-input"
+                />
               </div>
 
-              <div className="table-responsive-wrapper">
-                <table className="customers-data-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Phone</th>
-                      <th>Email</th>
-                      <th>Total Orders</th>
-                      <th>Total Spent</th>
-                      <th>Last Visit</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customers
-                      .filter((c) =>
-                        !customerSearch.trim() ||
-                        c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-                        c.phone.includes(customerSearch)
-                      )
-                      .map((c) => (
-                        <tr key={c.id}>
-                          <td>
-                            <div className="customer-avatar-name-cell">
-                              <span className="customer-avatar-badge">
-                                {c.name.charAt(0)}
-                              </span>
-                              <span className="customer-cell-name">{c.name}</span>
-                            </div>
-                          </td>
-                          <td className="customer-cell-phone">{c.phone}</td>
-                          <td className="customer-cell-email">{c.email}</td>
-                          <td><strong>{c.totalOrders}</strong></td>
-                          <td className="customer-cell-spent">₹{c.totalSpent.toLocaleString()}</td>
-                          <td className="customer-cell-date">{c.lastVisit}</td>
-                          <td>
-                            <div className="action-buttons-cell">
-                              <button className="row-action-icon-btn" title="View Profile">
-                                <Eye size={15} />
-                              </button>
-                              <button className="row-action-icon-btn" title="Edit Customer">
-                                <Edit size={15} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+              <select
+                className="btn-brand-outline"
+                style={{ padding: '8px 14px', fontSize: '0.82rem', background: '#f8fafc' }}
+              >
+                <option>All Customers</option>
+                <option>Frequent Diners</option>
+                <option>High Spenders</option>
+              </select>
+            </div>
+
+            {/* Data Table matching Reference Panel 8 */}
+            <div className="admin-table-card">
+              <table className="admin-clean-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Total Orders</th>
+                    <th>Total Spent</th>
+                    <th>Last Visit</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { id: '1', name: 'Amit Patel', phone: '9876543210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
+                    { id: '2', name: 'Priya Sharma', phone: '9123456789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
+                    { id: '3', name: 'Rahul Kumar', phone: '9868776655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
+                    { id: '4', name: 'Sneha Joshi', phone: '9871234567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
+                    { id: '5', name: 'Vikram Singh', phone: '9765432100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' }
+                  ]
+                    .filter((c) =>
+                      !customerSearch.trim() ||
+                      c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                      c.phone.includes(customerSearch)
+                    )
+                    .map((c) => (
+                      <tr key={c.id}>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{c.name}</td>
+                        <td style={{ color: '#475569' }}>{c.phone}</td>
+                        <td style={{ color: '#64748b' }}>{c.email}</td>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{c.orders}</td>
+                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {c.spent.toLocaleString('en-IN')}</td>
+                        <td style={{ color: '#94a3b8', fontSize: '0.82rem' }}>{c.date}</td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <button className="btn-row-action" onClick={() => addToast(`Customer: ${c.name}`, 'info')}>
+                              Edit
+                            </button>
+                            <button className="btn-row-dots">
+                              <MoreVertical size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
           </section>
         )}
@@ -2184,131 +2296,185 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: REPORTS & ANALYTICS
             ======================================================== */}
         {activeTab === 'reports' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Analytics & Financial Reports</h3>
-                <p>Live sales performance, item rankings, and transaction ledger</p>
+                <h2 className="page-title">Reports & Analytics</h2>
+                <p className="page-subtitle">Track your restaurant performance and insights</p>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button className="btn-secondary" onClick={handleExportReports}>
-                  <Download size={16} /> Export CSV
-                </button>
-                <button className="btn-primary" onClick={() => window.print()}>
-                  <Printer size={16} /> Print Report
-                </button>
+              <div className="page-header-actions">
+                <select
+                  className="btn-brand-outline"
+                  style={{ padding: '8px 14px', fontSize: '0.82rem', background: '#f8fafc' }}
+                >
+                  <option>Today</option>
+                  <option>This Week</option>
+                  <option>This Month</option>
+                </select>
+                <div
+                  className="btn-brand-outline"
+                  style={{ padding: '8px 14px', fontSize: '0.82rem', cursor: 'default' }}
+                >
+                  <Calendar size={14} /> Oct 27, 2026
+                </div>
               </div>
             </div>
 
-            {/* Reports KPI Row */}
-            <div className="reports-kpi-row">
+            {/* Top 4 KPI Metrics Row matching Reference Panel 7 */}
+            <div className="kpi-four-grid">
               <div className="metric-card sales">
-                <div className="metric-icon-box">₹</div>
-                <div className="metric-info">
-                  <span className="metric-title">Gross Revenue</span>
-                  <span className="metric-value">
-                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '0'}
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">₹</div>
+                  <span className="metric-badge green">
+                    <TrendingUp size={11} /> +12%
                   </span>
-                  <span className="metric-footer green">
-                    <TrendingUp size={13} /> {orders.length} Total orders recorded
-                  </span>
+                </div>
+                <div className="metric-content">
+                  <span className="metric-title">Total Revenue</span>
+                  <div className="metric-value">₹ 12,450</div>
                 </div>
               </div>
 
               <div className="metric-card orders">
-                <div className="metric-icon-box">
-                  <Receipt size={24} />
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <Receipt size={17} />
+                  </div>
+                  <span className="metric-badge amber">
+                    <Clock size={11} /> +6%
+                  </span>
                 </div>
-                <div className="metric-info">
-                  <span className="metric-title">Completed Checks</span>
-                  <span className="metric-value">
-                    {orders.filter((o) => o.status === 'completed' || o.status === 'served').length}
-                  </span>
-                  <span className="metric-footer amber">
-                    <CheckCircle size={13} /> Guest dining concluded
-                  </span>
+                <div className="metric-content">
+                  <span className="metric-title">Total Orders</span>
+                  <div className="metric-value">48</div>
                 </div>
               </div>
 
               <div className="metric-card ticket">
-                <div className="metric-icon-box">
-                  <BarChart3 size={24} />
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <BarChart3 size={17} />
+                  </div>
+                  <span className="metric-badge blue">
+                    <TrendingUp size={11} /> +5%
+                  </span>
                 </div>
-                <div className="metric-info">
-                  <span className="metric-title">Average Order</span>
-                  <span className="metric-value">₹{avgTicket}</span>
-                  <span className="metric-footer muted">Per guest invoice</span>
+                <div className="metric-content">
+                  <span className="metric-title">Avg. Order Value</span>
+                  <div className="metric-value">₹ 258</div>
                 </div>
               </div>
 
               <div className="metric-card occupancy">
-                <div className="metric-icon-box">
-                  <DollarSign size={24} />
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <Users size={17} />
+                  </div>
+                  <span className="metric-badge green">
+                    <TrendingUp size={11} /> +10%
+                  </span>
                 </div>
-                <div className="metric-info">
-                  <span className="metric-title">Est. GST Collected</span>
-                  <span className="metric-value">₹{Math.round(totalRevenue * 0.05)}</span>
-                  <span className="metric-footer muted">5% Restaurant GST</span>
+                <div className="metric-content">
+                  <span className="metric-title">Total Customers</span>
+                  <div className="metric-value">36</div>
                 </div>
               </div>
             </div>
 
-            {/* Reports Split View */}
-            <div className="reports-split-view">
-              {/* Leaderboard */}
-              <div className="settings-card">
-                <div className="settings-card-title">
-                  <Sparkles size={18} style={{ color: '#f59e0b' }} />
-                  <span>Top Selling Dishes</span>
+            {/* Filter Tabs matching Reference Panel 7 */}
+            <div className="reports-tabs-row">
+              {['Revenue', 'Orders', 'Popular Items', 'Payment Methods', 'Peak Hours'].map((tab) => (
+                <button
+                  key={tab}
+                  className={`reports-tab-pill ${analyticsSubTab === tab ? 'active' : ''}`}
+                  onClick={() => setAnalyticsSubTab(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Split 2-Column Layout: Left = Revenue Trend Chart, Right = Top Selling Items */}
+            <div className="reports-two-col-grid">
+              {/* Left Column: Revenue Trend Chart Card */}
+              <div className="admin-card-inner">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend</h3>
+                  <div style={{ background: '#07241a', color: '#ffffff', padding: '4px 12px', borderRadius: 9999, fontSize: '0.78rem', fontWeight: 800 }}>
+                    ₹ 12,450
+                  </div>
                 </div>
-                <table className="leaderboard-table">
-                  <thead>
-                    <tr>
-                      <th>Dish Name</th>
-                      <th>Category</th>
-                      <th>Qty Sold</th>
-                      <th>Revenue</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {menu.slice(0, 7).map((dish, i) => (
-                      <tr key={dish.id || i}>
-                        <td style={{ fontWeight: 600, color: '#fff' }}>{dish.name}</td>
-                        <td style={{ textTransform: 'capitalize' }}>{dish.category}</td>
-                        <td style={{ fontWeight: 700, color: '#f59e0b' }}>
-                          {12 - i > 0 ? 12 - i : 1} orders
-                        </td>
-                        <td style={{ fontWeight: 700, color: '#34d399' }}>
-                          ₹{(dish.price * (12 - i > 0 ? 12 - i : 1)).toLocaleString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+                {/* Smooth Area Curve SVG Chart */}
+                <div style={{ width: '100%', height: 240, position: 'relative' }}>
+                  <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    {/* Grid lines */}
+                    <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                    <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                    <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
+                    <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
+
+                    {/* Filled Area */}
+                    <path
+                      d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60 L 500,200 L 0,200 Z"
+                      fill="url(#revenueGrad)"
+                    />
+                    {/* Stroke Curve */}
+                    <path
+                      d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                    />
+                    {/* Peak Point Dot */}
+                    <circle cx="400" cy="45" r="5.5" fill="#10b981" stroke="#ffffff" strokeWidth="2.5" />
+                  </svg>
+                </div>
+
+                {/* X-Axis Time Labels */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.74rem', fontWeight: 600, marginTop: 10, padding: '0 4px' }}>
+                  <span>8 AM</span>
+                  <span>9 AM</span>
+                  <span>12 PM</span>
+                  <span>3 PM</span>
+                  <span>6 PM</span>
+                  <span>9 PM</span>
+                </div>
               </div>
 
-              {/* Category Breakdown */}
-              <div className="settings-card">
-                <div className="settings-card-title">
-                  <Sliders size={18} style={{ color: '#38bdf8' }} />
-                  <span>Category Revenue Share</span>
-                </div>
-                <div>
+              {/* Right Column: Top Selling Items Card */}
+              <div className="admin-card-inner">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>
+                  Top Selling Items
+                </h3>
+
+                <div className="top-selling-ranked-list">
                   {[
-                    { name: 'Main Course', percent: 45, rev: '₹1,770' },
-                    { name: 'Starters & Platters', percent: 25, rev: '₹980' },
-                    { name: 'Breads & Roti', percent: 15, rev: '₹590' },
-                    { name: 'Beverages & Mocktails', percent: 10, rev: '₹390' },
-                    { name: 'Desserts & Sweets', percent: 5, rev: '₹195' }
-                  ].map((cat, i) => (
-                    <div key={i} className="category-bar-row">
-                      <div className="category-bar-header">
-                        <span>{cat.name}</span>
-                        <span>{cat.rev} ({cat.percent}%)</span>
+                    { rank: 1, name: 'Chicken Biryani', orders: 28, image: '/images/chicken_biryani.jpg' },
+                    { rank: 2, name: 'Paneer Tikka', orders: 24, image: '/images/paneer_tikka.jpg' },
+                    { rank: 3, name: 'Masala Dosa', orders: 18, image: '/images/masala_dosa.jpg' },
+                    { rank: 4, name: 'Margherita Pizza', orders: 16, image: '/images/artisan_pizza.jpg' },
+                    { rank: 5, name: 'Caesar Salad', orders: 12, image: '/images/green_salad.jpg' }
+                  ].map((it) => (
+                    <div key={it.rank} className="top-selling-item-row">
+                      <div className="top-selling-left">
+                        <span className="rank-badge">{it.rank}</span>
+                        <img
+                          src={it.image}
+                          alt={it.name}
+                          className="top-selling-img"
+                          onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                        />
+                        <span className="top-selling-name">{it.name}</span>
                       </div>
-                      <div className="category-bar-track">
-                        <div className="category-bar-fill" style={{ width: `${cat.percent}%` }} />
-                      </div>
+                      <span className="top-selling-orders">{it.orders} orders</span>
                     </div>
                   ))}
                 </div>
@@ -2321,131 +2487,132 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: SETTINGS
             ======================================================== */}
         {activeTab === 'settings' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Restaurant & POS Configuration</h3>
-                <p>Customize establishment branding, taxes, audio chime alerts, and operational rules</p>
+                <h2 className="page-title">Settings</h2>
+                <p className="page-subtitle">Manage your restaurant settings and preferences</p>
               </div>
-              <button className="btn-primary" onClick={handleSaveSettings}>
-                <Check size={16} /> Save Changes
-              </button>
             </div>
 
-            <form onSubmit={handleSaveSettings} className="settings-two-col">
-              <div className="settings-card">
-                <div className="settings-card-title">
-                  <Home size={18} style={{ color: '#f59e0b' }} />
-                  <span>Establishment & Tax Profile</span>
-                </div>
+            {/* 2-Column Split: Left = Sub-Nav Menu, Right = Form */}
+            <div className="settings-split-grid">
+              {/* Left Sub-Nav Card */}
+              <div className="settings-nav-card">
+                {[
+                  { id: 'details', label: 'Restaurant Details', icon: Home },
+                  { id: 'payment', label: 'Payment Settings', icon: CreditCard },
+                  { id: 'tax', label: 'Tax & Charges', icon: Receipt },
+                  { id: 'tables', label: 'Table Settings', icon: LayoutGrid },
+                  { id: 'users', label: 'User Management', icon: Users },
+                  { id: 'notifications', label: 'Notifications', icon: Bell },
+                  { id: 'billing', label: 'Billing & Subscription', icon: DollarSign }
+                ].map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <button
+                      key={s.id}
+                      className={`settings-subnav-btn ${settingsSubNav === s.id ? 'active' : ''}`}
+                      onClick={() => setSettingsSubNav(s.id)}
+                    >
+                      <Icon size={16} />
+                      <span>{s.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
 
-                <div className="dash-form-group">
-                  <label className="dash-form-label">Restaurant Business Name</label>
-                  <input
-                    type="text"
-                    className="dash-form-input"
-                    value={settingsForm.restaurantName}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, restaurantName: e.target.value })}
-                  />
-                </div>
+              {/* Right Settings Form Card matching Reference Panel 9 */}
+              <form onSubmit={handleSaveSettings} className="settings-form-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                  Restaurant Details
+                </h3>
 
-                <div className="dash-form-group">
-                  <label className="dash-form-label">Tagline & Subtitle</label>
-                  <input
-                    type="text"
-                    className="dash-form-input"
-                    value={settingsForm.tagline}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div className="dash-form-group">
-                    <label className="dash-form-label">GST Tax (%)</label>
-                    <input
-                      type="number"
-                      className="dash-form-input"
-                      value={settingsForm.taxRate}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, taxRate: e.target.value })}
-                    />
-                  </div>
-                  <div className="dash-form-group">
-                    <label className="dash-form-label">Currency Symbol</label>
+                <div className="settings-form-grid">
+                  <div className="settings-form-field">
+                    <label className="settings-label">Restaurant Name</label>
                     <input
                       type="text"
-                      className="dash-form-input"
-                      value={settingsForm.currency}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                      className="settings-input"
+                      value={settingsForm.restaurantName || 'Spice Garden'}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, restaurantName: e.target.value })}
                     />
                   </div>
-                </div>
-              </div>
 
-              <div className="settings-card">
-                <div className="settings-card-title">
-                  <Volume2 size={18} style={{ color: '#10b981' }} />
-                  <span>Audio & Operational Controls</span>
-                </div>
-
-                <div className="settings-toggle-line">
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Sound Chimes & Alerts</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Play audio chime on new orders and guest calls</div>
-                  </div>
-                  <label className="toggle-switch">
+                  <div className="settings-form-field">
+                    <label className="settings-label">Description</label>
                     <input
-                      type="checkbox"
-                      checked={settingsForm.soundAlerts}
-                      onChange={(e) => {
-                        setSettingsForm({ ...settingsForm, soundAlerts: e.target.checked });
-                        if (e.target.checked && isMuted) {
-                          soundManager.toggleMute();
-                          setIsMuted(false);
-                        }
-                      }}
+                      type="text"
+                      className="settings-input"
+                      value={settingsForm.tagline || 'Delicious Food, Great Moments'}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
                     />
-                    <span className="toggle-slider" />
-                  </label>
-                </div>
-
-                <div className="settings-toggle-line">
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Kitchen Auto-Accept</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Directly route new customer tickets to preparing state</div>
                   </div>
-                  <label className="toggle-switch">
+
+                  <div className="settings-form-field full-width">
+                    <label className="settings-label">Address</label>
                     <input
-                      type="checkbox"
-                      checked={settingsForm.autoAcceptOrders}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, autoAcceptOrders: e.target.checked })}
+                      type="text"
+                      className="settings-input"
+                      value={settingsForm.address || '123 FC Road, Pune, Maharashtra'}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
                     />
-                    <span className="toggle-slider" />
-                  </label>
-                </div>
-
-                <div className="settings-toggle-line">
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>Dynamic QR Session Security</div>
-                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Rotate table token when check is settled and cleared</div>
                   </div>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981' }}>ENFORCED</span>
+
+                  <div className="settings-form-field">
+                    <label className="settings-label">Phone Number</label>
+                    <input
+                      type="text"
+                      className="settings-input"
+                      value={settingsForm.phone || '+91 9876543210'}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="settings-form-field">
+                    <label className="settings-label">Email</label>
+                    <input
+                      type="email"
+                      className="settings-input"
+                      value={settingsForm.email || 'info@spicegarden.com'}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="settings-form-field full-width">
+                    <label className="settings-label">Logo</label>
+                    <div className="settings-logo-row">
+                      <img
+                        src="/images/tablemint_leaf_icon.png"
+                        alt="Restaurant Logo"
+                        className="settings-logo-preview"
+                      />
+                      <div>
+                        <button
+                          type="button"
+                          className="btn-brand-outline"
+                          onClick={() => addToast('Upload Logo dialog', 'info')}
+                        >
+                          Change Logo
+                        </button>
+                        <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: 4 }}>
+                          JPG, PNG (Max 2MB)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  style={{ marginTop: 8 }}
-                  onClick={() => {
-                    fetchAllData();
-                    addToast('System cache refreshed & live synced', 'info');
-                  }}
-                >
-                  <RotateCcw size={15} /> Force Reload POS Data
-                </button>
-              </div>
-            </form>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                  <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                    <Check size={16} /> Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
           </section>
         )}
+
 
         {/* ========================================================
             TAB: STAFF MANAGEMENT
