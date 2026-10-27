@@ -369,36 +369,47 @@
 }
 
 .metric-card {
-  background: #0c1424;
+  background: linear-gradient(145deg, #0d1527 0%, #080d1a 100%);
   border-radius: 18px;
-  padding: 20px 22px;
+  padding: 16px 18px;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 135px;
+  gap: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .metric-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
 }
 
 /* Card Borders */
-.metric-card.sales { border: 1px solid rgba(16, 185, 129, 0.35); }
-.metric-card.orders { border: 1px solid rgba(245, 158, 11, 0.35); }
-.metric-card.occupancy { border: 1px solid rgba(56, 189, 248, 0.35); }
-.metric-card.ticket { border: 1px solid rgba(168, 85, 247, 0.35); }
+.metric-card.sales { border: 1px solid rgba(16, 185, 129, 0.32); }
+.metric-card.orders { border: 1px solid rgba(245, 158, 11, 0.32); }
+.metric-card.occupancy { border: 1px solid rgba(56, 189, 248, 0.32); }
+.metric-card.ticket { border: 1px solid rgba(168, 85, 247, 0.32); }
+
+.metric-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
 
 .metric-icon-box {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 900;
 }
 
@@ -426,36 +437,79 @@
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.metric-info {
+.metric-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-badge.green {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+.metric-badge.amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.metric-badge.blue {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+}
+
+.metric-badge.purple {
+  background: rgba(168, 85, 247, 0.14);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.28);
+}
+
+.metric-content {
   display: flex;
   flex-direction: column;
+  gap: 1px;
+  min-width: 0;
 }
 
 .metric-title {
   font-size: 0.72rem;
   font-weight: 700;
   color: #94a3b8;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric-value {
-  font-size: 1.7rem;
+  font-size: 1.55rem;
   font-weight: 800;
   font-family: var(--font-display);
   color: #ffffff;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric-footer {
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  margin-top: 5px;
   display: flex;
   align-items: center;
   gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric-footer.green { color: #34d399; }
@@ -2022,31 +2076,33 @@
 
   .metric-card {
     padding: 12px 14px !important;
-    gap: 10px !important;
-    border-radius: 14px !important;
+    min-height: 125px !important;
+    gap: 6px !important;
+    border-radius: 16px !important;
   }
 
   .metric-icon-box {
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 10px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 1rem !important;
   }
 
-  .metric-icon-box svg {
-    width: 18px !important;
-    height: 18px !important;
+  .metric-badge {
+    font-size: 0.66rem !important;
+    padding: 2px 6px !important;
   }
 
-  .metric-card h3 {
-    font-size: 1.15rem !important;
-  }
-
-  .metric-card .metric-label {
+  .metric-title {
     font-size: 0.68rem !important;
   }
 
-  .metric-card .metric-sub {
-    display: none !important;
+  .metric-value {
+    font-size: 1.32rem !important;
+  }
+
+  .metric-footer {
+    font-size: 0.68rem !important;
   }
 
   /* Table cards compact on mobile */

@@ -941,57 +941,75 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="kpi-four-grid">
               {/* Card 1: Today's Net Sales */}
               <div className="metric-card sales">
-                <div className="metric-icon-box">₹</div>
-                <div className="metric-info">
-                  <span className="metric-title">Today's Net Sales</span>
-                  <span className="metric-value">
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">₹</div>
+                  <span className="metric-badge green">
+                    <TrendingUp size={11} /> Live
+                  </span>
+                </div>
+                <div className="metric-content">
+                  <span className="metric-title">Today's Sales</span>
+                  <div className="metric-value">
                     ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 1 }) : '3,933.3'}
-                  </span>
-                  <span className="metric-footer green">
-                    <TrendingUp size={13} /> Real-time active sales
-                  </span>
+                  </div>
+                </div>
+                <div className="metric-footer green">
+                  Real-time active
                 </div>
               </div>
 
               {/* Card 2: Total Orders Placed */}
               <div className="metric-card orders">
-                <div className="metric-icon-box">
-                  <Receipt size={24} />
-                </div>
-                <div className="metric-info">
-                  <span className="metric-title">Total Orders Placed</span>
-                  <span className="metric-value">{orders.length || 12}</span>
-                  <span className="metric-footer amber">
-                    <Clock size={12} /> {pendingOrdersCount} awaiting kitchen accept
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <Receipt size={17} />
+                  </div>
+                  <span className="metric-badge amber">
+                    <Clock size={11} /> {pendingOrdersCount} Wait
                   </span>
+                </div>
+                <div className="metric-content">
+                  <span className="metric-title">Total Orders</span>
+                  <div className="metric-value">{orders.length || 12}</div>
+                </div>
+                <div className="metric-footer amber">
+                  {pendingOrdersCount > 0 ? `${pendingOrdersCount} awaiting kitchen` : 'All orders accepted'}
                 </div>
               </div>
 
               {/* Card 3: Floor Occupancy */}
               <div className="metric-card occupancy">
-                <div className="metric-icon-box">
-                  <Users size={24} />
-                </div>
-                <div className="metric-info">
-                  <span className="metric-title">Floor Occupancy</span>
-                  <span className="metric-value">{occupancyPercent}%</span>
-                  <span className="metric-footer muted">
-                    {occupiedTables} of {tables.length} dining tables active
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <Users size={17} />
+                  </div>
+                  <span className="metric-badge blue">
+                    {occupiedTables}/{tables.length || 10}
                   </span>
+                </div>
+                <div className="metric-content">
+                  <span className="metric-title">Occupancy</span>
+                  <div className="metric-value">{occupancyPercent}%</div>
+                </div>
+                <div className="metric-footer muted">
+                  {occupiedTables} of {tables.length || 10} tables active
                 </div>
               </div>
 
               {/* Card 4: Average Ticket */}
               <div className="metric-card ticket">
-                <div className="metric-icon-box">
-                  <BarChart3 size={24} />
+                <div className="metric-card-header">
+                  <div className="metric-icon-box">
+                    <BarChart3 size={17} />
+                  </div>
+                  <span className="metric-badge purple">Check</span>
                 </div>
-                <div className="metric-info">
-                  <span className="metric-title">Average Ticket</span>
-                  <span className="metric-value">₹{avgTicket || 328}</span>
-                  <span className="metric-footer muted">
-                    Per completed guest check
-                  </span>
+                <div className="metric-content">
+                  <span className="metric-title">Avg Ticket</span>
+                  <div className="metric-value">₹{avgTicket || 328}</div>
+                </div>
+                <div className="metric-footer muted">
+                  Per completed order
                 </div>
               </div>
             </div>
