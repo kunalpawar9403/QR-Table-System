@@ -252,6 +252,12 @@ export default function DashboardApp({ onLockStaff }) {
     { billNo: '#B1601', table: 'Table 3', amount: 600, time: '10:10 AM', payment: 'UPI' }
   ]);
 
+  // Missing Filter & Sub-Nav States
+  const [tableStatusFilter, setTableStatusFilter] = useState('all');
+  const [analyticsSubTab, setAnalyticsSubTab] = useState('Revenue');
+  const [settingsSubNav, setSettingsSubNav] = useState('details');
+  const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
+
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1259,8 +1265,20 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="recent-orders-header">
                   <h3>Recent Orders</h3>
                   <div className="order-type-toggle-pill">
-                    <button type="button" className="type-toggle-btn active">Dine-in</button>
-                    <button type="button" className="type-toggle-btn">Takeaway</button>
+                    <button
+                      type="button"
+                      className={`type-toggle-btn ${overviewOrderType === 'dine-in' ? 'active' : ''}`}
+                      onClick={() => setOverviewOrderType('dine-in')}
+                    >
+                      Dine-in
+                    </button>
+                    <button
+                      type="button"
+                      className={`type-toggle-btn ${overviewOrderType === 'takeaway' ? 'active' : ''}`}
+                      onClick={() => setOverviewOrderType('takeaway')}
+                    >
+                      Takeaway
+                    </button>
                   </div>
                 </div>
 
@@ -1835,14 +1853,14 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: QR STANDS
             ======================================================== */}
         {activeTab === 'stands' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Table Acrylic QR Stands</h3>
-                <p>Luxury printable standees for contactless guest phone ordering</p>
+                <h2 className="page-title">Table Acrylic QR Stands</h2>
+                <p className="page-subtitle">Luxury printable standees for contactless guest phone ordering</p>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button className="btn-primary" onClick={handlePrintAllStands}>
+              <div className="page-header-actions">
+                <button className="btn-brand-primary" onClick={handlePrintAllStands}>
                   <Printer size={16} /> Print All Stands ({tables.length})
                 </button>
               </div>
@@ -2394,92 +2412,231 @@ export default function DashboardApp({ onLockStaff }) {
               ))}
             </div>
 
-            {/* Split 2-Column Layout: Left = Revenue Trend Chart, Right = Top Selling Items */}
-            <div className="reports-two-col-grid">
-              {/* Left Column: Revenue Trend Chart Card */}
-              <div className="admin-card-inner">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend</h3>
-                  <div style={{ background: '#07241a', color: '#ffffff', padding: '4px 12px', borderRadius: 9999, fontSize: '0.78rem', fontWeight: 800 }}>
-                    ₹ 12,450
+            {/* Split Content: Dynamically changes per analyticsSubTab */}
+            {analyticsSubTab === 'Revenue' && (
+              <div className="reports-two-col-grid">
+                <div className="admin-card-inner">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend</h3>
+                    <div style={{ background: '#07241a', color: '#ffffff', padding: '4px 12px', borderRadius: 9999, fontSize: '0.78rem', fontWeight: 800 }}>
+                      ₹ 12,450
+                    </div>
+                  </div>
+
+                  {/* Smooth Area Curve SVG Chart */}
+                  <div style={{ width: '100%', height: 240, position: 'relative' }}>
+                    <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                      <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                      <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
+                      <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
+                      <path
+                        d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60 L 500,200 L 0,200 Z"
+                        fill="url(#revenueGrad)"
+                      />
+                      <path
+                        d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                      />
+                      <circle cx="400" cy="45" r="5.5" fill="#10b981" stroke="#ffffff" strokeWidth="2.5" />
+                    </svg>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.74rem', fontWeight: 600, marginTop: 10, padding: '0 4px' }}>
+                    <span>8 AM</span>
+                    <span>9 AM</span>
+                    <span>12 PM</span>
+                    <span>3 PM</span>
+                    <span>6 PM</span>
+                    <span>9 PM</span>
                   </div>
                 </div>
 
-                {/* Smooth Area Curve SVG Chart */}
-                <div style={{ width: '100%', height: 240, position: 'relative' }}>
-                  <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-                    {/* Grid lines */}
-                    <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
-                    <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                    <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
-                    <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
+                <div className="admin-card-inner">
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>
+                    Top Selling Items
+                  </h3>
 
-                    {/* Filled Area */}
-                    <path
-                      d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60 L 500,200 L 0,200 Z"
-                      fill="url(#revenueGrad)"
-                    />
-                    {/* Stroke Curve */}
-                    <path
-                      d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    {/* Peak Point Dot */}
-                    <circle cx="400" cy="45" r="5.5" fill="#10b981" stroke="#ffffff" strokeWidth="2.5" />
-                  </svg>
-                </div>
-
-                {/* X-Axis Time Labels */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.74rem', fontWeight: 600, marginTop: 10, padding: '0 4px' }}>
-                  <span>8 AM</span>
-                  <span>9 AM</span>
-                  <span>12 PM</span>
-                  <span>3 PM</span>
-                  <span>6 PM</span>
-                  <span>9 PM</span>
-                </div>
-              </div>
-
-              {/* Right Column: Top Selling Items Card */}
-              <div className="admin-card-inner">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>
-                  Top Selling Items
-                </h3>
-
-                <div className="top-selling-ranked-list">
-                  {[
-                    { rank: 1, name: 'Chicken Biryani', orders: 28, image: '/images/chicken_biryani.jpg' },
-                    { rank: 2, name: 'Paneer Tikka', orders: 24, image: '/images/paneer_tikka.jpg' },
-                    { rank: 3, name: 'Masala Dosa', orders: 18, image: '/images/masala_dosa.jpg' },
-                    { rank: 4, name: 'Margherita Pizza', orders: 16, image: '/images/artisan_pizza.jpg' },
-                    { rank: 5, name: 'Caesar Salad', orders: 12, image: '/images/green_salad.jpg' }
-                  ].map((it) => (
-                    <div key={it.rank} className="top-selling-item-row">
-                      <div className="top-selling-left">
-                        <span className="rank-badge">{it.rank}</span>
-                        <img
-                          src={it.image}
-                          alt={it.name}
-                          className="top-selling-img"
-                          onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                        />
-                        <span className="top-selling-name">{it.name}</span>
+                  <div className="top-selling-ranked-list">
+                    {[
+                      { rank: 1, name: 'Chicken Biryani', orders: 28, image: '/images/chicken_biryani.jpg' },
+                      { rank: 2, name: 'Paneer Tikka', orders: 24, image: '/images/paneer_tikka.jpg' },
+                      { rank: 3, name: 'Masala Dosa', orders: 18, image: '/images/masala_dosa.jpg' },
+                      { rank: 4, name: 'Margherita Pizza', orders: 16, image: '/images/artisan_pizza.jpg' },
+                      { rank: 5, name: 'Caesar Salad', orders: 12, image: '/images/green_salad.jpg' }
+                    ].map((it) => (
+                      <div key={it.rank} className="top-selling-item-row">
+                        <div className="top-selling-left">
+                          <span className="rank-badge">{it.rank}</span>
+                          <img
+                            src={it.image}
+                            alt={it.name}
+                            className="top-selling-img"
+                            onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                          />
+                          <span className="top-selling-name">{it.name}</span>
+                        </div>
+                        <span className="top-selling-orders">{it.orders} orders</span>
                       </div>
-                      <span className="top-selling-orders">{it.orders} orders</span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {analyticsSubTab === 'Orders' && (
+              <div className="reports-two-col-grid">
+                <div className="admin-card-inner">
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Hourly Orders Volume</h3>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 210, padding: '20px 0 10px', borderBottom: '1px solid #e2e8f0' }}>
+                    {[
+                      { hour: '9 AM', count: 4 },
+                      { hour: '11 AM', count: 8 },
+                      { hour: '1 PM', count: 18 },
+                      { hour: '3 PM', count: 6 },
+                      { hour: '5 PM', count: 5 },
+                      { hour: '7 PM', count: 14 },
+                      { hour: '9 PM', count: 20 }
+                    ].map((h) => (
+                      <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
+                        <div style={{ width: '100%', height: `${(h.count / 20) * 140}px`, background: '#10b981', borderRadius: '6px 6px 0 0' }} />
+                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{h.hour}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="admin-card-inner">
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Orders by Status</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {[
+                      { status: 'Completed & Settled', count: 42, pct: '88%', color: '#10b981' },
+                      { status: 'In Kitchen / Preparing', count: 4, pct: '8%', color: '#0284c7' },
+                      { status: 'Cancelled', count: 2, pct: '4%', color: '#ef4444' }
+                    ].map((s) => (
+                      <div key={s.status} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem' }}>
+                          <span style={{ fontWeight: 700, color: '#0f172a' }}>{s.status}</span>
+                          <span style={{ fontWeight: 800, color: '#64748b' }}>{s.count} ({s.pct})</span>
+                        </div>
+                        <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                          <div style={{ width: s.pct, height: '100%', background: s.color, borderRadius: 9999 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {analyticsSubTab === 'Popular Items' && (
+              <div className="admin-card-inner">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>All Menu Performance Rankings</h3>
+                <table className="admin-clean-table">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Dish Name</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Orders Count</th>
+                      <th>Total Sales</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { rank: 1, name: 'Chicken Biryani', category: 'Main Course', price: 280, count: 28, sales: '₹ 7,840' },
+                      { rank: 2, name: 'Paneer Tikka', category: 'Starters', price: 220, count: 24, sales: '₹ 5,280' },
+                      { rank: 3, name: 'Masala Dosa', category: 'Main Course', price: 180, count: 18, sales: '₹ 3,240' },
+                      { rank: 4, name: 'Margherita Pizza', category: 'Main Course', price: 260, count: 16, sales: '₹ 4,160' },
+                      { rank: 5, name: 'Caesar Salad', category: 'Starters', price: 200, count: 12, sales: '₹ 2,400' }
+                    ].map((row) => (
+                      <tr key={row.rank}>
+                        <td style={{ fontWeight: 800 }}>#{row.rank}</td>
+                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{row.name}</td>
+                        <td style={{ color: '#64748b' }}>{row.category}</td>
+                        <td style={{ fontWeight: 700 }}>₹ {row.price}</td>
+                        <td style={{ fontWeight: 700, color: '#10b981' }}>{row.count} orders</td>
+                        <td style={{ fontWeight: 800, color: '#0f172a' }}>{row.sales}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {analyticsSubTab === 'Payment Methods' && (
+              <div className="reports-two-col-grid">
+                <div className="admin-card-inner">
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Payment Channel Distribution</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {[
+                      { method: 'UPI (QR Pay, GPay, PhonePe)', amount: '₹ 7,968', pct: '64%', color: '#10b981' },
+                      { method: 'Credit / Debit Cards', amount: '₹ 3,237', pct: '26%', color: '#0284c7' },
+                      { method: 'Cash on Counter', amount: '₹ 1,245', pct: '10%', color: '#f59e0b' }
+                    ].map((pm) => (
+                      <div key={pm.method} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem' }}>
+                          <span style={{ fontWeight: 700, color: '#0f172a' }}>{pm.method}</span>
+                          <span style={{ fontWeight: 800, color: '#0f172a' }}>{pm.amount} ({pm.pct})</span>
+                        </div>
+                        <div style={{ width: '100%', height: 10, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                          <div style={{ width: pm.pct, height: '100%', background: pm.color, borderRadius: 9999 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="admin-card-inner">
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Instant Settlement Status</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ padding: 14, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Total Revenue Collected Today</div>
+                      <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#07241a', marginTop: 2 }}>₹ 12,450</div>
+                    </div>
+                    <div style={{ padding: 14, background: '#ecfdf5', borderRadius: 12, border: '1px solid #a7f3d0' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>Bank Settlement Status</div>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#065f46', marginTop: 2 }}>Auto-Settled to HDFC Primary Account</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {analyticsSubTab === 'Peak Hours' && (
+              <div className="admin-card-inner">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Dining Peak Hours & Rush Analysis</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f59e0b', background: '#fef3c7', padding: '3px 8px', borderRadius: 9999 }}>
+                      LUNCH RUSH
+                    </span>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '8px 0 4px', color: '#0f172a' }}>12:00 PM – 3:00 PM</h4>
+                    <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+                      Avg. 22 orders served. Table turnaround rate is 32 minutes.
+                    </p>
+                  </div>
+                  <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#10b981', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
+                      DINNER RUSH
+                    </span>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '8px 0 4px', color: '#0f172a' }}>7:30 PM – 10:30 PM</h4>
+                    <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
+                      Avg. 26 orders served. Peak restaurant occupancy reaches 94%.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         )}
 
@@ -2523,92 +2680,322 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
 
               {/* Right Settings Form Card matching Reference Panel 9 */}
-              <form onSubmit={handleSaveSettings} className="settings-form-card">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
-                  Restaurant Details
-                </h3>
+              <div className="settings-form-card">
+                {settingsSubNav === 'details' && (
+                  <form onSubmit={handleSaveSettings}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Restaurant Details
+                    </h3>
 
-                <div className="settings-form-grid">
-                  <div className="settings-form-field">
-                    <label className="settings-label">Restaurant Name</label>
-                    <input
-                      type="text"
-                      className="settings-input"
-                      value={settingsForm.restaurantName || 'Spice Garden'}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, restaurantName: e.target.value })}
-                    />
+                    <div className="settings-form-grid">
+                      <div className="settings-form-field">
+                        <label className="settings-label">Restaurant Name</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value={settingsForm.restaurantName || 'Spice Garden'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, restaurantName: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="settings-form-field">
+                        <label className="settings-label">Description</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value={settingsForm.tagline || 'Delicious Food, Great Moments'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">Address</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value={settingsForm.address || '123 FC Road, Pune, Maharashtra'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="settings-form-field">
+                        <label className="settings-label">Phone Number</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value={settingsForm.phone || '+91 9876543210'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="settings-form-field">
+                        <label className="settings-label">Email</label>
+                        <input
+                          type="email"
+                          className="settings-input"
+                          value={settingsForm.email || 'info@spicegarden.com'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">Logo</label>
+                        <div className="settings-logo-row">
+                          <img
+                            src="/images/tablemint_leaf_icon.png"
+                            alt="Restaurant Logo"
+                            className="settings-logo-preview"
+                          />
+                          <div>
+                            <button
+                              type="button"
+                              className="btn-brand-outline"
+                              onClick={() => addToast('Upload Logo dialog opened', 'info')}
+                            >
+                              Change Logo
+                            </button>
+                            <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: 4 }}>
+                              JPG, PNG (Max 2MB)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                        <Check size={16} /> Save Changes
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {settingsSubNav === 'payment' && (
+                  <form onSubmit={handleSaveSettings}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Payment Gateway & Methods
+                    </h3>
+                    <div className="settings-form-grid">
+                      <div className="settings-form-field">
+                        <label className="settings-label">UPI VPA Handle</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value="spicegarden@hdfcbank"
+                          readOnly
+                        />
+                      </div>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Currency Symbol</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value={settingsForm.currency || '₹'}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                        />
+                      </div>
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">Accepted Channels</label>
+                        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                          <span className="status-badge-pill active">✓ UPI QR Code</span>
+                          <span className="status-badge-pill active">✓ Credit & Debit Cards</span>
+                          <span className="status-badge-pill active">✓ Cash at Counter</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                        <Check size={16} /> Save Payment Settings
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {settingsSubNav === 'tax' && (
+                  <form onSubmit={handleSaveSettings}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Tax & GST Configuration
+                    </h3>
+                    <div className="settings-form-grid">
+                      <div className="settings-form-field">
+                        <label className="settings-label">GST Tax Rate (%)</label>
+                        <input
+                          type="number"
+                          className="settings-input"
+                          value={settingsForm.taxRate || 5}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, taxRate: e.target.value })}
+                        />
+                      </div>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Service Charge (%)</label>
+                        <input
+                          type="number"
+                          className="settings-input"
+                          value={settingsForm.serviceCharge || 0}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, serviceCharge: e.target.value })}
+                        />
+                      </div>
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">GSTIN / Tax ID Number</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value="27AAAAA0000A1Z5"
+                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                        <Check size={16} /> Save Tax Rates
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {settingsSubNav === 'tables' && (
+                  <form onSubmit={handleSaveSettings}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Table & Floor Configuration
+                    </h3>
+                    <div className="settings-form-grid">
+                      <div className="settings-form-field">
+                        <label className="settings-label">Total Tables Active</label>
+                        <input
+                          type="number"
+                          className="settings-input"
+                          value={tables.length || 12}
+                          readOnly
+                        />
+                      </div>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Dining Sections</label>
+                        <input
+                          type="text"
+                          className="settings-input"
+                          value="Main Dining Hall, Rooftop Terrace"
+                          readOnly
+                        />
+                      </div>
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">Dynamic QR Security</label>
+                        <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '4px 0 0' }}>
+                          Auto-regenerates unique encrypted session token when bill is settled.
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                        <Check size={16} /> Save Table Settings
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {settingsSubNav === 'users' && (
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                        Staff & User Management
+                      </h3>
+                      <button
+                        type="button"
+                        className="btn-brand-primary"
+                        onClick={() => addToast('Add Staff modal opened', 'info')}
+                      >
+                        <Plus size={15} /> Add Staff
+                      </button>
+                    </div>
+                    <table className="admin-clean-table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Role</th>
+                          <th>Email</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { name: 'Rohit Sharma', role: 'Owner / Admin', email: 'rohit@spicegarden.com', status: 'active' },
+                          { name: 'Amit Patel', role: 'Floor Manager', email: 'amit@spicegarden.com', status: 'active' },
+                          { name: 'Priya Sharma', role: 'Head Cashier', email: 'priya@spicegarden.com', status: 'active' },
+                          { name: 'Rahul Chef', role: 'Head Chef (KDS)', email: 'kitchen@spicegarden.com', status: 'active' }
+                        ].map((u) => (
+                          <tr key={u.email}>
+                            <td style={{ fontWeight: 700, color: '#0f172a' }}>{u.name}</td>
+                            <td style={{ color: '#475569' }}>{u.role}</td>
+                            <td style={{ color: '#64748b' }}>{u.email}</td>
+                            <td><span className="status-badge-pill active">• Active</span></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
+                )}
 
-                  <div className="settings-form-field">
-                    <label className="settings-label">Description</label>
-                    <input
-                      type="text"
-                      className="settings-input"
-                      value={settingsForm.tagline || 'Delicious Food, Great Moments'}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
-                    />
-                  </div>
+                {settingsSubNav === 'notifications' && (
+                  <form onSubmit={handleSaveSettings}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Audio & Operational Alerts
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>Sound Chimes on New Order</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Play high-fidelity audio bell whenever guests place a food order</div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.soundAlerts}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, soundAlerts: e.target.checked })}
+                          style={{ width: 18, height: 18, cursor: 'pointer' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', background: '#f8fafc', borderRadius: 10, border: '1px solid #e2e8f0' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a' }}>Kitchen Auto-Accept Tickets</div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Automatically route customer tickets directly to preparing state</div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={settingsForm.autoAcceptOrders}
+                          onChange={(e) => setSettingsForm({ ...settingsForm, autoAcceptOrders: e.target.checked })}
+                          style={{ width: 18, height: 18, cursor: 'pointer' }}
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                        <Check size={16} /> Save Notification Preferences
+                      </button>
+                    </div>
+                  </form>
+                )}
 
-                  <div className="settings-form-field full-width">
-                    <label className="settings-label">Address</label>
-                    <input
-                      type="text"
-                      className="settings-input"
-                      value={settingsForm.address || '123 FC Road, Pune, Maharashtra'}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="settings-form-field">
-                    <label className="settings-label">Phone Number</label>
-                    <input
-                      type="text"
-                      className="settings-input"
-                      value={settingsForm.phone || '+91 9876543210'}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="settings-form-field">
-                    <label className="settings-label">Email</label>
-                    <input
-                      type="email"
-                      className="settings-input"
-                      value={settingsForm.email || 'info@spicegarden.com'}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="settings-form-field full-width">
-                    <label className="settings-label">Logo</label>
-                    <div className="settings-logo-row">
-                      <img
-                        src="/images/tablemint_leaf_icon.png"
-                        alt="Restaurant Logo"
-                        className="settings-logo-preview"
-                      />
-                      <div>
-                        <button
-                          type="button"
-                          className="btn-brand-outline"
-                          onClick={() => addToast('Upload Logo dialog', 'info')}
-                        >
-                          Change Logo
-                        </button>
-                        <div style={{ fontSize: '0.74rem', color: '#94a3b8', marginTop: 4 }}>
-                          JPG, PNG (Max 2MB)
+                {settingsSubNav === 'billing' && (
+                  <div>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
+                      Billing & Subscription Plan
+                    </h3>
+                    <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
+                            CURRENT PLAN
+                          </span>
+                          <h4 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: '8px 0 2px' }}>TableMint Restaurant Pro</h4>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Unlimited QR Tables • Full POS & Kitchen Display • 24/7 Priority Support</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#07241a' }}>₹ 1,999 / mo</div>
+                          <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>Active (Annual Subscription)</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                  <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
-                    <Check size={16} /> Save Changes
-                  </button>
-                </div>
-              </form>
+                )}
+              </div>
             </div>
           </section>
         )}
@@ -2618,19 +3005,21 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: STAFF MANAGEMENT
             ======================================================== */}
         {activeTab === 'staff' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Staff & Station Security</h3>
-                <p>Manage staff accounts, authorization roles, and station security</p>
+                <h2 className="page-title">Staff & Station Security</h2>
+                <p className="page-subtitle">Manage staff accounts, authorization roles, and station security</p>
               </div>
-              <button
-                className="lock-station-btn"
-                style={{ background: 'rgba(239, 68, 68, 0.12)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-                onClick={handleLogout}
-              >
-                <Lock size={15} /> Lock Terminal Now
-              </button>
+              <div className="page-header-actions">
+                <button
+                  className="btn-brand-primary"
+                  style={{ background: '#ef4444' }}
+                  onClick={handleLogout}
+                >
+                  <Lock size={15} /> Lock Terminal Now
+                </button>
+              </div>
             </div>
 
             {/* Staff Roles Grid */}
@@ -2706,11 +3095,11 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: INTEGRATIONS
             ======================================================== */}
         {activeTab === 'integrations' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>System Integrations & Hardware</h3>
-                <p>Connected thermal receipt printers, real-time sync relays, and ordering channels</p>
+                <h2 className="page-title">System Integrations & Hardware</h2>
+                <p className="page-subtitle">Connected thermal receipt printers, real-time sync relays, and ordering channels</p>
               </div>
             </div>
 
@@ -2854,16 +3243,17 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: PROFILE & OPERATIONS ACCOUNT
             ======================================================== */}
         {activeTab === 'profile' && (
-          <section className="floor-status-panel">
-            <div className="panel-header-row">
+          <section className="admin-page-container">
+            <div className="page-header-row">
               <div>
-                <h3>Profile & Operations Account</h3>
-                <p>Manage your account credentials, restaurant identity, and floor security</p>
+                <h2 className="page-title">Profile & Operations Account</h2>
+                <p className="page-subtitle">Manage your account credentials, restaurant identity, and floor security</p>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div className="page-header-actions">
                 <button
                   type="button"
-                  className="btn-danger-logout"
+                  className="btn-brand-primary"
+                  style={{ background: '#ef4444' }}
                   onClick={handleLogout}
                   title="Sign out and return to Login & Sign Up screen"
                 >
@@ -2872,10 +3262,24 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            <div className="profile-grid-container">
+            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, marginTop: 4 }}>
               {/* Left Column: User Identity Card */}
-              <div className="profile-card profile-hero-card">
-                <div className="profile-avatar-large">
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: 'fit-content' }}>
+                <div style={{
+                  width: 76,
+                  height: 76,
+                  borderRadius: '50%',
+                  background: '#07241a',
+                  color: '#ffffff',
+                  fontSize: '1.5rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  marginBottom: 14,
+                  boxShadow: '0 4px 12px rgba(7, 36, 26, 0.15)'
+                }}>
                   {currentUser?.name
                     ? currentUser.name
                         .split(' ')
@@ -2885,47 +3289,72 @@ export default function DashboardApp({ onLockStaff }) {
                         .slice(0, 2)
                         .toUpperCase()
                     : 'TM'}
-                  <span className="profile-avatar-online-dot" title="Active Session" />
+                  <span style={{
+                    position: 'absolute',
+                    bottom: 2,
+                    right: 2,
+                    width: 14,
+                    height: 14,
+                    borderRadius: '50%',
+                    background: '#10b981',
+                    border: '2px solid #ffffff'
+                  }} title="Active Session" />
                 </div>
 
-                <h3 className="profile-hero-name">{currentUser?.name || 'TableMint Staff'}</h3>
-                <p className="profile-hero-email">{currentUser?.email || 'admin@tablemint.com'}</p>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>{currentUser?.name || 'TableMint Staff'}</h3>
+                <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 16px' }}>{currentUser?.email || 'admin@tablemint.com'}</p>
 
-                <div className="profile-badges-row">
-                  <span className={`status-pill ${currentUser?.role === 'admin' ? 'ready' : 'pending'}`}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 }}>
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '4px 10px',
+                    borderRadius: 20,
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    background: '#ecfdf5',
+                    color: '#065f46',
+                    border: '1px solid #a7f3d0'
+                  }}>
                     <ShieldCheck size={13} />
                     {currentUser?.role === 'admin' ? 'Admin / Owner' : 'Floor Staff'}
                   </span>
-                  <span className="status-pill occupied">
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    padding: '4px 10px',
+                    borderRadius: 20,
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    background: '#f8fafc',
+                    color: '#334155',
+                    border: '1px solid #e2e8f0'
+                  }}>
                     <UtensilsCrossed size={13} />
                     {currentUser?.restaurantName || 'TableMint'}
                   </span>
                 </div>
 
-                <div className="profile-info-list">
-                  <div className="profile-info-row">
-                    <span className="profile-info-label">
-                      <ShieldCheck size={14} /> Security Standard
+                <div style={{ width: '100%', borderTop: '1px solid #f1f5f9', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <ShieldCheck size={14} color="#10b981" /> Security Standard
                     </span>
-                    <span className="profile-info-value" style={{ color: '#00e676', fontSize: '0.78rem' }}>
-                      PBKDF2 SHA-512 Encrypted
-                    </span>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>PBKDF2 SHA-512</span>
                   </div>
-                  <div className="profile-info-row">
-                    <span className="profile-info-label">
-                      <Lock size={14} /> Login Method
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Lock size={14} color="#07241a" /> Login Method
                     </span>
-                    <span className="profile-info-value" style={{ color: '#00e676', fontSize: '0.78rem' }}>
-                      Email & Password Only
-                    </span>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>Email & Password</span>
                   </div>
-                  <div className="profile-info-row">
-                    <span className="profile-info-label">
-                      <Wifi size={14} /> Live Sync Relay
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
+                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Wifi size={14} color="#0284c7" /> Live Sync Relay
                     </span>
-                    <span className="profile-info-value" style={{ color: '#38bdf8' }}>
-                      Connected (12ms)
-                    </span>
+                    <span style={{ fontWeight: 700, color: '#0284c7' }}>Connected (12ms)</span>
                   </div>
                 </div>
               </div>
@@ -2933,21 +3362,21 @@ export default function DashboardApp({ onLockStaff }) {
               {/* Right Column: Edit Profile & Security Details */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 {/* Edit Profile Details Form */}
-                <div className="profile-card">
-                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <User size={18} style={{ color: '#00e676' }} /> Personal & Restaurant Profile
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <User size={18} style={{ color: '#07241a' }} /> Personal & Restaurant Profile
                   </h4>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 18 }}>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: 18 }}>
                     Update your display name and dining brand name across POS tickets and receipts.
                   </p>
 
-                  <form onSubmit={handleSaveProfile} className="profile-form-section">
-                    <div className="profile-form-row">
-                      <div>
-                        <label className="profile-field-label">Full Name</label>
+                  <form onSubmit={handleSaveProfile}>
+                    <div className="settings-form-grid" style={{ marginBottom: 16 }}>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Full Name</label>
                         <input
                           type="text"
-                          className="auth-input-field"
+                          className="settings-input"
                           value={profileName}
                           onChange={(e) => setProfileName(e.target.value)}
                           placeholder="Your Name"
@@ -2955,11 +3384,11 @@ export default function DashboardApp({ onLockStaff }) {
                           disabled={profileSaving}
                         />
                       </div>
-                      <div>
-                        <label className="profile-field-label">Restaurant Brand Name</label>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Restaurant Brand Name</label>
                         <input
                           type="text"
-                          className="auth-input-field"
+                          className="settings-input"
                           value={profileRestaurant}
                           onChange={(e) => setProfileRestaurant(e.target.value)}
                           placeholder="e.g. TableMint / Spice Garden"
@@ -2969,34 +3398,35 @@ export default function DashboardApp({ onLockStaff }) {
                       </div>
                     </div>
 
-                    <div className="profile-form-row">
-                      <div>
-                        <label className="profile-field-label">Email Address (Login Identity)</label>
+                    <div className="settings-form-grid" style={{ marginBottom: 20 }}>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Email Address (Login Identity)</label>
                         <input
                           type="email"
-                          className="auth-input-field profile-input-readonly"
+                          className="settings-input"
+                          style={{ background: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
                           value={currentUser?.email || 'admin@tablemint.com'}
                           readOnly
                           title="Email address cannot be changed directly."
                         />
                       </div>
-                      <div>
-                        <label className="profile-field-label">Station Role & Permissions</label>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Station Role & Permissions</label>
                         <input
                           type="text"
-                          className="auth-input-field profile-input-readonly"
+                          className="settings-input"
+                          style={{ background: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
                           value={currentUser?.role === 'admin' ? 'Administrator (Full Access)' : 'Floor Staff (POS & Orders)'}
                           readOnly
                         />
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button
                         type="submit"
-                        className="btn-primary"
+                        className="btn-brand-primary"
                         disabled={profileSaving}
-                        style={{ padding: '10px 22px' }}
                       >
                         <Check size={16} />
                         {profileSaving ? 'Saving Changes...' : 'Save Profile Changes'}
@@ -3006,46 +3436,47 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
 
                 {/* Session Security Details */}
-                <div className="profile-card">
-                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ShieldCheck size={18} style={{ color: '#38bdf8' }} /> Station Security & Session Status
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20 }}>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ShieldCheck size={17} style={{ color: '#0284c7' }} /> Station Security & Session Status
                   </h4>
-                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 14 }}>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 14 }}>
                     Your session is actively verified against TableMint backend server.
                   </p>
 
-                  <div className="profile-info-list" style={{ borderTop: 'none', paddingTop: 0 }}>
-                    <div className="profile-info-row">
-                      <span className="profile-info-label">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 8, fontSize: '0.8rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Lock size={14} /> Authorization Token
                       </span>
-                      <span className="profile-info-value" style={{ fontFamily: 'monospace', color: '#94a3b8' }}>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#475569' }}>
                         tm_auth_{currentUser?.id ? currentUser.id.slice(0, 8) : 'staff'}••••••••
                       </span>
                     </div>
-                    <div className="profile-info-row">
-                      <span className="profile-info-label">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 8, fontSize: '0.8rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Smartphone size={14} /> Station Interface
                       </span>
-                      <span className="profile-info-value">TableMint POS WebApp v2.4</span>
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>TableMint POS WebApp v2.4</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Danger Zone: Log Out Card */}
-                <div className="profile-logout-card">
-                  <div className="profile-logout-text">
-                    <h4>Sign Out of TableMint Station</h4>
-                    <p>
-                      Terminates your authenticated session immediately. Only the Login and Sign Up screen will remain accessible until you authenticate again.
+                {/* Sign Out Card */}
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 14, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                  <div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#991b1b', margin: '0 0 4px' }}>Sign Out of TableMint Station</h4>
+                    <p style={{ fontSize: '0.78rem', color: '#b91c1c', margin: 0 }}>
+                      Terminates your authenticated session immediately. Requires logging in again.
                     </p>
                   </div>
                   <button
                     type="button"
-                    className="btn-danger-logout"
+                    className="btn-brand-primary"
+                    style={{ background: '#dc2626', flexShrink: 0 }}
                     onClick={handleLogout}
                   >
-                    <LogOut size={18} /> Sign Out Now
+                    <LogOut size={16} /> Sign Out
                   </button>
                 </div>
               </div>
