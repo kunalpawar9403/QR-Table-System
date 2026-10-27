@@ -192,6 +192,10 @@
   padding: 12px 18px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .category-filter-bar::-webkit-scrollbar {
   display: none;
