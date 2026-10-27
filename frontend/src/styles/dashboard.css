@@ -1451,12 +1451,36 @@
     display: none !important;
   }
 
+  /* Top command header: single clean row without messy wrapping */
+  .top-command-header {
+    flex-wrap: nowrap !important;
+    padding: 10px 14px;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .command-header-left {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .command-logo-badge {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
   .mobile-sidebar-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -1469,6 +1493,52 @@
     background: rgba(245, 158, 11, 0.2);
     color: #f59e0b;
     border-color: #f59e0b;
+  }
+
+  .command-title-box {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .command-title-box h1 {
+    font-size: 0.98rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    gap: 6px;
+    line-height: 1.2;
+  }
+
+  .live-pos-pill {
+    font-size: 0.58rem;
+    padding: 2px 6px;
+    flex-shrink: 0;
+  }
+
+  .command-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0;
+  }
+
+  .header-icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .lock-station-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .hide-on-mobile {
@@ -1750,10 +1820,166 @@
     grid-template-columns: 1fr;
   }
   .top-command-header {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
   .command-title-box h1 {
-    font-size: 1.15rem;
+    font-size: 0.92rem;
+  }
+}
+
+/* =========================================================
+   PAGINATION STYLES & EMPTY STATES
+   ========================================================= */
+.section-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.pagination-info strong {
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-btn.num-btn {
+  min-width: 36px;
+  padding: 0;
+}
+
+.pagination-btn.num-btn.active {
+  background: #f59e0b;
+  color: #000000;
+  border-color: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.pagination-ellipsis {
+  padding: 0 4px;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Category Filter Pills */
+.catalog-category-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin: 4px 0 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.catalog-cat-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-transform: capitalize;
+}
+
+.catalog-cat-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.catalog-cat-pill.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+/* Empty State Box */
+.empty-state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  text-align: center;
+  margin: 14px 0;
+}
+
+@media (max-width: 640px) {
+  .section-pagination-bar {
+    padding: 12px 14px;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pagination-info {
+    font-size: 0.78rem;
+    text-align: center;
+  }
+  .pagination-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 0.78rem;
   }
 }
 

@@ -12,6 +12,7 @@ import {
   Users,
   Link2,
   ChevronRight,
+  ChevronLeft,
   Bell,
   Volume2,
   VolumeX,
@@ -48,6 +49,81 @@ import { authFetch, clearStaffToken } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import '../styles/dashboard.css';
 
+/* =========================================================
+   REUSABLE SECTION PAGINATION COMPONENT
+   ========================================================= */
+function PaginationBar({ currentPage, totalPages, totalItems, itemsPerPage, onPageChange, label = 'items' }) {
+  if (totalItems <= itemsPerPage && totalPages <= 1) return null;
+
+  const startIdx = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endIdx = Math.min(currentPage * itemsPerPage, totalItems);
+
+  const getPageNumbers = () => {
+    const pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+    return pages;
+  };
+
+  return (
+    <div className="section-pagination-bar no-print">
+      <div className="pagination-info">
+        Showing <strong>{startIdx}-{endIdx}</strong> of <strong>{totalItems}</strong> {label}
+      </div>
+
+      <div className="pagination-controls">
+        <button
+          type="button"
+          className="pagination-btn nav-btn"
+          disabled={currentPage <= 1}
+          onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+          title="Previous Page"
+        >
+          <ChevronLeft size={15} />
+          <span className="hide-on-mobile-sm">Prev</span>
+        </button>
+
+        <div className="pagination-numbers">
+          {getPageNumbers().map((p, idx) =>
+            p === '...' ? (
+              <span key={`ellipsis-${idx}`} className="pagination-ellipsis">…</span>
+            ) : (
+              <button
+                key={`page-${p}`}
+                type="button"
+                className={`pagination-btn num-btn ${currentPage === p ? 'active' : ''}`}
+                onClick={() => onPageChange(p)}
+              >
+                {p}
+              </button>
+            )
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="pagination-btn nav-btn"
+          disabled={currentPage >= totalPages}
+          onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+          title="Next Page"
+        >
+          <span className="hide-on-mobile-sm">Next</span>
+          <ChevronRight size={15} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardApp({ onLockStaff }) {
   const { addToast } = useToast();
 
@@ -78,6 +154,33 @@ export default function DashboardApp({ onLockStaff }) {
   const [tableModalOpen, setTableModalOpen] = useState(false);
   const [viewQrTable, setViewQrTable] = useState(null);
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
+
+  // Section Pagination States
+  const [ordersPage, setOrdersPage] = useState(1);
+  const ordersPerPage = 6;
+
+  const [menuPage, setMenuPage] = useState(1);
+  const [menuCategoryFilter, setMenuCategoryFilter] = useState('all');
+  const menuPerPage = 8;
+
+  const [tablesPage, setTablesPage] = useState(1);
+  const tablesPerPage = 8;
+
+  const [overviewTablesPage, setOverviewTablesPage] = useState(1);
+  const overviewTablesPerPage = 8;
+
+  const [standsPage, setStandsPage] = useState(1);
+  const standsPerPage = 6;
+  const [isPrintingAllStands, setIsPrintingAllStands] = useState(false);
+
+  // Reset page when filter or search changes
+  useEffect(() => {
+    setOrdersPage(1);
+  }, [orderFilter, orderSearch]);
+
+  useEffect(() => {
+    setMenuPage(1);
+  }, [menuSearch, menuCategoryFilter]);
 
   // Form states
   const [dishForm, setDishForm] = useState({
@@ -470,11 +573,15 @@ export default function DashboardApp({ onLockStaff }) {
   };
 
   const handlePrintAllStands = () => {
+    setIsPrintingAllStands(true);
     document.body.classList.add('printing-all-stands-only');
-    window.print();
     setTimeout(() => {
-      document.body.classList.remove('printing-all-stands-only');
-    }, 1200);
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('printing-all-stands-only');
+        setIsPrintingAllStands(false);
+      }, 1200);
+    }, 150);
   };
 
   // Clean up printing classes on print dialog dismissal
@@ -484,6 +591,7 @@ export default function DashboardApp({ onLockStaff }) {
       document.body.classList.remove('printing-single-stand-only');
       document.body.classList.remove('printing-all-stands-only');
       setPrintingSingleTable(null);
+      setIsPrintingAllStands(false);
     };
 
     const handleKeyDown = (e) => {
@@ -533,6 +641,62 @@ export default function DashboardApp({ onLockStaff }) {
     }
     return true;
   });
+
+  // Filter Menu
+  const filteredMenu = menu.filter((d) => {
+    if (menuCategoryFilter !== 'all' && d.category !== menuCategoryFilter) {
+      return false;
+    }
+    if (menuSearch.trim()) {
+      const q = menuSearch.toLowerCase();
+      return (
+        (d.name || '').toLowerCase().includes(q) ||
+        (d.description || '').toLowerCase().includes(q) ||
+        (d.category || '').toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  // Section Pagination Slices
+  // 1. Orders Pagination
+  const totalOrdersPages = Math.max(1, Math.ceil(filteredOrders.length / ordersPerPage));
+  const currentOrdersPage = Math.min(ordersPage, totalOrdersPages);
+  const paginatedOrders = filteredOrders.slice(
+    (currentOrdersPage - 1) * ordersPerPage,
+    currentOrdersPage * ordersPerPage
+  );
+
+  // 2. Menu Pagination
+  const totalMenuPages = Math.max(1, Math.ceil(filteredMenu.length / menuPerPage));
+  const currentMenuPage = Math.min(menuPage, totalMenuPages);
+  const paginatedMenu = filteredMenu.slice(
+    (currentMenuPage - 1) * menuPerPage,
+    currentMenuPage * menuPerPage
+  );
+
+  // 3. Floor Tables Pagination
+  const totalTablesPages = Math.max(1, Math.ceil(tables.length / tablesPerPage));
+  const currentTablesPage = Math.min(tablesPage, totalTablesPages);
+  const paginatedTables = tables.slice(
+    (currentTablesPage - 1) * tablesPerPage,
+    currentTablesPage * tablesPerPage
+  );
+
+  // 4. Overview Tables Pagination
+  const totalOverviewTablesPages = Math.max(1, Math.ceil(tables.length / overviewTablesPerPage));
+  const currentOverviewTablesPage = Math.min(overviewTablesPage, totalOverviewTablesPages);
+  const paginatedOverviewTables = tables.slice(
+    (currentOverviewTablesPage - 1) * overviewTablesPerPage,
+    currentOverviewTablesPage * overviewTablesPerPage
+  );
+
+  // 5. QR Stands Pagination
+  const totalStandsPages = Math.max(1, Math.ceil(tables.length / standsPerPage));
+  const currentStandsPage = Math.min(standsPage, totalStandsPages);
+  const displayedStands = isPrintingAllStands
+    ? tables
+    : tables.slice((currentStandsPage - 1) * standsPerPage, currentStandsPage * standsPerPage);
 
   return (
     <div className="dash-layout-container">
@@ -697,12 +861,12 @@ export default function DashboardApp({ onLockStaff }) {
           </div>
 
           <div className="command-header-right">
-            <div className="header-time-pill hide-on-mobile-sm">
+            <div className="header-time-pill hide-on-mobile">
               <Calendar size={15} style={{ color: '#f59e0b' }} />
               <span>{currentDate} • {currentTime}</span>
             </div>
 
-            <div className="header-sync-pill hide-on-mobile-sm">
+            <div className="header-sync-pill hide-on-mobile">
               <span className="status-dot-green" />
               <span>Live Sync Active</span>
             </div>
@@ -738,10 +902,10 @@ export default function DashboardApp({ onLockStaff }) {
               }}
               title="Lock Station"
             >
-              <Lock size={15} style={{ color: '#f59e0b' }} /> <span className="hide-on-mobile-sm">Lock</span>
+              <Lock size={15} style={{ color: '#f59e0b' }} /> <span className="hide-on-mobile">Lock</span>
             </button>
 
-            <div className="user-avatar-circle hide-on-mobile-sm">SG</div>
+            <div className="user-avatar-circle hide-on-mobile">SG</div>
           </div>
         </header>
 
@@ -854,9 +1018,9 @@ export default function DashboardApp({ onLockStaff }) {
                 </button>
               </div>
 
-              {/* 4-Column Table Grid (10 Tables) */}
+              {/* 4-Column Table Grid */}
               <div className="floor-table-grid">
-                {tables.map((table) => {
+                {paginatedOverviewTables.map((table) => {
                   const isBar = (table.name || '').toLowerCase().includes('bar');
                   const activeCall = serviceCalls.find((c) => c.tableId === table.id);
                   const isOccupied =
@@ -924,6 +1088,15 @@ export default function DashboardApp({ onLockStaff }) {
                   );
                 })}
               </div>
+
+              <PaginationBar
+                currentPage={currentOverviewTablesPage}
+                totalPages={totalOverviewTablesPages}
+                totalItems={tables.length}
+                itemsPerPage={overviewTablesPerPage}
+                onPageChange={setOverviewTablesPage}
+                label="tables"
+              />
             </section>
           </>
         )}
@@ -944,7 +1117,7 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
 
             <div className="floor-table-grid">
-              {tables.map((table) => {
+              {paginatedTables.map((table) => {
                 const isTableOccupied =
                   table.status === 'occupied' ||
                   table.currentStatus === 'occupied' ||
@@ -1010,6 +1183,15 @@ export default function DashboardApp({ onLockStaff }) {
               );
             })}
           </div>
+
+          <PaginationBar
+            currentPage={currentTablesPage}
+            totalPages={totalTablesPages}
+            totalItems={tables.length}
+            itemsPerPage={tablesPerPage}
+            onPageChange={setTablesPage}
+            label="tables"
+          />
           </section>
         )}
 
@@ -1042,107 +1224,126 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            <div className="orders-list-grid">
-              {filteredOrders.map((ord) => (
-                <div key={ord.id} className="order-ticket-card">
-                  <div className="ticket-header">
-                    <div>
-                      <div className="ticket-order-id">#{ord.orderNumber}</div>
-                      <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                        {ord.tableName} • {ord.customerName || 'Guest'}
+            {filteredOrders.length === 0 ? (
+              <div className="empty-state-box">
+                <Receipt size={38} style={{ color: '#64748b', opacity: 0.6 }} />
+                <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.05rem', marginTop: 10 }}>No Orders Found</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
+                  No tickets match the "{orderFilter.toUpperCase()}" filter or search query.
+                </div>
+              </div>
+            ) : (
+              <div className="orders-list-grid">
+                {paginatedOrders.map((ord) => (
+                  <div key={ord.id} className="order-ticket-card">
+                    <div className="ticket-header">
+                      <div>
+                        <div className="ticket-order-id">#{ord.orderNumber}</div>
+                        <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                          {ord.tableName} • {ord.customerName || 'Guest'}
+                        </div>
                       </div>
+                      <span className={`status-pill ${ord.status}`}>{ord.status}</span>
                     </div>
-                    <span className={`status-pill ${ord.status}`}>{ord.status}</span>
-                  </div>
 
-                  <div className="ticket-items-box">
-                    {ord.items?.map((it, idx) => (
-                      <div key={idx} className="ticket-item-row">
-                        <span>
-                          <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
+                    <div className="ticket-items-box">
+                      {ord.items?.map((it, idx) => (
+                        <div key={idx} className="ticket-item-row">
+                          <span>
+                            <span className="ticket-item-qty">{it.quantity}x</span> {it.name}
+                          </span>
+                          <span style={{ fontWeight: 600 }}>₹{it.price * it.quantity}</span>
+                        </div>
+                      ))}
+                      {ord.notes && <div className="ticket-notes">Chef Note: {ord.notes}</div>}
+                    </div>
+
+                    <div className="ticket-footer">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Total Amount</span>
+                        <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 800 }}>
+                          ₹{ord.total}
                         </span>
-                        <span style={{ fontWeight: 600 }}>₹{it.price * it.quantity}</span>
                       </div>
-                    ))}
-                    {ord.notes && <div className="ticket-notes">Chef Note: {ord.notes}</div>}
-                  </div>
 
-                  <div className="ticket-footer">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Total Amount</span>
-                      <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 800 }}>
-                        ₹{ord.total}
-                      </span>
-                    </div>
-
-                    <div className="ticket-actions-row">
-                      {(ord.status === 'pending' || ord.status === 'new') && (
-                        <button
-                          className="btn-primary"
-                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                          onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
-                        >
-                          Send to Kitchen
-                        </button>
-                      )}
-                      {ord.status === 'preparing' && (
-                        <button
-                          className="btn-primary"
-                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                          onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
-                        >
-                          Mark Ready
-                        </button>
-                      )}
-                      {ord.status === 'ready' && (
-                        <button
-                          className="btn-primary"
-                          style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
-                          onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
-                        >
-                          Mark Served
-                        </button>
-                      )}
-                      {ord.status === 'served' && (
-                        <button
-                          className="btn-primary"
-                          style={{
-                            flex: 1,
-                            padding: 9,
-                            fontSize: '0.82rem',
-                            background: 'linear-gradient(135deg, #10b981, #059669)',
-                            border: 'none',
-                            color: '#fff',
-                            fontWeight: 700
-                          }}
-                          onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
-                        >
-                          ✓ Dinner Completed
-                        </button>
-                      )}
-                      {ord.status !== 'completed' && ord.status !== 'cancelled' && ord.status !== 'served' && (
+                      <div className="ticket-actions-row">
+                        {(ord.status === 'pending' || ord.status === 'new') && (
+                          <button
+                            className="btn-primary"
+                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                            onClick={() => handleOrderStatusUpdate(ord.id, 'preparing')}
+                          >
+                            Send to Kitchen
+                          </button>
+                        )}
+                        {ord.status === 'preparing' && (
+                          <button
+                            className="btn-primary"
+                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                            onClick={() => handleOrderStatusUpdate(ord.id, 'ready')}
+                          >
+                            Mark Ready
+                          </button>
+                        )}
+                        {ord.status === 'ready' && (
+                          <button
+                            className="btn-primary"
+                            style={{ flex: 1, padding: 9, fontSize: '0.82rem' }}
+                            onClick={() => handleOrderStatusUpdate(ord.id, 'served')}
+                          >
+                            Mark Served
+                          </button>
+                        )}
+                        {ord.status === 'served' && (
+                          <button
+                            className="btn-primary"
+                            style={{
+                              flex: 1,
+                              padding: 9,
+                              fontSize: '0.82rem',
+                              background: 'linear-gradient(135deg, #10b981, #059669)',
+                              border: 'none',
+                              color: '#fff',
+                              fontWeight: 700
+                            }}
+                            onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
+                          >
+                            ✓ Dinner Completed
+                          </button>
+                        )}
+                        {ord.status !== 'completed' && ord.status !== 'cancelled' && ord.status !== 'served' && (
+                          <button
+                            className="btn-secondary"
+                            style={{ padding: '9px 12px', fontSize: '0.78rem', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
+                            onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
+                            title="Complete dining and expire table token"
+                          >
+                            Done
+                          </button>
+                        )}
                         <button
                           className="btn-secondary"
-                          style={{ padding: '9px 12px', fontSize: '0.78rem', color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.4)' }}
-                          onClick={() => handleOrderStatusUpdate(ord.id, 'completed')}
-                          title="Complete dining and expire table token"
+                          style={{ padding: '9px 14px' }}
+                          onClick={() => setPrintBillOrder(ord)}
+                          title="Print Receipt"
                         >
-                          Done
+                          <Printer size={16} />
                         </button>
-                      )}
-                      <button
-                        className="btn-secondary"
-                        style={{ padding: '9px 14px' }}
-                        onClick={() => setPrintBillOrder(ord)}
-                        title="Print Receipt"
-                      >
-                        <Printer size={16} />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
+
+            <PaginationBar
+              currentPage={currentOrdersPage}
+              totalPages={totalOrdersPages}
+              totalItems={filteredOrders.length}
+              itemsPerPage={ordersPerPage}
+              onPageChange={setOrdersPage}
+              label="orders"
+            />
           </section>
         )}
 
@@ -1245,19 +1446,46 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
-            <div className="menu-table-wrap">
-              <div className="menu-crud-row header">
-                <span>Photo</span>
-                <span>Dish Name</span>
-                <span>Category</span>
-                <span>Price</span>
-                <span>Available</span>
-                <span>Actions</span>
-              </div>
+            {/* Category Filter Pills */}
+            <div className="catalog-category-filter no-print">
+              {['all', 'starters', 'soups', 'mains', 'breads', 'beverages', 'desserts'].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`catalog-cat-pill ${menuCategoryFilter === cat ? 'active' : ''}`}
+                  onClick={() => {
+                    setMenuCategoryFilter(cat);
+                    setMenuPage(1);
+                  }}
+                >
+                  {cat === 'all' ? 'All Dishes' : cat}
+                  {cat === 'all'
+                    ? ` (${menu.length})`
+                    : ` (${menu.filter((m) => m.category === cat).length})`}
+                </button>
+              ))}
+            </div>
 
-              {menu
-                .filter((d) => (!menuSearch.trim() || d.name.toLowerCase().includes(menuSearch.toLowerCase())))
-                .map((dish) => (
+            {filteredMenu.length === 0 ? (
+              <div className="empty-state-box">
+                <BookOpen size={38} style={{ color: '#64748b', opacity: 0.6 }} />
+                <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.05rem', marginTop: 10 }}>No Dishes Found</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: 4 }}>
+                  No menu items matched your category filter or search query.
+                </div>
+              </div>
+            ) : (
+              <div className="menu-table-wrap">
+                <div className="menu-crud-row header">
+                  <span>Photo</span>
+                  <span>Dish Name</span>
+                  <span>Category</span>
+                  <span>Price</span>
+                  <span>Available</span>
+                  <span>Actions</span>
+                </div>
+
+                {paginatedMenu.map((dish) => (
                   <div key={dish.id} className="menu-crud-row">
                     <img
                       src={dish.image || '/images/paneer_butter_masala.jpg'}
@@ -1306,7 +1534,17 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
                   </div>
                 ))}
-            </div>
+              </div>
+            )}
+
+            <PaginationBar
+              currentPage={currentMenuPage}
+              totalPages={totalMenuPages}
+              totalItems={filteredMenu.length}
+              itemsPerPage={menuPerPage}
+              onPageChange={setMenuPage}
+              label="dishes"
+            />
           </section>
         )}
 
@@ -1328,7 +1566,7 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
 
             <div className="floor-table-grid qr-stands-grid-container">
-              {tables.map((t) => {
+              {displayedStands.map((t) => {
                 const isTargetForPrint = printingSingleTable?.id === t.id;
                 return (
                   <div
@@ -1421,6 +1659,15 @@ export default function DashboardApp({ onLockStaff }) {
                 );
               })}
             </div>
+
+            <PaginationBar
+              currentPage={currentStandsPage}
+              totalPages={totalStandsPages}
+              totalItems={tables.length}
+              itemsPerPage={standsPerPage}
+              onPageChange={setStandsPage}
+              label="stands"
+            />
           </section>
         )}
 
