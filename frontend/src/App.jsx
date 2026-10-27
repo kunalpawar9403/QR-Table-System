@@ -15,20 +15,15 @@ export default function App() {
   const [staffAuthModalOpen, setStaffAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    // Determine view from URL path or search param
+    // Determine view: Only customer self-ordering if table or customer is requested
     const path = window.location.pathname;
     const search = window.location.search;
     const urlParams = new URLSearchParams(search);
 
-    if (urlParams.get('table')) {
-      setCurrentView('customer');
-    } else if (path.includes('kitchen')) {
-      setCurrentView('kitchen');
-    } else if (path.includes('qr-stands')) {
-      setCurrentView('stands');
-    } else if (path.includes('customer') || search.includes('customer')) {
+    if (urlParams.get('table') || path.includes('customer') || search.includes('customer')) {
       setCurrentView('customer');
     } else {
+      // Staff always opens directly to the Admin POS Dashboard!
       setCurrentView('dashboard');
     }
 
@@ -53,6 +48,11 @@ export default function App() {
   const handleStaffSuccess = () => {
     setIsStaffAuthenticated(true);
     setStaffAuthModalOpen(false);
+    // Directly open the Admin Dashboard upon successful login
+    setCurrentView('dashboard');
+    if (window.location.pathname !== '/' && !window.location.search.includes('table')) {
+      window.history.pushState({}, '', '/');
+    }
   };
 
   const switchView = (view) => {

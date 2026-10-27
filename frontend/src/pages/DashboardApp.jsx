@@ -2111,9 +2111,9 @@ export default function DashboardApp({ onLockStaff }) {
                 <button
                   className="btn-secondary"
                   style={{ fontSize: '0.78rem', padding: '6px 12px', marginTop: 4 }}
-                  onClick={() => window.open('/kitchen', '_blank')}
+                  onClick={() => setActiveTab('kitchen')}
                 >
-                  <ExternalLink size={13} /> Open Kitchen KDS Station
+                  <ChefHat size={13} /> View Kitchen KDS
                 </button>
               </div>
 
@@ -2227,10 +2227,10 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <button
                   className="btn-secondary"
-                  onClick={() => window.open('/kitchen', '_blank')}
+                  onClick={() => setActiveTab('kitchen')}
                   style={{ width: '100%', fontSize: '0.82rem' }}
                 >
-                  <ExternalLink size={14} /> Open Kitchen Station
+                  <ChefHat size={14} /> Open Kitchen Station
                 </button>
               </div>
 
@@ -2252,10 +2252,10 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <button
                   className="btn-secondary"
-                  onClick={() => window.open('/qr-stands', '_blank')}
+                  onClick={() => setActiveTab('stands')}
                   style={{ width: '100%', fontSize: '0.82rem' }}
                 >
-                  <ExternalLink size={14} /> Open Print Stands
+                  <QrCode size={14} /> Open Print Stands
                 </button>
               </div>
 
