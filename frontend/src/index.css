@@ -1,39 +1,44 @@
 /* =========================================================
-   SPICE GARDEN DESIGN SYSTEM
-   Modern Glassmorphism & High-End Restaurant Experience
+   TABLEMINT DESIGN SYSTEM
+   Modern Glassmorphism & High-End Restaurant POS Experience
    ========================================================= */
 
 :root {
   --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
 
-  /* Color Palette */
-  --bg-darker: #070b14;
-  --bg-dark: #0f172a;
-  --bg-card: rgba(22, 30, 49, 0.75);
-  --bg-card-hover: rgba(30, 41, 67, 0.88);
-  --bg-glass-input: rgba(15, 23, 42, 0.65);
+  /* Color Palette - TableMint Luxury Dark Theme */
+  --bg-darker: #060913;
+  --bg-dark: #0b1120;
+  --bg-card: rgba(14, 21, 38, 0.85);
+  --bg-card-hover: rgba(20, 31, 56, 0.95);
+  --bg-glass-input: rgba(11, 17, 32, 0.75);
 
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(245, 158, 11, 0.5);
-  --border-highlight: rgba(255, 255, 255, 0.18);
+  --border-focus: rgba(16, 185, 129, 0.55);
+  --border-highlight: rgba(16, 185, 129, 0.25);
 
-  --primary: #f59e0b;
-  --primary-hover: #d97706;
-  --primary-glow: rgba(245, 158, 11, 0.28);
+  /* Primary: Neon Mint Green */
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-neon: #00e676;
+  --primary-glow: rgba(16, 185, 129, 0.35);
 
+  --accent-mint: #22c55e;
+  --accent-mint-glow: rgba(34, 197, 94, 0.3);
   --accent-emerald: #10b981;
-  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+  --accent-emerald-glow: rgba(16, 185, 129, 0.3);
   --accent-rose: #f43f5e;
   --accent-sky: #38bdf8;
   --accent-purple: #a855f7;
+  --accent-amber: #f59e0b;
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
 
-  --shadow-glass: 0 12px 40px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-glass: 0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(16, 185, 129, 0.12);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.4);
   --shadow-glow: 0 0 25px var(--primary-glow);
 
   --radius-sm: 8px;

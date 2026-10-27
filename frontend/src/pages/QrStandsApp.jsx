@@ -99,12 +99,12 @@ export default function QrStandsApp({ onBack }) {
 
             <div className="stand-brand-header">
               <div className="stand-crest-badge">
-                <Sparkles size={12} style={{ color: '#d97706' }} />
+                <Sparkles size={12} style={{ color: '#00e676' }} />
                 <span>LUXURY DINING</span>
-                <Sparkles size={12} style={{ color: '#d97706' }} />
+                <Sparkles size={12} style={{ color: '#00e676' }} />
               </div>
-              <h2 className="stand-brand-title">Spice Garden</h2>
-              <div className="stand-tagline">Fine Dining & Smart Ordering</div>
+              <h2 className="stand-brand-title">TableMint</h2>
+              <div className="stand-tagline">Smart Restaurant & POS</div>
             </div>
 
             <div className="stand-qr-box">
@@ -170,10 +170,10 @@ export default function QrStandsApp({ onBack }) {
             ★ LUXURY DINING ★
           </div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.06em', fontFamily: 'serif' }}>
-            SPICE GARDEN
+            TABLEMINT
           </div>
           <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#333', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
-            Fine Dining & Rooftop Lounge
+            Smart Restaurant & POS
           </div>
 
           <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>

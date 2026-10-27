@@ -200,7 +200,7 @@ export default function DashboardApp({ onLockStaff }) {
   });
 
   const [settingsForm, setSettingsForm] = useState({
-    restaurantName: 'Spice Garden',
+    restaurantName: 'TableMint',
     tagline: 'Smart QR Dining & POS',
     taxRate: 5,
     serviceCharge: 0,
@@ -728,10 +728,12 @@ export default function DashboardApp({ onLockStaff }) {
         <div className="sidebar-top">
           {/* Brand Logo */}
           <div className="sidebar-brand-box">
-            <div className="sidebar-logo-badge">SG</div>
+            <div className="sidebar-logo-badge">
+              <img src="/images/tablemint_icon.png" alt="TableMint" className="sidebar-logo-img" />
+            </div>
             <div className="sidebar-brand-text">
-              <h2>SPICE GARDEN</h2>
-              <p>Restaurant POS</p>
+              <h2>Table<span className="brand-mint-text">Mint</span></h2>
+              <p>RESTAURANT POS</p>
             </div>
           </div>
 
@@ -871,20 +873,22 @@ export default function DashboardApp({ onLockStaff }) {
             >
               <Menu size={20} />
             </button>
-            <div className="command-logo-badge">SG</div>
+            <div className="command-logo-badge">
+              <img src="/images/tablemint_icon.png" alt="TableMint" className="command-logo-img" />
+            </div>
             <div className="command-title-box">
               <h1>
-                Spice Garden <span className="hide-on-mobile">Command Center</span>{' '}
+                Table<span className="brand-mint-text">Mint</span> <span className="hide-on-mobile">Command Center</span>{' '}
                 <span className="live-pos-pill hide-on-mobile">LIVE POS</span>
                 <span className="mobile-live-dot" title="Live POS Active" />
               </h1>
-              <p className="hide-on-mobile">Smart QR Dining • Real-Time Kitchen KDS • Operations Suite</p>
+              <p className="hide-on-mobile">Smart Restaurant Operations • Real-Time Kitchen KDS • QR Dining</p>
             </div>
           </div>
 
           <div className="command-header-right">
             <div className="header-time-pill hide-on-mobile">
-              <Calendar size={15} style={{ color: '#f59e0b' }} />
+              <Calendar size={15} style={{ color: '#00e676' }} />
               <span>{currentDate} • {currentTime}</span>
             </div>
 
@@ -924,10 +928,10 @@ export default function DashboardApp({ onLockStaff }) {
               }}
               title="Lock Station"
             >
-              <Lock size={15} style={{ color: '#f59e0b' }} /> <span className="hide-on-mobile">Lock</span>
+              <Lock size={15} style={{ color: '#00e676' }} /> <span className="hide-on-mobile">Lock Station</span>
             </button>
 
-            <div className="user-avatar-circle hide-on-mobile">SG</div>
+            <div className="user-avatar-circle hide-on-mobile">TM</div>
           </div>
         </header>
 
@@ -1105,28 +1109,51 @@ export default function DashboardApp({ onLockStaff }) {
                         </div>
                       </div>
 
-                      {/* Bottom Actions: Clear Table & QR Code */}
-                      <div className="floor-card-actions" style={{ gridTemplateColumns: '1fr auto', gap: 6 }}>
+                      {/* Bottom Actions: Table Menu & Clear Table */}
+                      <div className="floor-card-actions">
+                        <button
+                          className="btn-table-menu"
+                          onClick={() => {
+                            const origin = window.location.origin;
+                            window.open(`${origin}/menu?table=${table.id}`, '_blank');
+                          }}
+                          title="Open Table Customer Menu"
+                        >
+                          <ExternalLink size={13} />
+                          <span>Table Menu</span>
+                        </button>
                         <button
                           className="btn-clear-table"
-                          style={isOccupied ? { background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
+                          style={isOccupied ? { background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
                           onClick={() => handleVacateTable(table.id)}
                           title="Clear & Vacate Table"
                         >
-                          {isOccupied ? 'Vacate Table' : 'Clear Table'}
-                        </button>
-                        <button
-                          className="btn-icon"
-                          style={{ color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0 12px' }}
-                          onClick={() => setViewQrTable(table)}
-                          title="View Table QR Code"
-                        >
-                          <QrCode size={15} />
+                          <Armchair size={14} />
+                          <span>{isOccupied ? 'Vacate Table' : 'Clear Table'}</span>
                         </button>
                       </div>
                     </div>
                   );
                 })}
+
+                {/* TableMint Promo Card at bottom of floor grid */}
+                <div className="tablemint-promo-card">
+                  <div className="promo-card-content">
+                    <div className="promo-badge">
+                      <UtensilsCrossed size={14} />
+                      <span>GOOD FOOD</span>
+                    </div>
+                    <h3 className="promo-headline">
+                      Better <span className="highlight-mint">Moments</span>
+                    </h3>
+                    <p className="promo-desc">
+                      TableMint helps you manage your restaurant with ease, speed and style.
+                    </p>
+                  </div>
+                  <div className="promo-card-media">
+                    <img src="/images/paneer_tikka_masala.jpg" alt="Culinary Specialty" className="promo-food-img" />
+                  </div>
+                </div>
               </div>
 
               <PaginationBar
@@ -1630,8 +1657,8 @@ export default function DashboardApp({ onLockStaff }) {
                         <span className="stand-crest-text">LUXURY DINING</span>
                         <Sparkles size={13} className="stand-crest-icon" />
                       </div>
-                      <div className="stand-brand-title">SPICE GARDEN</div>
-                      <div className="stand-brand-tagline">FINE DINING & ROOFTOP LOUNGE</div>
+                      <div className="stand-brand-title">TABLEMINT</div>
+                      <div className="stand-brand-tagline">SMART RESTAURANT & POS</div>
                     </div>
 
                     {/* QR Code Container with High-Contrast Precision Frame */}
@@ -2422,7 +2449,7 @@ export default function DashboardApp({ onLockStaff }) {
             </button>
 
             <div className="receipt-header">
-              <div className="receipt-brand-title">SPICE GARDEN</div>
+              <div className="receipt-brand-title">TABLEMINT</div>
               <div className="receipt-meta">Fine Dining Restaurant & Bar</div>
               <div className="receipt-meta">Plot 42, Green Avenue, MG Road</div>
               <div className="receipt-meta" style={{ fontSize: '0.7rem' }}>
@@ -2480,7 +2507,7 @@ export default function DashboardApp({ onLockStaff }) {
 
             <div className="receipt-footer-msg">
               <div style={{ fontWeight: 700 }}>*** THANK YOU FOR DINING WITH US ***</div>
-              <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit Spice Garden Again!</div>
+              <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit TableMint Again!</div>
               <div style={{ fontSize: '0.62rem', color: '#9ca3af', marginTop: 4 }}>
                 Powered by QR Table System ESC/POS v2.0
               </div>
@@ -2558,7 +2585,7 @@ export default function DashboardApp({ onLockStaff }) {
       {typeof document !== 'undefined' && printBillOrder && createPortal(
         <div id="thermal-receipt-print-root">
           <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8 }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.04em' }}>SPICE GARDEN</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.04em' }}>TABLEMINT</div>
             <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Fine Dining Restaurant & Bar</div>
             <div style={{ fontSize: '0.72rem', color: '#333' }}>Plot 42, Green Avenue, MG Road</div>
             <div style={{ fontSize: '0.68rem', color: '#555' }}>GSTIN: 27AAACS1234M1Z5 • FSSAI: 11521034000456</div>
@@ -2612,7 +2639,7 @@ export default function DashboardApp({ onLockStaff }) {
 
           <div style={{ textAlign: 'center', fontSize: '0.72rem', paddingTop: 2 }}>
             <div style={{ fontWeight: 800 }}>*** THANK YOU FOR DINING WITH US ***</div>
-            <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit Spice Garden Again!</div>
+            <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit TableMint Again!</div>
             <div style={{ fontSize: '0.6rem', color: '#666', marginTop: 6, borderTop: '1px dotted #ccc', paddingTop: 4 }}>
               80mm ESC/POS Thermal Paper Roll Size
             </div>
@@ -2629,7 +2656,7 @@ export default function DashboardApp({ onLockStaff }) {
             ★ LUXURY DINING ★
           </div>
           <div style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '0.06em', fontFamily: 'serif' }}>
-            SPICE GARDEN
+            TABLEMINT
           </div>
           <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#333', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
             Fine Dining & Rooftop Lounge
@@ -2747,8 +2774,8 @@ export default function DashboardApp({ onLockStaff }) {
           <div className="mobile-admin-drawer-card" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header-row">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div className="command-logo-badge" style={{ width: 36, height: 36, fontSize: '0.95rem' }}>
-                  SG
+                <div className="command-logo-badge" style={{ width: 36, height: 36 }}>
+                  <img src="/images/tablemint_icon.png" alt="TableMint" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 9 }} />
                 </div>
                 <div>
                   <div style={{ fontWeight: 800, color: '#fff', fontSize: '0.98rem' }}>Admin Control Center</div>

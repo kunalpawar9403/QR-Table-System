@@ -86,7 +86,7 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span
                 style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
                   color: '#000',
                   fontWeight: 900,
                   fontSize: '0.72rem',
@@ -94,7 +94,7 @@ export default function App() {
                   borderRadius: 6
                 }}
               >
-                SPICE GARDEN
+                TABLEMINT
               </span>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 Staff Terminal

@@ -456,8 +456,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       <div className="customer-container">
         <header className="customer-header">
           <div className="brand-title-wrap">
-            <div className="brand-logo-icon">SG</div>
-            <span className="brand-name">Spice Garden</span>
+            <div className="brand-logo-icon">
+              <img src="/images/tablemint_icon.png" alt="TableMint" style={{ width: '100%', height: '100%', borderRadius: 10, objectFit: 'cover' }} />
+            </div>
+            <span className="brand-name">Table<span style={{ color: '#10b981' }}>Mint</span></span>
           </div>
         </header>
 
@@ -510,9 +512,11 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       <header className="customer-header">
         <div className="customer-header-top">
           <div className="brand-title-wrap">
-            <div className="brand-logo-icon">SG</div>
+            <div className="brand-logo-icon">
+              <img src="/images/tablemint_icon.png" alt="TableMint" style={{ width: '100%', height: '100%', borderRadius: 10, objectFit: 'cover' }} />
+            </div>
             <div>
-              <div className="brand-name">Spice Garden</div>
+              <div className="brand-name">Table<span style={{ color: '#10b981' }}>Mint</span></div>
               <div className="table-pill-badge">
                 <UtensilsCrossed size={12} /> Table {tableId}
               </div>

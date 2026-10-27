@@ -87,7 +87,7 @@ export default function KitchenKdsApp() {
         <div className="kds-brand">
           <ChefHat size={30} style={{ color: 'var(--primary)' }} />
           <div>
-            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Spice Garden Kitchen Station</h2>
+            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Table<span style={{ color: '#00e676' }}>Mint</span> Kitchen Station</h2>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               Live Kitchen Display System (KDS)
             </span>
