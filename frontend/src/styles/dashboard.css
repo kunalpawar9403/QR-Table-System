@@ -3094,29 +3094,33 @@
 
 .topbar-search-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 9999px;
   padding: 8px 14px 8px 38px;
   font-size: 0.88rem;
-  color: #ffffff;
+  color: #0f172a !important;
   outline: none;
   transition: all 0.2s;
 }
 
+.topbar-search-input::placeholder {
+  color: #94a3b8 !important;
+}
+
 .topbar-search-input:focus {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  background: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
 }
 
 .header-circle-btn {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #64748b !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3126,8 +3130,9 @@
 }
 
 .header-circle-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
 }
 
 .topbar-bell-dot {
@@ -3146,15 +3151,16 @@
   align-items: center;
   gap: 10px;
   padding: 4px 12px 4px 5px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: 9999px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .topbar-profile-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
 }
 
 .topbar-avatar-wrap {
@@ -3177,7 +3183,7 @@
   width: 9px;
   height: 9px;
   background: #10b981;
-  border: 2px solid #0b0f19;
+  border: 2px solid #ffffff;
   border-radius: 50%;
 }
 
@@ -3189,13 +3195,13 @@
 .topbar-profile-name {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a !important;
   line-height: 1.2;
 }
 
 .topbar-profile-role {
   font-size: 0.68rem;
-  color: #94a3b8;
+  color: #64748b !important;
 }
 
 /* =========================================================
@@ -3841,15 +3847,455 @@
 }
 
 /* Mobile top header: Deep Forest Green matching Image 3 */
+.admin-mobile-top-bar {
+  display: none;
+}
+
 @media (max-width: 980px) {
-  .top-command-header {
-    background: #07241a !important;
-    color: #ffffff !important;
-    border: none !important;
+  .hide-on-mobile {
+    display: none !important;
   }
-  .top-command-header h1 {
-    color: #ffffff !important;
+
+  .hide-on-desktop {
+    display: flex !important;
   }
+
+  .admin-mobile-top-bar {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #07241a !important;
+    color: #ffffff !important;
+    padding: max(12px, env(safe-area-inset-top, 12px)) 16px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    box-shadow: 0 4px 18px rgba(7, 36, 26, 0.4) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mobile-top-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-brand-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-leaf-img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+  }
+
+  .mobile-brand-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .mobile-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .mobile-header-tab-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .mobile-bell-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .mobile-bell-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ef4444;
+  }
+
+  /* Mobile Restaurant Meta Card (Image 3 Screen 2) */
+  .mobile-restaurant-meta-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .mobile-meta-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #07241a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+  }
+
+  .mobile-restaurant-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .mobile-restaurant-sub {
+    font-size: 0.72rem;
+    color: #64748b;
+  }
+
+  .mobile-date-pill {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Mobile Live Kitchen Orders (Image 3 Screen 2) */
+  .mobile-live-orders-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mobile-live-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-live-header h3 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .mobile-view-all-link {
+    background: none;
+    border: none;
+    color: #059669;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .mobile-live-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mobile-live-order-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .mobile-live-order-left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-order-code {
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .mobile-order-table {
+    font-size: 0.72rem;
+    color: #64748b;
+  }
+
+  .mobile-live-order-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-order-time {
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+}
+
+@media (min-width: 981px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+/* Overview Desktop Split: Floor Map on Left, Recent Orders on Right (Image 1 Panel 1) */
+.overview-split-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 20px;
+}
+
+.floor-map-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.floor-status-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.map-pill {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.overview-floor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+/* Pastel Table Badges matching Image 1 & 3 */
+.ref-table-box {
+  border-radius: 14px;
+  padding: 16px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ref-table-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.ref-table-box.available {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #059669 !important;
+}
+.ref-table-box.available .ref-table-name { color: #059669 !important; font-weight: 800; font-size: 1.1rem; }
+.ref-table-box.available .ref-table-seats { color: #059669 !important; font-size: 0.74rem; }
+.ref-table-box.available .ref-table-state-label { color: #059669 !important; font-size: 0.72rem; font-weight: 700; }
+
+.ref-table-box.occupied {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+}
+.ref-table-box.occupied .ref-table-name { color: #dc2626 !important; font-weight: 800; font-size: 1.1rem; }
+.ref-table-box.occupied .ref-table-seats { color: #dc2626 !important; font-size: 0.74rem; }
+.ref-table-box.occupied .ref-table-state-label { color: #dc2626 !important; font-size: 0.72rem; font-weight: 700; }
+
+.ref-table-box.serving {
+  background: #f0f9ff !important;
+  border: 1px solid #bae6fd !important;
+  color: #0284c7 !important;
+}
+.ref-table-box.serving .ref-table-name { color: #0284c7 !important; font-weight: 800; font-size: 1.1rem; }
+.ref-table-box.serving .ref-table-seats { color: #0284c7 !important; font-size: 0.74rem; }
+.ref-table-box.serving .ref-table-state-label { color: #0284c7 !important; font-size: 0.72rem; font-weight: 700; }
+
+.ref-table-box.reserved {
+  background: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+  color: #d97706 !important;
+}
+.ref-table-box.reserved .ref-table-name { color: #d97706 !important; font-weight: 800; font-size: 1.1rem; }
+.ref-table-box.reserved .ref-table-seats { color: #d97706 !important; font-size: 0.74rem; }
+.ref-table-box.reserved .ref-table-state-label { color: #d97706 !important; font-size: 0.72rem; font-weight: 700; }
+
+/* Recent Orders Card Right Side */
+.recent-orders-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.recent-orders-header h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+}
+
+.order-type-toggle-pill {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.type-toggle-btn {
+  background: none;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #64748b;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.type-toggle-btn.active {
+  background: #07241a;
+  color: #ffffff;
+}
+
+.recent-orders-ref-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recent-order-ref-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.recent-ord-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.recent-ord-id {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 0.85rem;
+}
+
+.recent-ord-table {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.recent-ord-price {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 0.85rem;
+}
+
+.recent-ord-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.recent-ord-time {
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+/* Status Badges */
+.status-pill.preparing {
+  background: #fef3c7 !important;
+  color: #d97706 !important;
+  border: 1px solid #fde68a !important;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.status-pill.served {
+  background: #f0fdf4 !important;
+  color: #16a34a !important;
+  border: 1px solid #bbf7d0 !important;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.status-pill.ready {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 700;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 9999px;
 }
 
 

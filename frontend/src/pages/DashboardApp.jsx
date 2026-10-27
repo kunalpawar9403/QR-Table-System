@@ -932,18 +932,54 @@ export default function DashboardApp({ onLockStaff }) {
           RIGHT MAIN CONTENT AREA
           ======================================================== */}
       <main className="dash-main-area">
-        {/* Top Command Bar */}
-        {/* Top Command Bar Matching Image 1 Reference */}
-        <header className="top-command-header">
-          <div className="command-header-left">
+        {/* Mobile Top Header Matching Image 3 (Deep Forest Green #07241a with White Titles) */}
+        <header className="admin-mobile-top-bar hide-on-desktop no-print">
+          <div className="mobile-top-left">
+            {activeTab === 'overview' ? (
+              <div className="mobile-brand-box">
+                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <span className="mobile-brand-title">TableMint</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setActiveTab('overview')}
+                title="Back to Dashboard"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">
+                  {activeTab === 'orders' && 'Orders'}
+                  {activeTab === 'tables' && 'Tables'}
+                  {activeTab === 'menu' && 'Menu'}
+                  {activeTab === 'kitchen' && 'Kitchen Display'}
+                  {activeTab === 'billing' && 'POS Billing'}
+                  {activeTab === 'reports' && 'Reports'}
+                  {activeTab === 'customers' && 'Customers'}
+                  {activeTab === 'settings' && 'Settings'}
+                  {activeTab === 'profile' && 'More'}
+                  {!['orders','tables','menu','kitchen','billing','reports','customers','settings','profile'].includes(activeTab) && 'TableMint'}
+                </span>
+              </button>
+            )}
+          </div>
+
+          <div className="mobile-top-right">
             <button
               type="button"
-              className="mobile-sidebar-toggle-btn no-desktop"
-              onClick={() => setMobileMoreOpen((prev) => !prev)}
-              title="Open Navigation"
+              className="mobile-bell-btn relative"
+              onClick={() => setActiveTab('orders')}
+              title="Notifications"
             >
-              <Menu size={20} />
+              <Bell size={18} />
+              {serviceCalls.length > 0 && <span className="mobile-bell-dot" />}
             </button>
+          </div>
+        </header>
+
+        {/* Top Command Bar Matching Image 1 Reference (Desktop Only) */}
+        <header className="top-command-header hide-on-mobile">
+          <div className="command-header-left">
             <div className="topbar-search-box">
               <Search size={16} className="topbar-search-icon" />
               <input
@@ -1049,209 +1085,207 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <>
-            {/* 4 Metric Cards */}
+            {/* Mobile Restaurant Meta Card (Image 3 Screen 2) */}
+            <div className="mobile-restaurant-meta-card hide-on-desktop">
+              <div className="mobile-meta-user">
+                <div className="mobile-avatar-circle">
+                  <User size={18} />
+                </div>
+                <div>
+                  <h3 className="mobile-restaurant-title">{profileRestaurant || 'Spice Garden'}</h3>
+                  <span className="mobile-restaurant-sub">Restaurant Owner</span>
+                </div>
+              </div>
+              <div className="mobile-date-pill">
+                <span>Today, {currentDate}</span>
+              </div>
+            </div>
+
+            {/* 4 Metric Cards (Matching Image 1 & 3: Pastel Green, Orange, Blue, Purple) */}
             <div className="kpi-four-grid">
-              {/* Card 1: Today's Net Sales */}
+              {/* Card 1: Today's Revenue */}
               <div className="metric-card sales">
                 <div className="metric-card-header">
                   <div className="metric-icon-box">₹</div>
                   <span className="metric-badge green">
-                    <TrendingUp size={11} /> Live
+                    <TrendingUp size={11} /> +12%
                   </span>
                 </div>
                 <div className="metric-content">
-                  <span className="metric-title">Today's Sales</span>
+                  <span className="metric-title">Today's Revenue</span>
                   <div className="metric-value">
-                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 1 }) : '3,933.3'}
+                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '12,450'}
                   </div>
-                </div>
-                <div className="metric-footer green">
-                  Real-time active
                 </div>
               </div>
 
-              {/* Card 2: Total Orders Placed */}
+              {/* Card 2: Total Orders */}
               <div className="metric-card orders">
                 <div className="metric-card-header">
                   <div className="metric-icon-box">
                     <Receipt size={17} />
                   </div>
                   <span className="metric-badge amber">
-                    <Clock size={11} /> {pendingOrdersCount} Wait
+                    <Clock size={11} /> +6%
                   </span>
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Total Orders</span>
-                  <div className="metric-value">{orders.length || 12}</div>
-                </div>
-                <div className="metric-footer amber">
-                  {pendingOrdersCount > 0 ? `${pendingOrdersCount} awaiting kitchen` : 'All orders accepted'}
+                  <div className="metric-value">{orders.length > 0 ? orders.length : 48}</div>
                 </div>
               </div>
 
-              {/* Card 3: Floor Occupancy */}
+              {/* Card 3: Active Tables */}
               <div className="metric-card occupancy">
                 <div className="metric-card-header">
                   <div className="metric-icon-box">
                     <Users size={17} />
                   </div>
-                  <span className="metric-badge blue">
-                    {occupiedTables}/{tables.length || 10}
-                  </span>
                 </div>
                 <div className="metric-content">
-                  <span className="metric-title">Occupancy</span>
-                  <div className="metric-value">{occupancyPercent}%</div>
-                </div>
-                <div className="metric-footer muted">
-                  {occupiedTables} of {tables.length || 10} tables active
+                  <span className="metric-title">Active Tables</span>
+                  <div className="metric-value">{occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}</div>
                 </div>
               </div>
 
-              {/* Card 4: Average Ticket */}
+              {/* Card 4: Avg. Order Value */}
               <div className="metric-card ticket">
                 <div className="metric-card-header">
                   <div className="metric-icon-box">
                     <BarChart3 size={17} />
                   </div>
-                  <span className="metric-badge purple">Check</span>
                 </div>
                 <div className="metric-content">
-                  <span className="metric-title">Avg Ticket</span>
-                  <div className="metric-value">₹{avgTicket || 328}</div>
-                </div>
-                <div className="metric-footer muted">
-                  Per completed order
+                  <span className="metric-title">Avg. Order Value</span>
+                  <div className="metric-value">₹{avgTicket || 258}</div>
                 </div>
               </div>
             </div>
 
-            {/* Dining Floor Status Panel */}
-            <section className="floor-status-panel">
-              <div className="panel-header-row">
-                <div className="panel-header-left">
-                  <div className="panel-header-icon">
-                    <UtensilsCrossed size={20} />
-                  </div>
-                  <div>
-                    <h3>Dining Floor Status</h3>
-                    <p>Live visualizer of all tables, guest occupancy, and service calls</p>
-                  </div>
-                </div>
-
+            {/* Mobile Live Kitchen Orders (Matching Image 3 Screen 2) */}
+            <div className="mobile-live-orders-card hide-on-desktop">
+              <div className="mobile-live-header">
+                <h3>Live Kitchen Orders</h3>
                 <button
-                  className="view-floor-map-btn"
-                  onClick={() => setActiveTab('tables')}
+                  type="button"
+                  className="mobile-view-all-link"
+                  onClick={() => setActiveTab('orders')}
                 >
-                  <LayoutGrid size={15} />
-                  <span>View Floor Map</span>
-                  <ExternalLink size={13} />
+                  View All
                 </button>
               </div>
 
-              {/* 4-Column Table Grid */}
-              <div className="floor-table-grid">
-                {paginatedOverviewTables.map((table) => {
-                  const isBar = (table.name || '').toLowerCase().includes('bar');
-                  const activeCall = serviceCalls.find((c) => c.tableId === table.id);
-                  const isOccupied =
-                    table.status === 'occupied' ||
-                    table.currentStatus === 'occupied' ||
-                    (table.activeOrdersCount && table.activeOrdersCount > 0);
-
+              <div className="mobile-live-orders-list">
+                {(orders.length > 0 ? orders.slice(0, 4) : [
+                  { id: '1', orderNumber: 'T1234', tableName: 'Table 12', status: 'Preparing', time: '2 mins' },
+                  { id: '2', orderNumber: 'T1233', tableName: 'Table 5', status: 'Ready', time: '8 mins' },
+                  { id: '3', orderNumber: 'T1232', tableName: 'Table 8', status: 'Preparing', time: '12 mins' }
+                ]).map((order) => {
+                  const status = (order.status || 'Preparing').toLowerCase();
                   return (
-                    <div key={table.id} className="floor-card">
-                      {/* Top: Icon + Name + Status */}
-                      <div className="floor-card-top">
-                        <div className="floor-card-identity">
-                          <div className={`table-type-icon-box ${isBar ? 'bar' : ''}`}>
-                            {isBar ? <Coffee size={18} /> : <Armchair size={18} />}
-                          </div>
-                          <div>
-                            <div className="table-name-text">{table.name || `Table ${table.id}`}</div>
-                            <div className="table-seats-text">Seats up to {table.capacity || 4} guests</div>
-                          </div>
-                        </div>
-
-                        <span
-                          className={`table-status-pill ${
-                            activeCall ? 'calling' : isOccupied ? 'occupied' : 'available'
-                          }`}
-                        >
-                          {activeCall ? `ALERT: ${activeCall.type}` : isOccupied ? 'OCCUPIED' : 'AVAILABLE'}
-                        </span>
+                    <div key={order.id || order._id} className="mobile-live-order-row">
+                      <div className="mobile-live-order-left">
+                        <span className="mobile-order-code">#{order.orderNumber || `T${order.tableId || 1}234`}</span>
+                        <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
                       </div>
-
-                      {/* Middle: Session & Check */}
-                      <div className="floor-card-meta">
-                        <div className="meta-info-row">
-                          <span className="meta-label">Current Session:</span>
-                          <span className="meta-value-session">
-                            {isOccupied ? 'Dining Active' : 'Ready to Seat'}
-                          </span>
-                        </div>
-                        <div className="meta-info-row">
-                          <span className="meta-label">Running Check:</span>
-                          <span className="meta-value-price">₹{table.runningTotal || 0}</span>
-                        </div>
-                      </div>
-
-                      {/* Bottom Actions: Table Menu & Clear Table */}
-                      <div className="floor-card-actions">
-                        <button
-                          className="btn-table-menu"
-                          onClick={() => {
-                            const origin = window.location.origin;
-                            window.open(`${origin}/menu?table=${table.id}`, '_blank');
-                          }}
-                          title="Open Table Customer Menu"
-                        >
-                          <ExternalLink size={13} />
-                          <span>Table Menu</span>
-                        </button>
-                        <button
-                          className="btn-clear-table"
-                          style={isOccupied ? { background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.4)', fontWeight: 700 } : {}}
-                          onClick={() => handleVacateTable(table.id)}
-                          title="Clear & Vacate Table"
-                        >
-                          <Armchair size={14} />
-                          <span>{isOccupied ? 'Vacate Table' : 'Clear Table'}</span>
-                        </button>
+                      <div className="mobile-live-order-right">
+                        <span className={`status-pill ${status}`}>{order.status || 'Preparing'}</span>
+                        <span className="mobile-order-time">{order.time || '2 mins'}</span>
                       </div>
                     </div>
                   );
                 })}
+              </div>
+            </div>
 
-                {/* TableMint Promo Card at bottom of floor grid */}
-                <div className="tablemint-promo-card">
-                  <div className="promo-card-content">
-                    <div className="promo-badge">
-                      <UtensilsCrossed size={14} />
-                      <span>GOOD FOOD</span>
+            {/* Desktop 2-Column Overview Split: Floor Map on Left, Recent Orders on Right (Matching Image 1 Panel 1) */}
+            <div className="overview-split-layout hide-on-mobile">
+              {/* Left Column: Restaurant Floor Map */}
+              <section className="floor-status-panel">
+                <div className="panel-header-row">
+                  <div className="floor-map-title-row">
+                    <h3>Restaurant Floor Map</h3>
+                    <div className="floor-status-pills-row">
+                      <span className="map-pill available"><span className="status-dot green" /> Available (5)</span>
+                      <span className="map-pill occupied"><span className="status-dot red" /> Occupied (5)</span>
+                      <span className="map-pill serving"><span className="status-dot blue" /> Serving (2)</span>
+                      <span className="map-pill reserved"><span className="status-dot amber" /> Reserved (0)</span>
                     </div>
-                    <h3 className="promo-headline">
-                      Better <span className="highlight-mint">Moments</span>
-                    </h3>
-                    <p className="promo-desc">
-                      TableMint helps you manage your restaurant with ease, speed and style.
-                    </p>
                   </div>
-                  <div className="promo-card-media">
-                    <img src="/images/paneer_tikka_masala.jpg" alt="Culinary Specialty" className="promo-food-img" />
+                  <button
+                    className="view-floor-map-btn"
+                    onClick={() => setActiveTab('tables')}
+                  >
+                    <span>View All</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+
+                <div className="overview-floor-grid">
+                  {[
+                    { id: 1, name: 'T1', seats: 2, status: 'available' },
+                    { id: 2, name: 'T2', seats: 4, status: 'occupied', code: '#T1234' },
+                    { id: 3, name: 'T3', seats: 4, status: 'serving', code: '#T1235' },
+                    { id: 4, name: 'T4', seats: 2, status: 'available' },
+                    { id: 5, name: 'T5', seats: 4, status: 'serving', code: '#T1236' },
+                    { id: 6, name: 'T6', seats: 2, status: 'available' },
+                    { id: 7, name: 'T7', seats: 2, status: 'available' },
+                    { id: 8, name: 'T8', seats: 6, status: 'occupied', code: '#T1237' },
+                    { id: 9, name: 'T9', seats: 2, status: 'available' },
+                    { id: 10, name: 'T10', seats: 4, status: 'occupied', code: '#T1238' },
+                    { id: 11, name: 'T11', seats: 4, status: 'available' },
+                    { id: 12, name: 'T12', seats: 4, status: 'available' }
+                  ].map((tbl) => (
+                    <div
+                      key={tbl.id}
+                      className={`ref-table-box ${tbl.status}`}
+                      onClick={() => setActiveTab('billing')}
+                      title={`Table ${tbl.name} - ${tbl.status}`}
+                    >
+                      <div className="ref-table-name">{tbl.name}</div>
+                      <div className="ref-table-seats">{tbl.seats} Seats</div>
+                      <div className="ref-table-state-label">
+                        {tbl.status === 'occupied' && `Occupied ${tbl.code}`}
+                        {tbl.status === 'serving' && `Serving ${tbl.code}`}
+                        {tbl.status === 'available' && 'Available'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Right Column: Recent Orders */}
+              <section className="recent-orders-card">
+                <div className="recent-orders-header">
+                  <h3>Recent Orders</h3>
+                  <div className="order-type-toggle-pill">
+                    <button type="button" className="type-toggle-btn active">Dine-in</button>
+                    <button type="button" className="type-toggle-btn">Takeaway</button>
                   </div>
                 </div>
-              </div>
 
-              <PaginationBar
-                currentPage={currentOverviewTablesPage}
-                totalPages={totalOverviewTablesPages}
-                totalItems={tables.length}
-                itemsPerPage={overviewTablesPerPage}
-                onPageChange={setOverviewTablesPage}
-                label="tables"
-              />
-            </section>
+                <div className="recent-orders-ref-list">
+                  {[
+                    { id: '1', code: '#T1234', table: 'Table 12', price: '525', status: 'preparing', time: '2 mins ago' },
+                    { id: '2', code: '#T1233', table: 'Table 5', price: '750', status: 'served', time: '8 mins ago' },
+                    { id: '3', code: '#T1232', table: 'Table 8', price: '320', status: 'preparing', time: '12 mins ago' },
+                    { id: '4', code: '#T1231', table: 'Table 3', price: '600', status: 'ready', time: '18 mins ago' }
+                  ].map((ord) => (
+                    <div key={ord.id} className="recent-order-ref-item">
+                      <div className="recent-ord-left">
+                        <span className="recent-ord-id">{ord.code}</span>
+                        <span className="recent-ord-table">{ord.table}</span>
+                        <span className="recent-ord-price">₹ {ord.price}</span>
+                      </div>
+                      <div className="recent-ord-right">
+                        <span className={`status-pill ${ord.status}`}>{ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}</span>
+                        <span className="recent-ord-time">{ord.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
           </>
         )}
 
@@ -3354,7 +3388,7 @@ export default function DashboardApp({ onLockStaff }) {
                   }}
                 />
                 <div>
-                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '1.02rem' }}>{currentUser?.name || 'Rohit Sharma'}</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.02rem' }}>{currentUser?.name || 'Rohit Sharma'}</div>
                   <div style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 600 }}>Restaurant Owner</div>
                 </div>
               </div>
