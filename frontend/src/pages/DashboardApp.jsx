@@ -1217,33 +1217,44 @@ export default function DashboardApp({ onLockStaff }) {
         {activeTab === 'overview' && (
           <>
             {/* Mobile Restaurant Meta Card (Image 3 Screen 2) */}
+            {/* Mobile Restaurant Meta Card (Matching Reference Screen 2) */}
             <div className="mobile-restaurant-meta-card hide-on-desktop">
               <div className="mobile-meta-user">
-                <div className="mobile-avatar-circle">
-                  <User size={18} />
-                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                  alt="Spice Garden"
+                  className="mobile-avatar-circle"
+                  style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
+                  onError={(e) => { e.target.src = '/images/tablemint_leaf_icon.png'; }}
+                />
                 <div>
-                  <h3 className="mobile-restaurant-title">{profileRestaurant || 'Spice Garden'}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <h3 className="mobile-restaurant-title">{profileRestaurant || 'Spice Garden'}</h3>
+                    <ChevronDown size={14} color="#64748b" />
+                  </div>
                   <span className="mobile-restaurant-sub">Restaurant Owner</span>
                 </div>
               </div>
-              <div className="mobile-date-pill">
-                <span>Today, {currentDate}</span>
+              <div className="mobile-date-pill" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Today, 27 Oct 2026</span>
+                <span style={{ border: '1px solid #cbd5e1', borderRadius: 9999, padding: '2px 8px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: 2, background: '#ffffff', color: '#0f172a', fontWeight: 700 }}>
+                  Today <ChevronDown size={12} />
+                </span>
               </div>
             </div>
 
-            {/* 4 Metric Cards (Matching Image 1 & 3: Pastel Green, Orange, Blue, Purple) */}
+            {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
-              {/* Card 1: Today's Revenue */}
+              {/* Card 1: Revenue */}
               <div className="metric-card sales">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box">₹</div>
+                  <div className="metric-icon-box" style={{ background: '#ecfdf5', color: '#059669' }}>₹</div>
                   <span className="metric-badge green">
                     <TrendingUp size={11} /> +12%
                   </span>
                 </div>
                 <div className="metric-content">
-                  <span className="metric-title">Today's Revenue</span>
+                  <span className="metric-title">Revenue</span>
                   <div className="metric-value">
                     ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '12,450'}
                   </div>
@@ -1253,7 +1264,7 @@ export default function DashboardApp({ onLockStaff }) {
               {/* Card 2: Total Orders */}
               <div className="metric-card orders">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box">
+                  <div className="metric-icon-box" style={{ background: '#fffbeb', color: '#d97706' }}>
                     <Receipt size={17} />
                   </div>
                   <span className="metric-badge amber">
@@ -1269,22 +1280,28 @@ export default function DashboardApp({ onLockStaff }) {
               {/* Card 3: Active Tables */}
               <div className="metric-card occupancy">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box">
+                  <div className="metric-icon-box" style={{ background: '#eff6ff', color: '#2563eb' }}>
                     <Users size={17} />
                   </div>
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Active Tables</span>
-                  <div className="metric-value">{occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}</div>
+                  <div className="metric-value" style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb', display: 'inline-block' }} />
+                    {occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}
+                  </div>
                 </div>
               </div>
 
               {/* Card 4: Avg. Order Value */}
               <div className="metric-card ticket">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box">
+                  <div className="metric-icon-box" style={{ background: '#f5f3ff', color: '#7c3aed' }}>
                     <BarChart3 size={17} />
                   </div>
+                  <span className="metric-badge green">
+                    <TrendingUp size={11} /> +5%
+                  </span>
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Avg. Order Value</span>
@@ -1500,8 +1517,8 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
-            {/* 4-Column Grid of Pastel Table Cards matching Panel 3 */}
-            <div className="overview-floor-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+            {/* Floor Grid of Pastel Table Cards matching Panel 3 on Desktop and Screen 5 on Mobile */}
+            <div className="overview-floor-grid">
               {[
                 { id: 1, name: 'T1', seats: 2, status: 'available' },
                 { id: 2, name: 'T2', seats: 4, status: 'occupied', code: '#T1234' },
@@ -1521,7 +1538,6 @@ export default function DashboardApp({ onLockStaff }) {
                   <div
                     key={tbl.id}
                     className={`ref-table-box ${tbl.status}`}
-                    style={{ padding: '24px 16px', borderRadius: 16 }}
                     onClick={() => setActiveTab('billing')}
                     title={`Table ${tbl.name} - ${tbl.status}`}
                   >
@@ -1667,6 +1683,17 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             ) : (
               <>
+                {/* Search Bar Pill matching Reference Screen 3 */}
+                <div className="mobile-search-pill-box hide-on-desktop">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search orders, tables..."
+                    value={orderSearch}
+                    onChange={(e) => setOrderSearch(e.target.value)}
+                  />
+                </div>
+
                 {/* Filter Pills matching Reference Screen 3 */}
                 <div className="admin-filter-pills-row">
                   {[
@@ -1689,7 +1716,7 @@ export default function DashboardApp({ onLockStaff }) {
                 {/* Screen 3: Mobile Orders List Cards */}
                 <div className="mobile-orders-cards-container hide-on-desktop">
                   {[
-                    { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 260 }, { name: 'Chicken Biryani', quantity: 1, price: 265 }], amount: 525, status: 'preparing', time: '2 mins', notes: 'Extra spicy, serve onions.' },
+                    { id: '1', code: '#T1234', table: 'Table 12', items: '3 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 220 }, { name: 'Chicken Biryani', quantity: 1, price: 280 }, { name: 'Masala Dosa', quantity: 1, price: 180 }], amount: 945, status: 'preparing', time: '2 mins', notes: 'Less spicy, extra green chutney and napkins.' },
                     { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', itemsList: [{ name: 'Butter Chicken', quantity: 1, price: 420 }, { name: 'Garlic Naan', quantity: 3, price: 180 }, { name: 'Gulab Jamun', quantity: 2, price: 150 }], amount: 750, status: 'served', time: '8 mins', notes: 'Serve dessert warm.' },
                     { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', itemsList: [{ name: 'Veg Hakka Noodles', quantity: 1, price: 320 }], amount: 320, status: 'preparing', time: '12 mins', notes: 'No ajinomoto.' },
                     { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', itemsList: [{ name: 'Crispy Corn', quantity: 1, price: 220 }, { name: 'Virgin Mojito', quantity: 2, price: 260 }, { name: 'French Fries', quantity: 1, price: 120 }], amount: 600, status: 'ready', time: '18 mins', notes: 'Less ice in mojitos.' },
@@ -2068,6 +2095,20 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
+            {/* Screen 6: Mobile Search Bar Pill (Reference Image Screen 6) */}
+            <div className="mobile-search-pill-box hide-on-desktop">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Search menu items..."
+                value={menuSearch}
+                onChange={(e) => {
+                  setMenuSearch(e.target.value);
+                  setMenuPage(1);
+                }}
+              />
+            </div>
+
             {/* Category Filter Pills */}
             <div className="admin-filter-pills-row">
               {activeMenuCategories.map((c) => {
@@ -2092,8 +2133,8 @@ export default function DashboardApp({ onLockStaff }) {
               })}
             </div>
 
-            {/* Search & Filter Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {/* Search & Filter Controls for Desktop */}
+            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div className="topbar-search-box" style={{ maxWidth: 320 }}>
                 <Search size={15} className="topbar-search-icon" />
                 <input
@@ -2552,10 +2593,34 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
                   </div>
                 )}
+
+                {/* Full-width Generate Bill Action Button matching Screen 8 */}
+                <button
+                  type="button"
+                  className="mobile-print-bill-btn"
+                  style={{ marginTop: 14, width: '100%' }}
+                  onClick={() => {
+                    handlePrintBill({
+                      id: 'B1604',
+                      orderNumber: 'T1234',
+                      tableName: `Table ${selectedBillingTableId}`,
+                      items: [
+                        { name: 'Paneer Tikka', quantity: 1, price: 220 },
+                        { name: 'Chicken Biryani', quantity: 1, price: 280 }
+                      ],
+                      total: 525,
+                      subtotal: 500,
+                      tax: 25
+                    });
+                    addToast(`Bill generated for Table ${selectedBillingTableId}`, 'success');
+                  }}
+                >
+                  <Printer size={16} /> Generate Bill
+                </button>
               </div>
 
-              {/* Right Column: Recent Bills & Thermal Print Preview */}
-              <div className="pos-bill-right-col">
+              {/* Right Column: Recent Bills & Thermal Print Preview for Desktop */}
+              <div className="pos-bill-right-col hide-on-mobile">
                 {/* Recent Bills Card */}
                 <div className="pos-recent-bills-card">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -2686,8 +2751,19 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
-            {/* Filter and Search Bar matching Reference Panel 8 */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
+            {/* Screen 10: Mobile Search Bar Pill (Reference Image Screen 10) */}
+            <div className="mobile-search-pill-box hide-on-desktop">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Search customers..."
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Filter and Search Bar for Desktop */}
+            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
               <div className="topbar-search-box" style={{ maxWidth: 360 }}>
                 <Search size={15} className="topbar-search-icon" />
                 <input
@@ -2712,11 +2788,12 @@ export default function DashboardApp({ onLockStaff }) {
             {/* Screen 10: Mobile Customers List View (Reference Image Screen 10) */}
             <div className="mobile-customers-list-view hide-on-desktop">
               {[
-                { id: '1', name: 'Amit Patel', phone: '9876543210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
-                { id: '2', name: 'Priya Sharma', phone: '9123456789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
-                { id: '3', name: 'Rahul Kumar', phone: '9868776655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
-                { id: '4', name: 'Sneha Joshi', phone: '9871234567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
-                { id: '5', name: 'Vikram Singh', phone: '9765432100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' }
+                { id: '1', name: 'Amit Patel', phone: '98765 43210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
+                { id: '2', name: 'Priya Sharma', phone: '91234 56789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
+                { id: '3', name: 'Rahul Kumar', phone: '98687 76655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
+                { id: '4', name: 'Sneha Joshi', phone: '98712 34567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
+                { id: '5', name: 'Vikram Singh', phone: '97654 32100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' },
+                { id: '6', name: 'Neha Desai', phone: '98450 12345', email: 'neha@email.com', orders: 14, spent: 3950, date: 'Oct 21, 2026' }
               ]
                 .filter((c) =>
                   !customerSearch.trim() ||
@@ -2824,8 +2901,116 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* Top 4 KPI Metrics Row matching Reference Panel 7 */}
-            <div className="kpi-four-grid">
+            {/* Screen 9: Mobile Filter Tabs (Reference Image Screen 9) */}
+            <div className="admin-filter-pills-row hide-on-desktop">
+              {['Revenue', 'Orders', 'Items', 'Payment'].map((tab) => (
+                <button
+                  key={tab}
+                  className={`admin-filter-pill ${analyticsSubTab.startsWith(tab.slice(0, 4)) || (tab === 'Items' && analyticsSubTab === 'Popular Items') ? 'active' : ''}`}
+                  onClick={() => setAnalyticsSubTab(tab === 'Items' ? 'Popular Items' : tab === 'Payment' ? 'Payment Methods' : tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Screen 9: Mobile Total Revenue Card with Chart */}
+            <div className="mobile-reports-chart-card hide-on-desktop">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Total Revenue</span>
+                <span className="metric-badge green" style={{ fontSize: '0.72rem' }}>
+                  <TrendingUp size={11} /> +12%
+                </span>
+              </div>
+              <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', marginBottom: 16 }}>
+                ₹ 12,450
+              </div>
+
+              {/* Chart with Y-axis and X-axis labels matching Screen 9 */}
+              <div style={{ display: 'flex', gap: 8, height: 160 }}>
+                {/* Y-axis labels */}
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, textAlign: 'right', paddingBottom: 18 }}>
+                  <span>15K</span>
+                  <span>10K</span>
+                  <span>5K</span>
+                  <span>0K</span>
+                </div>
+                {/* SVG Area */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
+                      <line x1="0" y1="55" x2="320" y2="55" stroke="#f1f5f9" strokeWidth="1" />
+                      <line x1="0" y1="90" x2="320" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                      <path
+                        d="M0,95 Q40,80 80,60 T160,35 T240,45 T320,15 L320,120 L0,120 Z"
+                        fill="url(#mobileRevGrad)"
+                      />
+                      <path
+                        d="M0,95 Q40,80 80,60 T160,35 T240,45 T320,15"
+                        fill="none"
+                        stroke="#10b981"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                      />
+                      <circle cx="320" cy="15" r="4" fill="#07241a" stroke="#ffffff" strokeWidth="2" />
+                    </svg>
+                  </div>
+                  {/* X-axis labels */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: '#94a3b8', fontWeight: 700, paddingTop: 4 }}>
+                    <span>6 AM</span>
+                    <span>9 AM</span>
+                    <span>12 PM</span>
+                    <span>3 PM</span>
+                    <span>6 PM</span>
+                    <span>9 PM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Screen 9: Top Selling Items Leaderboard */}
+            <div className="mobile-top-selling-section hide-on-desktop">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items</h4>
+                <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                  View Menu ›
+                </span>
+              </div>
+              {[
+                { rank: 1, name: 'Paneer Tikka', orders: 42, price: 220, image: '/images/paneer_tikka.jpg' },
+                { rank: 2, name: 'Chicken Biryani', orders: 38, price: 280, image: '/images/chicken_biryani.jpg' },
+                { rank: 3, name: 'Masala Dosa', orders: 31, price: 180, image: '/images/masala_dosa.jpg' },
+                { rank: 4, name: 'Margherita Pizza', orders: 26, price: 260, image: '/images/artisan_pizza.jpg' },
+                { rank: 5, name: 'Caesar Salad', orders: 19, price: 200, image: '/images/green_salad.jpg' }
+              ].map((item) => (
+                <div key={item.rank} className="mobile-top-selling-row">
+                  <div className="mobile-selling-rank">#{item.rank}</div>
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="mobile-selling-thumb"
+                    onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                  />
+                  <div className="mobile-selling-info">
+                    <div className="mobile-selling-name">{item.name}</div>
+                    <div className="mobile-selling-orders">{item.orders} Orders • ₹{item.price}</div>
+                  </div>
+                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>
+                    ₹ {(item.orders * item.price).toLocaleString('en-IN')}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Top 4 KPI Metrics Row for Desktop */}
+            <div className="kpi-four-grid hide-on-mobile">
               <div className="metric-card sales">
                 <div className="metric-card-header">
                   <div className="metric-icon-box">₹</div>
@@ -2885,8 +3070,8 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* Filter Tabs matching Reference Panel 7 */}
-            <div className="reports-tabs-row">
+            {/* Filter Tabs matching Reference Panel 7 for Desktop */}
+            <div className="reports-tabs-row hide-on-mobile">
               {['Revenue', 'Orders', 'Popular Items', 'Payment Methods', 'Peak Hours'].map((tab) => (
                 <button
                   key={tab}
@@ -2898,8 +3083,9 @@ export default function DashboardApp({ onLockStaff }) {
               ))}
             </div>
 
-            {/* Split Content: Dynamically changes per analyticsSubTab */}
-            {analyticsSubTab === 'Revenue' && (
+            {/* Split Content: Dynamically changes per analyticsSubTab for Desktop */}
+            <div className="hide-on-mobile">
+              {analyticsSubTab === 'Revenue' && (
               <div className="reports-two-col-grid">
                 <div className="admin-card-inner">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -3123,6 +3309,7 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
               </div>
             )}
+            </div>
           </section>
         )}
 

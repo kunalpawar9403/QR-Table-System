@@ -5142,7 +5142,7 @@
   }
 
   .dash-main-area {
-    padding: 10px 10px 84px 10px !important;
+    padding: 0 0 76px 0 !important;
     background: #f4f6f8 !important;
     min-height: 100vh;
     box-sizing: border-box;
@@ -5152,22 +5152,27 @@
   .admin-page-container {
     background: transparent !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 12px 16px 24px 16px !important;
     box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 12px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .page-header-row {
     display: none !important;
   }
 
-  /* Sticky Top Bar (Deep Forest Green #07241a) */
+  /* Sticky Top Bar (Deep Forest Green #07241a matching Reference Image) */
   .admin-mobile-top-bar {
     position: sticky;
     top: 0;
     left: 0;
     right: 0;
-    height: 54px;
+    width: 100%;
+    height: 52px;
     background: #07241a !important;
     color: #ffffff !important;
     display: flex !important;
@@ -5176,7 +5181,8 @@
     padding: 0 16px;
     z-index: 1000;
     box-shadow: 0 2px 8px rgba(7, 36, 26, 0.2);
-    margin: -10px -10px 12px -10px;
+    margin: 0 !important;
+    box-sizing: border-box;
   }
 
   .mobile-top-left {
@@ -5192,7 +5198,7 @@
   }
 
   .mobile-brand-title {
-    font-size: 1.12rem;
+    font-size: 1.15rem;
     font-weight: 800;
     color: #ffffff;
     letter-spacing: -0.01em;
@@ -5248,9 +5254,9 @@
     right: 4px;
     width: 7px;
     height: 7px;
-    background: #10b981;
+    background: #ef4444;
     border-radius: 50%;
-    border: 1px solid #07241a;
+    border: 1.5px solid #07241a;
   }
 
   .mobile-top-badge-kitchen {
@@ -5262,13 +5268,83 @@
     font-weight: 700;
   }
 
-  /* Fixed Bottom Nav (White with Active Green Accent) */
+  /* Universal Rounded Search Bar Pill for Mobile (Screens 3, 6, 10) */
+  .mobile-search-pill-box {
+    position: relative;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+
+  .mobile-search-pill-box svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  .mobile-search-pill-box input {
+    width: 100%;
+    height: 40px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 0 16px 0 40px;
+    font-size: 0.84rem;
+    color: #0f172a;
+    outline: none;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+
+  .mobile-search-pill-box input:focus {
+    border-color: #07241a;
+  }
+
+  /* Universal Horizontal Scrolling Filter Pills Row */
+  .admin-filter-pills-row {
+    display: flex !important;
+    align-items: center;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    padding-bottom: 2px !important;
+    margin-bottom: 4px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .admin-filter-pills-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .admin-filter-pill {
+    white-space: nowrap !important;
+    border-radius: 9999px !important;
+    padding: 6px 14px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0 !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .admin-filter-pill.active {
+    background: #07241a !important;
+    color: #ffffff !important;
+    border-color: #07241a !important;
+  }
+
+  /* Fixed Bottom Nav (White with Active Forest Green Accent) */
   .admin-mobile-bottom-bar {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
-    height: 58px;
+    height: 60px;
     background: #ffffff !important;
     border-top: 1px solid #e2e8f0 !important;
     box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.05);
@@ -5517,17 +5593,17 @@
     font-size: 0.92rem;
     display: flex;
     align-items: center;
-    justify-content: center,
+    justify-content: center;
     gap: 8px;
     cursor: pointer;
   }
 
-  /* Screen 5: Table Management Mobile Grid */
+  /* Screen 5: Table Management Mobile Grid (Matching Reference Screen 5) */
   .mobile-table-legend {
     display: flex;
     align-items: center;
-    gap: 14px;
-    font-size: 0.74rem;
+    gap: 16px;
+    font-size: 0.76rem;
     font-weight: 700;
     margin-bottom: 6px;
     color: #475569;
@@ -5535,24 +5611,37 @@
 
   .overview-floor-grid {
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 8px !important;
+    gap: 10px !important;
   }
 
   .ref-table-box {
-    padding: 14px 8px !important;
-    border-radius: 12px !important;
+    padding: 12px 6px !important;
+    border-radius: 14px !important;
+    min-height: 94px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   }
 
   .ref-table-name {
-    font-size: 1.15rem !important;
+    font-size: 1.3rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 2px !important;
   }
 
   .ref-table-seats {
-    font-size: 0.7rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    margin-bottom: 2px !important;
   }
 
   .ref-table-state-label {
-    font-size: 0.68rem !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
   }
 
   /* Screen 6: Menu Management Mobile Cards */
@@ -5724,6 +5813,77 @@
   .pos-billing-grid-split {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
+  }
+
+  .pos-bill-active-card {
+    border-radius: 14px !important;
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+
+  /* Screen 9: Reports & Analytics Mobile View */
+  .mobile-reports-chart-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    margin-bottom: 12px;
+  }
+
+  .mobile-top-selling-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .mobile-top-selling-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .mobile-top-selling-row:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-selling-rank {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #475569;
+    width: 16px;
+    text-align: center;
+  }
+
+  .mobile-selling-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .mobile-selling-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-selling-name {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mobile-selling-orders {
+    font-size: 0.76rem;
+    color: #64748b;
+    font-weight: 600;
   }
 
   /* Screen 10: Customers Mobile List */
