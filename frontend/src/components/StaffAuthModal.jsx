@@ -143,43 +143,17 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
         </button>
       )}
 
-        {/* Brand Header */}
+        {/* Brand Header Matching Image 3 Screen 1 */}
         <div className="auth-brand-header">
-          <div className="auth-logo-badge">
-            <img src="/images/tablemint_icon.png" alt="TableMint" className="auth-logo-img" />
+          <div className="auth-logo-leaf-box">
+            <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="auth-leaf-img" />
           </div>
-          <h2 className="staff-modal-title">
-            Table<span style={{ color: '#00e676' }}>Mint</span> Operations
-          </h2>
-          <p className="staff-modal-subtitle">
-            Secure POS Station & Restaurant Management Console
+          <h1 className="auth-brand-heading">
+            Table<span className="brand-mint-highlight">Mint</span>
+          </h1>
+          <p className="auth-brand-subheading">
+            Restaurant Management<br />Made Simple
           </p>
-        </div>
-
-        {/* Auth Tabs Switcher */}
-        <div className="auth-tabs-row">
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'signin' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('signin');
-              setError('');
-              setSuccessMsg('');
-            }}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'signup' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('signup');
-              setError('');
-              setSuccessMsg('');
-            }}
-          >
-            Sign Up
-          </button>
         </div>
 
         {/* Feedback Alert Banners */}
@@ -198,29 +172,29 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
         )}
 
         {/* ===================================================
-            TAB 1: SIGN IN
+            TAB 1: SIGN IN (MATCHING IMAGE 3 SCREEN 1)
             =================================================== */}
         {activeTab === 'signin' && (
           <form className="auth-form-body" onSubmit={handleSignIn}>
-            <div className="auth-input-group">
-              <Mail size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <User size={16} className="auth-input-icon-gray" />
               <input
-                type="email"
-                className="auth-input-field"
-                placeholder="Email address"
+                type="text"
+                className="auth-white-input-field"
+                placeholder="Email or Phone"
                 value={signInEmail}
                 onChange={(e) => setSignInEmail(e.target.value)}
-                autoComplete="email"
+                autoComplete="username"
                 required
                 disabled={loading}
               />
             </div>
 
-            <div className="auth-input-group">
-              <Lock size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <Lock size={16} className="auth-input-icon-gray" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                className="auth-input-field"
+                className="auth-white-input-field"
                 placeholder="Password"
                 value={signInPassword}
                 onChange={(e) => setSignInPassword(e.target.value)}
@@ -230,7 +204,7 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               />
               <button
                 type="button"
-                className="auth-password-toggle-btn"
+                className="auth-eye-btn"
                 onClick={() => setShowPassword((prev) => !prev)}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
@@ -238,37 +212,77 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               </button>
             </div>
 
-            {/* Quick Demo Credentials Pill */}
-            <button
-              type="button"
-              className="auth-demo-pill-btn"
-              onClick={fillDemoAdmin}
-              title="Click to fill default admin credentials"
-            >
-              <Sparkles size={13} />
-              <span>Fill Demo: admin@tablemint.com (admin123)</span>
-            </button>
+            <div className="auth-remember-row">
+              <label className="auth-remember-label">
+                <input type="checkbox" defaultChecked />
+                <span>Remember me</span>
+              </label>
+              <button
+                type="button"
+                className="auth-forgot-link"
+                onClick={() => triggerError('Password reset link sent to registered email.')}
+              >
+                Forgot Password?
+              </button>
+            </div>
 
             <button
               type="submit"
-              className="btn-primary auth-submit-btn"
+              className="btn-auth-green-pill"
               disabled={loading}
             >
-              {loading ? 'Authenticating...' : 'Sign In to TableMint'}
-              {!loading && <ArrowRight size={16} />}
+              {loading ? 'Authenticating...' : 'Login'}
             </button>
 
-            <div className="auth-footer-toggle">
-              <span>Don't have an account yet?</span>{' '}
+            {/* Quick Demo Credentials Pill */}
+            <button
+              type="button"
+              className="auth-demo-hint-btn"
+              onClick={fillDemoAdmin}
+              title="Click to fill default admin credentials"
+            >
+              <Sparkles size={12} />
+              <span>Fill Demo: admin@tablemint.com (admin123)</span>
+            </button>
+
+            <div className="auth-divider-text">
+              <span>or continue with</span>
+            </div>
+
+            <div className="auth-social-buttons-row">
               <button
                 type="button"
-                className="auth-link-btn"
+                className="auth-social-pill"
+                onClick={fillDemoAdmin}
+              >
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google"
+                  className="social-logo-icon"
+                />
+                <span>Google</span>
+              </button>
+              <button
+                type="button"
+                className="auth-social-pill"
+                onClick={fillDemoAdmin}
+              >
+                <span className="apple-logo-icon"></span>
+                <span>Apple</span>
+              </button>
+            </div>
+
+            <div className="auth-footer-prompt">
+              <span>Don't have an account?</span>{' '}
+              <button
+                type="button"
+                className="auth-green-action-link"
                 onClick={() => {
                   setActiveTab('signup');
                   setError('');
                 }}
               >
-                Create Account
+                Sign Up
               </button>
             </div>
           </form>
@@ -279,11 +293,11 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
             =================================================== */}
         {activeTab === 'signup' && (
           <form className="auth-form-body" onSubmit={handleSignUp}>
-            <div className="auth-input-group">
-              <User size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <User size={16} className="auth-input-icon-gray" />
               <input
                 type="text"
-                className="auth-input-field"
+                className="auth-white-input-field"
                 placeholder="Your Full Name"
                 value={signUpName}
                 onChange={(e) => setSignUpName(e.target.value)}
@@ -292,11 +306,11 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               />
             </div>
 
-            <div className="auth-input-group">
-              <Utensils size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <Utensils size={16} className="auth-input-icon-gray" />
               <input
                 type="text"
-                className="auth-input-field"
+                className="auth-white-input-field"
                 placeholder="Restaurant / Business Name"
                 value={signUpRestaurant}
                 onChange={(e) => setSignUpRestaurant(e.target.value)}
@@ -305,11 +319,11 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               />
             </div>
 
-            <div className="auth-input-group">
-              <Mail size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <Mail size={16} className="auth-input-icon-gray" />
               <input
                 type="email"
-                className="auth-input-field"
+                className="auth-white-input-field"
                 placeholder="Email address"
                 value={signUpEmail}
                 onChange={(e) => setSignUpEmail(e.target.value)}
@@ -319,11 +333,11 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               />
             </div>
 
-            <div className="auth-input-group">
-              <Lock size={16} className="auth-input-icon" />
+            <div className="auth-white-input-group">
+              <Lock size={16} className="auth-input-icon-gray" />
               <input
                 type={showPassword ? 'text' : 'password'}
-                className="auth-input-field"
+                className="auth-white-input-field"
                 placeholder="Create Password (min. 6 chars)"
                 value={signUpPassword}
                 onChange={(e) => setSignUpPassword(e.target.value)}
@@ -333,7 +347,7 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               />
               <button
                 type="button"
-                className="auth-password-toggle-btn"
+                className="auth-eye-btn"
                 onClick={() => setShowPassword((prev) => !prev)}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
@@ -364,24 +378,23 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
 
             <button
               type="submit"
-              className="btn-primary auth-submit-btn"
+              className="btn-auth-green-pill"
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Register & Enter Dashboard'}
-              {!loading && <ArrowRight size={16} />}
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
 
-            <div className="auth-footer-toggle">
+            <div className="auth-footer-prompt">
               <span>Already have an account?</span>{' '}
               <button
                 type="button"
-                className="auth-link-btn"
+                className="auth-green-action-link"
                 onClick={() => {
                   setActiveTab('signin');
                   setError('');
                 }}
               >
-                Sign In
+                Login
               </button>
             </div>
           </form>

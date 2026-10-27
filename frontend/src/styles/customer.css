@@ -50,7 +50,7 @@
    SCREEN 1: WELCOME SCREEN (IMAGE 2 - SCREEN 1)
    ========================================================= */
 .welcome-screen-bg {
-  background: radial-gradient(circle at 50% 20%, #173224 0%, #0c1813 60%, #060e0a 100%);
+  background: radial-gradient(circle at 50% 25%, #0d3829 0%, #07241a 60%, #041711 100%);
   color: #ffffff;
   padding-bottom: 0;
   display: flex;
@@ -204,11 +204,11 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
+  background: #10b981;
+  color: #07241a;
   border: none;
   font-size: 1.05rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 16px 24px;
   border-radius: var(--tm-radius-full);
   cursor: pointer;
@@ -388,9 +388,9 @@
 }
 
 .category-item-card.active {
-  border-color: var(--tm-primary);
-  background: #ecfdf5;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.18);
+  border-color: #07241a;
+  background: #07241a;
+  box-shadow: 0 4px 14px rgba(7, 36, 26, 0.25);
 }
 
 .category-icon-box {
@@ -405,7 +405,7 @@
 }
 
 .category-item-card.active .category-icon-box {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .category-label {
@@ -416,7 +416,7 @@
 }
 
 .category-item-card.active .category-label {
-  color: #065f46;
+  color: #ffffff;
 }
 
 /* Section Header */
@@ -620,19 +620,19 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #10b981;
-  font-size: 0.8rem;
+  background: #07241a;
+  color: #ffffff;
+  border: none;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: var(--tm-radius-full);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .btn-add-food-pill:hover {
-  background: #10b981;
+  background: #064e3b;
   color: #ffffff;
 }
 
@@ -1049,7 +1049,7 @@
 
 .btn-custom-add-to-cart {
   flex: 1;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: #07241a;
   color: #ffffff;
   border: none;
   border-radius: var(--tm-radius-full);
@@ -1061,7 +1061,11 @@
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 14px rgba(7, 36, 26, 0.25);
+}
+
+.btn-custom-add-to-cart:hover {
+  background: #064e3b;
 }
 
 .footer-btn-divider {
