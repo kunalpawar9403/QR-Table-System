@@ -1447,11 +1447,12 @@
 .dash-modal-card {
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   background: #0f172a;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.1);
-  overflow: hidden;
   animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

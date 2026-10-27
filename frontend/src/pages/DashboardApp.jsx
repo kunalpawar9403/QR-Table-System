@@ -1332,7 +1332,29 @@ export default function DashboardApp({ onLockStaff }) {
                 ]).map((order) => {
                   const status = (order.status || 'Preparing').toLowerCase();
                   return (
-                    <div key={order.id || order._id} className="mobile-live-order-row">
+                    <div
+                      key={order.id || order._id}
+                      className="mobile-live-order-row"
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        setActiveTab('orders');
+                        setMobileSelectedOrder({
+                          id: order.id || '1',
+                          code: `#${order.orderNumber || 'T1234'}`,
+                          table: order.tableName || 'Table 12',
+                          items: '3 items',
+                          itemsList: [
+                            { name: 'Paneer Tikka', quantity: 2, price: 220 },
+                            { name: 'Chicken Biryani', quantity: 1, price: 280 },
+                            { name: 'Masala Dosa', quantity: 1, price: 180 }
+                          ],
+                          amount: 945,
+                          status: (order.status || 'preparing').toLowerCase(),
+                          time: order.time || '2 mins',
+                          notes: 'Less spicy, extra chutney'
+                        });
+                      }}
+                    >
                       <div className="mobile-live-order-left">
                         <span className="mobile-order-code">#{order.orderNumber || `T${order.tableId || 1}234`}</span>
                         <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
@@ -1484,13 +1506,25 @@ export default function DashboardApp({ onLockStaff }) {
               </span>
             </div>
 
-            {/* Filter Pills matching Reference Panel 3 */}
+            {/* Filter Pills matching Reference Screen 5 */}
             <div className="admin-filter-pills-row">
               <button
                 className={`admin-filter-pill ${tableStatusFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setTableStatusFilter('all')}
               >
                 All (12)
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'floor1' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('floor1')}
+              >
+                Floor 1
+              </button>
+              <button
+                className={`admin-filter-pill ${tableStatusFilter === 'floor2' ? 'active' : ''}`}
+                onClick={() => setTableStatusFilter('floor2')}
+              >
+                Floor 2
               </button>
               <button
                 className={`admin-filter-pill ${tableStatusFilter === 'available' ? 'active' : ''}`}
@@ -1510,12 +1544,6 @@ export default function DashboardApp({ onLockStaff }) {
               >
                 <span className="status-dot blue" /> Serving (2)
               </button>
-              <button
-                className={`admin-filter-pill ${tableStatusFilter === 'reserved' ? 'active' : ''}`}
-                onClick={() => setTableStatusFilter('reserved')}
-              >
-                <span className="status-dot amber" /> Reserved (0)
-              </button>
             </div>
 
             {/* Floor Grid of Pastel Table Cards matching Panel 3 on Desktop and Screen 5 on Mobile */}
@@ -1527,20 +1555,29 @@ export default function DashboardApp({ onLockStaff }) {
                 { id: 4, name: 'T4', seats: 2, status: 'available' },
                 { id: 5, name: 'T5', seats: 4, status: 'serving', code: '#T1236' },
                 { id: 6, name: 'T6', seats: 2, status: 'available' },
-                { id: 7, name: 'T7', seats: 2, status: 'available' },
-                { id: 8, name: 'T8', seats: 6, status: 'occupied', code: '#T1237' },
+                { id: 7, name: 'T7', seats: 2, status: 'occupied', code: '#T1237' },
+                { id: 8, name: 'T8', seats: 6, status: 'available' },
                 { id: 9, name: 'T9', seats: 2, status: 'available' },
                 { id: 10, name: 'T10', seats: 4, status: 'occupied', code: '#T1238' },
                 { id: 11, name: 'T11', seats: 4, status: 'available' },
                 { id: 12, name: 'T12', seats: 4, status: 'available' }
               ]
-                .filter((t) => tableStatusFilter === 'all' || t.status === tableStatusFilter)
+                .filter((t) => {
+                  if (tableStatusFilter === 'all') return true;
+                  if (tableStatusFilter === 'floor1') return t.id <= 8;
+                  if (tableStatusFilter === 'floor2') return t.id > 8;
+                  return t.status === tableStatusFilter;
+                })
                 .map((tbl) => (
                   <div
                     key={tbl.id}
                     className={`ref-table-box ${tbl.status}`}
-                    onClick={() => setActiveTab('billing')}
+                    onClick={() => {
+                      setSelectedBillingTableId(tbl.id);
+                      setActiveTab('billing');
+                    }}
                     title={`Table ${tbl.name} - ${tbl.status}`}
+                    style={{ cursor: 'pointer' }}
                   >
                     <div className="ref-table-name" style={{ fontSize: '1.45rem', fontWeight: 900 }}>
                       {tbl.name}
@@ -1594,15 +1631,16 @@ export default function DashboardApp({ onLockStaff }) {
                 {/* Items List */}
                 <div className="mobile-order-items-list">
                   {(mobileSelectedOrder.itemsList || [
-                    { name: 'Paneer Tikka', quantity: 2, price: 260 },
-                    { name: 'Chicken Biryani', quantity: 1, price: 265 }
+                    { name: 'Paneer Tikka', quantity: 2, price: 220, image: '/images/paneer_tikka.jpg' },
+                    { name: 'Chicken Biryani', quantity: 1, price: 280, image: '/images/chicken_biryani.jpg' },
+                    { name: 'Masala Dosa', quantity: 1, price: 180, image: '/images/masala_dosa.jpg' }
                   ]).map((it, idx) => (
                     <div key={idx} className="mobile-order-item-row">
                       <img
-                        src={idx % 2 === 0 ? "/images/masala_dosa.jpg" : "/images/chicken_biryani.jpg"}
+                        src={it.image || (it.name.includes('Paneer') ? '/images/paneer_tikka.jpg' : it.name.includes('Biryani') ? '/images/chicken_biryani.jpg' : '/images/masala_dosa.jpg')}
                         alt={it.name}
                         className="mobile-order-item-thumb"
-                        onError={(e) => { e.target.src = '/images/tablemint_leaf_icon.png'; }}
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                       />
                       <div className="mobile-order-item-info">
                         <div className="mobile-order-item-name">{it.name}</div>
@@ -1614,10 +1652,10 @@ export default function DashboardApp({ onLockStaff }) {
                   ))}
                 </div>
 
-                {/* Customer Instructions */}
+                {/* Customer Notes */}
                 <div className="mobile-customer-notes-box">
-                  <div className="notes-label">Customer Instructions</div>
-                  <div className="notes-text">"{mobileSelectedOrder.notes || 'Please serve extra green chutney and napkins.'}"</div>
+                  <div className="notes-label">Customer Notes</div>
+                  <div className="notes-text">{mobileSelectedOrder.notes || 'Less spicy, extra chutney'}</div>
                 </div>
 
                 {/* Financial Summary */}
@@ -1726,7 +1764,13 @@ export default function DashboardApp({ onLockStaff }) {
                     { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', itemsList: [{ name: 'Mutton Rogan Josh', quantity: 1, price: 540 }, { name: 'Jeera Rice', quantity: 1, price: 180 }, { name: 'Tandoori Roti', quantity: 4, price: 160 }, { name: 'Raita', quantity: 1, price: 70 }], amount: 950, status: 'preparing', time: '28 mins', notes: 'Well cooked mutton.' },
                     { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', itemsList: [{ name: 'Margherita Pizza', quantity: 1, price: 350 }, { name: 'Cold Drink', quantity: 2, price: 100 }], amount: 450, status: 'cancelled', time: '35 mins', notes: 'Cancelled by customer.' }
                   ]
-                    .filter((ord) => orderFilter === 'all' || ord.status === orderFilter)
+                    .filter((ord) => {
+                      const matchesFilter = orderFilter === 'all' || ord.status === orderFilter;
+                      const matchesSearch = !orderSearch.trim() ||
+                        ord.code.toLowerCase().includes(orderSearch.toLowerCase()) ||
+                        ord.table.toLowerCase().includes(orderSearch.toLowerCase());
+                      return matchesFilter && matchesSearch;
+                    })
                     .map((ord) => (
                       <div
                         key={ord.id}
@@ -1851,14 +1895,17 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="mobile-kds-cards-list hide-on-desktop">
               {[
                 { id: '1', code: '#T1234', table: 'Table 12', time: '5 mins', status: 'pending', items: ['2 x Paneer Tikka', '1 x Chicken Biryani'], action: 'Start Cooking', nextStatus: 'preparing' },
-                { id: '2', code: '#T1236', table: 'Table 5', time: '8 mins', status: 'pending', items: ['1 x Masala Dosa', '1 x Filter Coffee'], action: 'Start Cooking', nextStatus: 'preparing' },
-                { id: '3', code: '#T1235', table: 'Table 3', time: '3 mins', status: 'preparing', items: ['1 x Veg Manchurian', '1 x Noodles'], action: 'Mark as Ready', nextStatus: 'ready' },
-                { id: '4', code: '#T1238', table: 'Table 10', time: '6 mins', status: 'preparing', items: ['1 x Chicken Curry', '2 x Naan'], action: 'Mark as Ready', nextStatus: 'ready' },
+                { id: '2', code: '#T1235', table: 'Table 5', time: '3 mins', status: 'preparing', items: ['1 x Veg Manchurian', '1 x Noodles'], action: 'In Progress', nextStatus: 'ready' },
+                { id: '3', code: '#T1236', table: 'Table 8', time: '8 mins', status: 'pending', items: ['1 x Masala Dosa', '1 x Filter Coffee'], action: 'Start Cooking', nextStatus: 'preparing' },
+                { id: '4', code: '#T1238', table: 'Table 10', time: '6 mins', status: 'preparing', items: ['1 x Chicken Curry', '2 x Naan'], action: 'In Progress', nextStatus: 'ready' },
                 { id: '5', code: '#T1231', table: 'Table 1', time: '2 mins', status: 'ready', items: ['2 x Margherita Pizza', '1 x Cold Coffee'], action: 'Mark as Served', nextStatus: 'served' },
                 { id: '6', code: '#T1237', table: 'Table 8', time: '2 mins', status: 'ready', items: ['1 x Caesar Salad', '1 x Lemonade'], action: 'Mark as Served', nextStatus: 'served' },
                 { id: '7', code: '#T1229', table: 'Table 7', time: '11:30 AM', status: 'served', items: ['1 x Paneer Butter Masala'], action: 'Completed', nextStatus: null }
               ]
-                .filter((t) => t.status === kitchenStatusFilter)
+                .filter((t) => {
+                  if (kitchenStatusFilter === 'pending') return ['pending', 'preparing'].includes(t.status);
+                  return t.status === kitchenStatusFilter;
+                })
                 .map((ticket) => (
                   <div key={ticket.id} className="mobile-kds-card">
                     <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
@@ -2169,13 +2216,19 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Screen 6: Mobile Menu Management Dish Cards (Reference Image Screen 6) */}
             <div className="mobile-menu-cards-list hide-on-desktop">
-              {(filteredMenu.length > 0 ? filteredMenu : menu.length > 0 ? menu : [
+              {[
                 { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, available: true, image: '/images/paneer_tikka.jpg' },
                 { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, available: true, image: '/images/chicken_biryani.jpg' },
                 { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, available: true, image: '/images/masala_dosa.jpg' },
                 { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, available: true, image: '/images/artisan_pizza.jpg' },
                 { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, available: false, image: '/images/green_salad.jpg' }
-              ]).map((dish) => {
+              ]
+                .filter((d) => {
+                  const matchCat = menuCategoryFilter === 'all' || d.category?.toLowerCase() === menuCategoryFilter.toLowerCase();
+                  const matchSearch = !menuSearch.trim() || d.name?.toLowerCase().includes(menuSearch.toLowerCase());
+                  return matchCat && matchSearch;
+                })
+                .map((dish) => {
                 const isActive = dish.available !== false && dish.status !== 'inactive';
                 return (
                   <div key={dish.id} className="mobile-menu-dish-card">
@@ -2521,24 +2574,48 @@ export default function DashboardApp({ onLockStaff }) {
                   </select>
                 </div>
 
-                {/* Items Breakdown Table */}
+                {/* Items Breakdown Table matching Screen 8 */}
                 <div className="pos-bill-items-list">
                   <div className="pos-bill-item-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span className="diet-box veg" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <img
+                        src="/images/paneer_tikka.jpg"
+                        alt="Paneer Tikka"
+                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                      />
                       <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Paneer Tikka</span>
                     </div>
-                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>₹ 220 x 1</span>
-                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 220</span>
+                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x2</span>
+                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 440</span>
                   </div>
 
                   <div className="pos-bill-item-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span className="diet-box non-veg" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <img
+                        src="/images/chicken_biryani.jpg"
+                        alt="Chicken Biryani"
+                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                      />
                       <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Chicken Biryani</span>
                     </div>
-                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>₹ 280 x 1</span>
+                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x1</span>
                     <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 280</span>
+                  </div>
+
+                  <div className="pos-bill-item-row">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <img
+                        src="/images/masala_dosa.jpg"
+                        alt="Masala Dosa"
+                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                      />
+                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Masala Dosa</span>
+                    </div>
+                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x1</span>
+                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 180</span>
                   </div>
                 </div>
 
@@ -2546,15 +2623,15 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="pos-bill-calc-box">
                   <div className="pos-bill-calc-row">
                     <span>Subtotal</span>
-                    <span>₹ 500</span>
+                    <span>₹ 900</span>
                   </div>
                   <div className="pos-bill-calc-row">
                     <span>GST (5%)</span>
-                    <span>₹ 25</span>
+                    <span>₹ 45</span>
                   </div>
                   <div className="pos-bill-calc-row total">
                     <span>Total</span>
-                    <span>₹ 525</span>
+                    <span>₹ 945</span>
                   </div>
                 </div>
 
@@ -2577,7 +2654,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="pos-upi-section">
                     <div className="pos-upi-qr-wrapper">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=525`}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=945`}
                         alt="UPI QR Code"
                         className="pos-upi-qr-image"
                       />
@@ -2585,7 +2662,7 @@ export default function DashboardApp({ onLockStaff }) {
                     <div className="pos-upi-meta-col">
                       <div className="pos-upi-title">UPI Payment</div>
                       <div className="pos-upi-subtitle">Scan to Pay</div>
-                      <div className="pos-upi-amount-display">₹ 525</div>
+                      <div className="pos-upi-amount-display">₹ 945</div>
                       <div className="pos-upi-app-logos">
                         <span className="pos-upi-app gpay">G Pay</span>
                         <span className="pos-upi-app phonepe">PhonePe</span>
@@ -2606,12 +2683,13 @@ export default function DashboardApp({ onLockStaff }) {
                       orderNumber: 'T1234',
                       tableName: `Table ${selectedBillingTableId}`,
                       items: [
-                        { name: 'Paneer Tikka', quantity: 1, price: 220 },
-                        { name: 'Chicken Biryani', quantity: 1, price: 280 }
+                        { name: 'Paneer Tikka', quantity: 2, price: 220 },
+                        { name: 'Chicken Biryani', quantity: 1, price: 280 },
+                        { name: 'Masala Dosa', quantity: 1, price: 180 }
                       ],
-                      total: 525,
-                      subtotal: 500,
-                      tax: 25
+                      total: 945,
+                      subtotal: 900,
+                      tax: 45
                     });
                     addToast(`Bill generated for Table ${selectedBillingTableId}`, 'success');
                   }}
@@ -2789,12 +2867,12 @@ export default function DashboardApp({ onLockStaff }) {
             {/* Screen 10: Mobile Customers List View (Reference Image Screen 10) */}
             <div className="mobile-customers-list-view hide-on-desktop">
               {[
-                { id: '1', name: 'Amit Patel', phone: '98765 43210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
-                { id: '2', name: 'Priya Sharma', phone: '91234 56789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
-                { id: '3', name: 'Rahul Kumar', phone: '98687 76655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
-                { id: '4', name: 'Sneha Joshi', phone: '98712 34567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
-                { id: '5', name: 'Vikram Singh', phone: '97654 32100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' },
-                { id: '6', name: 'Neha Desai', phone: '98450 12345', email: 'neha@email.com', orders: 14, spent: 3950, date: 'Oct 21, 2026' }
+                { id: '1', name: 'Amit Patel', phone: '87654 3210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
+                { id: '2', name: 'Priya Sharma', phone: '91234 6780', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
+                { id: '3', name: 'Rahul Kumar', phone: '99887 7665', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
+                { id: '4', name: 'Sneha Joshi', phone: '98712 3456', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
+                { id: '5', name: 'Vikram Singh', phone: '97654 3210', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' },
+                { id: '6', name: 'Neha Desai', phone: '98765 4321', email: 'neha@email.com', orders: 9, spent: 2250, date: 'Oct 21, 2026' }
               ]
                 .filter((c) =>
                   !customerSearch.trim() ||
@@ -2985,14 +3063,14 @@ export default function DashboardApp({ onLockStaff }) {
                 </span>
               </div>
               {[
-                { rank: 1, name: 'Paneer Tikka', orders: 42, price: 220, image: '/images/paneer_tikka.jpg' },
-                { rank: 2, name: 'Chicken Biryani', orders: 38, price: 280, image: '/images/chicken_biryani.jpg' },
-                { rank: 3, name: 'Masala Dosa', orders: 31, price: 180, image: '/images/masala_dosa.jpg' },
-                { rank: 4, name: 'Margherita Pizza', orders: 26, price: 260, image: '/images/artisan_pizza.jpg' },
-                { rank: 5, name: 'Caesar Salad', orders: 19, price: 200, image: '/images/green_salad.jpg' }
+                { rank: 1, name: 'Chicken Biryani', orders: '24 orders', image: '/images/chicken_biryani.jpg' },
+                { rank: 2, name: 'Paneer Tikka', orders: '18 orders', image: '/images/paneer_tikka.jpg' },
+                { rank: 3, name: 'Masala Dosa', orders: '16 orders', image: '/images/masala_dosa.jpg' },
+                { rank: 4, name: 'Margherita Pizza', orders: '14 orders', image: '/images/artisan_pizza.jpg' },
+                { rank: 5, name: 'Filter Coffee', orders: '12 orders', image: '/images/masala_dosa.jpg' }
               ].map((item) => (
                 <div key={item.rank} className="mobile-top-selling-row">
-                  <div className="mobile-selling-rank">#{item.rank}</div>
+                  <div className="mobile-selling-rank">{item.rank}</div>
                   <img
                     src={item.image}
                     alt={item.name}
@@ -3001,10 +3079,9 @@ export default function DashboardApp({ onLockStaff }) {
                   />
                   <div className="mobile-selling-info">
                     <div className="mobile-selling-name">{item.name}</div>
-                    <div className="mobile-selling-orders">{item.orders} Orders • ₹{item.price}</div>
                   </div>
-                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>
-                    ₹ {(item.orders * item.price).toLocaleString('en-IN')}
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
+                    {item.orders}
                   </div>
                 </div>
               ))}
@@ -3334,8 +3411,9 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="mobile-settings-card-group">
                     {[
                       { id: 'details', label: 'Restaurant Details', icon: Home },
-                      { id: 'payment', label: 'Payment Settings', icon: CreditCard },
                       { id: 'tax', label: 'Tax & Charges', icon: Receipt },
+                      { id: 'payment', label: 'Payment Settings', icon: CreditCard },
+                      { id: 'menu', label: 'Menu Settings', icon: BookOpen },
                       { id: 'tables', label: 'Table Settings', icon: LayoutGrid }
                     ].map((s) => {
                       const Icon = s.icon;
@@ -3345,8 +3423,12 @@ export default function DashboardApp({ onLockStaff }) {
                           type="button"
                           className="mobile-settings-row-item"
                           onClick={() => {
-                            setSettingsSubNav(s.id);
-                            setMobileSettingsSubNav(s.id);
+                            if (s.id === 'menu') {
+                              setActiveTab('menu');
+                            } else {
+                              setSettingsSubNav(s.id);
+                              setMobileSettingsSubNav(s.id);
+                            }
                           }}
                         >
                           <div className="mobile-settings-row-left">
@@ -3363,30 +3445,62 @@ export default function DashboardApp({ onLockStaff }) {
                 <div>
                   <div className="mobile-settings-group-title">User & App Settings</div>
                   <div className="mobile-settings-card-group">
-                    {[
-                      { id: 'users', label: 'User Management', icon: Users },
-                      { id: 'notifications', label: 'Notifications', icon: Bell },
-                      { id: 'billing', label: 'Billing & Subscription', icon: DollarSign }
-                    ].map((s) => {
-                      const Icon = s.icon;
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          className="mobile-settings-row-item"
-                          onClick={() => {
-                            setSettingsSubNav(s.id);
-                            setMobileSettingsSubNav(s.id);
-                          }}
-                        >
-                          <div className="mobile-settings-row-left">
-                            <Icon size={18} className="mobile-settings-row-icon" />
-                            <span>{s.label}</span>
-                          </div>
-                          <ChevronRight size={18} className="mobile-settings-chevron" />
-                        </button>
-                      );
-                    })}
+                    {/* Notifications Toggle */}
+                    <div className="mobile-settings-row-item">
+                      <div className="mobile-settings-row-left">
+                        <Bell size={18} className="mobile-settings-row-icon" />
+                        <span>Notifications</span>
+                      </div>
+                      <label className="mobile-switch-toggle">
+                        <input type="checkbox" defaultChecked />
+                        <span className="mobile-switch-slider" />
+                      </label>
+                    </div>
+
+                    {/* App Language */}
+                    <button
+                      type="button"
+                      className="mobile-settings-row-item"
+                      onClick={() => addToast('App Language is English (Default)', 'info')}
+                    >
+                      <div className="mobile-settings-row-left">
+                        <Globe size={18} className="mobile-settings-row-icon" />
+                        <span>App Language</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#64748b', fontSize: '0.82rem' }}>
+                        <span>English</span>
+                        <ChevronRight size={18} className="mobile-settings-chevron" />
+                      </div>
+                    </button>
+
+                    {/* Change Password */}
+                    <button
+                      type="button"
+                      className="mobile-settings-row-item"
+                      onClick={() => {
+                        setSettingsSubNav('users');
+                        setMobileSettingsSubNav('users');
+                      }}
+                    >
+                      <div className="mobile-settings-row-left">
+                        <Lock size={18} className="mobile-settings-row-icon" />
+                        <span>Change Password</span>
+                      </div>
+                      <ChevronRight size={18} className="mobile-settings-chevron" />
+                    </button>
+
+                    {/* About App */}
+                    <button
+                      type="button"
+                      className="mobile-settings-row-item"
+                      onClick={() => addToast('TableMint v2.4.0 — Smart Restaurant Operations & POS', 'info')}
+                    >
+                      <div className="mobile-settings-row-left">
+                        <Info size={18} className="mobile-settings-row-icon" />
+                        <span>About App</span>
+                      </div>
+                      <ChevronRight size={18} className="mobile-settings-chevron" />
+                    </button>
                   </div>
                 </div>
               </div>
