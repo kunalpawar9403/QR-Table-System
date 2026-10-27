@@ -1,4 +1,5 @@
-const STAFF_TOKEN_KEY = 'spice_garden_staff_token';
+const STAFF_TOKEN_KEY = 'tablemint_staff_token';
+const USER_DATA_KEY = 'tablemint_auth_user';
 
 export function getStaffToken() {
   return localStorage.getItem(STAFF_TOKEN_KEY);
@@ -12,40 +13,115 @@ export function setStaffToken(token) {
   }
 }
 
+export function getCurrentUser() {
+  try {
+    const raw = localStorage.getItem(USER_DATA_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export function setCurrentUser(user) {
+  if (user) {
+    localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(USER_DATA_KEY);
+  }
+}
+
 export function clearStaffToken() {
   localStorage.removeItem(STAFF_TOKEN_KEY);
+  localStorage.removeItem(USER_DATA_KEY);
+}
+
+export function logoutStaff() {
+  clearStaffToken();
+  window.dispatchEvent(new CustomEvent('staff:unauthorized'));
+}
+
+export async function signInWithCredentials(email, password) {
+  try {
+    const res = await fetch('/api/auth/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.token) {
+      setStaffToken(data.token);
+      if (data.user) setCurrentUser(data.user);
+      return { success: true, token: data.token, user: data.user, message: data.message };
+    }
+    return { success: false, error: data.error || 'Failed to sign in. Please verify your credentials.' };
+  } catch (err) {
+    return { success: false, error: 'Network error connecting to server. Please try again.' };
+  }
+}
+
+export async function signUpWithCredentials({ name, email, password, restaurantName, role }) {
+  try {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        restaurantName: (restaurantName || 'TableMint').trim(),
+        role: role || 'admin'
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.token) {
+      setStaffToken(data.token);
+      if (data.user) setCurrentUser(data.user);
+      return { success: true, token: data.token, user: data.user, message: data.message };
+    }
+    return { success: false, error: data.error || 'Failed to create account.' };
+  } catch (err) {
+    return { success: false, error: 'Network error connecting to server. Please try again.' };
+  }
 }
 
 export async function verifyStaffPin(pin) {
-  const res = await fetch('/api/auth/verify-pin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pin: pin.trim() })
-  });
-  const data = await res.json();
-  if (res.ok && data.success && data.token) {
-    setStaffToken(data.token);
-    return { success: true, token: data.token };
+  try {
+    const res = await fetch('/api/auth/verify-pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pin.trim() })
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.token) {
+      setStaffToken(data.token);
+      if (data.user) setCurrentUser(data.user);
+      return { success: true, token: data.token, user: data.user };
+    }
+    return { success: false, error: data.error || 'Incorrect Staff PIN' };
+  } catch (err) {
+    return { success: false, error: 'Connection error. Please try again.' };
   }
-  return { success: false, error: data.error || 'Incorrect Staff PIN' };
 }
 
 export async function checkStaffAuth() {
   const token = getStaffToken();
   if (!token) return false;
   try {
-    const res = await fetch('/api/auth/check', {
+    const res = await fetch('/api/auth/me', {
       headers: { 'x-staff-token': token }
     });
-    const data = await res.json();
-    if (!data.authenticated) {
-      clearStaffToken();
-      return false;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.authenticated) {
+        if (data.user) setCurrentUser(data.user);
+        return true;
+      }
     }
-    return true;
+    clearStaffToken();
+    return false;
   } catch (e) {
-    // If offline or error, return true if token exists
-    return true;
+    // If network temporarily drops, return true if user session is cached
+    return Boolean(token);
   }
 }
 
@@ -57,7 +133,6 @@ export async function authFetch(url, options = {}) {
   }
   const res = await fetch(url, { ...options, headers });
   if (res.status === 401) {
-    // Session expired or invalid
     clearStaffToken();
     window.dispatchEvent(new CustomEvent('staff:unauthorized'));
   }

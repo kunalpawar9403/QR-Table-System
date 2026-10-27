@@ -35,34 +35,95 @@ if (fs.existsSync(envPath)) {
 const STAFF_PIN = (process.env.STAFF_PIN || '1234').toString().trim();
 const STAFF_SECRET = process.env.STAFF_SECRET || crypto.randomBytes(32).toString('hex');
 
-function generateStaffToken() {
-  const payload = `staff-${Date.now()}`;
-  const signature = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
-  return `${payload}.${signature}`;
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return { hash, salt };
 }
 
-function verifyStaffToken(token) {
-  if (!token || typeof token !== 'string') return false;
-  if (token === STAFF_PIN) return true;
-  const parts = token.split('.');
-  if (parts.length !== 2) return false;
-  const [payload, sig] = parts;
+function verifyPassword(password, hash, salt) {
+  if (!password || !hash || !salt) return false;
   try {
-    const expected = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+    const check = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(check, 'hex'));
   } catch (e) {
     return false;
   }
 }
 
+const defaultAdminCreds = hashPassword('admin123', 'tablemint_static_salt_2026');
+const defaultUsers = [
+  {
+    id: 'user_admin',
+    name: 'Admin Manager',
+    email: 'admin@tablemint.com',
+    hash: defaultAdminCreds.hash,
+    salt: defaultAdminCreds.salt,
+    role: 'admin',
+    restaurantName: 'TableMint',
+    createdAt: new Date().toISOString()
+  }
+];
+
+function generateUserToken(user) {
+  const payload = Buffer.from(JSON.stringify({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role || 'admin',
+    restaurantName: user.restaurantName || 'TableMint',
+    time: Date.now()
+  })).toString('base64url');
+  const signature = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
+  return `${payload}.${signature}`;
+}
+
+function verifyUserToken(token) {
+  if (!token || typeof token !== 'string') return null;
+  if (token === STAFF_PIN) {
+    return { id: 'staff_pin', name: 'POS Floor Staff', email: 'staff@tablemint.local', role: 'staff', restaurantName: 'TableMint' };
+  }
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+  const [payload, sig] = parts;
+  try {
+    const expected = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+      return null;
+    }
+    if (payload.startsWith('staff-')) {
+      return { id: 'staff_pin', name: 'POS Floor Staff', email: 'staff@tablemint.local', role: 'staff', restaurantName: 'TableMint' };
+    }
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    return decoded;
+  } catch (e) {
+    return null;
+  }
+}
+
+function generateStaffToken() {
+  return generateUserToken({
+    id: 'staff_pin',
+    name: 'POS Floor Staff',
+    email: 'staff@tablemint.local',
+    role: 'staff',
+    restaurantName: 'TableMint'
+  });
+}
+
+function verifyStaffToken(token) {
+  return Boolean(verifyUserToken(token));
+}
+
 function requireStaffAuth(req, res, next) {
   const token = req.headers['x-staff-token'] || req.query.staff_token;
-  if (verifyStaffToken(token)) {
+  const user = verifyUserToken(token);
+  if (user) {
+    req.user = user;
     return next();
   }
   return res.status(401).json({
     error: 'UNAUTHORIZED_STAFF',
-    message: 'Staff authentication required. Please enter valid Staff PIN.'
+    message: 'Authentication required. Please sign in or enter valid Staff PIN.'
   });
 }
 
@@ -143,6 +204,7 @@ if (process.env.VERCEL) {
 const MENU_FILE = path.join(DATA_DIR, 'menu.json');
 const TABLES_FILE = path.join(DATA_DIR, 'tables.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 // Read & Write helpers
 function readData(file, fallback = []) {
@@ -151,6 +213,7 @@ function readData(file, fallback = []) {
       if (file.includes('menu.json')) return defaultMenu;
       if (file.includes('tables.json')) return defaultTables;
       if (file.includes('orders.json')) return defaultOrders;
+      if (file.includes('users.json')) return defaultUsers;
       return fallback;
     }
     const content = fs.readFileSync(file, 'utf8');
@@ -158,12 +221,14 @@ function readData(file, fallback = []) {
     if (Array.isArray(parsed) && parsed.length === 0) {
       if (file.includes('menu.json')) return defaultMenu;
       if (file.includes('tables.json')) return defaultTables;
+      if (file.includes('users.json')) return defaultUsers;
     }
     return parsed;
   } catch (err) {
     if (file.includes('menu.json')) return defaultMenu;
     if (file.includes('tables.json')) return defaultTables;
     if (file.includes('orders.json')) return defaultOrders;
+    if (file.includes('users.json')) return defaultUsers;
     return fallback;
   }
 }
@@ -174,6 +239,19 @@ function writeData(file, data) {
   } catch (err) {
     console.error(`Error writing ${file}:`, err);
   }
+}
+
+function getUsers() {
+  const users = readData(USERS_FILE, defaultUsers);
+  if (!users || !Array.isArray(users) || users.length === 0) {
+    writeData(USERS_FILE, defaultUsers);
+    return defaultUsers;
+  }
+  return users;
+}
+
+function saveUsers(users) {
+  writeData(USERS_FILE, users);
 }
 
 // Session Token Helpers for Anti-Prank & Location Protection
@@ -204,20 +282,127 @@ ensureTableTokens();
 
 // ----------------- API Endpoints -----------------
 
-// Staff Authentication Endpoints
+// Authentication Endpoints (Sign In, Sign Up, Quick PIN)
+app.post('/api/auth/signup', (req, res) => {
+  try {
+    const { name, email, password, restaurantName, role } = req.body || {};
+    if (!name || name.trim().length < 2) {
+      return res.status(400).json({ success: false, error: 'Please enter your name (at least 2 characters).' });
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const users = getUsers();
+    const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      return res.status(400).json({ success: false, error: 'An account with this email address already exists. Please sign in instead.' });
+    }
+
+    const { hash, salt } = hashPassword(password);
+    const newUser = {
+      id: `user_${Date.now()}`,
+      name: name.trim(),
+      email: cleanEmail,
+      hash,
+      salt,
+      role: role === 'staff' ? 'staff' : 'admin',
+      restaurantName: (restaurantName || 'TableMint').trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    users.push(newUser);
+    saveUsers(users);
+
+    const safeUser = {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      restaurantName: newUser.restaurantName
+    };
+    const token = generateUserToken(safeUser);
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: safeUser,
+      message: 'Account created successfully! Welcome to TableMint.'
+    });
+  } catch (err) {
+    console.error('Error during signup:', err);
+    res.status(500).json({ success: false, error: 'Internal server error during account creation.' });
+  }
+});
+
+app.post('/api/auth/signin', (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Please provide both email and password.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const users = getUsers();
+    const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+    if (!user || !verifyPassword(password, user.hash, user.salt)) {
+      return res.status(401).json({ success: false, error: 'Invalid email address or password. Please try again.' });
+    }
+
+    const safeUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      restaurantName: user.restaurantName
+    };
+    const token = generateUserToken(safeUser);
+
+    res.json({
+      success: true,
+      token,
+      user: safeUser,
+      message: 'Signed in successfully. Welcome back!'
+    });
+  } catch (err) {
+    console.error('Error during signin:', err);
+    res.status(500).json({ success: false, error: 'Internal server error during sign in.' });
+  }
+});
+
 app.post('/api/auth/verify-pin', (req, res) => {
   const { pin } = req.body || {};
   if (!pin || pin.toString().trim() !== STAFF_PIN) {
     return res.status(401).json({ success: false, error: 'Incorrect Staff PIN. Please try again.' });
   }
-  const token = generateStaffToken();
-  res.json({ success: true, token, message: 'Authentication successful' });
+  const safeUser = {
+    id: 'staff_pin',
+    name: 'POS Floor Staff',
+    email: 'staff@tablemint.local',
+    role: 'staff',
+    restaurantName: 'TableMint'
+  };
+  const token = generateUserToken(safeUser);
+  res.json({ success: true, token, user: safeUser, message: 'Staff authentication successful' });
+});
+
+app.get('/api/auth/me', (req, res) => {
+  const token = req.headers['x-staff-token'] || req.query.staff_token;
+  const user = verifyUserToken(token);
+  if (!user) {
+    return res.status(401).json({ authenticated: false, error: 'Not authenticated' });
+  }
+  res.json({ authenticated: true, user });
 });
 
 app.get('/api/auth/check', (req, res) => {
   const token = req.headers['x-staff-token'] || req.query.staff_token;
-  const isValid = verifyStaffToken(token);
-  res.json({ authenticated: isValid });
+  const user = verifyUserToken(token);
+  res.json({ authenticated: Boolean(user), user: user || null });
 });
 
 // Server info & host URLs for QR generation

@@ -45,7 +45,7 @@ import {
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, clearStaffToken } from '../utils/staffAuth';
+import { authFetch, clearStaffToken, getCurrentUser } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import '../styles/dashboard.css';
 
@@ -129,6 +129,9 @@ export default function DashboardApp({ onLockStaff }) {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Authenticated User
+  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
 
   // Mobile Bottom Admin Drawer
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -931,7 +934,24 @@ export default function DashboardApp({ onLockStaff }) {
               <Lock size={15} /> <span className="hide-on-mobile">Lock Station</span>
             </button>
 
-            <div className="user-avatar-circle hide-on-mobile">TM</div>
+            <div
+              className="user-avatar-circle hide-on-mobile"
+              title={currentUser ? `${currentUser.name} (${currentUser.role || 'Admin'})` : 'TableMint Station'}
+              onClick={() => {
+                if (onLockStaff) onLockStaff();
+              }}
+              style={{ cursor: 'pointer' }}
+            >
+              {currentUser?.name
+                ? currentUser.name
+                    .split(' ')
+                    .filter(Boolean)
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()
+                : 'TM'}
+            </div>
           </div>
         </header>
 

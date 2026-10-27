@@ -1,0 +1,22 @@
+[
+  {
+    "id": "user_admin",
+    "name": "Admin Manager",
+    "email": "admin@tablemint.com",
+    "hash": "4233ff0b8042d252d72651369125c263f7b71b4fb4a763d4787a2f7ca143cd2011e52f4c45588bbf716fc80ce523a047f14e0fb25026747750f03b17a1d2bdeb",
+    "salt": "tablemint_static_salt_2026",
+    "role": "admin",
+    "restaurantName": "TableMint",
+    "createdAt": "2026-10-27T05:37:03.273Z"
+  },
+  {
+    "id": "user_1793079871110",
+    "name": "Kunal Pawar",
+    "email": "kunal@restaurant.com",
+    "hash": "81f09ae7d0e5a9606a4beb82c63ed7a193a7cb36c86c65860ea25bb026152321fe80c7c8b6e68ff93991084d47181a434bc8f960f551856052fffa57fd9a0e4a",
+    "salt": "414cbf71f7eb8868da0cb5e65c012c99",
+    "role": "admin",
+    "restaurantName": "TableMint POS",
+    "createdAt": "2026-10-27T05:44:31.110Z"
+  }
+]

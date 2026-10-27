@@ -197,38 +197,295 @@ button {
 
 .staff-modal-card {
   width: 100%;
-  max-width: 400px;
-  background: rgba(18, 25, 41, 0.94);
+  max-width: 420px;
+  background: rgba(13, 20, 36, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
-  padding: 32px 28px;
+  padding: 30px 26px;
   text-align: center;
   position: relative;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.1);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 230, 118, 0.15);
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.staff-lock-icon-badge {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.05));
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: var(--primary);
-  border-radius: 20px;
+.auth-modal-expanded {
+  max-width: 440px;
+}
+
+.auth-brand-header {
+  margin-bottom: 16px;
+}
+
+.auth-logo-badge {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 10px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 18px;
+}
+
+.auth-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.staff-lock-icon-badge {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(0, 230, 118, 0.3);
+  color: var(--primary-neon);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
 }
 
 .staff-modal-title {
-  font-size: 1.35rem;
-  margin-bottom: 6px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
 }
+
 .staff-modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
+  line-height: 1.35;
+}
+
+/* Auth Segmented Tabs Row */
+.auth-tabs-row {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-tab-btn:hover {
+  color: #ffffff;
+}
+
+.auth-tab-btn.active {
+  background: linear-gradient(135deg, #00e676, #10b981);
+  color: #000000;
+  box-shadow: 0 2px 10px rgba(0, 230, 118, 0.35);
+  font-weight: 800;
+}
+
+/* Feedback Alert Banners */
+.auth-alert-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.auth-alert-box.error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.auth-alert-box.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+/* Auth Form Elements */
+.auth-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-input-group {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.auth-input-field {
+  width: 100%;
+  background: rgba(11, 17, 32, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 42px 12px 40px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.auth-input-field:focus {
+  border-color: #00e676;
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.25);
+  outline: none;
+  background: rgba(11, 17, 32, 0.95);
+}
+
+.auth-password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.auth-password-toggle-btn:hover {
+  color: #ffffff;
+}
+
+.auth-demo-pill-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px dashed rgba(0, 230, 118, 0.35);
+  color: #00e676;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.auth-demo-pill-btn:hover {
+  background: rgba(0, 230, 118, 0.15);
+  border-color: #00e676;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.auth-footer-toggle {
+  font-size: 0.82rem;
+  color: #64748b;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.auth-link-btn {
+  background: none;
+  border: none;
+  color: #00e676;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+}
+
+.auth-link-btn:hover {
+  color: #34d399;
+}
+
+/* Role Selector */
+.auth-role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 4px;
+}
+
+.auth-role-label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.auth-role-pills {
+  display: flex;
+  gap: 6px;
+}
+
+.auth-role-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-role-pill.active {
+  background: rgba(0, 230, 118, 0.15);
+  border-color: #00e676;
+  color: #00e676;
+  font-weight: 800;
+}
+
+/* PIN section */
+.auth-pin-instruction {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.pin-hint-badge {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 16px;
 }
 
 .pin-dots-container {
