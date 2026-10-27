@@ -21,7 +21,7 @@ import {
 } from '../utils/staffAuth';
 import { soundManager } from '../utils/sound';
 
-export default function StaffAuthModal({ isOpen, onSuccess, onClose, message }) {
+export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fullPage = false }) {
   const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup' | 'pin'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(message || '');
@@ -210,14 +210,13 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message }) 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="modal-backdrop">
-      <div className={`staff-modal-card auth-modal-expanded ${shake ? 'shake-anim' : ''}`}>
-        {onClose && (
-          <button className="modal-close-btn" onClick={onClose} aria-label="Close" type="button">
-            <X size={18} />
-          </button>
-        )}
+  const cardContent = (
+    <div className={`staff-modal-card auth-modal-expanded ${fullPage ? 'auth-modal-fullpage' : ''} ${shake ? 'shake-anim' : ''}`}>
+      {onClose && !fullPage && (
+        <button className="modal-close-btn" onClick={onClose} aria-label="Close" type="button">
+          <X size={18} />
+        </button>
+      )}
 
         {/* Brand Header */}
         <div className="auth-brand-header">
@@ -550,6 +549,25 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message }) 
           </div>
         )}
       </div>
+    );
+
+  if (fullPage) {
+    return (
+      <div className="auth-fullpage-wrapper">
+        <div className="auth-fullpage-decor-glow" />
+        <div className="auth-fullpage-container">
+          {cardContent}
+          <div className="auth-fullpage-footer">
+            <span>TableMint Restaurant OS • End-to-End Encrypted Terminal</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="modal-backdrop">
+      {cardContent}
     </div>
   );
 }

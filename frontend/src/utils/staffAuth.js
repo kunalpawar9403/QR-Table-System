@@ -138,3 +138,22 @@ export async function authFetch(url, options = {}) {
   }
   return res;
 }
+
+export async function updateUserProfile({ name, restaurantName }) {
+  try {
+    const res = await authFetch('/api/auth/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, restaurantName })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (data.token) setStaffToken(data.token);
+      if (data.user) setCurrentUser(data.user);
+      return { success: true, user: data.user, message: data.message };
+    }
+    return { success: false, error: data.error || 'Failed to update profile' };
+  } catch (err) {
+    return { success: false, error: 'Connection error while updating profile.' };
+  }
+}

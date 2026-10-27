@@ -18,5 +18,15 @@
     "role": "admin",
     "restaurantName": "TableMint POS",
     "createdAt": "2026-10-27T05:44:31.110Z"
+  },
+  {
+    "id": "user_1793081063746",
+    "name": "Chef Mario",
+    "email": "mario@kitchen.com",
+    "hash": "138219b449dbd62e5c3845f0ec2207bb8911c3831b7dea7efc8e7535ce8c9c29881bfae6f050007ad3bd3224bbd2d5369d90126501111a3711a01733f2713528",
+    "salt": "4e288d41c8ba21ac14b647e84a5f85c8",
+    "role": "staff",
+    "restaurantName": "Mario Bistro",
+    "createdAt": "2026-10-27T06:04:23.746Z"
   }
 ]

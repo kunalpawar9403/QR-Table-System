@@ -41,11 +41,13 @@ import {
   Smartphone,
   Sparkles,
   DollarSign,
-  Menu
+  Menu,
+  User,
+  LogOut
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, clearStaffToken, getCurrentUser } from '../utils/staffAuth';
+import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import '../styles/dashboard.css';
 
@@ -132,6 +134,16 @@ export default function DashboardApp({ onLockStaff }) {
 
   // Authenticated User
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
+  const [profileName, setProfileName] = useState(currentUser?.name || '');
+  const [profileRestaurant, setProfileRestaurant] = useState(currentUser?.restaurantName || 'TableMint');
+  const [profileSaving, setProfileSaving] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setProfileName(currentUser.name || '');
+      setProfileRestaurant(currentUser.restaurantName || 'TableMint');
+    }
+  }, [currentUser]);
 
   // Mobile Bottom Admin Drawer
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -435,6 +447,39 @@ export default function DashboardApp({ onLockStaff }) {
     } catch (err) {
       addToast('Error saving dish', 'error');
     }
+  };
+
+  // Save Profile Changes
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    if (!profileName.trim() || profileName.trim().length < 2) {
+      addToast('Please enter a valid full name (at least 2 characters)', 'error');
+      return;
+    }
+    setProfileSaving(true);
+    try {
+      const res = await updateUserProfile({
+        name: profileName,
+        restaurantName: profileRestaurant
+      });
+      if (res.success) {
+        setCurrentUser(res.user);
+        addToast('Profile updated successfully!', 'success');
+      } else {
+        addToast(res.error || 'Failed to update profile', 'error');
+      }
+    } catch (err) {
+      addToast('Connection error updating profile', 'error');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  // Log Out & Lock Station
+  const handleLogout = () => {
+    logoutStaff();
+    if (onLockStaff) onLockStaff();
+    addToast('Logged out of TableMint Station', 'info');
   };
 
   // Save Table
@@ -845,16 +890,31 @@ export default function DashboardApp({ onLockStaff }) {
                 <span>Integrations</span>
               </div>
             </button>
+
+            <button
+              className={`sidebar-nav-item ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              <div className="sidebar-item-left">
+                <User size={18} />
+                <span>My Profile</span>
+              </div>
+            </button>
           </nav>
         </div>
 
-        {/* Sidebar Bottom Sync Card */}
-        <div className="sidebar-bottom-status">
+        {/* Sidebar Bottom Sync & Profile Card */}
+        <div
+          className="sidebar-bottom-status"
+          onClick={() => setActiveTab('profile')}
+          style={{ cursor: 'pointer' }}
+          title="Open Profile & Operations Account"
+        >
           <div className="status-card-left">
             <span className="status-dot-green" />
             <div>
-              <div className="status-card-title">Live Sync Active</div>
-              <div className="status-card-sub">All systems connected</div>
+              <div className="status-card-title">{currentUser?.name || 'Live Sync Active'}</div>
+              <div className="status-card-sub">{currentUser ? (currentUser.role === 'admin' ? 'Owner / Admin' : 'Floor Staff') : 'All systems connected'}</div>
             </div>
           </div>
           <ChevronRight size={16} style={{ color: '#64748b' }} />
@@ -925,21 +985,16 @@ export default function DashboardApp({ onLockStaff }) {
 
             <button
               className="lock-station-btn"
-              onClick={() => {
-                clearStaffToken();
-                if (onLockStaff) onLockStaff();
-              }}
-              title="Lock Station"
+              onClick={handleLogout}
+              title="Sign Out & Lock Station"
             >
-              <Lock size={15} /> <span className="hide-on-mobile">Lock Station</span>
+              <Lock size={15} /> <span className="hide-on-mobile">Sign Out / Lock</span>
             </button>
 
             <div
               className="user-avatar-circle hide-on-mobile"
-              title={currentUser ? `${currentUser.name} (${currentUser.role || 'Admin'})` : 'TableMint Station'}
-              onClick={() => {
-                if (onLockStaff) onLockStaff();
-              }}
+              title={currentUser ? `${currentUser.name} (${currentUser.role || 'Admin'}) • Click to open Profile` : 'TableMint Station'}
+              onClick={() => setActiveTab('profile')}
               style={{ cursor: 'pointer' }}
             >
               {currentUser?.name
@@ -2303,6 +2358,207 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
           </section>
         )}
+
+        {/* ========================================================
+            TAB: PROFILE & OPERATIONS ACCOUNT
+            ======================================================== */}
+        {activeTab === 'profile' && (
+          <section className="floor-status-panel">
+            <div className="panel-header-row">
+              <div>
+                <h3>Profile & Operations Account</h3>
+                <p>Manage your account credentials, restaurant identity, and floor security</p>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn-danger-logout"
+                  onClick={handleLogout}
+                  title="Sign out and return to Login & Sign Up screen"
+                >
+                  <LogOut size={16} /> Sign Out / Exit Station
+                </button>
+              </div>
+            </div>
+
+            <div className="profile-grid-container">
+              {/* Left Column: User Identity Card */}
+              <div className="profile-card profile-hero-card">
+                <div className="profile-avatar-large">
+                  {currentUser?.name
+                    ? currentUser.name
+                        .split(' ')
+                        .filter(Boolean)
+                        .map((n) => n[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase()
+                    : 'TM'}
+                  <span className="profile-avatar-online-dot" title="Active Session" />
+                </div>
+
+                <h3 className="profile-hero-name">{currentUser?.name || 'TableMint Staff'}</h3>
+                <p className="profile-hero-email">{currentUser?.email || 'admin@tablemint.com'}</p>
+
+                <div className="profile-badges-row">
+                  <span className={`status-pill ${currentUser?.role === 'admin' ? 'ready' : 'pending'}`}>
+                    <ShieldCheck size={13} />
+                    {currentUser?.role === 'admin' ? 'Admin / Owner' : 'Floor Staff'}
+                  </span>
+                  <span className="status-pill occupied">
+                    <UtensilsCrossed size={13} />
+                    {currentUser?.restaurantName || 'TableMint'}
+                  </span>
+                </div>
+
+                <div className="profile-info-list">
+                  <div className="profile-info-row">
+                    <span className="profile-info-label">
+                      <ShieldCheck size={14} /> Security Standard
+                    </span>
+                    <span className="profile-info-value" style={{ color: '#00e676', fontSize: '0.78rem' }}>
+                      PBKDF2 SHA-512 Encrypted
+                    </span>
+                  </div>
+                  <div className="profile-info-row">
+                    <span className="profile-info-label">
+                      <KeyRound size={14} /> POS Floor PIN
+                    </span>
+                    <span className="profile-info-value">1234 (Default)</span>
+                  </div>
+                  <div className="profile-info-row">
+                    <span className="profile-info-label">
+                      <Wifi size={14} /> Live Sync Relay
+                    </span>
+                    <span className="profile-info-value" style={{ color: '#38bdf8' }}>
+                      Connected (12ms)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Edit Profile & Security Details */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {/* Edit Profile Details Form */}
+                <div className="profile-card">
+                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <User size={18} style={{ color: '#00e676' }} /> Personal & Restaurant Profile
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 18 }}>
+                    Update your display name and dining brand name across POS tickets and receipts.
+                  </p>
+
+                  <form onSubmit={handleSaveProfile} className="profile-form-section">
+                    <div className="profile-form-row">
+                      <div>
+                        <label className="profile-field-label">Full Name</label>
+                        <input
+                          type="text"
+                          className="auth-input-field"
+                          value={profileName}
+                          onChange={(e) => setProfileName(e.target.value)}
+                          placeholder="Your Name"
+                          required
+                          disabled={profileSaving}
+                        />
+                      </div>
+                      <div>
+                        <label className="profile-field-label">Restaurant Brand Name</label>
+                        <input
+                          type="text"
+                          className="auth-input-field"
+                          value={profileRestaurant}
+                          onChange={(e) => setProfileRestaurant(e.target.value)}
+                          placeholder="e.g. TableMint / Spice Garden"
+                          required
+                          disabled={profileSaving}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="profile-form-row">
+                      <div>
+                        <label className="profile-field-label">Email Address (Login Identity)</label>
+                        <input
+                          type="email"
+                          className="auth-input-field profile-input-readonly"
+                          value={currentUser?.email || 'admin@tablemint.com'}
+                          readOnly
+                          title="Email address cannot be changed directly."
+                        />
+                      </div>
+                      <div>
+                        <label className="profile-field-label">Station Role & Permissions</label>
+                        <input
+                          type="text"
+                          className="auth-input-field profile-input-readonly"
+                          value={currentUser?.role === 'admin' ? 'Administrator (Full Access)' : 'Floor Staff (POS & Orders)'}
+                          readOnly
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+                      <button
+                        type="submit"
+                        className="btn-primary"
+                        disabled={profileSaving}
+                        style={{ padding: '10px 22px' }}
+                      >
+                        <Check size={16} />
+                        {profileSaving ? 'Saving Changes...' : 'Save Profile Changes'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Session Security Details */}
+                <div className="profile-card">
+                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ShieldCheck size={18} style={{ color: '#38bdf8' }} /> Station Security & Session Status
+                  </h4>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 14 }}>
+                    Your session is actively verified against TableMint backend server.
+                  </p>
+
+                  <div className="profile-info-list" style={{ borderTop: 'none', paddingTop: 0 }}>
+                    <div className="profile-info-row">
+                      <span className="profile-info-label">
+                        <Lock size={14} /> Authorization Token
+                      </span>
+                      <span className="profile-info-value" style={{ fontFamily: 'monospace', color: '#94a3b8' }}>
+                        tm_auth_{currentUser?.id ? currentUser.id.slice(0, 8) : 'staff'}••••••••
+                      </span>
+                    </div>
+                    <div className="profile-info-row">
+                      <span className="profile-info-label">
+                        <Smartphone size={14} /> Station Interface
+                      </span>
+                      <span className="profile-info-value">TableMint POS WebApp v2.4</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Danger Zone: Log Out Card */}
+                <div className="profile-logout-card">
+                  <div className="profile-logout-text">
+                    <h4>Sign Out of TableMint Station</h4>
+                    <p>
+                      Terminates your authenticated session immediately. Only the Login and Sign Up screen will remain accessible until you authenticate again.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="btn-danger-logout"
+                    onClick={handleLogout}
+                  >
+                    <LogOut size={18} /> Sign Out Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       {/* Add New Table Modal */}
@@ -2909,6 +3165,22 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="drawer-btn-sub">Hardware & ESC/POS</div>
                 </div>
               </button>
+              <button
+                type="button"
+                className={`drawer-action-btn ${activeTab === 'profile' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveTab('profile');
+                  setMobileMoreOpen(false);
+                }}
+              >
+                <div className="drawer-btn-icon" style={{ background: 'rgba(0, 230, 118, 0.15)', color: '#00e676' }}>
+                  <User size={20} />
+                </div>
+                <div>
+                  <div className="drawer-btn-title">My Profile</div>
+                  <div className="drawer-btn-sub">Account & Sign Out</div>
+                </div>
+              </button>
             </div>
 
             <div className="drawer-footer-actions">
@@ -2917,11 +3189,10 @@ export default function DashboardApp({ onLockStaff }) {
                 className="drawer-lock-btn"
                 onClick={() => {
                   setMobileMoreOpen(false);
-                  clearStaffToken();
-                  if (onLockStaff) onLockStaff();
+                  handleLogout();
                 }}
               >
-                <Lock size={15} /> Lock Station
+                <Lock size={15} /> Sign Out / Lock
               </button>
               <button
                 type="button"

@@ -405,6 +405,52 @@ app.get('/api/auth/check', (req, res) => {
   res.json({ authenticated: Boolean(user), user: user || null });
 });
 
+// PATCH /api/auth/profile - Update user profile details
+app.patch('/api/auth/profile', requireStaffAuth, (req, res) => {
+  try {
+    const { name, restaurantName } = req.body || {};
+    const token = req.headers['x-staff-token'] || req.query.staff_token;
+    const currentUser = verifyUserToken(token);
+    if (!currentUser || currentUser.id === 'staff_pin') {
+      return res.status(400).json({ success: false, error: 'Cannot modify system PIN terminal profile.' });
+    }
+
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex === -1) {
+      return res.status(404).json({ success: false, error: 'User account not found.' });
+    }
+
+    if (name && name.trim().length >= 2) {
+      users[userIndex].name = name.trim();
+    }
+    if (restaurantName && restaurantName.trim().length >= 2) {
+      users[userIndex].restaurantName = restaurantName.trim();
+    }
+
+    saveUsers(users);
+
+    const safeUser = {
+      id: users[userIndex].id,
+      name: users[userIndex].name,
+      email: users[userIndex].email,
+      role: users[userIndex].role,
+      restaurantName: users[userIndex].restaurantName
+    };
+    const freshToken = generateUserToken(safeUser);
+
+    res.json({
+      success: true,
+      user: safeUser,
+      token: freshToken,
+      message: 'Profile updated successfully!'
+    });
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).json({ success: false, error: 'Failed to update profile.' });
+  }
+});
+
 // Server info & host URLs for QR generation
 app.get('/api/info', (req, res) => {
   const isVercel = Boolean(process.env.VERCEL);

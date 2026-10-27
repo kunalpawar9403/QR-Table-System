@@ -63,6 +63,20 @@ export default function App() {
     setCurrentView(view);
   };
 
+  // Strict Staff Auth Gate: When unauthenticated after logout or session expiry on staff screens,
+  // ONLY the Login and Sign Up full-page view is opened! The dashboard is never rendered in the background.
+  if (currentView !== 'customer' && !isStaffAuthenticated) {
+    return (
+      <ToastProvider>
+        <StaffAuthModal
+          isOpen={true}
+          fullPage={true}
+          onSuccess={handleStaffSuccess}
+        />
+      </ToastProvider>
+    );
+  }
+
   return (
     <ToastProvider>
       <div className="app-root">
@@ -141,7 +155,12 @@ export default function App() {
             />
           )}
           {currentView === 'dashboard' && (
-            <DashboardApp onLockStaff={() => setStaffAuthModalOpen(true)} />
+            <DashboardApp
+              onLockStaff={() => {
+                setIsStaffAuthenticated(false);
+                setStaffAuthModalOpen(true);
+              }}
+            />
           )}
           {currentView === 'kitchen' && <KitchenKdsApp />}
           {currentView === 'stands' && (
