@@ -47,7 +47,9 @@ import {
   CreditCard,
   Eye,
   MoreVertical,
-  Tag
+  Tag,
+  Globe,
+  Info
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -212,8 +214,11 @@ export default function DashboardApp({ onLockStaff }) {
     }
   }, [currentUser]);
 
-  // Mobile Bottom Admin Drawer
+  // Mobile Bottom Admin Drawer & Navigation State
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [mobileSelectedOrder, setMobileSelectedOrder] = useState(null);
+  const [mobileSettingsSubNav, setMobileSettingsSubNav] = useState(null);
+  const [kitchenStatusFilter, setKitchenStatusFilter] = useState('pending');
 
   // State
   const [orders, setOrders] = useState([]);
@@ -1002,7 +1007,7 @@ export default function DashboardApp({ onLockStaff }) {
           RIGHT MAIN CONTENT AREA
           ======================================================== */}
       <main className="dash-main-area">
-        {/* Mobile Top Header Matching Image 3 (Deep Forest Green #07241a with White Titles) */}
+        {/* Mobile Top Header Matching Image 3 Reference (12 Screens) */}
         <header className="admin-mobile-top-bar hide-on-desktop no-print">
           <div className="mobile-top-left">
             {activeTab === 'overview' ? (
@@ -1010,6 +1015,48 @@ export default function DashboardApp({ onLockStaff }) {
                 <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
                 <span className="mobile-brand-title">TableMint</span>
               </div>
+            ) : activeTab === 'tables' ? (
+              <div className="mobile-brand-box">
+                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <span className="mobile-brand-title">Tables</span>
+              </div>
+            ) : activeTab === 'menu' ? (
+              <div className="mobile-brand-box">
+                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <span className="mobile-brand-title">Menu</span>
+              </div>
+            ) : activeTab === 'kitchen' ? (
+              <div className="mobile-brand-box">
+                <ChefHat size={20} className="text-white" />
+                <span className="mobile-brand-title">Kitchen Display</span>
+              </div>
+            ) : activeTab === 'profile' ? (
+              <div className="mobile-brand-box">
+                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <span className="mobile-brand-title">More</span>
+              </div>
+            ) : activeTab === 'orders' && mobileSelectedOrder ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setMobileSelectedOrder(null)}
+                title="Back to Orders List"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">
+                  Order #{mobileSelectedOrder.orderNumber || mobileSelectedOrder.code || mobileSelectedOrder.id}
+                </span>
+              </button>
+            ) : activeTab === 'settings' && mobileSettingsSubNav ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setMobileSettingsSubNav(null)}
+                title="Back to Settings"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">Settings</span>
+              </button>
             ) : (
               <button
                 type="button"
@@ -1020,30 +1067,44 @@ export default function DashboardApp({ onLockStaff }) {
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">
                   {activeTab === 'orders' && 'Orders'}
-                  {activeTab === 'tables' && 'Tables'}
-                  {activeTab === 'menu' && 'Menu'}
-                  {activeTab === 'kitchen' && 'Kitchen Display'}
                   {activeTab === 'billing' && 'POS Billing'}
                   {activeTab === 'reports' && 'Reports'}
                   {activeTab === 'customers' && 'Customers'}
                   {activeTab === 'settings' && 'Settings'}
-                  {activeTab === 'profile' && 'More'}
-                  {!['orders','tables','menu','kitchen','billing','reports','customers','settings','profile'].includes(activeTab) && 'TableMint'}
+                  {activeTab === 'stands' && 'QR Stands'}
+                  {!['orders','tables','menu','kitchen','billing','reports','customers','settings','profile','stands'].includes(activeTab) && 'TableMint'}
                 </span>
               </button>
             )}
           </div>
 
           <div className="mobile-top-right">
-            <button
-              type="button"
-              className="mobile-bell-btn relative"
-              onClick={() => setActiveTab('orders')}
-              title="Notifications"
-            >
-              <Bell size={18} />
-              {serviceCalls.length > 0 && <span className="mobile-bell-dot" />}
-            </button>
+            {activeTab === 'kitchen' ? (
+              <span className="mobile-top-badge-kitchen">Kitchen ▾</span>
+            ) : activeTab === 'billing' ? (
+              <button
+                type="button"
+                className="mobile-top-action-btn"
+                onClick={() => window.print()}
+                title="Print Receipt"
+              >
+                <Printer size={18} />
+              </button>
+            ) : activeTab === 'orders' && mobileSelectedOrder ? (
+              <span className={`status-badge-pill ${mobileSelectedOrder.status || 'preparing'}`}>
+                {mobileSelectedOrder.status?.charAt(0).toUpperCase() + (mobileSelectedOrder.status?.slice(1) || 'Preparing')}
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="mobile-bell-btn relative"
+                onClick={() => setActiveTab('orders')}
+                title="Notifications"
+              >
+                <Bell size={18} />
+                {serviceCalls.length > 0 && <span className="mobile-bell-dot" />}
+              </button>
+            )}
           </div>
         </header>
 
@@ -1392,6 +1453,19 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
+            {/* Screen 5: Table Legend matching Mobile Reference Screen 5 */}
+            <div className="mobile-table-legend hide-on-desktop">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <span className="status-dot green" /> Available
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <span className="status-dot red" /> Occupied
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <span className="status-dot blue" /> Serving
+              </span>
+            </div>
+
             {/* Filter Pills matching Reference Panel 3 */}
             <div className="admin-filter-pills-row">
               <button
@@ -1487,79 +1561,226 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
-            {/* Filter Pills matching Reference Panel 2 */}
-            <div className="admin-filter-pills-row">
-              {[
-                { id: 'all', label: 'All Orders', count: 24 },
-                { id: 'pending', label: 'Pending', count: 6 },
-                { id: 'preparing', label: 'Preparing', count: 8 },
-                { id: 'ready', label: 'Ready', count: 4 },
-                { id: 'served', label: 'Served', count: 6 }
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  className={`admin-filter-pill ${orderFilter === p.id ? 'active' : ''}`}
-                  onClick={() => setOrderFilter(p.id)}
-                >
-                  {p.label} ({p.count})
-                </button>
-              ))}
-            </div>
+            {/* Screen 4: Mobile Order Details Screen (Active when an order is selected on mobile) */}
+            {mobileSelectedOrder ? (
+              <div className="mobile-order-details-screen hide-on-desktop">
+                <div className="mobile-order-details-meta">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>{mobileSelectedOrder.table}</span>
+                    <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Placed {mobileSelectedOrder.time} ago</span>
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
+                    Order {mobileSelectedOrder.code} • Dine-in Guest
+                  </div>
+                </div>
 
-            {/* Clean Full-Width Data Table matching Reference Panel 2 */}
-            <div className="admin-table-card">
-              <table className="admin-clean-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Table</th>
-                    <th>Items</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Time</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+                {/* Items List */}
+                <div className="mobile-order-items-list">
+                  {(mobileSelectedOrder.itemsList || [
+                    { name: 'Paneer Tikka', quantity: 2, price: 260 },
+                    { name: 'Chicken Biryani', quantity: 1, price: 265 }
+                  ]).map((it, idx) => (
+                    <div key={idx} className="mobile-order-item-row">
+                      <img
+                        src={idx % 2 === 0 ? "/images/masala_dosa.jpg" : "/images/chicken_biryani.jpg"}
+                        alt={it.name}
+                        className="mobile-order-item-thumb"
+                        onError={(e) => { e.target.src = '/images/tablemint_leaf_icon.png'; }}
+                      />
+                      <div className="mobile-order-item-info">
+                        <div className="mobile-order-item-name">{it.name}</div>
+                        <div className="mobile-order-item-price">₹{it.price} each</div>
+                      </div>
+                      <div className="mobile-order-item-qty">x{it.quantity || 1}</div>
+                      <div className="mobile-order-item-total">₹{(it.price || 200) * (it.quantity || 1)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Customer Instructions */}
+                <div className="mobile-customer-notes-box">
+                  <div className="notes-label">Customer Instructions</div>
+                  <div className="notes-text">"{mobileSelectedOrder.notes || 'Please serve extra green chutney and napkins.'}"</div>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="mobile-order-financials">
+                  <div className="financial-row">
+                    <span>Subtotal</span>
+                    <span>₹{Math.round(mobileSelectedOrder.amount / 1.05)}</span>
+                  </div>
+                  <div className="financial-row">
+                    <span>GST (5%)</span>
+                    <span>₹{Math.round(mobileSelectedOrder.amount - (mobileSelectedOrder.amount / 1.05))}</span>
+                  </div>
+                  <div className="financial-row total">
+                    <span>Total Amount</span>
+                    <span>₹{mobileSelectedOrder.amount}</span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mobile-order-actions-stack">
+                  <select
+                    className="mobile-status-select"
+                    value={mobileSelectedOrder.status}
+                    onChange={(e) => {
+                      const newStatus = e.target.value;
+                      setMobileSelectedOrder(prev => ({ ...prev, status: newStatus }));
+                      addToast(`Order ${mobileSelectedOrder.code} status updated to ${newStatus}`, 'success');
+                    }}
+                  >
+                    <option value="pending">Status: Pending</option>
+                    <option value="preparing">Status: Preparing</option>
+                    <option value="ready">Status: Ready</option>
+                    <option value="served">Status: Served</option>
+                    <option value="cancelled">Status: Cancelled</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    className="mobile-print-bill-btn"
+                    onClick={() => {
+                      handlePrintBill({
+                        id: mobileSelectedOrder.id,
+                        orderNumber: mobileSelectedOrder.code,
+                        tableName: mobileSelectedOrder.table,
+                        items: mobileSelectedOrder.itemsList || [{ name: 'Dining Order', quantity: 1, price: mobileSelectedOrder.amount }],
+                        total: mobileSelectedOrder.amount,
+                        subtotal: Math.round(mobileSelectedOrder.amount / 1.05),
+                        tax: Math.round(mobileSelectedOrder.amount - (mobileSelectedOrder.amount / 1.05))
+                      });
+                    }}
+                  >
+                    <Printer size={16} /> Print Bill Receipt
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-brand-outline"
+                    style={{ width: '100%', justifyContent: 'center' }}
+                    onClick={() => setMobileSelectedOrder(null)}
+                  >
+                    Back to All Orders
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Filter Pills matching Reference Screen 3 */}
+                <div className="admin-filter-pills-row">
                   {[
-                    { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', amount: 525, status: 'preparing', time: '2 mins' },
-                    { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', amount: 750, status: 'served', time: '8 mins' },
-                    { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', amount: 320, status: 'preparing', time: '12 mins' },
-                    { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', amount: 600, status: 'ready', time: '18 mins' },
-                    { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', amount: 420, status: 'ready', time: '22 mins' },
-                    { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', amount: 180, status: 'served', time: '25 mins' },
-                    { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', amount: 950, status: 'preparing', time: '28 mins' },
-                    { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', amount: 450, status: 'cancelled', time: '35 mins' }
+                    { id: 'all', label: 'All Orders', count: 24 },
+                    { id: 'pending', label: 'Pending', count: 6 },
+                    { id: 'preparing', label: 'Preparing', count: 8 },
+                    { id: 'ready', label: 'Ready', count: 4 },
+                    { id: 'served', label: 'Served', count: 6 }
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      className={`admin-filter-pill ${orderFilter === p.id ? 'active' : ''}`}
+                      onClick={() => setOrderFilter(p.id)}
+                    >
+                      {p.label} ({p.count})
+                    </button>
+                  ))}
+                </div>
+
+                {/* Screen 3: Mobile Orders List Cards */}
+                <div className="mobile-orders-cards-container hide-on-desktop">
+                  {[
+                    { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 260 }, { name: 'Chicken Biryani', quantity: 1, price: 265 }], amount: 525, status: 'preparing', time: '2 mins', notes: 'Extra spicy, serve onions.' },
+                    { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', itemsList: [{ name: 'Butter Chicken', quantity: 1, price: 420 }, { name: 'Garlic Naan', quantity: 3, price: 180 }, { name: 'Gulab Jamun', quantity: 2, price: 150 }], amount: 750, status: 'served', time: '8 mins', notes: 'Serve dessert warm.' },
+                    { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', itemsList: [{ name: 'Veg Hakka Noodles', quantity: 1, price: 320 }], amount: 320, status: 'preparing', time: '12 mins', notes: 'No ajinomoto.' },
+                    { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', itemsList: [{ name: 'Crispy Corn', quantity: 1, price: 220 }, { name: 'Virgin Mojito', quantity: 2, price: 260 }, { name: 'French Fries', quantity: 1, price: 120 }], amount: 600, status: 'ready', time: '18 mins', notes: 'Less ice in mojitos.' },
+                    { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', itemsList: [{ name: 'Masala Dosa', quantity: 2, price: 280 }, { name: 'Filter Coffee', quantity: 2, price: 140 }], amount: 420, status: 'ready', time: '22 mins', notes: 'Extra sambar.' },
+                    { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', itemsList: [{ name: 'Club Sandwich', quantity: 1, price: 180 }], amount: 180, status: 'served', time: '25 mins', notes: 'Brown bread.' },
+                    { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', itemsList: [{ name: 'Mutton Rogan Josh', quantity: 1, price: 540 }, { name: 'Jeera Rice', quantity: 1, price: 180 }, { name: 'Tandoori Roti', quantity: 4, price: 160 }, { name: 'Raita', quantity: 1, price: 70 }], amount: 950, status: 'preparing', time: '28 mins', notes: 'Well cooked mutton.' },
+                    { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', itemsList: [{ name: 'Margherita Pizza', quantity: 1, price: 350 }, { name: 'Cold Drink', quantity: 2, price: 100 }], amount: 450, status: 'cancelled', time: '35 mins', notes: 'Cancelled by customer.' }
                   ]
                     .filter((ord) => orderFilter === 'all' || ord.status === orderFilter)
                     .map((ord) => (
-                      <tr key={ord.id}>
-                        <td style={{ fontWeight: 800, color: '#0f172a' }}>{ord.code}</td>
-                        <td style={{ color: '#475569', fontWeight: 600 }}>{ord.table}</td>
-                        <td style={{ color: '#64748b' }}>{ord.items}</td>
-                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {ord.amount}</td>
-                        <td>
+                      <div
+                        key={ord.id}
+                        className="mobile-order-card"
+                        onClick={() => setMobileSelectedOrder(ord)}
+                      >
+                        <div className="mobile-order-card-row" style={{ marginBottom: 4 }}>
+                          <span className="mobile-order-code">{ord.code}</span>
                           <span className={`status-badge-pill ${ord.status}`}>
                             {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
                           </span>
-                        </td>
-                        <td style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{ord.time}</td>
-                        <td>
-                          <button
-                            className="btn-row-action"
-                            onClick={() => {
-                              setSelectedBillingTableId(parseInt(ord.table.replace(/\D/g, ''), 10) || 12);
-                              setActiveTab('billing');
-                            }}
-                          >
-                            View
-                          </button>
-                        </td>
-                      </tr>
+                        </div>
+                        <div className="mobile-order-card-row" style={{ marginBottom: 6 }}>
+                          <span className="mobile-order-table">{ord.table} • {ord.items}</span>
+                          <span className="mobile-order-time">{ord.time} ago</span>
+                        </div>
+                        <div className="mobile-order-card-row">
+                          <span className="mobile-order-price">₹ {ord.amount}</span>
+                          <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>
+                            View Details ›
+                          </span>
+                        </div>
+                      </div>
                     ))}
-                </tbody>
-              </table>
-            </div>
+                </div>
+
+                {/* Clean Full-Width Data Table for Desktop */}
+                <div className="admin-table-card hide-on-mobile">
+                  <table className="admin-clean-table">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Table</th>
+                        <th>Items</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 260 }, { name: 'Chicken Biryani', quantity: 1, price: 265 }], amount: 525, status: 'preparing', time: '2 mins', notes: 'Extra spicy, serve onions.' },
+                        { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', itemsList: [{ name: 'Butter Chicken', quantity: 1, price: 420 }, { name: 'Garlic Naan', quantity: 3, price: 180 }, { name: 'Gulab Jamun', quantity: 2, price: 150 }], amount: 750, status: 'served', time: '8 mins', notes: 'Serve dessert warm.' },
+                        { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', itemsList: [{ name: 'Veg Hakka Noodles', quantity: 1, price: 320 }], amount: 320, status: 'preparing', time: '12 mins', notes: 'No ajinomoto.' },
+                        { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', itemsList: [{ name: 'Crispy Corn', quantity: 1, price: 220 }, { name: 'Virgin Mojito', quantity: 2, price: 260 }, { name: 'French Fries', quantity: 1, price: 120 }], amount: 600, status: 'ready', time: '18 mins', notes: 'Less ice in mojitos.' },
+                        { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', itemsList: [{ name: 'Masala Dosa', quantity: 2, price: 280 }, { name: 'Filter Coffee', quantity: 2, price: 140 }], amount: 420, status: 'ready', time: '22 mins', notes: 'Extra sambar.' },
+                        { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', itemsList: [{ name: 'Club Sandwich', quantity: 1, price: 180 }], amount: 180, status: 'served', time: '25 mins', notes: 'Brown bread.' },
+                        { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', itemsList: [{ name: 'Mutton Rogan Josh', quantity: 1, price: 540 }, { name: 'Jeera Rice', quantity: 1, price: 180 }, { name: 'Tandoori Roti', quantity: 4, price: 160 }, { name: 'Raita', quantity: 1, price: 70 }], amount: 950, status: 'preparing', time: '28 mins', notes: 'Well cooked mutton.' },
+                        { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', itemsList: [{ name: 'Margherita Pizza', quantity: 1, price: 350 }, { name: 'Cold Drink', quantity: 2, price: 100 }], amount: 450, status: 'cancelled', time: '35 mins', notes: 'Cancelled by customer.' }
+                      ]
+                        .filter((ord) => orderFilter === 'all' || ord.status === orderFilter)
+                        .map((ord) => (
+                          <tr key={ord.id}>
+                            <td style={{ fontWeight: 800, color: '#0f172a' }}>{ord.code}</td>
+                            <td style={{ color: '#475569', fontWeight: 600 }}>{ord.table}</td>
+                            <td style={{ color: '#64748b' }}>{ord.items}</td>
+                            <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {ord.amount}</td>
+                            <td>
+                              <span className={`status-badge-pill ${ord.status}`}>
+                                {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
+                              </span>
+                            </td>
+                            <td style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{ord.time}</td>
+                            <td>
+                              <button
+                                className="btn-row-action"
+                                onClick={() => {
+                                  setSelectedBillingTableId(parseInt(ord.table.replace(/\D/g, ''), 10) || 12);
+                                  setActiveTab('billing');
+                                }}
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
           </section>
         )}
 
@@ -1580,8 +1801,74 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* 4 Status Columns matching Reference Panel 5 */}
-            <div className="kds-four-col-grid">
+            {/* Screen 7: Mobile Kitchen Display Filter Pills (Reference Image Screen 7) */}
+            <div className="admin-filter-pills-row hide-on-desktop">
+              {[
+                { id: 'pending', label: 'Pending', count: 3 },
+                { id: 'preparing', label: 'Preparing', count: 4 },
+                { id: 'ready', label: 'Ready', count: 2 },
+                { id: 'served', label: 'Served', count: 1 }
+              ].map((p) => (
+                <button
+                  key={p.id}
+                  className={`admin-filter-pill ${kitchenStatusFilter === p.id ? 'active' : ''}`}
+                  onClick={() => setKitchenStatusFilter(p.id)}
+                >
+                  {p.label} ({p.count})
+                </button>
+              ))}
+            </div>
+
+            {/* Screen 7: Mobile Kitchen Display Tickets List */}
+            <div className="mobile-kds-cards-list hide-on-desktop">
+              {[
+                { id: '1', code: '#T1234', table: 'Table 12', time: '5 mins', status: 'pending', items: ['2 x Paneer Tikka', '1 x Chicken Biryani'], action: 'Start Cooking', nextStatus: 'preparing' },
+                { id: '2', code: '#T1236', table: 'Table 5', time: '8 mins', status: 'pending', items: ['1 x Masala Dosa', '1 x Filter Coffee'], action: 'Start Cooking', nextStatus: 'preparing' },
+                { id: '3', code: '#T1235', table: 'Table 3', time: '3 mins', status: 'preparing', items: ['1 x Veg Manchurian', '1 x Noodles'], action: 'Mark as Ready', nextStatus: 'ready' },
+                { id: '4', code: '#T1238', table: 'Table 10', time: '6 mins', status: 'preparing', items: ['1 x Chicken Curry', '2 x Naan'], action: 'Mark as Ready', nextStatus: 'ready' },
+                { id: '5', code: '#T1231', table: 'Table 1', time: '2 mins', status: 'ready', items: ['2 x Margherita Pizza', '1 x Cold Coffee'], action: 'Mark as Served', nextStatus: 'served' },
+                { id: '6', code: '#T1237', table: 'Table 8', time: '2 mins', status: 'ready', items: ['1 x Caesar Salad', '1 x Lemonade'], action: 'Mark as Served', nextStatus: 'served' },
+                { id: '7', code: '#T1229', table: 'Table 7', time: '11:30 AM', status: 'served', items: ['1 x Paneer Butter Masala'], action: 'Completed', nextStatus: null }
+              ]
+                .filter((t) => t.status === kitchenStatusFilter)
+                .map((ticket) => (
+                  <div key={ticket.id} className="mobile-kds-card">
+                    <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>{ticket.code}</span>
+                      <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#059669', fontWeight: 700 }}>
+                        {ticket.time}
+                      </span>
+                    </div>
+                    <div className="kds-order-table" style={{ fontWeight: 700, fontSize: '0.86rem', color: '#475569', marginBottom: 8 }}>
+                      {ticket.table}
+                    </div>
+                    <div className="kds-order-items" style={{ fontSize: '0.82rem', color: '#1e293b', background: '#f8fafc', padding: '8px 10px', borderRadius: 8, marginBottom: 12 }}>
+                      {ticket.items.map((it, idx) => (
+                        <div key={idx} style={{ padding: '2px 0' }}>• {it}</div>
+                      ))}
+                    </div>
+                    {ticket.nextStatus ? (
+                      <button
+                        className={`kds-btn-action ${ticket.status}`}
+                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                        onClick={() => {
+                          setKitchenStatusFilter(ticket.nextStatus);
+                          addToast(`Order ${ticket.code} moved to ${ticket.nextStatus}`, 'success');
+                        }}
+                      >
+                        {ticket.action}
+                      </button>
+                    ) : (
+                      <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                        ✓ Order Served
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            {/* 4 Status Columns matching Reference Panel 5 for Desktop */}
+            <div className="kds-four-col-grid hide-on-mobile">
               {/* Column 1: Pending */}
               <div className="kds-column">
                 <div className="kds-col-header pending">
@@ -1726,8 +2013,8 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* Bottom Summary Strip matching Panel 5 */}
-            <div className="kds-summary-strip">
+            {/* Bottom Summary Strip matching Panel 5 for Desktop */}
+            <div className="kds-summary-strip hide-on-mobile">
               <span>📋 <strong>10</strong> Total Orders</span>
               <span>⏳ <strong>3</strong> Pending</span>
               <span>👨‍🍳 <strong>4</strong> Preparing</span>
@@ -1838,8 +2125,69 @@ export default function DashboardApp({ onLockStaff }) {
               </select>
             </div>
 
-            {/* Menu Items Table matching Reference Panel 4 */}
-            <div className="admin-table-card">
+            {/* Screen 6: Mobile Menu Management Dish Cards (Reference Image Screen 6) */}
+            <div className="mobile-menu-cards-list hide-on-desktop">
+              {(filteredMenu.length > 0 ? filteredMenu : menu.length > 0 ? menu : [
+                { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, available: true, image: '/images/paneer_tikka.jpg' },
+                { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, available: true, image: '/images/chicken_biryani.jpg' },
+                { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, available: true, image: '/images/masala_dosa.jpg' },
+                { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, available: true, image: '/images/artisan_pizza.jpg' },
+                { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, available: false, image: '/images/green_salad.jpg' }
+              ]).map((dish) => {
+                const isActive = dish.available !== false && dish.status !== 'inactive';
+                return (
+                  <div key={dish.id} className="mobile-menu-dish-card">
+                    <img
+                      src={dish.image || '/images/paneer_butter_masala.jpg'}
+                      alt={dish.name}
+                      className="mobile-menu-thumb"
+                      onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                    />
+                    <div className="mobile-menu-details">
+                      <div className="mobile-menu-dish-name">{dish.name}</div>
+                      <div className="mobile-menu-meta-line">
+                        <span className="mobile-menu-price">₹{dish.price}</span>
+                        <span className={`mobile-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}>
+                          <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} style={{ width: 8, height: 8 }} />
+                          {dish.isVeg ? 'Veg' : 'Non-Veg'}
+                        </span>
+                      </div>
+                    </div>
+                    {/* iOS Switch Toggle */}
+                    <label className="mobile-switch-toggle">
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={() => handleToggleMenu(dish.id)}
+                      />
+                      <span className="mobile-switch-slider" />
+                    </label>
+                  </div>
+                );
+              })}
+
+              <button
+                type="button"
+                className="mobile-sticky-add-item-btn"
+                onClick={() => {
+                  setEditingDish(null);
+                  setDishForm({
+                    name: '',
+                    category: 'Starters',
+                    price: '',
+                    description: '',
+                    image: '',
+                    isVeg: true
+                  });
+                  setMenuModalOpen(true);
+                }}
+              >
+                <Plus size={18} /> Add Item
+              </button>
+            </div>
+
+            {/* Menu Items Table matching Reference Panel 4 for Desktop */}
+            <div className="admin-table-card hide-on-mobile">
               <table className="admin-clean-table">
                 <thead>
                   <tr>
@@ -2361,8 +2709,42 @@ export default function DashboardApp({ onLockStaff }) {
               </select>
             </div>
 
-            {/* Data Table matching Reference Panel 8 */}
-            <div className="admin-table-card">
+            {/* Screen 10: Mobile Customers List View (Reference Image Screen 10) */}
+            <div className="mobile-customers-list-view hide-on-desktop">
+              {[
+                { id: '1', name: 'Amit Patel', phone: '9876543210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
+                { id: '2', name: 'Priya Sharma', phone: '9123456789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
+                { id: '3', name: 'Rahul Kumar', phone: '9868776655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
+                { id: '4', name: 'Sneha Joshi', phone: '9871234567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
+                { id: '5', name: 'Vikram Singh', phone: '9765432100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' }
+              ]
+                .filter((c) =>
+                  !customerSearch.trim() ||
+                  c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                  c.phone.includes(customerSearch)
+                )
+                .map((c) => {
+                  const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  return (
+                    <div key={c.id} className="mobile-customer-card">
+                      <div className="mobile-customer-avatar-initial">
+                        {initials}
+                      </div>
+                      <div className="mobile-customer-details">
+                        <div className="mobile-customer-name">{c.name}</div>
+                        <div className="mobile-customer-phone">+91 {c.phone}</div>
+                      </div>
+                      <div className="mobile-customer-stats">
+                        <div className="mobile-customer-orders">{c.orders} Orders</div>
+                        <div className="mobile-customer-spent">₹ {c.spent.toLocaleString('en-IN')}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+
+            {/* Data Table matching Reference Panel 8 for Desktop */}
+            <div className="admin-table-card hide-on-mobile">
               <table className="admin-clean-table">
                 <thead>
                   <tr>
@@ -2756,10 +3138,76 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
+            {/* Screen 11: Settings Mobile Grouped Menus (Reference Image Screen 11) */}
+            {!mobileSettingsSubNav && (
+              <div className="hide-on-desktop" style={{ width: '100%' }}>
+                <div style={{ marginBottom: 18 }}>
+                  <div className="mobile-settings-group-title">Restaurant Settings</div>
+                  <div className="mobile-settings-card-group">
+                    {[
+                      { id: 'details', label: 'Restaurant Details', icon: Home },
+                      { id: 'payment', label: 'Payment Settings', icon: CreditCard },
+                      { id: 'tax', label: 'Tax & Charges', icon: Receipt },
+                      { id: 'tables', label: 'Table Settings', icon: LayoutGrid }
+                    ].map((s) => {
+                      const Icon = s.icon;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          className="mobile-settings-row-item"
+                          onClick={() => {
+                            setSettingsSubNav(s.id);
+                            setMobileSettingsSubNav(s.id);
+                          }}
+                        >
+                          <div className="mobile-settings-row-left">
+                            <Icon size={18} className="mobile-settings-row-icon" />
+                            <span>{s.label}</span>
+                          </div>
+                          <ChevronRight size={18} className="mobile-settings-chevron" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="mobile-settings-group-title">User & App Settings</div>
+                  <div className="mobile-settings-card-group">
+                    {[
+                      { id: 'users', label: 'User Management', icon: Users },
+                      { id: 'notifications', label: 'Notifications', icon: Bell },
+                      { id: 'billing', label: 'Billing & Subscription', icon: DollarSign }
+                    ].map((s) => {
+                      const Icon = s.icon;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          className="mobile-settings-row-item"
+                          onClick={() => {
+                            setSettingsSubNav(s.id);
+                            setMobileSettingsSubNav(s.id);
+                          }}
+                        >
+                          <div className="mobile-settings-row-left">
+                            <Icon size={18} className="mobile-settings-row-icon" />
+                            <span>{s.label}</span>
+                          </div>
+                          <ChevronRight size={18} className="mobile-settings-chevron" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 2-Column Split: Left = Sub-Nav Menu, Right = Form */}
-            <div className="settings-split-grid">
+            <div className={`settings-split-grid ${!mobileSettingsSubNav ? 'hide-on-mobile' : ''}`}>
               {/* Left Sub-Nav Card */}
-              <div className="settings-nav-card">
+              <div className="settings-nav-card hide-on-mobile">
                 {[
                   { id: 'details', label: 'Restaurant Details', icon: Home },
                   { id: 'payment', label: 'Payment Settings', icon: CreditCard },
@@ -3346,27 +3794,95 @@ export default function DashboardApp({ onLockStaff }) {
         {/* ========================================================
             TAB: PROFILE & OPERATIONS ACCOUNT
             ======================================================== */}
+        {/* ========================================================
+            TAB: PROFILE & OPERATIONS ACCOUNT (IMAGE 3 SCREEN 12)
+            ======================================================== */}
         {activeTab === 'profile' && (
           <section className="admin-page-container">
-            <div className="page-header-row">
-              <div>
-                <h2 className="page-title">Profile & Operations Account</h2>
-                <p className="page-subtitle">Manage your account credentials, restaurant identity, and floor security</p>
+            {/* Screen 12: Mobile More / Profile View (Reference Image Screen 12) */}
+            <div className="hide-on-desktop">
+              <div className="mobile-more-profile-card">
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
+                  alt="Profile"
+                  className="mobile-more-avatar"
+                  onError={(e) => {
+                    e.target.src = '/images/tablemint_leaf_icon.png';
+                  }}
+                />
+                <div className="mobile-more-profile-info">
+                  <h3 className="mobile-more-user-name">{currentUser?.name || 'Rohit Sharma'}</h3>
+                  <p className="mobile-more-user-role">Restaurant Owner</p>
+                </div>
               </div>
-              <div className="page-header-actions">
+
+              <div className="mobile-more-nav-list">
+                {[
+                  { id: 'overview', label: 'Dashboard', icon: Home },
+                  { id: 'orders', label: 'Orders', icon: Receipt },
+                  { id: 'tables', label: 'Table Management', icon: LayoutGrid },
+                  { id: 'menu', label: 'Menu Management', icon: BookOpen },
+                  { id: 'kitchen', label: 'Kitchen Display', icon: ChefHat },
+                  { id: 'billing', label: 'POS Billing', icon: CreditCard },
+                  { id: 'customers', label: 'Customers', icon: Users },
+                  { id: 'reports', label: 'Reports', icon: BarChart3 },
+                  { id: 'settings', label: 'Settings', icon: Settings },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="mobile-more-nav-item"
+                      onClick={() => {
+                        setActiveTab(item.id);
+                        setMobileSelectedOrder(null);
+                      }}
+                    >
+                      <div className="mobile-more-nav-left">
+                        <Icon size={18} className="mobile-more-nav-icon" />
+                        <span>{item.label}</span>
+                      </div>
+                      <ChevronRight size={18} className="mobile-more-chevron" />
+                    </button>
+                  );
+                })}
+
                 <button
                   type="button"
-                  className="btn-brand-primary"
-                  style={{ background: '#ef4444' }}
+                  className="mobile-more-nav-item logout"
                   onClick={handleLogout}
-                  title="Sign out and return to Login & Sign Up screen"
                 >
-                  <LogOut size={16} /> Sign Out / Exit Station
+                  <div className="mobile-more-nav-left">
+                    <LogOut size={18} className="mobile-more-nav-icon" style={{ color: '#ef4444' }} />
+                    <span style={{ color: '#ef4444', fontWeight: 700 }}>Logout</span>
+                  </div>
+                  <ChevronRight size={18} className="mobile-more-chevron" />
                 </button>
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, marginTop: 4 }}>
+            {/* Desktop Profile View */}
+            <div className="hide-on-mobile">
+              <div className="page-header-row">
+                <div>
+                  <h2 className="page-title">Profile & Operations Account</h2>
+                  <p className="page-subtitle">Manage your account credentials, restaurant identity, and floor security</p>
+                </div>
+                <div className="page-header-actions">
+                  <button
+                    type="button"
+                    className="btn-brand-primary"
+                    style={{ background: '#ef4444' }}
+                    onClick={handleLogout}
+                    title="Sign out and return to Login & Sign Up screen"
+                  >
+                    <LogOut size={16} /> Sign Out / Exit Station
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, marginTop: 4 }}>
               {/* Left Column: User Identity Card */}
               <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: 'fit-content' }}>
                 <div style={{
@@ -3584,6 +4100,7 @@ export default function DashboardApp({ onLockStaff }) {
                   </button>
                 </div>
               </div>
+            </div>
             </div>
           </section>
         )}
@@ -4007,10 +4524,12 @@ export default function DashboardApp({ onLockStaff }) {
       <nav className="admin-mobile-bottom-bar no-print">
         <button
           type="button"
-          className={`mobile-bottom-btn ${activeTab === 'overview' && !mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('overview');
             setMobileMoreOpen(false);
+            setMobileSelectedOrder(null);
+            setMobileSettingsSubNav(null);
           }}
           title="Home Dashboard"
         >
@@ -4020,10 +4539,12 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${activeTab === 'orders' && !mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('orders');
             setMobileMoreOpen(false);
+            setMobileSelectedOrder(null);
+            setMobileSettingsSubNav(null);
           }}
           title="Live Orders"
         >
@@ -4038,10 +4559,12 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${activeTab === 'tables' && !mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'tables' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('tables');
             setMobileMoreOpen(false);
+            setMobileSelectedOrder(null);
+            setMobileSettingsSubNav(null);
           }}
           title="Floor & Tables"
         >
@@ -4051,10 +4574,12 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${activeTab === 'menu' && !mobileMoreOpen ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${activeTab === 'menu' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('menu');
             setMobileMoreOpen(false);
+            setMobileSelectedOrder(null);
+            setMobileSettingsSubNav(null);
           }}
           title="Menu Management"
         >
@@ -4064,8 +4589,13 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${['billing', 'kitchen', 'customers', 'reports', 'settings', 'stands', 'profile'].includes(activeTab) || mobileMoreOpen ? 'active' : ''}`}
-          onClick={() => setMobileMoreOpen((prev) => !prev)}
+          className={`mobile-bottom-btn ${['profile', 'billing', 'kitchen', 'customers', 'reports', 'settings', 'stands'].includes(activeTab) ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('profile');
+            setMobileMoreOpen(false);
+            setMobileSelectedOrder(null);
+            setMobileSettingsSubNav(null);
+          }}
           title="More Operations"
         >
           <Menu size={19} />

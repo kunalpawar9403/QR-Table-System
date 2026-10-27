@@ -5124,5 +5124,797 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
+/* =========================================================
+   COMPREHENSIVE 12-SCREEN MOBILE DESIGN SYSTEM
+   Matching media_1793113478542.jpg
+   ========================================================= */
+@media (max-width: 768px) {
+  .dash-sidebar {
+    display: none !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .hide-on-desktop {
+    display: block;
+  }
+
+  .dash-main-area {
+    padding: 10px 10px 84px 10px !important;
+    background: #f4f6f8 !important;
+    min-height: 100vh;
+    box-sizing: border-box;
+    width: 100% !important;
+  }
+
+  .admin-page-container {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    gap: 12px !important;
+  }
+
+  .page-header-row {
+    display: none !important;
+  }
+
+  /* Sticky Top Bar (Deep Forest Green #07241a) */
+  .admin-mobile-top-bar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 54px;
+    background: #07241a !important;
+    color: #ffffff !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(7, 36, 26, 0.2);
+    margin: -10px -10px 12px -10px;
+  }
+
+  .mobile-top-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-brand-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-brand-title {
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .mobile-leaf-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .mobile-back-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .mobile-header-tab-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .mobile-top-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-bell-btn,
+  .mobile-top-action-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .mobile-bell-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 1px solid #07241a;
+  }
+
+  .mobile-top-badge-kitchen {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  /* Fixed Bottom Nav (White with Active Green Accent) */
+  .admin-mobile-bottom-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 58px;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.05);
+    display: flex !important;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .mobile-bottom-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: #94a3b8;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    height: 100%;
+  }
+
+  .mobile-bottom-btn.active {
+    color: #07241a !important;
+    font-weight: 800 !important;
+  }
+
+  .mobile-btn-badge-wrap {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .mobile-tab-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.62rem;
+    font-weight: 800;
+    border-radius: 9999px;
+    padding: 1px 4px;
+    min-width: 14px;
+    text-align: center;
+  }
+
+  /* Screen 3 & 4: Orders Mobile Cards & Details */
+  .mobile-orders-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-order-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+    transition: transform 0.1s ease;
+  }
+
+  .mobile-order-card:active {
+    transform: scale(0.99);
+  }
+
+  .mobile-order-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-order-code {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #0f172a;
+  }
+
+  .mobile-order-table {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .mobile-order-time {
+    font-size: 0.74rem;
+    color: #94a3b8;
+  }
+
+  .mobile-order-price {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: #0f172a;
+  }
+
+  .mobile-order-dots-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    padding: 4px;
+    cursor: pointer;
+  }
+
+  /* Screen 4: Order Details */
+  .mobile-order-details-screen {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mobile-order-details-meta {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 600;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 8px;
+  }
+
+  .mobile-order-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-order-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mobile-order-item-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .mobile-order-item-info {
+    flex: 1;
+  }
+
+  .mobile-order-item-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .mobile-order-item-price {
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+
+  .mobile-order-item-qty {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .mobile-order-item-total {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .mobile-order-financials {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .financial-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+
+  .financial-row.total {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 6px;
+    margin-top: 2px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .mobile-customer-notes-box {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .notes-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+
+  .notes-text {
+    font-size: 0.82rem;
+    color: #0f172a;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  .mobile-order-actions-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .mobile-status-select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: #0f172a;
+  }
+
+  .mobile-print-bill-btn {
+    width: 100%;
+    padding: 12px;
+    background: #07241a;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    justify-content: center,
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  /* Screen 5: Table Management Mobile Grid */
+  .mobile-table-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #475569;
+  }
+
+  .overview-floor-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .ref-table-box {
+    padding: 14px 8px !important;
+    border-radius: 12px !important;
+  }
+
+  .ref-table-name {
+    font-size: 1.15rem !important;
+  }
+
+  .ref-table-seats {
+    font-size: 0.7rem !important;
+  }
+
+  .ref-table-state-label {
+    font-size: 0.68rem !important;
+  }
+
+  /* Screen 6: Menu Management Mobile Cards */
+  .mobile-menu-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-menu-dish-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .mobile-menu-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .mobile-menu-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-menu-dish-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+
+  .mobile-menu-meta-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-menu-price {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #0f172a;
+  }
+
+  .mobile-diet-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mobile-diet-tag.veg {
+    background: #ecfdf5;
+    color: #059669;
+  }
+
+  .mobile-diet-tag.non-veg {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  /* iOS Switch Toggle */
+  .mobile-switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .mobile-switch-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .mobile-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.2s;
+    border-radius: 24px;
+  }
+
+  .mobile-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.2s;
+    border-radius: 50%;
+  }
+
+  .mobile-switch-toggle input:checked + .mobile-switch-slider {
+    background-color: #10b981;
+  }
+
+  .mobile-switch-toggle input:checked + .mobile-switch-slider:before {
+    transform: translateX(20px);
+  }
+
+  .mobile-sticky-add-item-btn {
+    background: #07241a;
+    color: #ffffff;
+    border: none;
+    border-radius: 9999px;
+    padding: 12px 24px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(7, 36, 26, 0.3);
+    margin-top: 10px;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* Screen 7: Kitchen Mobile Tickets */
+  .mobile-kds-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mobile-kds-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .kds-btn-action.pending {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+  }
+
+  .kds-btn-action.preparing {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+  }
+
+  .kds-btn-action.ready {
+    background: #10b981 !important;
+    color: #ffffff !important;
+  }
+
+  /* Screen 8: POS Billing Mobile */
+  .pos-billing-grid-split {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  /* Screen 10: Customers Mobile List */
+  .mobile-customers-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-customer-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .mobile-customer-avatar-initial {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #07241a;
+    font-weight: 800;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mobile-customer-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mobile-customer-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0f172a;
+  }
+
+  .mobile-customer-phone {
+    font-size: 0.76rem;
+    color: #64748b;
+  }
+
+  .mobile-customer-stats {
+    text-align: right;
+  }
+
+  .mobile-customer-orders {
+    font-size: 0.74rem;
+    color: #64748b;
+  }
+
+  .mobile-customer-spent {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: #0f172a;
+  }
+
+  /* Screen 11: Settings Mobile */
+  .mobile-settings-group-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .mobile-settings-card-group {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .mobile-settings-row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 13px 14px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    text-align: left;
+    box-sizing: border-box;
+  }
+
+  .mobile-settings-row-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-settings-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0f172a;
+  }
+
+  .mobile-settings-row-icon {
+    color: #07241a;
+  }
+
+  /* Screen 12: Profile / More Mobile */
+  .mobile-more-profile-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .mobile-more-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #10b981;
+    flex-shrink: 0;
+  }
+
+  .mobile-more-user-name {
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .mobile-more-user-role {
+    font-size: 0.76rem;
+    color: #64748b;
+    margin: 2px 0 0;
+  }
+
+  .mobile-more-nav-list {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  }
+
+  .mobile-more-nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 13px 14px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+
+  .mobile-more-nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-more-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #0f172a;
+  }
+
+  .mobile-more-nav-icon {
+    color: #07241a;
+  }
+
+  .mobile-more-chevron {
+    color: #94a3b8;
+  }
+}
+
 
 
