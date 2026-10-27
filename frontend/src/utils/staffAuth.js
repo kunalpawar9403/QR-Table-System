@@ -84,25 +84,6 @@ export async function signUpWithCredentials({ name, email, password, restaurantN
   }
 }
 
-export async function verifyStaffPin(pin) {
-  try {
-    const res = await fetch('/api/auth/verify-pin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin: pin.trim() })
-    });
-    const data = await res.json();
-    if (res.ok && data.success && data.token) {
-      setStaffToken(data.token);
-      if (data.user) setCurrentUser(data.user);
-      return { success: true, token: data.token, user: data.user };
-    }
-    return { success: false, error: data.error || 'Incorrect Staff PIN' };
-  } catch (err) {
-    return { success: false, error: 'Connection error. Please try again.' };
-  }
-}
-
 export async function checkStaffAuth() {
   const token = getStaffToken();
   if (!token) return false;

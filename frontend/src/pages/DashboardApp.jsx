@@ -225,9 +225,6 @@ export default function DashboardApp({ onLockStaff }) {
     sessionTimeoutHours: 3
   });
 
-  const [newPin, setNewPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
@@ -532,23 +529,6 @@ export default function DashboardApp({ onLockStaff }) {
     e.preventDefault();
     localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
     addToast('Restaurant POS configuration saved!', 'success');
-  };
-
-  // Change Staff PIN
-  const handleChangeStaffPin = (e) => {
-    e.preventDefault();
-    if (newPin.length !== 4 || !/^\d{4}$/.test(newPin)) {
-      addToast('PIN must be exactly 4 digits', 'warning');
-      return;
-    }
-    if (newPin !== confirmPin) {
-      addToast('New PIN and Confirm PIN do not match', 'error');
-      return;
-    }
-    localStorage.setItem('staff_pin', newPin);
-    addToast(`Staff PIN successfully updated to ${newPin}`, 'success');
-    setNewPin('');
-    setConfirmPin('');
   };
 
   // Export Reports CSV
@@ -2094,15 +2074,12 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="panel-header-row">
               <div>
                 <h3>Staff & Station Security</h3>
-                <p>Manage terminal access PIN, authorization levels, and station locking</p>
+                <p>Manage staff accounts, authorization roles, and station security</p>
               </div>
               <button
                 className="lock-station-btn"
                 style={{ background: 'rgba(239, 68, 68, 0.12)', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-                onClick={() => {
-                  clearStaffToken();
-                  if (onLockStaff) onLockStaff();
-                }}
+                onClick={handleLogout}
               >
                 <Lock size={15} /> Lock Terminal Now
               </button>
@@ -2119,7 +2096,7 @@ export default function DashboardApp({ onLockStaff }) {
                   Full privileges: Order creation, table management, live reports, menu catalog editing, and financial exports.
                 </p>
                 <div style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <ShieldCheck size={14} style={{ color: '#f59e0b' }} /> Verified with 4-Digit Station PIN
+                  <ShieldCheck size={14} style={{ color: '#00e676' }} /> Verified with Email & Password
                 </div>
               </div>
 
@@ -2154,59 +2131,25 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* Change Staff PIN Section */}
-            <div className="settings-card" style={{ maxWidth: 520, marginTop: 10 }}>
+            {/* Authentication Policy Information */}
+            <div className="settings-card" style={{ maxWidth: 580, marginTop: 10 }}>
               <div className="settings-card-title">
-                <KeyRound size={18} style={{ color: '#f59e0b' }} />
-                <span>Station Security PIN Code</span>
+                <ShieldCheck size={18} style={{ color: '#00e676' }} />
+                <span>Account Credentials & Password Authentication</span>
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>
-                Default terminal PIN is <strong style={{ color: '#f59e0b' }}>1234</strong>. Update it below to change station unlock authorization.
+              <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
+                TableMint operations are protected exclusively with email and password credentials. Each staff member and administrator signs in using their dedicated account with salted PBKDF2 cryptography.
               </p>
-
-              <form onSubmit={handleChangeStaffPin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <div className="dash-form-group">
-                    <label className="dash-form-label">New 4-Digit PIN</label>
-                    <input
-                      type="password"
-                      maxLength={4}
-                      placeholder="••••"
-                      className="dash-form-input"
-                      value={newPin}
-                      onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ''))}
-                    />
-                  </div>
-                  <div className="dash-form-group">
-                    <label className="dash-form-label">Confirm New PIN</label>
-                    <input
-                      type="password"
-                      maxLength={4}
-                      placeholder="••••"
-                      className="dash-form-input"
-                      value={confirmPin}
-                      onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button type="submit" className="btn-primary" style={{ padding: '8px 18px', fontSize: '0.85rem' }}>
-                    Update PIN Code
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    style={{ padding: '8px 18px', fontSize: '0.85rem' }}
-                    onClick={() => {
-                      localStorage.removeItem('staff_pin');
-                      addToast('PIN reset to default 1234', 'info');
-                    }}
-                  >
-                    Reset to 1234
-                  </button>
-                </div>
-              </form>
+              <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '0.82rem' }}
+                  onClick={() => setActiveTab('profile')}
+                >
+                  <User size={14} /> View My Profile & Settings
+                </button>
+              </div>
             </div>
           </section>
         )}
@@ -2422,9 +2365,11 @@ export default function DashboardApp({ onLockStaff }) {
                   </div>
                   <div className="profile-info-row">
                     <span className="profile-info-label">
-                      <KeyRound size={14} /> POS Floor PIN
+                      <Lock size={14} /> Login Method
                     </span>
-                    <span className="profile-info-value">1234 (Default)</span>
+                    <span className="profile-info-value" style={{ color: '#00e676', fontSize: '0.78rem' }}>
+                      Email & Password Only
+                    </span>
                   </div>
                   <div className="profile-info-row">
                     <span className="profile-info-label">
@@ -3128,7 +3073,7 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div>
                   <div className="drawer-btn-title">POS Settings</div>
-                  <div className="drawer-btn-sub">Taxes & PINs</div>
+                  <div className="drawer-btn-sub">Taxes & Policies</div>
                 </div>
               </button>
 

@@ -6,23 +6,20 @@ import {
   Utensils,
   Eye,
   EyeOff,
-  KeyRound,
   ShieldAlert,
   X,
   Sparkles,
-  Delete,
   CheckCircle2,
   ArrowRight
 } from 'lucide-react';
 import {
   signInWithCredentials,
-  signUpWithCredentials,
-  verifyStaffPin
+  signUpWithCredentials
 } from '../utils/staffAuth';
 import { soundManager } from '../utils/sound';
 
 export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fullPage = false }) {
-  const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup' | 'pin'
+  const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(message || '');
   const [successMsg, setSuccessMsg] = useState('');
@@ -40,35 +37,13 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
   const [signUpRestaurant, setSignUpRestaurant] = useState('TableMint');
   const [signUpRole, setSignUpRole] = useState('admin');
 
-  // PIN Keypad State
-  const [pin, setPin] = useState('');
-
   useEffect(() => {
     if (isOpen) {
       setError(message || '');
       setSuccessMsg('');
-      setPin('');
       setLoading(false);
     }
   }, [isOpen, message]);
-
-  // Handle keyboard typing for PIN when PIN tab is active
-  useEffect(() => {
-    if (!isOpen || activeTab !== 'pin') return;
-
-    const handleKeyDown = (e) => {
-      if (e.key >= '0' && e.key <= '9') {
-        addDigit(e.key);
-      } else if (e.key === 'Backspace') {
-        handleBackspace();
-      } else if (e.key === 'Escape') {
-        if (onClose) onClose();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, activeTab, pin, loading]);
 
   const triggerError = (msg) => {
     setError(msg);
@@ -158,56 +133,6 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
     soundManager.playClick();
   };
 
-  // --- PIN Keypad Handlers ---
-  const addDigit = (digit) => {
-    if (loading || pin.length >= 4) return;
-    const newPin = pin + digit;
-    setPin(newPin);
-    setError('');
-    soundManager.playClick();
-
-    if (newPin.length === 4) {
-      submitPin(newPin);
-    }
-  };
-
-  const handleBackspace = () => {
-    if (loading || pin.length === 0) return;
-    setPin(pin.slice(0, -1));
-    setError('');
-    soundManager.playClick();
-  };
-
-  const handleClear = () => {
-    if (loading) return;
-    setPin('');
-    setError('');
-    soundManager.playClick();
-  };
-
-  const submitPin = async (finalPin) => {
-    setLoading(true);
-    setError('');
-    try {
-      const res = await verifyStaffPin(finalPin);
-      if (res.success) {
-        soundManager.playClick();
-        setSuccessMsg('Staff authenticated! Opening dashboard...');
-        setTimeout(() => {
-          if (onSuccess) onSuccess(res.user);
-        }, 400);
-      } else {
-        triggerError(res.error || 'Incorrect Staff PIN. (Default: 1234)');
-        setPin('');
-      }
-    } catch (err) {
-      triggerError('Connection error. Please try again.');
-      setPin('');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!isOpen) return null;
 
   const cardContent = (
@@ -254,18 +179,6 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
             }}
           >
             Sign Up
-          </button>
-          <button
-            type="button"
-            className={`auth-tab-btn ${activeTab === 'pin' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('pin');
-              setError('');
-              setSuccessMsg('');
-            }}
-          >
-            <KeyRound size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-            Staff PIN
           </button>
         </div>
 
@@ -472,81 +385,6 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               </button>
             </div>
           </form>
-        )}
-
-        {/* ===================================================
-            TAB 3: QUICK STAFF PIN KEYPAD
-            =================================================== */}
-        {activeTab === 'pin' && (
-          <div className="auth-pin-body">
-            <p className="auth-pin-instruction">
-              Enter 4-digit station PIN for instant floor access
-            </p>
-
-            {/* PIN Dots */}
-            <div className="pin-dots-container">
-              {[0, 1, 2, 3].map((idx) => (
-                <div
-                  key={idx}
-                  className={`pin-dot ${idx < pin.length ? 'filled' : ''} ${error ? 'error' : ''}`}
-                />
-              ))}
-            </div>
-
-            <div className="pin-hint-badge">
-              Default POS PIN: <strong>1234</strong>
-            </div>
-
-            {/* Keypad */}
-            <div className="keypad-grid">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-                <button
-                  key={digit}
-                  type="button"
-                  className="keypad-btn"
-                  disabled={loading}
-                  onClick={() => addDigit(digit)}
-                >
-                  {digit}
-                </button>
-              ))}
-              <button
-                type="button"
-                className="keypad-btn action-key"
-                disabled={loading}
-                onClick={handleClear}
-              >
-                CLR
-              </button>
-              <button
-                type="button"
-                className="keypad-btn"
-                disabled={loading}
-                onClick={() => addDigit('0')}
-              >
-                0
-              </button>
-              <button
-                type="button"
-                className="keypad-btn action-key"
-                disabled={loading}
-                onClick={handleBackspace}
-                title="Backspace"
-              >
-                <Delete size={20} />
-              </button>
-            </div>
-
-            <div className="auth-footer-toggle" style={{ marginTop: 16 }}>
-              <button
-                type="button"
-                className="auth-link-btn"
-                onClick={() => setActiveTab('signin')}
-              >
-                ← Switch to Email & Password Sign In
-              </button>
-            </div>
-          </div>
         )}
       </div>
     );

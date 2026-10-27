@@ -375,19 +375,7 @@ app.post('/api/auth/signin', (req, res) => {
 });
 
 app.post('/api/auth/verify-pin', (req, res) => {
-  const { pin } = req.body || {};
-  if (!pin || pin.toString().trim() !== STAFF_PIN) {
-    return res.status(401).json({ success: false, error: 'Incorrect Staff PIN. Please try again.' });
-  }
-  const safeUser = {
-    id: 'staff_pin',
-    name: 'POS Floor Staff',
-    email: 'staff@tablemint.local',
-    role: 'staff',
-    restaurantName: 'TableMint'
-  };
-  const token = generateUserToken(safeUser);
-  res.json({ success: true, token, user: safeUser, message: 'Staff authentication successful' });
+  return res.status(403).json({ success: false, error: 'Staff PIN login is disabled. Please log in with your email and password.' });
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -411,8 +399,8 @@ app.patch('/api/auth/profile', requireStaffAuth, (req, res) => {
     const { name, restaurantName } = req.body || {};
     const token = req.headers['x-staff-token'] || req.query.staff_token;
     const currentUser = verifyUserToken(token);
-    if (!currentUser || currentUser.id === 'staff_pin') {
-      return res.status(400).json({ success: false, error: 'Cannot modify system PIN terminal profile.' });
+    if (!currentUser) {
+      return res.status(401).json({ success: false, error: 'Unauthorized user session.' });
     }
 
     const users = getUsers();
