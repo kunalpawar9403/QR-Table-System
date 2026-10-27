@@ -2,24 +2,25 @@
    SPICE GARDEN POS DASHBOARD - MATCHING REFERENCE IMAGE
    ========================================================= */
 
-/* Main outer wrapper */
+/* Main outer wrapper - Viewport locked so only right main area scrolls */
 .dash-layout-container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
   width: 100%;
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
   background-color: #070a12;
   color: #f8fafc;
   font-family: var(--font-main);
   background-image: 
-    radial-gradient(ellipse at 5% 15%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
-    radial-gradient(ellipse at 95% 85%, rgba(245, 158, 11, 0.04) 0%, transparent 45%);
+    radial-gradient(ellipse at 5% 15%, rgba(0, 230, 118, 0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 95% 85%, rgba(0, 230, 118, 0.04) 0%, transparent 45%);
 }
 
 /* =========================================================
-   LEFT SIDEBAR
+   LEFT SIDEBAR - FIXED HEIGHT, NO SCROLLING
    ========================================================= */
 .dash-sidebar {
   width: 250px;
@@ -28,19 +29,25 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 22px 16px;
+  padding: 16px 14px;
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
   height: 100vh;
-  overflow-y: auto;
+  max-height: 100vh;
+  overflow: hidden !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   z-index: 50;
+  box-sizing: border-box;
+}
+
+.dash-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar-top {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 14px;
 }
 
 /* Brand header */
@@ -97,17 +104,17 @@
 .sidebar-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
   color: #94a3b8;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-weight: 600;
   background: transparent;
   width: 100%;
@@ -214,6 +221,8 @@
   min-width: 0;
   width: 100%;
   max-width: 100%;
+  height: 100vh;
+  max-height: 100vh;
   padding: 22px 28px 60px;
   display: flex;
   flex-direction: column;
@@ -221,6 +230,24 @@
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+}
+
+/* Custom sleek scrollbar - Only right side main area scrolls */
+.dash-main-area::-webkit-scrollbar {
+  width: 7px;
+}
+
+.dash-main-area::-webkit-scrollbar-track {
+  background: rgba(7, 10, 18, 0.6);
+}
+
+.dash-main-area::-webkit-scrollbar-thumb {
+  background: rgba(0, 230, 118, 0.25);
+  border-radius: 999px;
+}
+
+.dash-main-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 230, 118, 0.5);
 }
 
 /* Top Command Header */
