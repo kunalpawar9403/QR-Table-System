@@ -878,9 +878,12 @@ export default function DashboardApp({ onLockStaff }) {
             </div>
             <div className="command-title-box">
               <h1>
-                Table<span className="brand-mint-text">Mint</span> <span className="hide-on-mobile">Command Center</span>{' '}
+                Table<span className="brand-mint-text">Mint</span>{' '}
+                <span className="hide-on-mobile">Command Center</span>{' '}
                 <span className="live-pos-pill hide-on-mobile">LIVE POS</span>
-                <span className="mobile-live-dot" title="Live POS Active" />
+                <span className="mobile-live-pill no-desktop">
+                  <span className="status-dot-green" /> LIVE
+                </span>
               </h1>
               <p className="hide-on-mobile">Smart Restaurant Operations • Real-Time Kitchen KDS • QR Dining</p>
             </div>
@@ -906,7 +909,7 @@ export default function DashboardApp({ onLockStaff }) {
               }}
               title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
             >
-              {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              {isMuted ? <VolumeX size={17} /> : <Volume2 size={17} />}
             </button>
 
             <button
@@ -917,7 +920,7 @@ export default function DashboardApp({ onLockStaff }) {
               }}
               title="Refresh Data"
             >
-              <RotateCcw size={17} />
+              <RotateCcw size={16} />
             </button>
 
             <button
@@ -928,7 +931,7 @@ export default function DashboardApp({ onLockStaff }) {
               }}
               title="Lock Station"
             >
-              <Lock size={15} style={{ color: '#00e676' }} /> <span className="hide-on-mobile">Lock Station</span>
+              <Lock size={15} /> <span className="hide-on-mobile">Lock Station</span>
             </button>
 
             <div className="user-avatar-circle hide-on-mobile">TM</div>

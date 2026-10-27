@@ -360,7 +360,7 @@
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #f59e0b;
+  color: #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,28 +369,30 @@
 }
 
 .header-icon-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(0, 230, 118, 0.1);
+  border-color: rgba(0, 230, 118, 0.35);
+  color: #00e676;
 }
 
 .lock-station-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid rgba(0, 230, 118, 0.25);
+  color: #00e676;
   padding: 8px 16px;
   border-radius: 12px;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .lock-station-btn:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 230, 118, 0.18);
+  border-color: rgba(0, 230, 118, 0.45);
+  color: #ffffff;
 }
 
 .user-avatar-circle {
@@ -1726,65 +1728,77 @@
     display: none !important;
   }
 
-  /* Top command header: single clean row without messy wrapping or overlap */
+  /* Top command header: modern, spacious row with clean spacing */
   .top-command-header {
     flex-wrap: nowrap !important;
+    min-height: 54px !important;
     padding: 8px 12px !important;
-    gap: 8px !important;
-    align-items: center;
-    justify-content: space-between;
-    overflow: hidden;
+    gap: 10px !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-radius: 14px !important;
+    background: #0c1220 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45) !important;
+    overflow: visible !important;
   }
 
   .command-header-left {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     flex: 1 1 auto;
-    overflow: hidden;
-  }
-
-  .command-logo-badge {
-    width: 32px;
-    height: 32px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    flex-shrink: 0;
   }
 
   .mobile-sidebar-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     color: #cbd5e1;
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
   }
   .mobile-sidebar-toggle-btn:active {
-    background: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
-    border-color: #f59e0b;
+    background: rgba(0, 230, 118, 0.15);
+    color: #00e676;
+    border-color: rgba(0, 230, 118, 0.35);
+  }
+
+  .command-logo-badge {
+    width: 32px;
+    height: 32px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .command-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .command-title-box {
     min-width: 0;
-    overflow: hidden;
     flex: 1;
   }
 
   .command-title-box h1 {
-    font-size: 0.92rem;
+    font-size: 0.98rem;
     font-weight: 800;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -1796,40 +1810,72 @@
     display: none !important;
   }
 
-  .mobile-live-dot {
-    width: 7px;
-    height: 7px;
+  .mobile-live-pill {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 230, 118, 0.12);
+    border: 1px solid rgba(0, 230, 118, 0.25);
+    color: #00e676;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+  }
+
+  .mobile-live-pill .status-dot-green {
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 6px #10b981;
-    display: inline-block;
-    flex-shrink: 0;
+    background: #00e676;
+    box-shadow: 0 0 6px #00e676;
   }
 
   .command-header-right {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     flex-wrap: nowrap !important;
     flex-shrink: 0;
   }
 
   .header-icon-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    flex-shrink: 0;
-  }
-
-  .lock-station-btn {
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: 8px;
+    width: 35px;
+    height: 35px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+
+  .header-icon-btn:active {
+    background: rgba(0, 230, 118, 0.12);
+    border-color: rgba(0, 230, 118, 0.3);
+    color: #00e676;
+  }
+
+  .lock-station-btn {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    border-radius: 9px;
+    background: rgba(0, 230, 118, 0.1);
+    border: 1px solid rgba(0, 230, 118, 0.25);
+    color: #00e676;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .lock-station-btn:active {
+    background: rgba(0, 230, 118, 0.2);
+    border-color: rgba(0, 230, 118, 0.45);
   }
 
   .hide-on-mobile {
@@ -2336,12 +2382,6 @@
   }
   .drawer-actions-grid {
     grid-template-columns: 1fr;
-  }
-  .top-command-header {
-    padding: 8px 12px;
-  }
-  .command-title-box h1 {
-    font-size: 0.92rem;
   }
 }
 
