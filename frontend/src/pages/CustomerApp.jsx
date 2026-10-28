@@ -33,7 +33,10 @@ import {
   CupSoda,
   ClipboardList,
   UserRound,
-  Droplets
+  Droplets,
+  Leaf,
+  ShieldCheck,
+  Smartphone
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -581,9 +584,9 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         <div className="welcome-screen-container">
           {/* Top Brand Header */}
           <div className="welcome-top-bar">
-            <div className="welcome-logo-box">
-              <TableMintLogoIcon size={26} />
-              <span className="welcome-brand-text">Table<span style={{ color: '#34d399' }}>Mint</span></span>
+            <div className="welcome-brand-badge">
+              <TableMintLogoIcon size={24} />
+              <span className="welcome-brand-text">TableMint</span>
             </div>
             <div className="welcome-table-badge">
               <UtensilsCrossed size={13} /> Table {tableId}
@@ -592,7 +595,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
           {/* Luxury Hero Food Image */}
           <div className="welcome-hero-image-wrap">
-            <img src="/images/welcome_hero.jpg" alt="Culinary Specialty" className="welcome-hero-img" />
+            <img src="/images/welcome_hero.jpg" alt="Good Food Great Moments" className="welcome-hero-img" />
             <div className="welcome-hero-glow" />
           </div>
 
@@ -603,19 +606,25 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
               Explore our menu and place your order right from your table.
             </p>
 
-            {/* 3 Feature Pills */}
+            {/* 3 Refined Feature Pills with Circular Line Icons */}
             <div className="welcome-features-list">
               <div className="welcome-feature-item">
-                <span className="feature-icon">🌿</span>
-                <span className="feature-text">Fresh Ingredients</span>
+                <div className="welcome-feature-icon-circle">
+                  <Leaf size={15} />
+                </div>
+                <span className="welcome-feature-text">Fresh Ingredients</span>
               </div>
               <div className="welcome-feature-item">
-                <span className="feature-icon">🧼</span>
-                <span className="feature-text">Hygienic Kitchen</span>
+                <div className="welcome-feature-icon-circle">
+                  <ShieldCheck size={15} />
+                </div>
+                <span className="welcome-feature-text">Hygienic Kitchen</span>
               </div>
               <div className="welcome-feature-item">
-                <span className="feature-icon">📱</span>
-                <span className="feature-text">Contactless Ordering</span>
+                <div className="welcome-feature-icon-circle">
+                  <Smartphone size={15} />
+                </div>
+                <span className="welcome-feature-text">Contactless Ordering</span>
               </div>
             </div>
 
