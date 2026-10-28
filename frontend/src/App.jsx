@@ -94,14 +94,17 @@ export default function App() {
     setCurrentView(view);
   };
 
-  // Strict Staff Auth Gate: When unauthenticated after logout or session expiry on staff screens,
-  // ONLY the Login and Sign Up full-page view is opened! The dashboard is never rendered in the background.
+  // 1. Initial Launch Gate: When the app/link is opened, show ONLY the splash screen.
+  // Neither the login/signup page nor the dashboard is mounted or visible in the background!
+  if (showSplash) {
+    return <TableMintSplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  // 2. Strict Staff Auth Gate: When unauthenticated on staff screens,
+  // ONLY the Login and Sign Up full-page view is rendered! The dashboard is never rendered in the background.
   if (currentView !== 'customer' && !isStaffAuthenticated) {
     return (
       <ToastProvider>
-        {showSplash && (
-          <TableMintSplashScreen onComplete={handleSplashComplete} />
-        )}
         <StaffAuthModal
           isOpen={true}
           fullPage={true}
@@ -113,9 +116,6 @@ export default function App() {
 
   return (
     <ToastProvider>
-      {showSplash && (
-        <TableMintSplashScreen onComplete={handleSplashComplete} />
-      )}
       <div className="app-root">
         {/* Top App Role Switcher Bar (Only shown on staff screens like Kitchen/Stands, NEVER on Customer Menu or Dashboard) */}
         {currentView !== 'dashboard' && currentView !== 'customer' && !new URLSearchParams(window.location.search).get('table') && (
