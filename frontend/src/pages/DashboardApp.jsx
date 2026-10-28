@@ -316,14 +316,48 @@ export default function DashboardApp({ onLockStaff }) {
   const [customerSearch, setCustomerSearch] = useState('');
 
   // POS Billing State (Image 1 Panel 6)
-  const [selectedBillingTableId, setSelectedBillingTableId] = useState(12);
+  const [selectedBillingTableId, setSelectedBillingTableId] = useState(1);
   const [billingPaymentMethod, setBillingPaymentMethod] = useState('upi');
-  const [billingRecentBills, setBillingRecentBills] = useState([
-    { billNo: '#B1604', table: 'Table 12', amount: 525, time: '10:32 AM', payment: 'UPI' },
-    { billNo: '#B1603', table: 'Table 5', amount: 750, time: '10:25 AM', payment: 'Card' },
-    { billNo: '#B1602', table: 'Table 8', amount: 320, time: '10:18 AM', payment: 'Cash' },
-    { billNo: '#B1601', table: 'Table 3', amount: 600, time: '10:10 AM', payment: 'UPI' }
-  ]);
+
+  // Live Helper Functions for Real Data & Cross-Panel Sync
+  const getTableActiveOrders = (tblId) => {
+    return orders.filter(
+      (o) => Number(o.tableId) === Number(tblId) && !['completed', 'cancelled'].includes(o.status)
+    );
+  };
+
+  const getTableStatusInfo = (tbl) => {
+    if (!tbl) return { status: 'available', activeOrders: [], code: '', totalBill: 0 };
+    const activeOrders = getTableActiveOrders(tbl.id);
+    const isServing = activeOrders.some((o) => o.status === 'ready' || o.status === 'served');
+    const isOccupied = activeOrders.length > 0 || tbl.status === 'occupied' || tbl.manualStatus === 'occupied';
+
+    let status = 'available';
+    if (isServing) status = 'serving';
+    else if (isOccupied) status = 'occupied';
+
+    const orderCode = activeOrders.length > 0
+      ? `#${activeOrders[0].orderNumber || activeOrders[0].id.replace('ORD-', '')}`
+      : (tbl.sessionToken ? `#${tbl.sessionToken}` : '');
+
+    const totalBill = activeOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+    return {
+      status,
+      activeOrders,
+      code: orderCode,
+      totalBill
+    };
+  };
+
+  const formatElapsed = (dateStr) => {
+    if (!dateStr) return 'Just now';
+    const diffMin = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diffMin < 1) return 'Just now';
+    if (diffMin < 60) return `${diffMin}m ago`;
+    const diffHours = Math.floor(diffMin / 60);
+    return `${diffHours}h ago`;
+  };
 
   // Missing Filter & Sub-Nav States
   const [tableStatusFilter, setTableStatusFilter] = useState('all');
@@ -1527,10 +1561,9 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="floor-map-title-row">
                     <h3>Restaurant Floor Map</h3>
                     <div className="floor-status-pills-row">
-                      <span className="map-pill available"><span className="status-dot green" /> Available (5)</span>
-                      <span className="map-pill occupied"><span className="status-dot red" /> Occupied (5)</span>
-                      <span className="map-pill serving"><span className="status-dot blue" /> Serving (2)</span>
-                      <span className="map-pill reserved"><span className="status-dot amber" /> Reserved (0)</span>
+                      <span className="map-pill available"><span className="status-dot green" /> Available ({tables.filter(t => getTableStatusInfo(t).status === 'available').length})</span>
+                      <span className="map-pill occupied"><span className="status-dot red" /> Occupied ({tables.filter(t => getTableStatusInfo(t).status === 'occupied').length})</span>
+                      <span className="map-pill serving"><span className="status-dot blue" /> Serving ({tables.filter(t => getTableStatusInfo(t).status === 'serving').length})</span>
                     </div>
                   </div>
                   <button
@@ -1543,35 +1576,29 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
 
                 <div className="overview-floor-grid">
-                  {[
-                    { id: 1, name: 'T1', seats: 2, status: 'available' },
-                    { id: 2, name: 'T2', seats: 4, status: 'occupied', code: '#T1234' },
-                    { id: 3, name: 'T3', seats: 4, status: 'serving', code: '#T1235' },
-                    { id: 4, name: 'T4', seats: 2, status: 'available' },
-                    { id: 5, name: 'T5', seats: 4, status: 'serving', code: '#T1236' },
-                    { id: 6, name: 'T6', seats: 2, status: 'available' },
-                    { id: 7, name: 'T7', seats: 2, status: 'available' },
-                    { id: 8, name: 'T8', seats: 6, status: 'occupied', code: '#T1237' },
-                    { id: 9, name: 'T9', seats: 2, status: 'available' },
-                    { id: 10, name: 'T10', seats: 4, status: 'occupied', code: '#T1238' },
-                    { id: 11, name: 'T11', seats: 4, status: 'available' },
-                    { id: 12, name: 'T12', seats: 4, status: 'available' }
-                  ].map((tbl) => (
-                    <div
-                      key={tbl.id}
-                      className={`ref-table-box ${tbl.status}`}
-                      onClick={() => setActiveTab('billing')}
-                      title={`Table ${tbl.name} - ${tbl.status}`}
-                    >
-                      <div className="ref-table-name">{tbl.name}</div>
-                      <div className="ref-table-seats">{tbl.seats} Seats</div>
-                      <div className="ref-table-state-label">
-                        {tbl.status === 'occupied' && `Occupied ${tbl.code}`}
-                        {tbl.status === 'serving' && `Serving ${tbl.code}`}
-                        {tbl.status === 'available' && 'Available'}
+                  {tables.map((tbl) => {
+                    const info = getTableStatusInfo(tbl);
+                    return (
+                      <div
+                        key={tbl.id}
+                        className={`ref-table-box ${info.status}`}
+                        onClick={() => {
+                          setSelectedBillingTableId(tbl.id);
+                          setActiveTab('billing');
+                        }}
+                        title={`Table ${tbl.name} - ${info.status.toUpperCase()}`}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="ref-table-name">{tbl.name}</div>
+                        <div className="ref-table-seats">{tbl.capacity || 4} Seats</div>
+                        <div className="ref-table-state-label">
+                          {info.status === 'occupied' && `Occupied ${info.code}`}
+                          {info.status === 'serving' && `Serving ${info.code}`}
+                          {info.status === 'available' && 'Available'}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
 
@@ -1598,24 +1625,35 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
 
                 <div className="recent-orders-ref-list">
-                  {[
-                    { id: '1', code: '#T1234', table: 'Table 12', price: '525', status: 'preparing', time: '2 mins ago' },
-                    { id: '2', code: '#T1233', table: 'Table 5', price: '750', status: 'served', time: '8 mins ago' },
-                    { id: '3', code: '#T1232', table: 'Table 8', price: '320', status: 'preparing', time: '12 mins ago' },
-                    { id: '4', code: '#T1231', table: 'Table 3', price: '600', status: 'ready', time: '18 mins ago' }
-                  ].map((ord) => (
-                    <div key={ord.id} className="recent-order-ref-item">
-                      <div className="recent-ord-left">
-                        <span className="recent-ord-id">{ord.code}</span>
-                        <span className="recent-ord-table">{ord.table}</span>
-                        <span className="recent-ord-price">₹ {ord.price}</span>
-                      </div>
-                      <div className="recent-ord-right">
-                        <span className={`status-pill ${ord.status}`}>{ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}</span>
-                        <span className="recent-ord-time">{ord.time}</span>
-                      </div>
+                  {orders.length === 0 ? (
+                    <div style={{ padding: '32px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem' }}>
+                      No customer orders yet
                     </div>
-                  ))}
+                  ) : (
+                    orders.slice(0, 5).map((ord) => (
+                      <div
+                        key={ord.id}
+                        className="recent-order-ref-item"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setSelectedBillingTableId(ord.tableId);
+                          setActiveTab('orders');
+                        }}
+                      >
+                        <div className="recent-ord-left">
+                          <span className="recent-ord-id">#{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
+                          <span className="recent-ord-table">{ord.tableName}</span>
+                          <span className="recent-ord-price">₹ {ord.total}</span>
+                        </div>
+                        <div className="recent-ord-right">
+                          <span className={`status-pill ${ord.status}`}>
+                            {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
+                          </span>
+                          <span className="recent-ord-time">{formatElapsed(ord.createdAt)}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </section>
             </div>
@@ -1650,7 +1688,7 @@ export default function DashboardApp({ onLockStaff }) {
                 className={`admin-filter-pill ${tableStatusFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setTableStatusFilter('all')}
               >
-                All (12)
+                All ({tables.length})
               </button>
               <button
                 className={`admin-filter-pill ${tableStatusFilter === 'floor1' ? 'active' : ''}`}
@@ -1668,69 +1706,82 @@ export default function DashboardApp({ onLockStaff }) {
                 className={`admin-filter-pill ${tableStatusFilter === 'available' ? 'active' : ''}`}
                 onClick={() => setTableStatusFilter('available')}
               >
-                <span className="status-dot green" /> Available (5)
+                <span className="status-dot green" /> Available ({tables.filter(t => getTableStatusInfo(t).status === 'available').length})
               </button>
               <button
                 className={`admin-filter-pill ${tableStatusFilter === 'occupied' ? 'active' : ''}`}
                 onClick={() => setTableStatusFilter('occupied')}
               >
-                <span className="status-dot red" /> Occupied (5)
+                <span className="status-dot red" /> Occupied ({tables.filter(t => getTableStatusInfo(t).status === 'occupied').length})
               </button>
               <button
                 className={`admin-filter-pill ${tableStatusFilter === 'serving' ? 'active' : ''}`}
                 onClick={() => setTableStatusFilter('serving')}
               >
-                <span className="status-dot blue" /> Serving (2)
+                <span className="status-dot blue" /> Serving ({tables.filter(t => getTableStatusInfo(t).status === 'serving').length})
               </button>
             </div>
 
             {/* Floor Grid of Pastel Table Cards matching Panel 3 on Desktop and Screen 5 on Mobile */}
             <div className="overview-floor-grid">
-              {[
-                { id: 1, name: 'T1', seats: 2, status: 'available' },
-                { id: 2, name: 'T2', seats: 4, status: 'occupied', code: '#T1234' },
-                { id: 3, name: 'T3', seats: 4, status: 'serving', code: '#T1235' },
-                { id: 4, name: 'T4', seats: 2, status: 'available' },
-                { id: 5, name: 'T5', seats: 4, status: 'serving', code: '#T1236' },
-                { id: 6, name: 'T6', seats: 2, status: 'available' },
-                { id: 7, name: 'T7', seats: 2, status: 'occupied', code: '#T1237' },
-                { id: 8, name: 'T8', seats: 6, status: 'available' },
-                { id: 9, name: 'T9', seats: 2, status: 'available' },
-                { id: 10, name: 'T10', seats: 4, status: 'occupied', code: '#T1238' },
-                { id: 11, name: 'T11', seats: 4, status: 'available' },
-                { id: 12, name: 'T12', seats: 4, status: 'available' }
-              ]
-                .filter((t) => {
+              {tables
+                .filter((tbl) => {
+                  const info = getTableStatusInfo(tbl);
                   if (tableStatusFilter === 'all') return true;
-                  if (tableStatusFilter === 'floor1') return t.id <= 8;
-                  if (tableStatusFilter === 'floor2') return t.id > 8;
-                  return t.status === tableStatusFilter;
+                  if (tableStatusFilter === 'floor1') return tbl.id <= 6;
+                  if (tableStatusFilter === 'floor2') return tbl.id > 6;
+                  return info.status === tableStatusFilter;
                 })
-                .map((tbl) => (
-                  <div
-                    key={tbl.id}
-                    className={`ref-table-box ${tbl.status}`}
-                    onClick={() => {
-                      setSelectedBillingTableId(tbl.id);
-                      setActiveTab('billing');
-                    }}
-                    title={`Table ${tbl.name} - ${tbl.status}`}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className="ref-table-name" style={{ fontSize: '1.45rem', fontWeight: 900 }}>
-                      {tbl.name}
+                .map((tbl) => {
+                  const info = getTableStatusInfo(tbl);
+                  return (
+                    <div
+                      key={tbl.id}
+                      className={`ref-table-box ${info.status}`}
+                      onClick={() => {
+                        setSelectedBillingTableId(tbl.id);
+                        setActiveTab('billing');
+                      }}
+                      title={`Table ${tbl.name} - ${info.status.toUpperCase()}`}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="ref-table-name" style={{ fontSize: '1.45rem', fontWeight: 900 }}>
+                        {tbl.name}
+                      </div>
+                      <div className="ref-table-seats" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
+                        {tbl.capacity || 4} Seats
+                      </div>
+                      <div className="ref-table-state-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginTop: 4 }}>
+                        {info.status === 'occupied' && `Occupied ${info.code}`}
+                        {info.status === 'serving' && `Serving ${info.code}`}
+                        {info.status === 'available' && 'Available'}
+                      </div>
+                      {info.status !== 'available' && (
+                        <button
+                          type="button"
+                          className="btn-vacate-table-badge"
+                          style={{
+                            marginTop: 8,
+                            padding: '3px 10px',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            borderRadius: 6,
+                            border: '1px solid #fca5a5',
+                            background: '#fff',
+                            color: '#dc2626',
+                            cursor: 'pointer'
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVacateTable(tbl.id);
+                          }}
+                        >
+                          Vacate Table
+                        </button>
+                      )}
                     </div>
-                    <div className="ref-table-seats" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
-                      {tbl.seats} Seats
-                    </div>
-                    <div className="ref-table-state-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginTop: 4 }}>
-                      {tbl.status === 'occupied' && `Occupied ${tbl.code}`}
-                      {tbl.status === 'serving' && `Serving ${tbl.code}`}
-                      {tbl.status === 'available' && 'Available'}
-                      {tbl.status === 'reserved' && 'Reserved'}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </section>
         )}
@@ -1819,14 +1870,15 @@ export default function DashboardApp({ onLockStaff }) {
                     value={mobileSelectedOrder.status}
                     onChange={(e) => {
                       const newStatus = e.target.value;
+                      handleOrderStatusUpdate(mobileSelectedOrder.id, newStatus);
                       setMobileSelectedOrder(prev => ({ ...prev, status: newStatus }));
-                      addToast(`Order ${mobileSelectedOrder.code} status updated to ${newStatus}`, 'success');
                     }}
                   >
                     <option value="pending">Status: Pending</option>
                     <option value="preparing">Status: Preparing</option>
                     <option value="ready">Status: Ready</option>
                     <option value="served">Status: Served</option>
+                    <option value="completed">Status: Completed</option>
                     <option value="cancelled">Status: Cancelled</option>
                   </select>
 
@@ -1836,12 +1888,12 @@ export default function DashboardApp({ onLockStaff }) {
                     onClick={() => {
                       handlePrintBill({
                         id: mobileSelectedOrder.id,
-                        orderNumber: mobileSelectedOrder.code,
-                        tableName: mobileSelectedOrder.table,
-                        items: mobileSelectedOrder.itemsList || [{ name: 'Dining Order', quantity: 1, price: mobileSelectedOrder.amount }],
-                        total: mobileSelectedOrder.amount,
-                        subtotal: Math.round(mobileSelectedOrder.amount / 1.05),
-                        tax: Math.round(mobileSelectedOrder.amount - (mobileSelectedOrder.amount / 1.05))
+                        orderNumber: mobileSelectedOrder.orderNumber || mobileSelectedOrder.id.replace('ORD-', ''),
+                        tableName: mobileSelectedOrder.tableName,
+                        items: mobileSelectedOrder.items || [{ name: 'Dining Order', quantity: 1, price: mobileSelectedOrder.total }],
+                        total: mobileSelectedOrder.total,
+                        subtotal: mobileSelectedOrder.subtotal,
+                        tax: mobileSelectedOrder.tax
                       });
                     }}
                   >
@@ -1874,11 +1926,11 @@ export default function DashboardApp({ onLockStaff }) {
                 {/* Filter Pills matching Reference Screen 3 */}
                 <div className="admin-filter-pills-row">
                   {[
-                    { id: 'all', label: 'All Orders', count: 24 },
-                    { id: 'pending', label: 'Pending', count: 6 },
-                    { id: 'preparing', label: 'Preparing', count: 8 },
-                    { id: 'ready', label: 'Ready', count: 4 },
-                    { id: 'served', label: 'Served', count: 6 }
+                    { id: 'all', label: 'All Orders', count: orders.length },
+                    { id: 'pending', label: 'Pending', count: orders.filter(o => o.status === 'pending').length },
+                    { id: 'preparing', label: 'Preparing', count: orders.filter(o => o.status === 'preparing').length },
+                    { id: 'ready', label: 'Ready', count: orders.filter(o => o.status === 'ready').length },
+                    { id: 'served', label: 'Served', count: orders.filter(o => o.status === 'served').length }
                   ].map((p) => (
                     <button
                       key={p.id}
@@ -1892,21 +1944,13 @@ export default function DashboardApp({ onLockStaff }) {
 
                 {/* Screen 3: Mobile Orders List Cards */}
                 <div className="mobile-orders-cards-container hide-on-desktop">
-                  {[
-                    { id: '1', code: '#T1234', table: 'Table 12', items: '3 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 220 }, { name: 'Chicken Biryani', quantity: 1, price: 280 }, { name: 'Masala Dosa', quantity: 1, price: 180 }], amount: 945, status: 'preparing', time: '2 mins', notes: 'Less spicy, extra green chutney and napkins.' },
-                    { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', itemsList: [{ name: 'Butter Chicken', quantity: 1, price: 420 }, { name: 'Garlic Naan', quantity: 3, price: 180 }, { name: 'Gulab Jamun', quantity: 2, price: 150 }], amount: 750, status: 'served', time: '8 mins', notes: 'Serve dessert warm.' },
-                    { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', itemsList: [{ name: 'Veg Hakka Noodles', quantity: 1, price: 320 }], amount: 320, status: 'preparing', time: '12 mins', notes: 'No ajinomoto.' },
-                    { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', itemsList: [{ name: 'Crispy Corn', quantity: 1, price: 220 }, { name: 'Virgin Mojito', quantity: 2, price: 260 }, { name: 'French Fries', quantity: 1, price: 120 }], amount: 600, status: 'ready', time: '18 mins', notes: 'Less ice in mojitos.' },
-                    { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', itemsList: [{ name: 'Masala Dosa', quantity: 2, price: 280 }, { name: 'Filter Coffee', quantity: 2, price: 140 }], amount: 420, status: 'ready', time: '22 mins', notes: 'Extra sambar.' },
-                    { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', itemsList: [{ name: 'Club Sandwich', quantity: 1, price: 180 }], amount: 180, status: 'served', time: '25 mins', notes: 'Brown bread.' },
-                    { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', itemsList: [{ name: 'Mutton Rogan Josh', quantity: 1, price: 540 }, { name: 'Jeera Rice', quantity: 1, price: 180 }, { name: 'Tandoori Roti', quantity: 4, price: 160 }, { name: 'Raita', quantity: 1, price: 70 }], amount: 950, status: 'preparing', time: '28 mins', notes: 'Well cooked mutton.' },
-                    { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', itemsList: [{ name: 'Margherita Pizza', quantity: 1, price: 350 }, { name: 'Cold Drink', quantity: 2, price: 100 }], amount: 450, status: 'cancelled', time: '35 mins', notes: 'Cancelled by customer.' }
-                  ]
+                  {orders
                     .filter((ord) => {
                       const matchesFilter = orderFilter === 'all' || ord.status === orderFilter;
                       const matchesSearch = !orderSearch.trim() ||
-                        ord.code.toLowerCase().includes(orderSearch.toLowerCase()) ||
-                        ord.table.toLowerCase().includes(orderSearch.toLowerCase());
+                        (ord.orderNumber && ord.orderNumber.toString().includes(orderSearch)) ||
+                        (ord.id && ord.id.toLowerCase().includes(orderSearch.toLowerCase())) ||
+                        (ord.tableName && ord.tableName.toLowerCase().includes(orderSearch.toLowerCase()));
                       return matchesFilter && matchesSearch;
                     })
                     .map((ord) => (
@@ -1916,17 +1960,17 @@ export default function DashboardApp({ onLockStaff }) {
                         onClick={() => setMobileSelectedOrder(ord)}
                       >
                         <div className="mobile-order-card-row" style={{ marginBottom: 4 }}>
-                          <span className="mobile-order-code">{ord.code}</span>
+                          <span className="mobile-order-code">#{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
                           <span className={`status-badge-pill ${ord.status}`}>
                             {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
                           </span>
                         </div>
                         <div className="mobile-order-card-row" style={{ marginBottom: 6 }}>
-                          <span className="mobile-order-table">{ord.table} • {ord.items}</span>
-                          <span className="mobile-order-time">{ord.time} ago</span>
+                          <span className="mobile-order-table">{ord.tableName} • {(ord.items || []).length} items</span>
+                          <span className="mobile-order-time">{formatElapsed(ord.createdAt)}</span>
                         </div>
                         <div className="mobile-order-card-row">
-                          <span className="mobile-order-price">₹ {ord.amount}</span>
+                          <span className="mobile-order-price">₹ {ord.total}</span>
                           <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>
                             View Details ›
                           </span>
@@ -1934,19 +1978,9 @@ export default function DashboardApp({ onLockStaff }) {
                       </div>
                     ))}
 
-                  {totalOrdersPages > 1 && (
-                    <div className="mobile-pagination-wrapper">
-                      <PaginationBar
-                        currentPage={currentOrdersPage}
-                        totalPages={totalOrdersPages}
-                        totalItems={filteredOrders.length}
-                        itemsPerPage={ordersPerPage}
-                        onPageChange={(p) => {
-                          setOrdersPage(p);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        label="orders"
-                      />
+                  {orders.length === 0 && (
+                    <div style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                      No live customer orders found
                     </div>
                   )}
                 </div>
@@ -1966,42 +2000,44 @@ export default function DashboardApp({ onLockStaff }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        { id: '1', code: '#T1234', table: 'Table 12', items: '2 items', itemsList: [{ name: 'Paneer Tikka', quantity: 2, price: 260 }, { name: 'Chicken Biryani', quantity: 1, price: 265 }], amount: 525, status: 'preparing', time: '2 mins', notes: 'Extra spicy, serve onions.' },
-                        { id: '2', code: '#T1233', table: 'Table 5', items: '3 items', itemsList: [{ name: 'Butter Chicken', quantity: 1, price: 420 }, { name: 'Garlic Naan', quantity: 3, price: 180 }, { name: 'Gulab Jamun', quantity: 2, price: 150 }], amount: 750, status: 'served', time: '8 mins', notes: 'Serve dessert warm.' },
-                        { id: '3', code: '#T1232', table: 'Table 8', items: '1 item', itemsList: [{ name: 'Veg Hakka Noodles', quantity: 1, price: 320 }], amount: 320, status: 'preparing', time: '12 mins', notes: 'No ajinomoto.' },
-                        { id: '4', code: '#T1231', table: 'Table 3', items: '4 items', itemsList: [{ name: 'Crispy Corn', quantity: 1, price: 220 }, { name: 'Virgin Mojito', quantity: 2, price: 260 }, { name: 'French Fries', quantity: 1, price: 120 }], amount: 600, status: 'ready', time: '18 mins', notes: 'Less ice in mojitos.' },
-                        { id: '5', code: '#T1230', table: 'Table 1', items: '2 items', itemsList: [{ name: 'Masala Dosa', quantity: 2, price: 280 }, { name: 'Filter Coffee', quantity: 2, price: 140 }], amount: 420, status: 'ready', time: '22 mins', notes: 'Extra sambar.' },
-                        { id: '6', code: '#T1229', table: 'Table 7', items: '1 item', itemsList: [{ name: 'Club Sandwich', quantity: 1, price: 180 }], amount: 180, status: 'served', time: '25 mins', notes: 'Brown bread.' },
-                        { id: '7', code: '#T1228', table: 'Table 4', items: '5 items', itemsList: [{ name: 'Mutton Rogan Josh', quantity: 1, price: 540 }, { name: 'Jeera Rice', quantity: 1, price: 180 }, { name: 'Tandoori Roti', quantity: 4, price: 160 }, { name: 'Raita', quantity: 1, price: 70 }], amount: 950, status: 'preparing', time: '28 mins', notes: 'Well cooked mutton.' },
-                        { id: '8', code: '#T1227', table: 'Table 10', items: '2 items', itemsList: [{ name: 'Margherita Pizza', quantity: 1, price: 350 }, { name: 'Cold Drink', quantity: 2, price: 100 }], amount: 450, status: 'cancelled', time: '35 mins', notes: 'Cancelled by customer.' }
-                      ]
+                      {orders
                         .filter((ord) => orderFilter === 'all' || ord.status === orderFilter)
                         .map((ord) => (
                           <tr key={ord.id}>
-                            <td style={{ fontWeight: 800, color: '#0f172a' }}>{ord.code}</td>
-                            <td style={{ color: '#475569', fontWeight: 600 }}>{ord.table}</td>
-                            <td style={{ color: '#64748b' }}>{ord.items}</td>
-                            <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {ord.amount}</td>
+                            <td style={{ fontWeight: 800, color: '#0f172a' }}>
+                              #{ord.orderNumber || ord.id.replace('ORD-', '')}
+                            </td>
+                            <td style={{ color: '#475569', fontWeight: 600 }}>{ord.tableName}</td>
+                            <td style={{ color: '#64748b' }}>
+                              {(ord.items || []).map(i => `${i.quantity}x ${i.name}`).join(', ') || 'Custom Items'}
+                            </td>
+                            <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {ord.total}</td>
                             <td>
                               <span className={`status-badge-pill ${ord.status}`}>
                                 {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
                               </span>
                             </td>
-                            <td style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{ord.time}</td>
+                            <td style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{formatElapsed(ord.createdAt)}</td>
                             <td>
                               <button
                                 className="btn-row-action"
                                 onClick={() => {
-                                  setSelectedBillingTableId(parseInt(ord.table.replace(/\D/g, ''), 10) || 12);
+                                  setSelectedBillingTableId(ord.tableId);
                                   setActiveTab('billing');
                                 }}
                               >
-                                View
+                                View / Bill
                               </button>
                             </td>
                           </tr>
                         ))}
+                      {orders.length === 0 && (
+                        <tr>
+                          <td colSpan={7} style={{ textAlign: 'center', padding: '36px', color: '#94a3b8' }}>
+                            No live customer orders yet
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -2030,10 +2066,10 @@ export default function DashboardApp({ onLockStaff }) {
             {/* Screen 7: Mobile Kitchen Display Filter Pills (Reference Image Screen 7) */}
             <div className="admin-filter-pills-row hide-on-desktop">
               {[
-                { id: 'pending', label: 'Pending', count: 3 },
-                { id: 'preparing', label: 'Preparing', count: 4 },
-                { id: 'ready', label: 'Ready', count: 2 },
-                { id: 'served', label: 'Served', count: 1 }
+                { id: 'pending', label: 'Pending', count: orders.filter(o => o.status === 'pending').length },
+                { id: 'preparing', label: 'Preparing', count: orders.filter(o => o.status === 'preparing').length },
+                { id: 'ready', label: 'Ready', count: orders.filter(o => o.status === 'ready').length },
+                { id: 'served', label: 'Served', count: orders.filter(o => o.status === 'served').length }
               ].map((p) => (
                 <button
                   key={p.id}
@@ -2047,15 +2083,7 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Screen 7: Mobile Kitchen Display Tickets List */}
             <div className="mobile-kds-cards-list hide-on-desktop">
-              {[
-                { id: '1', code: '#T1234', table: 'Table 12', time: '5 mins', status: 'pending', items: ['2 x Paneer Tikka', '1 x Chicken Biryani'], action: 'Start Cooking', nextStatus: 'preparing' },
-                { id: '2', code: '#T1235', table: 'Table 5', time: '3 mins', status: 'preparing', items: ['1 x Veg Manchurian', '1 x Noodles'], action: 'In Progress', nextStatus: 'ready' },
-                { id: '3', code: '#T1236', table: 'Table 8', time: '8 mins', status: 'pending', items: ['1 x Masala Dosa', '1 x Filter Coffee'], action: 'Start Cooking', nextStatus: 'preparing' },
-                { id: '4', code: '#T1238', table: 'Table 10', time: '6 mins', status: 'preparing', items: ['1 x Chicken Curry', '2 x Naan'], action: 'In Progress', nextStatus: 'ready' },
-                { id: '5', code: '#T1231', table: 'Table 1', time: '2 mins', status: 'ready', items: ['2 x Margherita Pizza', '1 x Cold Coffee'], action: 'Mark as Served', nextStatus: 'served' },
-                { id: '6', code: '#T1237', table: 'Table 8', time: '2 mins', status: 'ready', items: ['1 x Caesar Salad', '1 x Lemonade'], action: 'Mark as Served', nextStatus: 'served' },
-                { id: '7', code: '#T1229', table: 'Table 7', time: '11:30 AM', status: 'served', items: ['1 x Paneer Butter Masala'], action: 'Completed', nextStatus: null }
-              ]
+              {orders
                 .filter((t) => {
                   if (kitchenStatusFilter === 'pending') return ['pending', 'preparing'].includes(t.status);
                   return t.status === kitchenStatusFilter;
@@ -2063,29 +2091,44 @@ export default function DashboardApp({ onLockStaff }) {
                 .map((ticket) => (
                   <div key={ticket.id} className="mobile-kds-card">
                     <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>{ticket.code}</span>
+                      <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>
+                        #{ticket.orderNumber || ticket.id.replace('ORD-', '')}
+                      </span>
                       <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#059669', fontWeight: 700 }}>
-                        {ticket.time}
+                        {formatElapsed(ticket.createdAt)}
                       </span>
                     </div>
                     <div className="kds-order-table" style={{ fontWeight: 700, fontSize: '0.86rem', color: '#475569', marginBottom: 8 }}>
-                      {ticket.table}
+                      {ticket.tableName}
                     </div>
                     <div className="kds-order-items" style={{ fontSize: '0.82rem', color: '#1e293b', background: '#f8fafc', padding: '8px 10px', borderRadius: 8, marginBottom: 12 }}>
-                      {ticket.items.map((it, idx) => (
-                        <div key={idx} style={{ padding: '2px 0' }}>• {it}</div>
+                      {(ticket.items || []).map((it, idx) => (
+                        <div key={idx} style={{ padding: '2px 0' }}>• {it.quantity} x {it.name}</div>
                       ))}
                     </div>
-                    {ticket.nextStatus ? (
+                    {ticket.status === 'pending' ? (
                       <button
-                        className={`kds-btn-action ${ticket.status}`}
+                        className="kds-btn-action pending"
                         style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
-                        onClick={() => {
-                          setKitchenStatusFilter(ticket.nextStatus);
-                          addToast(`Order ${ticket.code} moved to ${ticket.nextStatus}`, 'success');
-                        }}
+                        onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
                       >
-                        {ticket.action}
+                        Start Cooking
+                      </button>
+                    ) : ticket.status === 'preparing' ? (
+                      <button
+                        className="kds-btn-action preparing"
+                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                        onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
+                      >
+                        Ready for Pickup
+                      </button>
+                    ) : ticket.status === 'ready' ? (
+                      <button
+                        className="kds-btn-action ready"
+                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                        onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
+                      >
+                        Mark as Served
                       </button>
                     ) : (
                       <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
@@ -2094,6 +2137,11 @@ export default function DashboardApp({ onLockStaff }) {
                     )}
                   </div>
                 ))}
+              {orders.filter(t => ['pending', 'preparing', 'ready', 'served'].includes(t.status)).length === 0 && (
+                <div style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                  No active kitchen orders
+                </div>
+              )}
             </div>
 
             {/* 4 Status Columns matching Reference Panel 5 for Desktop */}
@@ -2101,155 +2149,136 @@ export default function DashboardApp({ onLockStaff }) {
               {/* Column 1: Pending */}
               <div className="kds-column">
                 <div className="kds-col-header pending">
-                  <span>Pending (3)</span>
+                  <span>Pending ({orders.filter(o => o.status === 'pending').length})</span>
                 </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1234</span>
-                    <span className="kds-order-timer" style={{ color: '#ea580c' }}>5 mins</span>
+                {orders.filter(o => o.status === 'pending').map((ticket) => (
+                  <div key={ticket.id} className="kds-order-card">
+                    <div className="kds-card-top">
+                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
+                      <span className="kds-order-timer" style={{ color: '#ea580c' }}>{formatElapsed(ticket.createdAt)}</span>
+                    </div>
+                    <div className="kds-order-table">{ticket.tableName}</div>
+                    <div className="kds-order-items">
+                      {(ticket.items || []).map((it, idx) => (
+                        <div key={idx}>{it.quantity} x {it.name}</div>
+                      ))}
+                    </div>
+                    <button
+                      className="kds-btn-action pending"
+                      onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
+                    >
+                      Start Cooking
+                    </button>
                   </div>
-                  <div className="kds-order-table">Table 12</div>
-                  <div className="kds-order-items">
-                    <div>2 x Paneer Tikka</div>
-                    <div>1 x Chicken Biryani</div>
+                ))}
+                {orders.filter(o => o.status === 'pending').length === 0 && (
+                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    No pending orders
                   </div>
-                  <button
-                    className="kds-btn-action pending"
-                    onClick={() => addToast('Order #T1234 moved to Preparing', 'info')}
-                  >
-                    Start Cooking
-                  </button>
-                </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1236</span>
-                    <span className="kds-order-timer" style={{ color: '#ea580c' }}>8 mins</span>
-                  </div>
-                  <div className="kds-order-table">Table 5</div>
-                  <div className="kds-order-items">
-                    <div>1 x Masala Dosa</div>
-                    <div>1 x Filter Coffee</div>
-                  </div>
-                  <button
-                    className="kds-btn-action pending"
-                    onClick={() => addToast('Order #T1236 moved to Preparing', 'info')}
-                  >
-                    Start Cooking
-                  </button>
-                </div>
+                )}
               </div>
 
               {/* Column 2: Preparing */}
               <div className="kds-column">
                 <div className="kds-col-header preparing">
-                  <span>Preparing (4)</span>
+                  <span>Preparing ({orders.filter(o => o.status === 'preparing').length})</span>
                 </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1235</span>
-                    <span className="kds-order-timer" style={{ color: '#0284c7' }}>3 mins</span>
+                {orders.filter(o => o.status === 'preparing').map((ticket) => (
+                  <div key={ticket.id} className="kds-order-card">
+                    <div className="kds-card-top">
+                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
+                      <span className="kds-order-timer" style={{ color: '#0284c7' }}>{formatElapsed(ticket.createdAt)}</span>
+                    </div>
+                    <div className="kds-order-table">{ticket.tableName}</div>
+                    <div className="kds-order-items">
+                      {(ticket.items || []).map((it, idx) => (
+                        <div key={idx}>{it.quantity} x {it.name}</div>
+                      ))}
+                    </div>
+                    <button
+                      className="kds-btn-action preparing"
+                      onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
+                    >
+                      Ready for Pickup
+                    </button>
                   </div>
-                  <div className="kds-order-table">Table 3</div>
-                  <div className="kds-order-items">
-                    <div>1 x Veg Manchurian</div>
-                    <div>1 x Noodles</div>
+                ))}
+                {orders.filter(o => o.status === 'preparing').length === 0 && (
+                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    No cooking in progress
                   </div>
-                  <button
-                    className="kds-btn-action preparing"
-                    onClick={() => addToast('Order #T1235 is Ready', 'success')}
-                  >
-                    In Progress
-                  </button>
-                </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1238</span>
-                    <span className="kds-order-timer" style={{ color: '#0284c7' }}>6 mins</span>
-                  </div>
-                  <div className="kds-order-table">Table 10</div>
-                  <div className="kds-order-items">
-                    <div>1 x Chicken Curry</div>
-                    <div>2 x Naan</div>
-                  </div>
-                  <button
-                    className="kds-btn-action preparing"
-                    onClick={() => addToast('Order #T1238 is Ready', 'success')}
-                  >
-                    In Progress
-                  </button>
-                </div>
+                )}
               </div>
 
               {/* Column 3: Ready */}
               <div className="kds-column">
                 <div className="kds-col-header ready">
-                  <span>Ready (2)</span>
+                  <span>Ready ({orders.filter(o => o.status === 'ready').length})</span>
                 </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1231</span>
-                    <span className="kds-order-timer" style={{ color: '#059669' }}>2 mins</span>
+                {orders.filter(o => o.status === 'ready').map((ticket) => (
+                  <div key={ticket.id} className="kds-order-card">
+                    <div className="kds-card-top">
+                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
+                      <span className="kds-order-timer" style={{ color: '#059669' }}>{formatElapsed(ticket.createdAt)}</span>
+                    </div>
+                    <div className="kds-order-table">{ticket.tableName}</div>
+                    <div className="kds-order-items">
+                      {(ticket.items || []).map((it, idx) => (
+                        <div key={idx}>{it.quantity} x {it.name}</div>
+                      ))}
+                    </div>
+                    <button
+                      className="kds-btn-action ready"
+                      onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
+                    >
+                      Mark as Served
+                    </button>
                   </div>
-                  <div className="kds-order-table">Table 1</div>
-                  <div className="kds-order-items">
-                    <div>2 x Margherita Pizza</div>
-                    <div>1 x Cold Coffee</div>
+                ))}
+                {orders.filter(o => o.status === 'ready').length === 0 && (
+                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    No orders waiting pickup
                   </div>
-                  <button
-                    className="kds-btn-action ready"
-                    onClick={() => addToast('Order #T1231 Marked as Served', 'success')}
-                  >
-                    Mark as Served
-                  </button>
-                </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1237</span>
-                    <span className="kds-order-timer" style={{ color: '#059669' }}>2 mins</span>
-                  </div>
-                  <div className="kds-order-table">Table 8</div>
-                  <div className="kds-order-items">
-                    <div>1 x Caesar Salad</div>
-                    <div>1 x Lemonade</div>
-                  </div>
-                  <button
-                    className="kds-btn-action ready"
-                    onClick={() => addToast('Order #T1237 Marked as Served', 'success')}
-                  >
-                    Mark as Served
-                  </button>
-                </div>
+                )}
               </div>
 
               {/* Column 4: Served */}
               <div className="kds-column">
                 <div className="kds-col-header served">
-                  <span>Served (1)</span>
+                  <span>Served ({orders.filter(o => o.status === 'served').length})</span>
                 </div>
-                <div className="kds-order-card">
-                  <div className="kds-card-top">
-                    <span className="kds-order-id">#T1229</span>
-                    <span className="kds-order-timer">11:30 AM</span>
+                {orders.filter(o => o.status === 'served').map((ticket) => (
+                  <div key={ticket.id} className="kds-order-card">
+                    <div className="kds-card-top">
+                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
+                      <span className="kds-order-timer">{formatElapsed(ticket.createdAt)}</span>
+                    </div>
+                    <div className="kds-order-table">{ticket.tableName}</div>
+                    <div className="kds-order-items">
+                      {(ticket.items || []).map((it, idx) => (
+                        <div key={idx}>{it.quantity} x {it.name}</div>
+                      ))}
+                    </div>
+                    <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                      ✓ Served to Table
+                    </div>
                   </div>
-                  <div className="kds-order-table">Table 7</div>
-                  <div className="kds-order-items">
-                    <div>1 x Paneer Butter Masala</div>
+                ))}
+                {orders.filter(o => o.status === 'served').length === 0 && (
+                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    No served orders
                   </div>
-                  <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
-                    ✓ Served
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
             {/* Bottom Summary Strip matching Panel 5 for Desktop */}
             <div className="kds-summary-strip hide-on-mobile">
-              <span>📋 <strong>10</strong> Total Orders</span>
-              <span>⏳ <strong>3</strong> Pending</span>
-              <span>👨‍🍳 <strong>4</strong> Preparing</span>
-              <span>✅ <strong>2</strong> Ready</span>
-              <span>🍽️ <strong>1</strong> Served</span>
-              <span>⏱️ Average Prep Time: <strong>12 mins</strong></span>
+              <span>📋 <strong>{orders.length}</strong> Total Orders</span>
+              <span>⏳ <strong>{orders.filter(o => o.status === 'pending').length}</strong> Pending</span>
+              <span>👨‍🍳 <strong>{orders.filter(o => o.status === 'preparing').length}</strong> Preparing</span>
+              <span>✅ <strong>{orders.filter(o => o.status === 'ready').length}</strong> Ready</span>
+              <span>🍽️ <strong>{orders.filter(o => o.status === 'served').length}</strong> Served</span>
             </div>
           </section>
         )}
@@ -2743,10 +2772,12 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="pos-bill-card-header">
                   <div className="pos-bill-header-left">
                     <h3 className="pos-bill-title">
-                      Table {selectedBillingTableId} <span className="pos-bill-tag">(#T{1230 + Number(selectedBillingTableId)})</span>
+                      Table {selectedBillingTableId} <span className="pos-bill-tag">
+                        ({tables.find(t => t.id === Number(selectedBillingTableId))?.sessionToken ? `#${tables.find(t => t.id === Number(selectedBillingTableId)).sessionToken}` : `#T${selectedBillingTableId}`})
+                      </span>
                     </h3>
-                    <span className="status-badge-pill served">
-                      Dine-in
+                    <span className={`status-badge-pill ${getTableStatusInfo(tables.find(t => t.id === Number(selectedBillingTableId))).status}`}>
+                      {getTableStatusInfo(tables.find(t => t.id === Number(selectedBillingTableId))).status === 'available' ? 'Available' : 'Dine-in (Occupied)'}
                     </span>
                   </div>
                   <select
@@ -2755,136 +2786,170 @@ export default function DashboardApp({ onLockStaff }) {
                     onChange={(e) => setSelectedBillingTableId(parseInt(e.target.value, 10))}
                     title="Switch Table"
                   >
-                    {tables.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        Table {t.id}
-                      </option>
-                    ))}
+                    {tables.map((t) => {
+                      const tInfo = getTableStatusInfo(t);
+                      return (
+                        <option key={t.id} value={t.id}>
+                          {t.name} {tInfo.status === 'occupied' ? '• Occupied' : tInfo.status === 'serving' ? '• Serving' : '• Available'}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 
-                {/* Items Breakdown Table matching Screen 8 */}
-                <div className="pos-bill-items-list">
-                  <div className="pos-bill-item-row">
-                    <div className="pos-bill-item-left">
-                      <img
-                        src="/images/paneer_tikka.jpg"
-                        alt="Paneer Tikka"
-                        className="pos-bill-item-img"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                      />
-                      <span className="pos-bill-item-name">Paneer Tikka</span>
-                    </div>
-                    <span className="pos-bill-item-qty">x2</span>
-                    <span className="pos-bill-item-price">₹ 440</span>
-                  </div>
-
-                  <div className="pos-bill-item-row">
-                    <div className="pos-bill-item-left">
-                      <img
-                        src="/images/chicken_biryani.jpg"
-                        alt="Chicken Biryani"
-                        className="pos-bill-item-img"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                      />
-                      <span className="pos-bill-item-name">Chicken Biryani</span>
-                    </div>
-                    <span className="pos-bill-item-qty">x1</span>
-                    <span className="pos-bill-item-price">₹ 280</span>
-                  </div>
-
-                  <div className="pos-bill-item-row">
-                    <div className="pos-bill-item-left">
-                      <img
-                        src="/images/masala_dosa.jpg"
-                        alt="Masala Dosa"
-                        className="pos-bill-item-img"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                      />
-                      <span className="pos-bill-item-name">Masala Dosa</span>
-                    </div>
-                    <span className="pos-bill-item-qty">x1</span>
-                    <span className="pos-bill-item-price">₹ 180</span>
-                  </div>
-                </div>
-
-                {/* Totals Summary */}
-                <div className="pos-bill-calc-box">
-                  <div className="pos-bill-calc-row">
-                    <span>Subtotal</span>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ 900</span>
-                  </div>
-                  <div className="pos-bill-calc-row">
-                    <span>GST (5%)</span>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ 45</span>
-                  </div>
-                  <div className="pos-bill-calc-row total">
-                    <span>Total</span>
-                    <span>₹ 945</span>
-                  </div>
-                </div>
-
-                {/* Payment Method Tabs */}
-                <div className="pos-pay-tabs-row">
-                  {['Cash', 'UPI', 'Card'].map((pm) => (
-                    <button
-                      key={pm}
-                      type="button"
-                      className={`pos-pay-tab-btn ${billingPaymentMethod.toLowerCase() === pm.toLowerCase() ? 'active' : ''}`}
-                      onClick={() => setBillingPaymentMethod(pm.toLowerCase())}
-                    >
-                      {pm}
-                    </button>
-                  ))}
-                </div>
-
-                {/* UPI QR Payment Box */}
-                {billingPaymentMethod.toLowerCase() === 'upi' && (
-                  <div className="pos-upi-section">
-                    <div className="pos-upi-qr-wrapper">
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=945`}
-                        alt="UPI QR Code"
-                        className="pos-upi-qr-image"
-                      />
-                    </div>
-                    <div className="pos-upi-meta-col">
-                      <div className="pos-upi-title">UPI Payment</div>
-                      <div className="pos-upi-subtitle">Scan to Pay</div>
-                      <div className="pos-upi-amount-display">₹ 945</div>
-                      <div className="pos-upi-app-logos">
-                        <span className="pos-upi-app gpay">G Pay</span>
-                        <span className="pos-upi-app phonepe">PhonePe</span>
-                        <span className="pos-upi-app paytm">Paytm</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Full-width Generate Bill Action Button matching Screen 8 */}
-                <button
-                  type="button"
-                  className="mobile-print-bill-btn"
-                  style={{ marginTop: 14, width: '100%' }}
-                  onClick={() => {
-                    handlePrintBill({
-                      id: 'B1604',
-                      orderNumber: 'T1234',
-                      tableName: `Table ${selectedBillingTableId}`,
-                      items: [
-                        { name: 'Paneer Tikka', quantity: 2, price: 220 },
-                        { name: 'Chicken Biryani', quantity: 1, price: 280 },
-                        { name: 'Masala Dosa', quantity: 1, price: 180 }
-                      ],
-                      total: 945,
-                      subtotal: 900,
-                      tax: 45
+                {/* Items Breakdown Table matching Real Live Customer Order */}
+                {(() => {
+                  const activeTableOrders = getTableActiveOrders(selectedBillingTableId);
+                  const activeBillItems = [];
+                  activeTableOrders.forEach((ord) => {
+                    (ord.items || []).forEach((it) => {
+                      const existing = activeBillItems.find((x) => x.id === it.id && x.name === it.name);
+                      if (existing) {
+                        existing.quantity += it.quantity;
+                      } else {
+                        activeBillItems.push({ ...it });
+                      }
                     });
-                    addToast(`Bill generated for Table ${selectedBillingTableId}`, 'success');
-                  }}
-                >
-                  <Printer size={16} /> Generate Bill
-                </button>
+                  });
+                  const billSubtotal = activeBillItems.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+                  const billGst = +(billSubtotal * 0.05).toFixed(2);
+                  const billTotal = +(billSubtotal + billGst).toFixed(2);
+
+                  if (activeBillItems.length === 0) {
+                    return (
+                      <div style={{ padding: '40px 16px', textAlign: 'center', color: '#64748b' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 8 }}>🍽️</div>
+                        <h4 style={{ margin: '0 0 6px', color: '#0f172a', fontWeight: 800 }}>Table {selectedBillingTableId} is Vacant</h4>
+                        <p style={{ margin: 0, fontSize: '0.85rem' }}>No active customer orders placed on this table yet.</p>
+                        {tables.filter(t => getTableStatusInfo(t).status !== 'available').length > 0 && (
+                          <div style={{ marginTop: 14 }}>
+                            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Switch to active table: </span>
+                            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+                              {tables.filter(t => getTableStatusInfo(t).status !== 'available').map(t => (
+                                <button
+                                  key={t.id}
+                                  type="button"
+                                  className="btn-brand-outline"
+                                  style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                                  onClick={() => setSelectedBillingTableId(t.id)}
+                                >
+                                  {t.name} (Active)
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="pos-bill-items-list">
+                        {activeBillItems.map((it, idx) => (
+                          <div key={idx} className="pos-bill-item-row">
+                            <div className="pos-bill-item-left">
+                              <img
+                                src={it.name.includes('Paneer') ? '/images/paneer_tikka.jpg' : it.name.includes('Biryani') ? '/images/chicken_biryani.jpg' : it.name.includes('Dosa') ? '/images/masala_dosa.jpg' : '/images/margherita_pizza.jpg'}
+                                alt={it.name}
+                                className="pos-bill-item-img"
+                                onError={(e) => { e.target.src = '/images/paneer_tikka.jpg'; }}
+                              />
+                              <div>
+                                <span className="pos-bill-item-name">{it.name}</span>
+                                {it.notes && <div style={{ fontSize: '0.72rem', color: '#ea580c' }}>Note: {it.notes}</div>}
+                              </div>
+                            </div>
+                            <span className="pos-bill-item-qty">x{it.quantity}</span>
+                            <span className="pos-bill-item-price">₹ {it.price * it.quantity}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Totals Summary */}
+                      <div className="pos-bill-calc-box">
+                        <div className="pos-bill-calc-row">
+                          <span>Subtotal</span>
+                          <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {billSubtotal}</span>
+                        </div>
+                        <div className="pos-bill-calc-row">
+                          <span>GST (5%)</span>
+                          <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ {billGst}</span>
+                        </div>
+                        <div className="pos-bill-calc-row total">
+                          <span>Total</span>
+                          <span>₹ {billTotal}</span>
+                        </div>
+                      </div>
+
+                      {/* Payment Method Tabs */}
+                      <div className="pos-pay-tabs-row">
+                        {['Cash', 'UPI', 'Card'].map((pm) => (
+                          <button
+                            key={pm}
+                            type="button"
+                            className={`pos-pay-tab-btn ${billingPaymentMethod.toLowerCase() === pm.toLowerCase() ? 'active' : ''}`}
+                            onClick={() => setBillingPaymentMethod(pm.toLowerCase())}
+                          >
+                            {pm}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* UPI QR Payment Box */}
+                      {billingPaymentMethod.toLowerCase() === 'upi' && (
+                        <div className="pos-upi-section">
+                          <div className="pos-upi-qr-wrapper">
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=tablemint@upi%26pn=TableMint%26am=${billTotal}`}
+                              alt="UPI QR Code"
+                              className="pos-upi-qr-image"
+                            />
+                          </div>
+                          <div className="pos-upi-meta-col">
+                            <div className="pos-upi-title">UPI Payment</div>
+                            <div className="pos-upi-subtitle">Scan to Pay Table Total</div>
+                            <div className="pos-upi-amount-display">₹ {billTotal}</div>
+                            <div className="pos-upi-app-logos">
+                              <span className="pos-upi-app gpay">G Pay</span>
+                              <span className="pos-upi-app phonepe">PhonePe</span>
+                              <span className="pos-upi-app paytm">Paytm</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Full-width Settle & Print Bill Action Button */}
+                      <button
+                        type="button"
+                        className="mobile-print-bill-btn"
+                        style={{ marginTop: 14, width: '100%' }}
+                        onClick={async () => {
+                          handlePrintBill({
+                            id: `B${Date.now().toString().slice(-4)}`,
+                            orderNumber: activeTableOrders[0].orderNumber || activeTableOrders[0].id.replace('ORD-', ''),
+                            tableName: `Table ${selectedBillingTableId}`,
+                            items: activeBillItems,
+                            total: billTotal,
+                            subtotal: billSubtotal,
+                            tax: billGst,
+                            paymentMethod: billingPaymentMethod.toUpperCase()
+                          });
+                          for (const ord of activeTableOrders) {
+                            await handleOrderStatusUpdate(ord.id, 'completed');
+                          }
+                          try {
+                            await authFetch(`/api/tables/${selectedBillingTableId}/vacant`, { method: 'PATCH' });
+                          } catch (e) {}
+                          fetchAllData();
+                          addToast(`Bill settled for Table ${selectedBillingTableId} & marked vacant`, 'success');
+                        }}
+                      >
+                        <Printer size={16} /> Settle Bill & Print Receipt (₹ {billTotal})
+                      </button>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Right Column: Recent Bills & Thermal Print Preview for Desktop */}
@@ -2911,31 +2976,38 @@ export default function DashboardApp({ onLockStaff }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {[
-                        { billNo: '#B1604', table: 'Table 12', amount: 525, time: '10:32 AM', payment: 'UPI' },
-                        { billNo: '#B1603', table: 'Table 5', amount: 750, time: '10:25 AM', payment: 'Card' },
-                        { billNo: '#B1602', table: 'Table 8', amount: 320, time: '10:15 AM', payment: 'Cash' },
-                        { billNo: '#B1601', table: 'Table 3', amount: 600, time: '10:10 AM', payment: 'UPI' }
-                      ].map((b) => (
-                        <tr key={b.billNo}>
-                          <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>{b.billNo}</td>
-                          <td style={{ color: '#64748b', padding: '9px 10px' }}>{b.table}</td>
-                          <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>₹ {b.amount}</td>
-                          <td style={{ color: '#94a3b8', fontSize: '0.76rem', padding: '9px 10px' }}>{b.time}</td>
-                          <td style={{ padding: '9px 10px' }}>
-                            <span style={{
-                              fontSize: '0.72rem',
-                              fontWeight: 700,
-                              color: b.payment === 'UPI' ? '#059669' : (b.payment === 'Card' ? '#0284c7' : '#d97706'),
-                              background: b.payment === 'UPI' ? '#ecfdf5' : (b.payment === 'Card' ? '#f0f9ff' : '#fef3c7'),
-                              padding: '2px 8px',
-                              borderRadius: 9999
-                            }}>
-                              {b.payment}
-                            </span>
+                      {orders
+                        .filter((o) => o.status === 'completed' || o.paymentStatus === 'paid')
+                        .slice(0, 5)
+                        .map((b) => (
+                          <tr key={b.id}>
+                            <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>
+                              #B{b.orderNumber || b.id.replace('ORD-', '')}
+                            </td>
+                            <td style={{ color: '#64748b', padding: '9px 10px' }}>{b.tableName}</td>
+                            <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>₹ {b.total}</td>
+                            <td style={{ color: '#94a3b8', fontSize: '0.76rem', padding: '9px 10px' }}>{formatElapsed(b.completedAt || b.createdAt)}</td>
+                            <td style={{ padding: '9px 10px' }}>
+                              <span style={{
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
+                                color: '#059669',
+                                background: '#ecfdf5',
+                                padding: '2px 8px',
+                                borderRadius: 9999
+                              }}>
+                                {b.paymentMethod || 'UPI / Paid'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      {orders.filter((o) => o.status === 'completed' || o.paymentStatus === 'paid').length === 0 && (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center', padding: '24px 10px', color: '#94a3b8' }}>
+                            No settled bills yet
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>

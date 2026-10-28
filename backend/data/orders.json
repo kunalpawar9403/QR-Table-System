@@ -573,8 +573,9 @@
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-10-28T13:14:54.739Z",
+    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -597,8 +598,8 @@
     "tax": 36,
     "total": 756,
     "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "unpaid",
-    "paymentMethod": "Pay at Counter / UPI"
+    "paymentStatus": "paid",
+    "paymentMethod": "UPI"
   },
   {
     "id": "ORD-121",
@@ -606,8 +607,9 @@
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "pending",
+    "status": "completed",
     "createdAt": "2026-10-28T13:17:33.575Z",
+    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -630,8 +632,8 @@
     "tax": 36,
     "total": 756,
     "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "unpaid",
-    "paymentMethod": "Pay at Counter / UPI"
+    "paymentStatus": "paid",
+    "paymentMethod": "UPI"
   },
   {
     "id": "ORD-122",
@@ -639,8 +641,9 @@
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "served",
+    "status": "completed",
     "createdAt": "2026-10-28T13:18:47.698Z",
+    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -663,8 +666,78 @@
     "tax": 36,
     "total": 756,
     "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "unpaid",
-    "paymentMethod": "Pay at Counter / UPI",
+    "paymentStatus": "paid",
+    "paymentMethod": "UPI",
     "updatedAt": "2026-10-28T13:18:47.744Z"
+  },
+  {
+    "id": "ORD-123",
+    "orderNumber": 123,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Rahul",
+    "status": "completed",
+    "createdAt": "2026-10-28T13:47:49.632Z",
+    "items": [
+      {
+        "id": "pop-1",
+        "name": "Paneer Tikka",
+        "price": 220,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "pop-3",
+        "name": "Masala Dosa",
+        "price": 180,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 400,
+    "tax": 20,
+    "total": 420,
+    "notes": "Crispy dosa please",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-28T14:00:53.902Z",
+    "completedAt": "2026-10-28T14:04:22.282Z"
+  },
+  {
+    "id": "ORD-124",
+    "orderNumber": 124,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Arjun Verma",
+    "status": "completed",
+    "createdAt": "2026-10-28T14:22:38.502Z",
+    "items": [
+      {
+        "id": "pop-1",
+        "name": "Paneer Tikka",
+        "price": 220,
+        "quantity": 2,
+        "options": [],
+        "notes": "Medium spicy"
+      },
+      {
+        "id": "pop-4",
+        "name": "Butter Garlic Naan",
+        "price": 60,
+        "quantity": 3,
+        "options": [],
+        "notes": "Crispy"
+      }
+    ],
+    "subtotal": 620,
+    "tax": 31,
+    "total": 651,
+    "notes": "Please serve quickly",
+    "paymentStatus": "paid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-28T14:22:38.511Z",
+    "completedAt": "2026-10-28T14:22:38.514Z"
   }
 ]

@@ -16,12 +16,12 @@
     "name": "Table 2",
     "capacity": 4,
     "section": "Indoor Dining",
-    "status": "occupied",
-    "manualStatus": "occupied",
-    "lastClearedAt": "2026-10-26T17:34:15.529Z",
-    "sessionToken": "T2-F32DPE",
-    "tokenCreatedAt": "2026-10-26T17:34:15.529Z",
-    "occupiedAt": "2026-10-28T13:18:47.706Z"
+    "status": "available",
+    "manualStatus": "vacant",
+    "lastClearedAt": "2026-10-28T14:22:38.514Z",
+    "sessionToken": "T2-DCHMAU",
+    "tokenCreatedAt": "2026-10-28T14:22:38.514Z",
+    "occupiedAt": "2026-10-28T14:22:38.502Z"
   },
   {
     "id": 3,
