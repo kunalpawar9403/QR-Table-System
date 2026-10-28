@@ -1928,12 +1928,15 @@
     display: none !important;
   }
 
-  /* Extra bottom padding to clear the fixed bottom navigation bar */
+  /* Zero top, left, right padding so mobile header touches top and sides completely */
   .dash-main-area {
-    padding: 14px 14px max(95px, calc(82px + env(safe-area-inset-bottom))) !important;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 0 0 max(95px, calc(82px + env(safe-area-inset-bottom))) 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
     background-color: #f4f6f8 !important;
+    overflow-x: hidden !important;
+    margin: 0 !important;
   }
 
   .floor-table-grid {
@@ -3885,15 +3888,20 @@
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    background-color: #07241a !important;
+    background-color: #05241b !important;
     color: #ffffff !important;
-    padding: max(12px, env(safe-area-inset-top, 12px)) 16px 12px;
-    position: sticky;
-    top: 0;
-    z-index: 120;
+    padding: max(12px, env(safe-area-inset-top, 12px)) 16px 14px 16px !important;
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    z-index: 1000;
     box-shadow: 0 4px 18px rgba(7, 36, 26, 0.4) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0 0 20px 20px !important;
+    box-sizing: border-box !important;
   }
 
   .mobile-top-left {
@@ -5275,7 +5283,7 @@
     flex-direction: column !important;
     gap: 16px !important;
     width: 100% !important;
-    padding: 0 16px 28px 16px !important;
+    padding: 14px 16px 28px 16px !important;
     box-sizing: border-box !important;
   }
 
@@ -5285,12 +5293,13 @@
 
   /* Sticky Top Bar (Deep Forest Green #05241b matching Reference Image) */
   .admin-mobile-top-bar {
-    position: sticky;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
     width: 100% !important;
-    margin: 0 0 14px 0 !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
     min-height: 58px;
     height: auto;
     background: radial-gradient(circle at 65% 50%, rgba(16, 185, 129, 0.22) 0%, transparent 65%), #05241b !important;
@@ -5307,7 +5316,7 @@
     border-right: none !important;
     border-radius: 0 0 20px 20px !important;
     overflow: hidden;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
   }
 
   .mobile-header-leaf-watermark {
