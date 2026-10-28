@@ -115,7 +115,9 @@ function verifyStaffToken(token) {
 }
 
 function requireStaffAuth(req, res, next) {
-  const token = req.headers['x-staff-token'] || req.query.staff_token;
+  const authHeader = req.headers['authorization'];
+  const bearerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  const token = req.headers['x-staff-token'] || req.headers['x-auth-token'] || req.query.staff_token || bearerToken;
   const user = verifyUserToken(token);
   if (user) {
     req.user = user;
@@ -1000,7 +1002,7 @@ app.get('/api/service-calls', (req, res) => {
 });
 
 // Call Waiter / Service Request
-app.post('/api/service-call', (req, res) => {
+app.post(['/api/service-call', '/api/service/call'], (req, res) => {
   const { tableId, token, type, note } = req.body;
   const tables = readData(TABLES_FILE);
   const foundTable = tables.find(t => t.id === parseInt(tableId, 10));
@@ -1009,7 +1011,12 @@ app.post('/api/service-call', (req, res) => {
   }
 
   // Verify session token
-  if (foundTable.sessionToken && (!token || token.trim() !== foundTable.sessionToken.trim())) {
+  let validToken = token;
+  if (!validToken && foundTable.status !== 'occupied') {
+    validToken = foundTable.sessionToken;
+  }
+
+  if (foundTable.sessionToken && (!validToken || validToken.trim() !== foundTable.sessionToken.trim())) {
     return res.status(403).json({
       error: 'TOKEN_EXPIRED',
       message: 'Dining session has ended. Service call unavailable.'

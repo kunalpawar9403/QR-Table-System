@@ -493,17 +493,24 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   };
 
   // Waiter & Service Calls
-  const handleServiceCall = async (type = 'waiter') => {
+  const handleServiceCall = async (type = 'waiter', customNote = '') => {
     setServiceModalOpen(false);
     try {
-      const res = await fetch('/api/service/call', {
+      const typeLabel =
+        type === 'waiter' ? 'Call Waiter' :
+        type === 'water' ? 'Drinking Water' :
+        type === 'tissue' ? 'Cutlery & Napkins' :
+        type === 'bill' ? 'Request Bill' : type;
+
+      const res = await fetch('/api/service-call', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tableId: tableId,
           tableName: `Table ${tableId}`,
           token: tableToken,
-          type: type
+          type: typeLabel,
+          note: customNote || (typeof type === 'string' && !['waiter', 'water', 'tissue', 'bill'].includes(type) ? type : '')
         })
       });
 

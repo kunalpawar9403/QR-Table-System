@@ -566,5 +566,105 @@
     "paymentMethod": "Pay at Counter / UPI",
     "updatedAt": "2026-10-26T18:01:47.739Z",
     "completedAt": "2026-10-26T18:01:47.739Z"
+  },
+  {
+    "id": "ORD-120",
+    "orderNumber": 120,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Kunal",
+    "status": "pending",
+    "createdAt": "2026-10-28T13:14:54.739Z",
+    "items": [
+      {
+        "id": "pop-1",
+        "name": "Paneer Tikka",
+        "price": 220,
+        "quantity": 2,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "pop-2",
+        "name": "Chicken Biryani",
+        "price": 280,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 720,
+    "tax": 36,
+    "total": 756,
+    "notes": "Less spicy, no onions in biryani",
+    "paymentStatus": "unpaid",
+    "paymentMethod": "Pay at Counter / UPI"
+  },
+  {
+    "id": "ORD-121",
+    "orderNumber": 121,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Kunal",
+    "status": "pending",
+    "createdAt": "2026-10-28T13:17:33.575Z",
+    "items": [
+      {
+        "id": "pop-1",
+        "name": "Paneer Tikka",
+        "price": 220,
+        "quantity": 2,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "pop-2",
+        "name": "Chicken Biryani",
+        "price": 280,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 720,
+    "tax": 36,
+    "total": 756,
+    "notes": "Less spicy, no onions in biryani",
+    "paymentStatus": "unpaid",
+    "paymentMethod": "Pay at Counter / UPI"
+  },
+  {
+    "id": "ORD-122",
+    "orderNumber": 122,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "guestName": "Kunal",
+    "status": "served",
+    "createdAt": "2026-10-28T13:18:47.698Z",
+    "items": [
+      {
+        "id": "pop-1",
+        "name": "Paneer Tikka",
+        "price": 220,
+        "quantity": 2,
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "pop-2",
+        "name": "Chicken Biryani",
+        "price": 280,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 720,
+    "tax": 36,
+    "total": 756,
+    "notes": "Less spicy, no onions in biryani",
+    "paymentStatus": "unpaid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-28T13:18:47.744Z"
   }
 ]
