@@ -3900,7 +3900,7 @@
     z-index: 1000;
     box-shadow: 0 4px 18px rgba(7, 36, 26, 0.4) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0 0 20px 20px !important;
+    border-radius: 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -5314,7 +5314,7 @@
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;
-    border-radius: 0 0 20px 20px !important;
+    border-radius: 0 !important;
     overflow: hidden;
     box-sizing: border-box !important;
   }
