@@ -58,6 +58,7 @@ import { soundManager } from '../utils/sound';
 import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
+import TableMintBannerSlider from '../components/TableMintBannerSlider';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -1357,14 +1358,15 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <div className="overview-content-wrapper">
-            {/* Promo Hero Banner (Matching Exact Mobile UI Reference) */}
-            <div className="mobile-promo-hero-banner hide-on-desktop">
-              <img
-                src="/images/tablemint_promo_banner.jpg"
-                alt="TableMint - Faster Orders, Happier Customers"
-                className="mobile-promo-banner-img"
-              />
-            </div>
+            {/* Promo Hero Banner Slider (Auto-Scrolling 3 Banners) */}
+            <TableMintBannerSlider
+              className="hide-on-desktop"
+              onSelectTab={(targetTab) => {
+                if (targetTab) {
+                  setActiveTab(targetTab);
+                }
+              }}
+            />
 
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
