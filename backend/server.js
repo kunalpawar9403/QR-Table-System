@@ -736,14 +736,9 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
   );
   const isOccupied = activeOrders.length > 0 || table.manualStatus === 'occupied' || table.status === 'occupied';
 
-  // If token matches active sessionToken, it is always valid
-  // If no token was provided, but table is vacant/ready to seat, let guest claim the active token!
-  let isValid = false;
-  if (token && token.trim() === table.sessionToken.trim()) {
-    isValid = true;
-  } else if (!token && !isOccupied) {
-    isValid = true;
-  }
+  // STRICT TOKEN VERIFICATION:
+  // Must provide a valid token AND it must strictly match the table's current sessionToken
+  const isValid = Boolean(token && typeof token === 'string' && table.sessionToken && token.trim() === table.sessionToken.trim());
 
   res.json({
     valid: isValid,
@@ -754,7 +749,7 @@ app.get('/api/tables/:id/verify-token', (req, res) => {
     activeToken: isValid ? table.sessionToken : undefined,
     message: isValid
       ? 'Table session is active and verified.'
-      : 'Dining session has been completed by staff. Previous session links are expired. Please scan the active QR code on your table to order.'
+      : 'Dining session has been completed by staff. Previous session links and tokens are expired. Please scan the current QR code on your table stand.'
   });
 });
 
@@ -841,6 +836,20 @@ app.get('/api/orders', (req, res) => {
 
 app.get('/api/orders/table/:tableId', (req, res) => {
   const tableId = parseInt(req.params.tableId, 10);
+  const token = req.query.token || req.headers['x-table-token'];
+  const tables = readData(TABLES_FILE);
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return res.status(404).json({ error: 'Table not found' });
+
+  // STRICT TOKEN ENFORCEMENT:
+  // Must provide matching active session token; otherwise return 403 TOKEN_EXPIRED
+  if (table.sessionToken && (!token || token.trim() !== table.sessionToken.trim())) {
+    return res.status(403).json({
+      error: 'TOKEN_EXPIRED',
+      message: 'Dining session has ended. Previous session token is expired. Please scan current table QR stand.'
+    });
+  }
+
   const orders = readData(ORDERS_FILE);
   const tableOrders = orders.filter(o => o.tableId === tableId);
   res.json(tableOrders);
@@ -867,14 +876,9 @@ app.post('/api/orders', (req, res) => {
     writeData(TABLES_FILE, tables);
   }
 
-  // ENFORCE TOKEN SECURITY:
-  // If token is missing, but table is vacant/ready, allow binding to active sessionToken
-  let validOrderToken = token;
-  if (!validOrderToken && table.status !== 'occupied') {
-    validOrderToken = table.sessionToken;
-  }
-
-  if (!validOrderToken || validOrderToken.trim() !== table.sessionToken.trim()) {
+  // STRICT TOKEN SECURITY:
+  // Customers MUST provide the current active table sessionToken from the scanned QR code
+  if (!token || typeof token !== 'string' || token.trim() !== table.sessionToken.trim()) {
     return res.status(403).json({
       error: 'TOKEN_EXPIRED',
       message: 'This dining session has ended. The previous session link is expired. Please scan the active QR code on your table to order.'
@@ -1010,16 +1014,11 @@ app.post(['/api/service-call', '/api/service/call'], (req, res) => {
     return res.status(404).json({ error: 'Table not found' });
   }
 
-  // Verify session token
-  let validToken = token;
-  if (!validToken && foundTable.status !== 'occupied') {
-    validToken = foundTable.sessionToken;
-  }
-
-  if (foundTable.sessionToken && (!validToken || validToken.trim() !== foundTable.sessionToken.trim())) {
+  // Strict token verification for service call
+  if (!token || typeof token !== 'string' || !foundTable.sessionToken || token.trim() !== foundTable.sessionToken.trim()) {
     return res.status(403).json({
       error: 'TOKEN_EXPIRED',
-      message: 'Dining session has ended. Service call unavailable.'
+      message: 'Dining session has ended. Service call unavailable. Please scan the active table QR stand.'
     });
   }
 

@@ -36,7 +36,8 @@ import {
   Droplets,
   Leaf,
   ShieldCheck,
-  Smartphone
+  Smartphone,
+  QrCode
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -186,12 +187,16 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
     const handleStatusChanged = (order) => {
       if (order.tableId === tableId || order.tableNumber === tableId) {
-        setActiveOrder(order);
-        if (order.status === 'ready') {
-          soundManager.playOrderReady();
-          addToast('Your order is ready to serve! Enjoy your meal.', 'success', 6000);
+        if (order.status === 'completed' || order.status === 'cancelled') {
+          setActiveOrder(null);
         } else {
-          addToast(`Order update: Status is now ${order.status.toUpperCase()}`, 'info');
+          setActiveOrder(order);
+          if (order.status === 'ready') {
+            soundManager.playOrderReady();
+            addToast('Your order is ready to serve! Enjoy your meal.', 'success', 6000);
+          } else {
+            addToast(`Order update: Status is now ${order.status.toUpperCase()}`, 'info');
+          }
         }
       }
     };
@@ -201,12 +206,19 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     };
 
     const handleSessionExpired = (data) => {
-      if (data.tableId === tableId) {
+      if (!data || data.tableId === tableId) {
         setSessionExpired(true);
-        setExpiredReason(data.message || 'Table dining session completed by staff.');
+        setExpiredReason(data?.message || 'Table dining session completed by staff.');
         setTableToken('');
         setCart([]);
+        setActiveOrder(null);
+        setTrackingModalOpen(false);
         sessionStorage.removeItem(`spice_token_${tableId}`);
+        if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('token');
+          window.history.replaceState({}, document.title, url.toString());
+        }
         soundManager.playClick();
       }
     };
@@ -227,11 +239,18 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Unlock table and verify token
   const unlockTable = async (tId, token = null) => {
     setTableId(tId);
-    setSessionExpired(false);
     stopCamera();
 
     const storedToken = token || sessionStorage.getItem(`spice_token_${tId}`) || '';
     setTableToken(storedToken);
+
+    if (!storedToken) {
+      setSessionExpired(true);
+      setExpiredReason('Session expired. Please scan the current QR code on your table stand.');
+      setTableToken('');
+      setActiveOrder(null);
+      return;
+    }
 
     try {
       const res = await fetch(`/api/tables/${tId}/verify-token?token=${encodeURIComponent(storedToken)}`);
@@ -241,33 +260,78 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           setSessionExpired(true);
           setExpiredReason(data.message || 'Session expired. Please scan current QR stand.');
           setTableToken('');
+          setActiveOrder(null);
           sessionStorage.removeItem(`spice_token_${tId}`);
+          if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('token');
+            window.history.replaceState({}, document.title, url.toString());
+          }
           return;
         }
         if (data && data.activeToken) {
+          setSessionExpired(false);
           setTableToken(data.activeToken);
           sessionStorage.setItem(`spice_token_${tId}`, data.activeToken);
+          fetchTableActiveOrder(tId, data.activeToken);
+          soundManager.playClick();
+          return;
         }
+      } else {
+        setSessionExpired(true);
+        setExpiredReason('Session expired. Please scan current table QR stand.');
+        setTableToken('');
+        setActiveOrder(null);
+        sessionStorage.removeItem(`spice_token_${tId}`);
+        if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('token');
+          window.history.replaceState({}, document.title, url.toString());
+        }
+        return;
       }
     } catch (err) {
-      console.warn('Verify token fallback');
+      console.warn('Verify token fallback', err);
     }
 
-    fetchTableActiveOrder(tId);
-    soundManager.playClick();
+    if (storedToken) {
+      fetchTableActiveOrder(tId, storedToken);
+    }
   };
 
-  const fetchTableActiveOrder = async (tId) => {
+  const fetchTableActiveOrder = async (tId, tokenVal = null) => {
+    const curToken = tokenVal || tableToken || sessionStorage.getItem(`spice_token_${tId}`) || '';
+    if (!curToken) {
+      setActiveOrder(null);
+      return;
+    }
     try {
-      const res = await fetch(`/api/orders/table/${tId}`);
+      const res = await fetch(`/api/orders/table/${tId}?token=${encodeURIComponent(curToken)}`);
+      if (res.status === 403) {
+        setSessionExpired(true);
+        setExpiredReason('Dining session has ended. Previous session token is expired.');
+        setTableToken('');
+        setActiveOrder(null);
+        sessionStorage.removeItem(`spice_token_${tId}`);
+        if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('token');
+          window.history.replaceState({}, document.title, url.toString());
+        }
+        return;
+      }
       if (res.ok) {
         const orders = await res.json();
         const active = orders.find((o) => o.status !== 'completed' && o.status !== 'cancelled');
         if (active) {
           setActiveOrder(active);
+        } else {
+          setActiveOrder(null);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Fetch table active order error', e);
+    }
   };
 
   // Camera functions
@@ -562,22 +626,30 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // =========================================================
   if (sessionExpired) {
     return (
-      <div className="customer-app-wrapper">
+      <div className="customer-app-wrapper session-expired-wrapper">
         <div className="session-expired-card">
-          <div className="session-expired-icon">
-            <AlertTriangle size={36} />
+          <div className="session-expired-icon-wrap">
+            <CheckCircle2 size={44} className="session-expired-icon" />
           </div>
-          <h2>Session Completed</h2>
-          <p>{expiredReason || 'Dining session for this table has concluded.'}</p>
-          <button
-            className="btn-primary"
-            onClick={() => {
-              setSessionExpired(false);
-              unlockTable(tableId || 1);
-            }}
-          >
-            <RotateCcw size={16} /> Reconnect Table {tableId}
-          </button>
+          <div className="session-expired-pill">
+            <UtensilsCrossed size={13} />
+            <span>Table {tableId}</span>
+            <span className="dot-divider">•</span>
+            <span>Session Concluded</span>
+          </div>
+          <h2 className="session-expired-title">Dining Session Completed</h2>
+          <p className="session-expired-text">
+            {expiredReason || 'Thank you for dining with us! The session for this table has concluded and previous session tokens are expired.'}
+          </p>
+          <div className="session-expired-notice">
+            <div className="notice-qr-badge">
+              <QrCode size={24} />
+            </div>
+            <div className="notice-body">
+              <div className="notice-title">Ready for a new order?</div>
+              <div className="notice-sub">Please scan the current fresh QR code on your table stand with your phone camera.</div>
+            </div>
+          </div>
         </div>
       </div>
     );
