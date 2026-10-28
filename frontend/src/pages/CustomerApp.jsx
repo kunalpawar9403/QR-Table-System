@@ -6,7 +6,7 @@ import {
   Search,
   Plus,
   Minus,
-  ShoppingBag,
+  ShoppingCart,
   Clock,
   Sparkles,
   Camera,
@@ -26,7 +26,13 @@ import {
   PhoneCall,
   ChefHat,
   Utensils,
-  Share2
+  Share2,
+  LayoutGrid,
+  Soup,
+  CookingPot,
+  CupSoda,
+  ClipboardList,
+  UserRound
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -35,12 +41,10 @@ import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import '../styles/customer.css';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: '🍽️', bg: '#ecfdf5' },
-  { id: 'starters', label: 'Starters', icon: '🍲', bg: '#fff7ed' },
-  { id: 'main-course', label: 'Main Course', icon: '🥘', bg: '#fef3c7' },
-  { id: 'beverages', label: 'Beverages', icon: '🥤', bg: '#ffe4e6' },
-  { id: 'desserts', label: 'Desserts', icon: '🍰', bg: '#f3e8ff' },
-  { id: 'chinese', label: 'Chinese', icon: '🥢', bg: '#fee2e2' }
+  { id: 'all', label: 'All', bg: '#ecfdf5', color: '#059669' },
+  { id: 'starters', label: 'Starters', bg: '#fff7ed', color: '#ea580c' },
+  { id: 'main-course', label: 'Main Course', bg: '#fef3c7', color: '#d97706' },
+  { id: 'beverages', label: 'Beverages', bg: '#ffe4e6', color: '#e11d48' }
 ];
 
 const ADDON_OPTIONS = [
@@ -683,22 +687,29 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
       {/* Categories Horizontal Carousel (Matching Reference Screen 2) */}
       <div className="categories-carousel-row">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            className={`category-item-card ${category === cat.id ? 'active' : ''}`}
-            onClick={() => {
-              soundManager.playClick();
-              setCategory(cat.id);
-            }}
-          >
-            <div className="category-icon-box" style={{ background: category === cat.id ? '#07241a' : cat.bg }}>
-              <span className="category-emoji">{cat.icon}</span>
-            </div>
-            <span className="category-label">{cat.label}</span>
-          </button>
-        ))}
+        {CATEGORIES.map((cat) => {
+          const isActive = category === cat.id;
+          const iconColor = isActive ? '#ffffff' : cat.color;
+          return (
+            <button
+              key={cat.id}
+              type="button"
+              className={`category-item-card ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                soundManager.playClick();
+                setCategory(cat.id);
+              }}
+            >
+              <div className="category-icon-box" style={{ background: isActive ? '#07241a' : cat.bg }}>
+                {cat.id === 'all' && <LayoutGrid size={22} color={iconColor} />}
+                {cat.id === 'starters' && <Soup size={22} color={iconColor} />}
+                {cat.id === 'main-course' && <CookingPot size={22} color={iconColor} />}
+                {cat.id === 'beverages' && <CupSoda size={22} color={iconColor} />}
+              </div>
+              <span className="category-label">{cat.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Popular Dishes Section Header with View All */}
@@ -859,7 +870,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             setTrackingModalOpen(false);
           }}
         >
-          <Utensils size={18} />
+          <Utensils size={19} />
           <span>Menu</span>
         </button>
 
@@ -872,7 +883,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           }}
         >
           <div className="nav-icon-badge-wrap">
-            <ShoppingBag size={18} />
+            <ShoppingCart size={19} />
             {totalCartCount > 0 && <span className="nav-count-dot">{totalCartCount}</span>}
           </div>
           <span>Cart</span>
@@ -886,7 +897,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             setTrackingModalOpen(true);
           }}
         >
-          <Receipt size={18} />
+          <ClipboardList size={19} />
           <span>Orders</span>
         </button>
 
@@ -897,7 +908,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             setServiceModalOpen(true);
           }}
         >
-          <Bell size={18} />
+          <UserRound size={19} />
           <span>Call Waiter</span>
         </button>
       </nav>
@@ -1038,7 +1049,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                 onClick={handleAddCustomizedToCart}
               >
                 <span>Add to Cart</span>
-                <span className="footer-btn-divider">•</span>
+                <span className="footer-btn-divider">|</span>
                 <span>
                   ₹
                   {(
@@ -1079,7 +1090,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             <div className="checkout-sheet-scroll">
               {cart.length === 0 ? (
                 <div className="empty-cart-view">
-                  <ShoppingBag size={48} style={{ color: '#cbd5e1', marginBottom: 12 }} />
+                  <ShoppingCart size={48} style={{ color: '#cbd5e1', marginBottom: 12 }} />
                   <h4>Your cart is empty</h4>
                   <p>Explore delicious specialties from our menu!</p>
                 </div>
@@ -1094,10 +1105,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                       />
                       <div className="cart-item-details">
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span className={`dish-diet-badge ${item.isVeg ? 'veg' : 'non-veg'}`}>
-                            <span className="diet-inner-dot" />
-                          </span>
                           <h4 className="cart-item-name">{item.name}</h4>
+                          <span className={`dish-inline-diet-tag ${item.isVeg ? 'veg' : 'non-veg'}`}>
+                            <span className="diet-dot" />
+                          </span>
                         </div>
                         {item.notes && <div className="cart-item-notes">{item.notes}</div>}
                         <div className="cart-item-price-unit">₹{item.price}</div>
