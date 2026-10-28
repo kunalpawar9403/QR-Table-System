@@ -1038,11 +1038,31 @@ export default function DashboardApp({ onLockStaff }) {
       <main className="dash-main-area">
         {/* Mobile Top Header Matching Image 3 Reference (12 Screens) */}
         <header className="admin-mobile-top-bar hide-on-desktop no-print">
+          {activeTab === 'overview' && (
+            <svg className="mobile-header-leaf-watermark" viewBox="0 0 160 80" fill="none">
+              <path
+                d="M20 70C60 65 120 40 145 10C110 16 75 36 45 56C28 66 22 69 20 70Z"
+                fill="url(#headerLeafGrad)"
+              />
+              <path
+                d="M45 56C75 42 115 25 145 10"
+                stroke="rgba(52, 211, 153, 0.35)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <defs>
+                <linearGradient id="headerLeafGrad" x1="20" y1="70" x2="145" y2="10" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#10b981" stopOpacity="0.55" />
+                  <stop offset="1" stopColor="#047857" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+            </svg>
+          )}
           <div className="mobile-top-left">
             {activeTab === 'overview' ? (
               <div className="mobile-brand-box">
                 <div className="mobile-brand-leaf-wrap">
-                  <TableMintLogoIcon size={20} />
+                  <TableMintLogoIcon size={24} />
                 </div>
                 <span className="mobile-brand-title">TableMint</span>
               </div>
