@@ -534,6 +534,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           name: item.name,
           price: item.price,
           quantity: item.quantity,
+          image: item.image,
           notes: item.notes || ''
         })),
         notes: orderNotes.trim(),

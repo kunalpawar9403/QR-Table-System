@@ -414,6 +414,82 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
+  // Helper to resolve exact image for any ordered item or dish
+  const getItemImage = (it) => {
+    if (!it) return '/images/paneer_butter_masala.jpg';
+    if (it.image && typeof it.image === 'string' && it.image.trim()) {
+      return it.image;
+    }
+    // Look up in loaded menu state
+    if (Array.isArray(menu) && menu.length > 0) {
+      const matched = menu.find((m) =>
+        (it.id && String(m.id) === String(it.id)) ||
+        (it.name && m.name && m.name.toLowerCase().trim() === it.name.toLowerCase().trim())
+      );
+      if (matched && matched.image) return matched.image;
+    }
+
+    // Precise keyword-to-asset mapping for Indian dishes & restaurant products
+    const n = (it.name || '').toLowerCase().trim();
+    if (n.includes('butter masala')) return '/images/paneer_butter_masala.jpg';
+    if (n.includes('tikka masala')) return '/images/paneer_tikka_masala.jpg';
+    if (n.includes('chilli paneer') || n.includes('paneer chilli')) return '/images/paneer_chilli.jpg';
+    if (n.includes('palak paneer')) return '/images/palak_paneer.jpg';
+    if (n.includes('plain palak')) return '/images/plain_palak.jpg';
+    if (n.includes('paneer tikka')) return '/images/paneer_tikka.jpg';
+    if (n.includes('mushroom tikka')) return '/images/mushroom_tikka.jpg';
+    if (n.includes('mushroom soup')) return '/images/mushroom_soup.jpg';
+    if (n.includes('mushroom manchurian')) return '/images/mushroom_manchurian.jpg';
+    if (n.includes('mushroom')) return '/images/mushroom_curry.jpg';
+    if (n.includes('biryani')) return '/images/chicken_biryani.jpg';
+    if (n.includes('dosa')) return '/images/masala_dosa.jpg';
+    if (n.includes('pizza')) return '/images/margherita_pizza.jpg';
+    if (n.includes('naan')) return '/images/butter_naan.jpg';
+    if (n.includes('tandoori roti') || n.includes('butter roti') || n.includes('roti')) return '/images/tandoori_roti.jpg';
+    if (n.includes('alu paratha') || n.includes('alu parota')) return '/images/alu_paratha.jpg';
+    if (n.includes('paratha') || n.includes('parota')) return '/images/parota.jpg';
+    if (n.includes('kulcha')) return '/images/veg_kulcha.jpg';
+    if (n.includes('kaju')) return '/images/kaju_masala.jpg';
+    if (n.includes('kadai')) return '/images/veg_kadai.jpg';
+    if (n.includes('veg kolhapuri')) return '/images/veg_kolhapuri.jpg';
+    if (n.includes('veg hyderabadi')) return '/images/veg_hyderabadi.jpg';
+    if (n.includes('capsicum')) return '/images/capsicum_masala.jpg';
+    if (n.includes('tomato curry')) return '/images/tomato_curry.jpg';
+    if (n.includes('roti curry')) return '/images/roti_curry.jpg';
+    if (n.includes('daal kolhapuri') || n.includes('dal kolhapuri')) return '/images/daal_kolhapuri.jpg';
+    if (n.includes('daal') || n.includes('dal')) return '/images/daal_fry.jpg';
+    if (n.includes('spring roll')) return '/images/spring_rolls.jpg';
+    if (n.includes('babycorn chilli') || n.includes('baby corn chilli')) return '/images/babycorn_chilli.jpg';
+    if (n.includes('babycorn') || n.includes('baby corn')) return '/images/babycorn_manchurian.jpg';
+    if (n.includes('gobi manchurian') || n.includes('veg manchurian') || n.includes('manchurian')) return '/images/gobi_manchurian.jpg';
+    if (n.includes('manchow')) return '/images/manchow_soup.jpg';
+    if (n.includes('hot & sour') || n.includes('hot sour')) return '/images/hot_sour_soup.jpg';
+    if (n.includes('salad')) return '/images/green_salad.jpg';
+    if (n.includes('burger')) return '/images/veggie_burger.jpg';
+    if (n.includes('pasta')) return '/images/creamy_pasta.jpg';
+    if (n.includes('mango shake')) return '/images/mango_shake.jpg';
+    if (n.includes('chocolate shake')) return '/images/chocolate_shake.jpg';
+    if (n.includes('strawberry shake')) return '/images/strawberry_shake.jpg';
+    if (n.includes('banana shake')) return '/images/banana_shake.jpg';
+    if (n.includes('apple shake')) return '/images/apple_shake.jpg';
+    if (n.includes('pista shake')) return '/images/pista_shake.jpg';
+    if (n.includes('vanilla shake') || n.includes('shake')) return '/images/vanilla_shake.jpg';
+    if (n.includes('lemon juice')) return '/images/lemon_juice.jpg';
+    if (n.includes('mango juice')) return '/images/mango_juice.jpg';
+    if (n.includes('orange juice')) return '/images/orange_juice.jpg';
+    if (n.includes('pineapple juice')) return '/images/pineapple_juice.jpg';
+    if (n.includes('watermelon juice')) return '/images/watermelon_juice.jpg';
+    if (n.includes('musambi juice') || n.includes('juice')) return '/images/musambi_juice.jpg';
+    if (n.includes('chocolate ice') || n.includes('chocolate icecream')) return '/images/chocolate_icecream.jpg';
+    if (n.includes('mango ice') || n.includes('mango icecream')) return '/images/mango_icecream.jpg';
+    if (n.includes('pista ice') || n.includes('pista icecream')) return '/images/pista_icecream.jpg';
+    if (n.includes('strawberry ice') || n.includes('strawberry icecream')) return '/images/strawberry_icecream.jpg';
+    if (n.includes('gadbad')) return '/images/gadbad_icecream.jpg';
+    if (n.includes('ice cream') || n.includes('icecream')) return '/images/icecream_scoop.jpg';
+
+    return '/images/paneer_butter_masala.jpg';
+  };
+
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1923,10 +1999,10 @@ export default function DashboardApp({ onLockStaff }) {
                   ]).map((it, idx) => (
                     <div key={idx} className="mobile-order-item-row">
                       <img
-                        src={it.image || (it.name.includes('Paneer') ? '/images/paneer_tikka.jpg' : it.name.includes('Biryani') ? '/images/chicken_biryani.jpg' : '/images/masala_dosa.jpg')}
+                        src={it.image || getItemImage(it)}
                         alt={it.name}
                         className="mobile-order-item-thumb"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                        onError={(e) => { e.target.src = getItemImage(it); }}
                       />
                       <div className="mobile-order-item-info">
                         <div className="mobile-order-item-name">{it.name}</div>
@@ -2900,11 +2976,13 @@ export default function DashboardApp({ onLockStaff }) {
                   const activeBillItems = [];
                   activeTableOrders.forEach((ord) => {
                     (ord.items || []).forEach((it) => {
-                      const existing = activeBillItems.find((x) => x.id === it.id && x.name === it.name);
+                      const itemImg = it.image || getItemImage(it);
+                      const existing = activeBillItems.find((x) => (x.id && x.id === it.id) || x.name === it.name);
                       if (existing) {
                         existing.quantity += it.quantity;
+                        if (!existing.image && itemImg) existing.image = itemImg;
                       } else {
-                        activeBillItems.push({ ...it });
+                        activeBillItems.push({ ...it, image: itemImg });
                       }
                     });
                   });
@@ -2947,10 +3025,10 @@ export default function DashboardApp({ onLockStaff }) {
                           <div key={idx} className="pos-bill-item-row">
                             <div className="pos-bill-item-left">
                               <img
-                                src={it.name.includes('Paneer') ? '/images/paneer_tikka.jpg' : it.name.includes('Biryani') ? '/images/chicken_biryani.jpg' : it.name.includes('Dosa') ? '/images/masala_dosa.jpg' : '/images/margherita_pizza.jpg'}
+                                src={it.image || getItemImage(it)}
                                 alt={it.name}
                                 className="pos-bill-item-img"
-                                onError={(e) => { e.target.src = '/images/paneer_tikka.jpg'; }}
+                                onError={(e) => { e.target.src = getItemImage(it); }}
                               />
                               <div>
                                 <span className="pos-bill-item-name">{it.name}</span>

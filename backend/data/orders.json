@@ -317,7 +317,8 @@
         "price": 160,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/kaju_masala.jpg"
       },
       {
         "id": "ni-5",
@@ -325,7 +326,8 @@
         "price": 110,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/veg_kolhapuri.jpg"
       },
       {
         "id": "tan-5",
@@ -333,7 +335,8 @@
         "price": 30,
         "quantity": 3,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/butter_naan.jpg"
       },
       {
         "id": "tan-6",
@@ -341,7 +344,8 @@
         "price": 35,
         "quantity": 3,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/butter_naan.jpg"
       }
     ],
     "subtotal": 465,
@@ -368,7 +372,8 @@
         "price": 160,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/kaju_masala.jpg"
       }
     ],
     "subtotal": 160,
@@ -448,7 +453,8 @@
         "price": 260,
         "quantity": 2,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       }
     ],
     "subtotal": 520,
@@ -501,7 +507,8 @@
         "price": 260,
         "quantity": 2,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       }
     ],
     "subtotal": 520,
@@ -528,7 +535,8 @@
         "price": 340,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/chicken_biryani.jpg"
       }
     ],
     "subtotal": 340,
@@ -583,7 +591,8 @@
         "price": 220,
         "quantity": 2,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       },
       {
         "id": "pop-2",
@@ -591,7 +600,8 @@
         "price": 280,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/chicken_biryani.jpg"
       }
     ],
     "subtotal": 720,
@@ -617,7 +627,8 @@
         "price": 220,
         "quantity": 2,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       },
       {
         "id": "pop-2",
@@ -625,7 +636,8 @@
         "price": 280,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/chicken_biryani.jpg"
       }
     ],
     "subtotal": 720,
@@ -651,7 +663,8 @@
         "price": 220,
         "quantity": 2,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       },
       {
         "id": "pop-2",
@@ -659,7 +672,8 @@
         "price": 280,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/chicken_biryani.jpg"
       }
     ],
     "subtotal": 720,
@@ -685,7 +699,8 @@
         "price": 220,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_tikka.jpg"
       },
       {
         "id": "pop-3",
@@ -693,7 +708,8 @@
         "price": 180,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/masala_dosa.jpg"
       }
     ],
     "subtotal": 400,
@@ -720,7 +736,8 @@
         "price": 220,
         "quantity": 2,
         "options": [],
-        "notes": "Medium spicy"
+        "notes": "Medium spicy",
+        "image": "/images/paneer_tikka.jpg"
       },
       {
         "id": "pop-4",
@@ -728,7 +745,8 @@
         "price": 60,
         "quantity": 3,
         "options": [],
-        "notes": "Crispy"
+        "notes": "Crispy",
+        "image": "/images/margherita_pizza.jpg"
       }
     ],
     "subtotal": 620,
@@ -755,7 +773,8 @@
         "price": 280,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_butter_masala.jpg"
       }
     ],
     "subtotal": 280,
@@ -781,7 +800,8 @@
         "price": 280,
         "quantity": 1,
         "options": [],
-        "notes": ""
+        "notes": "",
+        "image": "/images/paneer_butter_masala.jpg"
       }
     ],
     "subtotal": 280,

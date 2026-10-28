@@ -948,14 +948,24 @@ app.post('/api/orders', (req, res) => {
     guestName: guestName || `${table.name} Guest`,
     status: 'pending', // pending -> preparing -> ready -> served -> completed
     createdAt: new Date().toISOString(),
-    items: items.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      options: item.options || [],
-      notes: item.notes || ''
-    })),
+    items: (() => {
+      const menu = readData(MENU_FILE);
+      return items.map(item => {
+        const match = menu.find(m =>
+          (item.id && String(m.id) === String(item.id)) ||
+          (item.name && m.name && m.name.toLowerCase().trim() === item.name.toLowerCase().trim())
+        );
+        return {
+          id: item.id || (match ? match.id : undefined),
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || (match ? match.image : undefined),
+          options: item.options || [],
+          notes: item.notes || ''
+        };
+      });
+    })(),
     subtotal: +subtotal.toFixed(2),
     tax,
     total,
