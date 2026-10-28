@@ -3688,6 +3688,22 @@ export default function DashboardApp({ onLockStaff }) {
                       <ChevronRight size={18} className="mobile-settings-chevron" />
                     </button>
 
+                    {/* Splash Screen & Loader Animation */}
+                    <button
+                      type="button"
+                      className="mobile-settings-row-item"
+                      onClick={() => window.dispatchEvent(new CustomEvent('tablemint:play-splash'))}
+                    >
+                      <div className="mobile-settings-row-left">
+                        <Sparkles size={18} className="mobile-settings-row-icon" style={{ color: '#10b981' }} />
+                        <span>Splash Screen & Loader</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontSize: '0.82rem', fontWeight: 700 }}>
+                        <span>Play</span>
+                        <ChevronRight size={18} className="mobile-settings-chevron" />
+                      </div>
+                    </button>
+
                     {/* About App */}
                     <button
                       type="button"
@@ -4676,6 +4692,18 @@ export default function DashboardApp({ onLockStaff }) {
                         </button>
                       );
                     })}
+
+                    <button
+                      type="button"
+                      className="mobile-more-nav-item"
+                      onClick={() => window.dispatchEvent(new CustomEvent('tablemint:play-splash'))}
+                    >
+                      <div className="mobile-more-nav-left">
+                        <Sparkles size={18} className="mobile-more-nav-icon" style={{ color: '#10b981' }} />
+                        <span>Splash Screen & Loader</span>
+                      </div>
+                      <ChevronRight size={18} className="mobile-more-chevron" />
+                    </button>
 
                     <button
                       type="button"

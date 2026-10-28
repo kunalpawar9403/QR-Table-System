@@ -4,6 +4,7 @@ import DashboardApp from './pages/DashboardApp';
 import KitchenKdsApp from './pages/KitchenKdsApp';
 import QrStandsApp from './pages/QrStandsApp';
 import StaffAuthModal from './components/StaffAuthModal';
+import TableMintSplashScreen from './components/TableMintSplashScreen';
 import { ToastProvider } from './components/Toast';
 import { checkStaffAuth, getStaffToken } from './utils/staffAuth';
 import { Utensils, LayoutDashboard, ChefHat, QrCode, Lock } from 'lucide-react';
@@ -13,6 +14,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isStaffAuthenticated, setIsStaffAuthenticated] = useState(false);
   const [staffAuthModalOpen, setStaffAuthModalOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // Determine view: Only customer self-ordering if table or customer is requested
@@ -42,12 +44,20 @@ export default function App() {
     };
 
     window.addEventListener('staff:unauthorized', handleUnauthorized);
-    return () => window.removeEventListener('staff:unauthorized', handleUnauthorized);
+    const handleTriggerSplash = () => setShowSplash(true);
+    window.addEventListener('tablemint:play-splash', handleTriggerSplash);
+
+    return () => {
+      window.removeEventListener('staff:unauthorized', handleUnauthorized);
+      window.removeEventListener('tablemint:play-splash', handleTriggerSplash);
+    };
   }, []);
 
   const handleStaffSuccess = () => {
     setIsStaffAuthenticated(true);
     setStaffAuthModalOpen(false);
+    // Play splash loader transition into dashboard upon login
+    setShowSplash(true);
     // Directly open the Admin Dashboard upon successful login
     setCurrentView('dashboard');
     if (window.location.pathname !== '/' && !window.location.search.includes('table')) {
@@ -68,6 +78,9 @@ export default function App() {
   if (currentView !== 'customer' && !isStaffAuthenticated) {
     return (
       <ToastProvider>
+        {showSplash && (
+          <TableMintSplashScreen onComplete={() => setShowSplash(false)} />
+        )}
         <StaffAuthModal
           isOpen={true}
           fullPage={true}
@@ -79,6 +92,9 @@ export default function App() {
 
   return (
     <ToastProvider>
+      {showSplash && (
+        <TableMintSplashScreen onComplete={() => setShowSplash(false)} />
+      )}
       <div className="app-root">
         {/* Top App Role Switcher Bar (Only shown on staff screens like Kitchen/Stands, NEVER on Customer Menu or Dashboard) */}
         {currentView !== 'dashboard' && currentView !== 'customer' && !new URLSearchParams(window.location.search).get('table') && (
