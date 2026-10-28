@@ -31,15 +31,16 @@ import {
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { useToast } from '../components/Toast';
+import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import '../styles/customer.css';
 
 const CATEGORIES = [
-  { id: 'all', label: 'All', icon: '🍽️' },
-  { id: 'starters', label: 'Starters', icon: '🍢' },
-  { id: 'main-course', label: 'Main Course', icon: '🍲' },
-  { id: 'beverages', label: 'Beverages', icon: '🥤' },
-  { id: 'desserts', label: 'Desserts', icon: '🍰' },
-  { id: 'chinese', label: 'Chinese', icon: '🥢' }
+  { id: 'all', label: 'All', icon: '🍽️', bg: '#ecfdf5' },
+  { id: 'starters', label: 'Starters', icon: '🍲', bg: '#fff7ed' },
+  { id: 'main-course', label: 'Main Course', icon: '🥘', bg: '#fef3c7' },
+  { id: 'beverages', label: 'Beverages', icon: '🥤', bg: '#ffe4e6' },
+  { id: 'desserts', label: 'Desserts', icon: '🍰', bg: '#f3e8ff' },
+  { id: 'chinese', label: 'Chinese', icon: '🥢', bg: '#fee2e2' }
 ];
 
 const ADDON_OPTIONS = [
@@ -575,8 +576,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           {/* Top Brand Header */}
           <div className="welcome-top-bar">
             <div className="welcome-logo-box">
-              <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="welcome-logo-img" />
-              <span className="welcome-brand-text">TableMint</span>
+              <TableMintLogoIcon size={26} />
+              <span className="welcome-brand-text">Table<span style={{ color: '#34d399' }}>Mint</span></span>
             </div>
             <div className="welcome-table-badge">
               <UtensilsCrossed size={13} /> Table {tableId}
@@ -650,15 +651,15 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // =========================================================
   return (
     <div className="customer-app-wrapper">
-      {/* Sticky Mobile Header */}
+      {/* Sticky Mobile Header (Matching Exact Reference Screen 2) */}
       <header className="mobile-menu-header">
         <div className="menu-header-row">
           <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
-            <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="header-leaf-icon" />
-            <span className="header-brand-title">TableMint</span>
+            <TableMintLogoIcon size={24} />
+            <span className="header-brand-title">Table<span style={{ color: '#34d399' }}>Mint</span></span>
           </div>
           <div className="header-table-pill">
-            <UtensilsCrossed size={13} /> Table {tableId}
+            <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
           </div>
         </div>
 
@@ -680,7 +681,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         </div>
       </header>
 
-      {/* Categories Horizontal Carousel */}
+      {/* Categories Horizontal Carousel (Matching Reference Screen 2) */}
       <div className="categories-carousel-row">
         {CATEGORIES.map((cat) => (
           <button
@@ -692,25 +693,27 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
               setCategory(cat.id);
             }}
           >
-            <div className="category-icon-box">{cat.icon}</div>
+            <div className="category-icon-box" style={{ background: category === cat.id ? '#07241a' : cat.bg }}>
+              <span className="category-emoji">{cat.icon}</span>
+            </div>
             <span className="category-label">{cat.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Veg Only Switch Bar */}
+      {/* Popular Dishes Section Header with View All */}
       <div className="menu-section-header">
-        <div className="section-title-box">
-          <h2>Popular Dishes</h2>
-          <span className="items-count-badge">{filteredDishes.length} items</span>
-        </div>
+        <h2 className="section-title-text">Popular Dishes</h2>
         <button
           type="button"
-          className={`veg-toggle-pill ${vegOnly ? 'active' : ''}`}
-          onClick={() => setVegOnly(!vegOnly)}
+          className="section-view-all-link"
+          onClick={() => {
+            setCategory('all');
+            setSearchQuery('');
+            setVegOnly(false);
+          }}
         >
-          <span className="diet-dot veg" />
-          <span>Veg Only</span>
+          View All
         </button>
       </div>
 
@@ -750,31 +753,36 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     }}
                   />
 
-                  {/* Veg / Non-Veg Indicator */}
-                  <span className={`dish-diet-badge ${dish.isVeg ? 'veg' : 'non-veg'}`}>
-                    <span className="diet-inner-dot" />
-                  </span>
-
-                  {/* Favorite Heart Button */}
+                  {/* Favorite Heart Button in top right */}
                   <button
                     type="button"
                     className={`dish-fav-btn ${isFav ? 'active' : ''}`}
                     onClick={(e) => toggleFavorite(dish.id, e)}
                     aria-label="Favorite"
                   >
-                    <Heart size={15} fill={isFav ? '#ef4444' : 'none'} color={isFav ? '#ef4444' : '#ffffff'} />
+                    <Heart size={14} fill={isFav ? '#ef4444' : 'none'} color={isFav ? '#ef4444' : '#ffffff'} />
                   </button>
 
                   {!isAvailable && <div className="dish-sold-badge">Sold Out</div>}
                 </div>
 
-                {/* Dish Card Content */}
+                {/* Dish Card Content - Guaranteed NO Overlap */}
                 <div className="dish-card-body">
-                  <h3 className="dish-card-title">{dish.name}</h3>
+                  {/* Title Row with Inline Veg / Non-Veg Icon */}
+                  <div className="dish-card-title-row">
+                    <h3 className="dish-card-title">{dish.name}</h3>
+                    <span
+                      className={`dish-inline-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}
+                      title={dish.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                    >
+                      <span className="diet-dot" />
+                    </span>
+                  </div>
+
                   <p className="dish-card-desc">{dish.description || 'Specially prepared by TableMint chefs.'}</p>
 
                   <div className="dish-card-footer">
-                    <span className="dish-card-price">₹{dish.price}</span>
+                    <span className="dish-card-price">₹ {dish.price}</span>
 
                     {isAvailable && (
                       <div onClick={(e) => e.stopPropagation()}>
@@ -784,6 +792,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                               type="button"
                               className="grid-stepper-btn"
                               onClick={() => updateQuantity(dish.id, -1)}
+                              aria-label="Decrease quantity"
                             >
                               <Minus size={12} />
                             </button>
@@ -792,6 +801,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                               type="button"
                               className="grid-stepper-btn"
                               onClick={() => updateQuantity(dish.id, 1)}
+                              aria-label="Increase quantity"
                             >
                               <Plus size={12} />
                             </button>
@@ -802,7 +812,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                             className="btn-add-food-pill"
                             onClick={(e) => quickAddToCart(dish, e)}
                           >
-                            <Plus size={13} /> Add
+                            + Add
                           </button>
                         )}
                       </div>
@@ -935,13 +945,13 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <h2 className="custom-dish-title">{customizingDish.name}</h2>
-                    <span className={`dish-diet-badge ${customizingDish.isVeg ? 'veg' : 'non-veg'}`}>
-                      <span className="diet-inner-dot" />
+                    <span className={`dish-inline-diet-tag ${customizingDish.isVeg ? 'veg' : 'non-veg'}`}>
+                      <span className="diet-dot" />
                     </span>
                   </div>
                   <p className="custom-dish-desc">{customizingDish.description}</p>
                 </div>
-                <div className="custom-dish-price">₹{customizingDish.price}</div>
+                <div className="custom-dish-price">₹ {customizingDish.price}</div>
               </div>
 
               {/* Spice Level Selector */}
