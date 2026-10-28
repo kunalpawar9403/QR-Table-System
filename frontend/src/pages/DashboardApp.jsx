@@ -56,6 +56,7 @@ import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
+import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -860,7 +861,7 @@ export default function DashboardApp({ onLockStaff }) {
           {/* Brand Logo */}
           <div className="sidebar-brand-box">
             <div className="sidebar-logo-badge">
-              <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="sidebar-logo-img" />
+              <TableMintLogoIcon size={24} />
             </div>
             <div className="sidebar-brand-text">
               <h2>Table<span className="brand-mint-text">Mint</span></h2>
@@ -1013,27 +1014,37 @@ export default function DashboardApp({ onLockStaff }) {
           <div className="mobile-top-left">
             {activeTab === 'overview' ? (
               <div className="mobile-brand-box">
-                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <div className="mobile-brand-leaf-wrap">
+                  <TableMintLogoIcon size={20} />
+                </div>
                 <span className="mobile-brand-title">TableMint</span>
               </div>
             ) : activeTab === 'tables' ? (
               <div className="mobile-brand-box">
-                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <div className="mobile-brand-leaf-wrap">
+                  <TableMintLogoIcon size={20} />
+                </div>
                 <span className="mobile-brand-title">Tables</span>
               </div>
             ) : activeTab === 'menu' ? (
               <div className="mobile-brand-box">
-                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <div className="mobile-brand-leaf-wrap">
+                  <TableMintLogoIcon size={20} />
+                </div>
                 <span className="mobile-brand-title">Menu</span>
               </div>
             ) : activeTab === 'kitchen' ? (
               <div className="mobile-brand-box">
-                <ChefHat size={20} className="text-white" />
+                <div className="mobile-brand-leaf-wrap">
+                  <ChefHat size={18} className="text-emerald-400" />
+                </div>
                 <span className="mobile-brand-title">Kitchen Display</span>
               </div>
             ) : activeTab === 'profile' ? (
               <div className="mobile-brand-box">
-                <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="mobile-leaf-img" />
+                <div className="mobile-brand-leaf-wrap">
+                  <TableMintLogoIcon size={20} />
+                </div>
                 <span className="mobile-brand-title">More</span>
               </div>
             ) : activeTab === 'orders' && mobileSelectedOrder ? (
@@ -4102,14 +4113,14 @@ export default function DashboardApp({ onLockStaff }) {
         {activeTab === 'profile' && (
           <section className="admin-page-container">
             {/* Screen 12: Mobile More / Profile View (Reference Image Screen 12) */}
-            <div className="hide-on-desktop">
+            <div className="mobile-more-view hide-on-desktop">
               <div className="mobile-more-profile-card">
                 <img
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
                   alt="Profile"
                   className="mobile-more-avatar"
                   onError={(e) => {
-                    e.target.src = '/images/tablemint_leaf_icon.png';
+                    e.target.src = '/images/tablemint_leaf.svg';
                   }}
                 />
                 <div className="mobile-more-profile-info">

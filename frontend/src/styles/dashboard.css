@@ -3863,7 +3863,8 @@
   }
 
   .hide-on-desktop {
-    display: flex !important;
+    display: block !important;
+    width: 100% !important;
   }
 
   .admin-mobile-top-bar {
@@ -3889,12 +3890,25 @@
   .mobile-brand-box {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+  }
+
+  .mobile-brand-leaf-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    flex-shrink: 0;
   }
 
   .mobile-leaf-img {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
   }
 
@@ -5306,25 +5320,34 @@
   /* Universal Horizontal Scrolling Filter Pills Row */
   .admin-filter-pills-row {
     display: flex !important;
-    align-items: center;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
     gap: 8px !important;
     overflow-x: auto !important;
-    padding-bottom: 2px !important;
-    margin-bottom: 4px !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    padding: 2px 0 6px 0 !important;
+    margin-bottom: 8px !important;
     scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
     -webkit-overflow-scrolling: touch;
-    width: 100%;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .admin-filter-pills-row::-webkit-scrollbar {
-    display: none;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 
   .admin-filter-pill {
+    flex-shrink: 0 !important;
     white-space: nowrap !important;
     border-radius: 9999px !important;
-    padding: 6px 14px !important;
-    font-size: 0.78rem !important;
+    padding: 7px 16px !important;
+    font-size: 0.8rem !important;
     font-weight: 700 !important;
     background: #ffffff !important;
     color: #475569 !important;
@@ -5999,37 +6022,53 @@
     color: #07241a;
   }
 
-  /* Screen 12: Profile / More Mobile */
+  /* Screen 12: Profile / More Mobile (Matching Reference Screen 12) */
+  .mobile-more-view {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 12px !important;
+    box-sizing: border-box !important;
+  }
+
   .mobile-more-profile-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 14px;
-    padding: 14px 16px;
-    display: flex;
+    padding: 16px;
+    display: flex !important;
+    flex-direction: row !important;
     align-items: center;
     gap: 14px;
-    margin-bottom: 14px;
+    width: 100% !important;
+    box-sizing: border-box !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   }
 
   .mobile-more-avatar {
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #10b981;
     flex-shrink: 0;
   }
 
+  .mobile-more-profile-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
   .mobile-more-user-name {
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #0f172a;
     margin: 0;
   }
 
   .mobile-more-user-role {
-    font-size: 0.76rem;
+    font-size: 0.78rem;
     color: #64748b;
     margin: 2px 0 0;
   }
@@ -6039,7 +6078,10 @@
     border: 1px solid #e2e8f0;
     border-radius: 14px;
     overflow: hidden;
+    width: 100% !important;
+    box-sizing: border-box !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
   }
 
   .mobile-more-nav-item {
@@ -6047,12 +6089,18 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 13px 14px;
+    padding: 14px 16px;
     background: none;
     border: none;
     border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
     box-sizing: border-box;
+    transition: background-color 0.15s ease;
+  }
+
+  .mobile-more-nav-item:hover,
+  .mobile-more-nav-item:active {
+    background: #f8fafc;
   }
 
   .mobile-more-nav-item:last-child {

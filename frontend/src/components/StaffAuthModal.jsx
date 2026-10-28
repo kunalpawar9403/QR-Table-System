@@ -17,6 +17,7 @@ import {
   signUpWithCredentials
 } from '../utils/staffAuth';
 import { soundManager } from '../utils/sound';
+import { TableMintSplashLogo } from './TableMintLogoIcon';
 
 export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fullPage = false }) {
   const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup'
@@ -146,7 +147,7 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
         {/* Brand Header Matching Image 3 Screen 1 */}
         <div className="auth-brand-header">
           <div className="auth-logo-leaf-box">
-            <img src="/images/tablemint_leaf_icon.png" alt="TableMint" className="auth-leaf-img" />
+            <TableMintSplashLogo size={62} />
           </div>
           <h1 className="auth-brand-heading">
             Table<span className="brand-mint-highlight">Mint</span>
