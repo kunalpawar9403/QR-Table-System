@@ -1282,7 +1282,7 @@ export default function DashboardApp({ onLockStaff }) {
             TAB: OVERVIEW (MATCHING REFERENCE IMAGE)
             ======================================================== */}
         {activeTab === 'overview' && (
-          <>
+          <div className="overview-content-wrapper">
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
               {/* Card 1: Revenue */}
@@ -1515,7 +1515,7 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
               </section>
             </div>
-          </>
+          </div>
         )}
 
         {/* ========================================================

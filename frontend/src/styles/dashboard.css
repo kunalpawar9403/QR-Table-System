@@ -445,12 +445,22 @@
 }
 
 /* =========================================================
-   KPI METRIC CARDS GRID
+   OVERVIEW & KPI METRIC CARDS GRID
    ========================================================= */
+.overview-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .kpi-four-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .metric-card {
@@ -2362,14 +2372,20 @@
   /* Modern 2x2 Metric KPI Grid on Mobile */
   .kpi-four-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .metric-card {
-    padding: 12px 14px !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 14px 14px 16px 14px !important;
     min-height: 125px !important;
     gap: 6px !important;
-    border-radius: 16px !important;
+    border-radius: 18px !important;
   }
 
   .metric-icon-box {
@@ -5173,6 +5189,15 @@
     flex-direction: column !important;
     gap: 12px !important;
     width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .overview-content-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+    padding: 16px 16px 28px 16px !important;
     box-sizing: border-box !important;
   }
 
