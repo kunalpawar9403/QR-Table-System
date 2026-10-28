@@ -2678,7 +2678,7 @@
    ========================================================= */
 .receipt-paper-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
   background: #ffffff;
@@ -2692,6 +2692,52 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  transition: max-width 0.2s ease, padding 0.2s ease;
+}
+
+.receipt-paper-card.paper-58mm {
+  max-width: 310px;
+  padding: 20px 14px 16px;
+  font-size: 0.8rem;
+}
+
+.receipt-paper-card.paper-80mm {
+  max-width: 410px;
+  padding: 24px 20px 20px;
+}
+
+.thermal-size-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.thermal-size-btn {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.thermal-size-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Prominent Top-Right Floating Close Button */
@@ -3085,30 +3131,54 @@
   }
 
   /* ---------------------------------------------------------
-     1. ISOLATED 80mm THERMAL RECEIPT PRINTING
+     1. ISOLATED 58mm & 80mm THERMAL RECEIPT PRINTING
      Completely removes #root (all 4 pages of dashboard disappear)
-     Renders ONLY the 80mm receipt card centered in middle.
+     Renders ONLY the thermal receipt slip sized for thermal printer.
+     Default: 58mm (2-inch standard POS thermal roll)
      --------------------------------------------------------- */
   body.printing-receipt-only > #root {
     display: none !important;
   }
 
+  body.printing-receipt-only {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   body.printing-receipt-only #thermal-receipt-print-root {
     display: block !important;
-    width: 80mm !important;
-    max-width: 80mm !important;
-    margin: 4mm auto !important; /* Centered in middle with proper crop size */
-    padding: 4mm 5mm !important;
+    width: 58mm !important;
+    max-width: 58mm !important;
+    margin: 0 auto !important;
+    padding: 2mm 3mm !important;
+    box-sizing: border-box !important;
     background: #ffffff !important;
     color: #000000 !important;
-    font-family: 'Courier New', Courier, monospace !important;
-    font-size: 9.5pt !important;
-    line-height: 1.35 !important;
-    border: 1px dashed #4b5563 !important; /* 80mm paper roll cut/crop guide */
-    border-radius: 4px !important;
+    font-family: 'Courier New', Courier, Consolas, monospace !important;
+    font-size: 8pt !important;
+    line-height: 1.28 !important;
+    border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+
+  /* Specific 58mm thermal paper roll sizing */
+  body.printing-receipt-only.paper-58mm #thermal-receipt-print-root {
+    width: 58mm !important;
+    max-width: 58mm !important;
+    padding: 2mm 2.5mm !important;
+    font-size: 7.8pt !important;
+  }
+
+  /* Specific 80mm thermal paper roll sizing */
+  body.printing-receipt-only.paper-80mm #thermal-receipt-print-root {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 3mm 5mm !important;
+    font-size: 9.5pt !important;
   }
 
   /* ---------------------------------------------------------

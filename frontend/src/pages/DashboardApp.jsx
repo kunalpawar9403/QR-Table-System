@@ -240,6 +240,7 @@ export default function DashboardApp({ onLockStaff }) {
   const [orderSearch, setOrderSearch] = useState('');
   const [menuSearch, setMenuSearch] = useState('');
   const [printBillOrder, setPrintBillOrder] = useState(null);
+  const [thermalPaperSize, setThermalPaperSize] = useState('58mm');
   const [menuModalOpen, setMenuModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState(null);
   const [tableModalOpen, setTableModalOpen] = useState(false);
@@ -740,34 +741,99 @@ export default function DashboardApp({ onLockStaff }) {
 
   // Test Print Receipt
   const handleTestPrint = () => {
-    if (orders.length > 0) {
-      setPrintBillOrder(orders[0]);
-    } else {
-      setPrintBillOrder({
-        orderNumber: 'TEST-101',
-        tableName: 'Table 1',
-        subtotal: 520,
-        tax: 26,
-        total: 546,
-        items: [
-          { name: 'Paneer Butter Masala', quantity: 1, price: 280 },
-          { name: 'Butter Naan', quantity: 2, price: 40 },
-          { name: 'Mango Lassi', quantity: 1, price: 160 }
-        ]
-      });
-    }
-    addToast('Opening receipt print preview...', 'info');
+    const fallback = {
+      id: 'TEST-101',
+      orderNumber: '101',
+      tableName: 'Table 2',
+      subtotal: 520,
+      tax: 26,
+      total: 546,
+      items: [
+        { name: 'Paneer Butter Masala', quantity: 1, price: 280 },
+        { name: 'Butter Naan', quantity: 2, price: 40 },
+        { name: 'Mango Lassi', quantity: 1, price: 160 }
+      ]
+    };
+    const target = orders.find(o => o.status === 'completed' || o.paymentStatus === 'paid') || orders[0] || fallback;
+    handlePrintBill(target, '58mm');
   };
 
-  // Dedicated Print Handlers
-  const handlePrintReceipt = () => {
-    document.body.classList.add('printing-receipt-only');
+  // Open Full Print Bill Modal
+  const handlePrintBill = (order, paperSize = '58mm') => {
+    if (!order) return;
+    setPrintBillOrder(order);
+    setThermalPaperSize(paperSize);
+    addToast(`Thermal Receipt ready for print (${paperSize})`, 'info');
+  };
+
+  // Dedicated Print Handlers (Supports 58mm default / 80mm optional)
+  const handlePrintReceipt = (orderToPrint = null, paperSize = null) => {
+    const targetOrder = orderToPrint || printBillOrder;
+    if (targetOrder) {
+      setPrintBillOrder(targetOrder);
+    }
+    const targetSize = paperSize || thermalPaperSize || '58mm';
+    setThermalPaperSize(targetSize);
+
+    // Apply isolation and paper size class to body
+    document.body.classList.remove('paper-58mm', 'paper-80mm');
+    document.body.classList.add('printing-receipt-only', `paper-${targetSize}`);
+
     setTimeout(() => {
       window.print();
       setTimeout(() => {
-        document.body.classList.remove('printing-receipt-only');
+        document.body.classList.remove('printing-receipt-only', 'paper-58mm', 'paper-80mm');
       }, 1000);
     }, 120);
+  };
+
+  // Download Receipt as Text Slip
+  const handleDownloadReceipt = (order = null) => {
+    const o = order || printBillOrder;
+    if (!o) return;
+    const rName = currentUser?.restaurantName || 'TableMint';
+    const subtotal = o.subtotal || Math.round((o.total || 0) / 1.05);
+    const tax = o.tax || Math.round((o.total || 0) * 0.05);
+    const dateStr = new Date(o.createdAt || Date.now()).toLocaleString();
+    
+    let content = `================================\n`;
+    content += `        ${rName.toUpperCase()}\n`;
+    content += `   Fine Dining Restaurant & Bar\n`;
+    content += `   GSTIN: 27AAACS1234M1Z5\n`;
+    content += `================================\n`;
+    content += `Bill: #${o.orderNumber || o.id}   Table: ${o.tableName || ''}\n`;
+    content += `Date: ${dateStr}\n`;
+    content += `--------------------------------\n`;
+    content += `ITEM                QTY    AMT\n`;
+    content += `--------------------------------\n`;
+    (o.items || []).forEach(it => {
+      const name = it.name.slice(0, 18).padEnd(19, ' ');
+      const qty = String(it.quantity).padStart(3, ' ');
+      const amt = String(it.price * it.quantity).padStart(7, ' ');
+      content += `${name}${qty}${amt}\n`;
+    });
+    content += `--------------------------------\n`;
+    content += `Subtotal:              ₹ ${subtotal}\n`;
+    content += `CGST (2.5%):           ₹ ${Math.round(tax / 2)}\n`;
+    content += `SGST (2.5%):           ₹ ${Math.round(tax / 2)}\n`;
+    content += `================================\n`;
+    content += `GRAND TOTAL:           ₹ ${o.total}\n`;
+    content += `Payment:               PAID\n`;
+    content += `================================\n`;
+    content += `  *** THANK YOU FOR DINING ***\n`;
+    content += `    Please Visit Us Again!\n`;
+    content += `================================\n`;
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Receipt_${o.orderNumber || o.id}_58mm.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    addToast('Thermal receipt slip downloaded!', 'success');
   };
 
   const handlePrintSingleStand = (table) => {
@@ -2925,7 +2991,7 @@ export default function DashboardApp({ onLockStaff }) {
                         className="mobile-print-bill-btn"
                         style={{ marginTop: 14, width: '100%' }}
                         onClick={async () => {
-                          handlePrintBill({
+                          const billToPrint = {
                             id: `B${Date.now().toString().slice(-4)}`,
                             orderNumber: activeTableOrders[0].orderNumber || activeTableOrders[0].id.replace('ORD-', ''),
                             tableName: `Table ${selectedBillingTableId}`,
@@ -2934,7 +3000,8 @@ export default function DashboardApp({ onLockStaff }) {
                             subtotal: billSubtotal,
                             tax: billGst,
                             paymentMethod: billingPaymentMethod.toUpperCase()
-                          });
+                          };
+                          handlePrintReceipt(billToPrint, thermalPaperSize);
                           for (const ord of activeTableOrders) {
                             await handleOrderStatusUpdate(ord.id, 'completed');
                           }
@@ -3013,61 +3080,186 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
 
                 {/* Print Preview Card */}
-                <div className="pos-print-preview-card">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>Print Preview</span>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', background: '#f1f5f9', padding: '3px 8px', borderRadius: 9999 }}>
-                      Thermal 58mm
-                    </span>
-                  </div>
+                {(() => {
+                  const activeTableOrders = getTableActiveOrders(selectedBillingTableId);
+                  const activeBillItems = activeTableOrders.flatMap((o) => o.items || []);
+                  const billSubtotal = activeBillItems.reduce((acc, it) => acc + (it.price * (it.quantity || 1)), 0);
+                  const billGst = Math.round(billSubtotal * 0.05);
+                  const billTotal = billSubtotal + billGst;
 
-                  <div className="thermal-paper-slip">
-                    <div className="thermal-shop-name">TableMint</div>
-                    <div style={{ fontSize: '0.7rem', color: '#64748b', textAlign: 'center', marginTop: 2 }}>Spice Garden</div>
-                    <div className="thermal-divider" />
-                    <div className="thermal-line">
-                      <span>Table 12</span>
-                      <span>Bill #B1604</span>
-                    </div>
-                    <div className="thermal-divider" />
-                    <div className="thermal-line">
-                      <span>Paneer Tikka</span>
-                      <span>1 x ₹220</span>
-                    </div>
-                    <div className="thermal-line">
-                      <span>Chicken Biryani</span>
-                      <span>1 x ₹280</span>
-                    </div>
-                    <div className="thermal-divider" />
-                    <div className="thermal-line">
-                      <span>Subtotal</span>
-                      <span>₹500</span>
-                    </div>
-                    <div className="thermal-line">
-                      <span>GST (5%)</span>
-                      <span>₹25</span>
-                    </div>
-                    <div className="thermal-line total">
-                      <span>Total</span>
-                      <span>₹525</span>
-                    </div>
-                    <div className="thermal-divider" />
-                    <div className="thermal-footer-msg">Thank You!</div>
-                  </div>
+                  const previewOrder = activeTableOrders.length > 0 ? {
+                    id: `B${activeTableOrders[0].orderNumber || activeTableOrders[0].id.replace('ORD-', '')}`,
+                    orderNumber: activeTableOrders[0].orderNumber || activeTableOrders[0].id.replace('ORD-', ''),
+                    tableName: `Table ${selectedBillingTableId}`,
+                    items: activeBillItems,
+                    subtotal: billSubtotal,
+                    tax: billGst,
+                    total: billTotal,
+                    paymentMethod: billingPaymentMethod.toUpperCase(),
+                    createdAt: activeTableOrders[0].createdAt
+                  } : (
+                    orders.find(o => o.tableId === selectedBillingTableId && (o.status === 'completed' || o.paymentStatus === 'paid')) ||
+                    orders.find(o => o.status === 'completed' || o.paymentStatus === 'paid') ||
+                    orders[0] || {
+                      id: 'B101',
+                      orderNumber: '101',
+                      tableName: `Table ${selectedBillingTableId}`,
+                      items: [
+                        { name: 'Paneer Butter Masala', quantity: 1, price: 280 },
+                        { name: 'Butter Naan', quantity: 2, price: 40 }
+                      ],
+                      subtotal: 360,
+                      tax: 18,
+                      total: 378,
+                      paymentMethod: 'UPI'
+                    }
+                  );
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-                    <button className="btn-brand-primary" style={{ justifyContent: 'center' }} onClick={() => window.print()}>
-                      <Printer size={15} /> Print
-                    </button>
-                    <button
-                      className="btn-brand-outline"
-                      style={{ justifyContent: 'center' }}
-                      onClick={() => addToast('Receipt downloaded as PDF', 'success')}
-                    >
-                      <Download size={15} /> Download
-                    </button>
-                  </div>
-                </div>
+                  const previewItems = previewOrder.items && previewOrder.items.length > 0
+                    ? previewOrder.items
+                    : [{ name: 'Dining Order', quantity: 1, price: previewOrder.total || 200 }];
+
+                  return (
+                    <div className="pos-print-preview-card">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
+                          Print Preview
+                        </span>
+                        <div className="thermal-size-switch" style={{ margin: 0 }}>
+                          <button
+                            type="button"
+                            className={`thermal-size-btn ${thermalPaperSize === '58mm' ? 'active' : ''}`}
+                            onClick={() => setThermalPaperSize('58mm')}
+                            title="58mm / 2-inch standard POS thermal paper roll"
+                          >
+                            58mm Roll
+                          </button>
+                          <button
+                            type="button"
+                            className={`thermal-size-btn ${thermalPaperSize === '80mm' ? 'active' : ''}`}
+                            onClick={() => setThermalPaperSize('80mm')}
+                            title="80mm / 3-inch wide POS thermal paper roll"
+                          >
+                            80mm
+                          </button>
+                        </div>
+                      </div>
+
+                      <div
+                        className="thermal-paper-slip"
+                        style={{
+                          width: '100%',
+                          maxWidth: thermalPaperSize === '58mm' ? 240 : 290,
+                          margin: '0 auto',
+                          padding: thermalPaperSize === '58mm' ? '12px 10px' : '16px 14px',
+                          fontSize: thermalPaperSize === '58mm' ? '0.75rem' : '0.82rem',
+                          lineHeight: 1.35
+                        }}
+                      >
+                        <div className="thermal-shop-name" style={{ fontSize: '1rem', fontWeight: 900 }}>
+                          {currentUser?.restaurantName || 'TABLEMINT'}
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', textAlign: 'center', marginTop: 1 }}>
+                          Fine Dining & Bar
+                        </div>
+                        <div style={{ fontSize: '0.64rem', color: '#94a3b8', textAlign: 'center' }}>
+                          GSTIN: 27AAACS1234M1Z5
+                        </div>
+                        <div className="thermal-divider" />
+                        <div className="thermal-line" style={{ fontSize: '0.72rem', fontWeight: 700 }}>
+                          <span>{previewOrder.tableName || `Table ${selectedBillingTableId}`}</span>
+                          <span>Bill #{previewOrder.orderNumber || previewOrder.id}</span>
+                        </div>
+                        <div className="thermal-line" style={{ fontSize: '0.66rem', color: '#64748b' }}>
+                          <span>Date: {new Date(previewOrder.createdAt || Date.now()).toLocaleDateString()}</span>
+                          <span>{new Date(previewOrder.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div className="thermal-divider" />
+                        
+                        {/* Table Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 800, color: '#475569', paddingBottom: 3 }}>
+                          <span>ITEM</span>
+                          <span>QTY</span>
+                          <span>AMT</span>
+                        </div>
+                        {previewItems.slice(0, 5).map((it, idx) => (
+                          <div key={idx} className="thermal-line" style={{ padding: '2px 0' }}>
+                            <span style={{ flex: 1, paddingRight: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {it.name}
+                            </span>
+                            <span style={{ minWidth: 28, textAlign: 'center', color: '#64748b' }}>
+                              {it.quantity}
+                            </span>
+                            <span style={{ minWidth: 42, textAlign: 'right', fontWeight: 700 }}>
+                              ₹{it.price * it.quantity}
+                            </span>
+                          </div>
+                        ))}
+                        {previewItems.length > 5 && (
+                          <div style={{ fontSize: '0.66rem', color: '#64748b', textAlign: 'center', fontStyle: 'italic', padding: '2px 0' }}>
+                            + {previewItems.length - 5} more items
+                          </div>
+                        )}
+
+                        <div className="thermal-divider" />
+                        <div className="thermal-line">
+                          <span>Subtotal</span>
+                          <span>₹ {previewOrder.subtotal || Math.round((previewOrder.total || 0) / 1.05)}</span>
+                        </div>
+                        <div className="thermal-line">
+                          <span>CGST (2.5%)</span>
+                          <span>₹ {Math.round(((previewOrder.tax || Math.round((previewOrder.total || 0) * 0.05)) / 2))}</span>
+                        </div>
+                        <div className="thermal-line">
+                          <span>SGST (2.5%)</span>
+                          <span>₹ {Math.round(((previewOrder.tax || Math.round((previewOrder.total || 0) * 0.05)) / 2))}</span>
+                        </div>
+                        <div className="thermal-line total" style={{ fontSize: '1rem', fontWeight: 900, paddingTop: 4, marginTop: 3, borderTop: '1px dashed #cbd5e1' }}>
+                          <span>TOTAL</span>
+                          <span>₹ {previewOrder.total}</span>
+                        </div>
+                        <div className="thermal-line" style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 700, marginTop: 3 }}>
+                          <span>Status</span>
+                          <span>PAID ({previewOrder.paymentMethod || 'UPI'})</span>
+                        </div>
+                        <div className="thermal-divider" />
+                        <div className="thermal-footer-msg" style={{ textAlign: 'center', fontSize: '0.68rem', fontWeight: 700 }}>
+                          *** THANK YOU! VISIT AGAIN ***
+                        </div>
+                        <div style={{ textAlign: 'center', fontSize: '0.6rem', color: '#94a3b8', marginTop: 2 }}>
+                          {thermalPaperSize} Thermal ESC/POS
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+                        <button
+                          type="button"
+                          className="btn-brand-primary"
+                          style={{ justifyContent: 'center' }}
+                          onClick={() => handlePrintReceipt(previewOrder, thermalPaperSize)}
+                        >
+                          <Printer size={15} /> Print ({thermalPaperSize})
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-brand-outline"
+                          style={{ justifyContent: 'center' }}
+                          onClick={() => handleDownloadReceipt(previewOrder)}
+                        >
+                          <Download size={15} /> Download
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-brand-outline"
+                          style={{ justifyContent: 'center', gridColumn: 'span 2' }}
+                          onClick={() => handlePrintBill(previewOrder, thermalPaperSize)}
+                        >
+                          <Eye size={15} /> Open Full Receipt Modal
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </section>
@@ -5175,7 +5367,7 @@ export default function DashboardApp({ onLockStaff }) {
       {printBillOrder && (
         <div className="modal-backdrop" onClick={() => setPrintBillOrder(null)}>
           <div
-            className="receipt-paper-card"
+            className={`receipt-paper-card paper-${thermalPaperSize}`}
             id="thermal-receipt-container"
             onClick={(e) => e.stopPropagation()}
           >
@@ -5190,8 +5382,26 @@ export default function DashboardApp({ onLockStaff }) {
               <X size={18} />
             </button>
 
+            {/* Paper Size Switcher inside Modal */}
+            <div className="thermal-size-switch no-print" style={{ margin: '0 0 10px' }}>
+              <button
+                type="button"
+                className={`thermal-size-btn ${thermalPaperSize === '58mm' ? 'active' : ''}`}
+                onClick={() => setThermalPaperSize('58mm')}
+              >
+                58mm Roll (2-inch Standard)
+              </button>
+              <button
+                type="button"
+                className={`thermal-size-btn ${thermalPaperSize === '80mm' ? 'active' : ''}`}
+                onClick={() => setThermalPaperSize('80mm')}
+              >
+                80mm Roll (3-inch Wide)
+              </button>
+            </div>
+
             <div className="receipt-header">
-              <div className="receipt-brand-title">TABLEMINT</div>
+              <div className="receipt-brand-title">{currentUser?.restaurantName || 'TABLEMINT'}</div>
               <div className="receipt-meta">Fine Dining Restaurant & Bar</div>
               <div className="receipt-meta">Plot 42, Green Avenue, MG Road</div>
               <div className="receipt-meta" style={{ fontSize: '0.7rem' }}>
@@ -5243,7 +5453,7 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
               <div className="receipt-total-row" style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>
                 <span>Payment Status:</span>
-                <span>PAID (UPI / COUNTER)</span>
+                <span>PAID ({printBillOrder.paymentMethod || 'UPI / COUNTER'})</span>
               </div>
             </div>
 
@@ -5251,7 +5461,7 @@ export default function DashboardApp({ onLockStaff }) {
               <div style={{ fontWeight: 700 }}>*** THANK YOU FOR DINING WITH US ***</div>
               <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit TableMint Again!</div>
               <div style={{ fontSize: '0.62rem', color: '#9ca3af', marginTop: 4 }}>
-                Powered by QR Table System ESC/POS v2.0
+                Optimized for {thermalPaperSize} ESC/POS Thermal Printer
               </div>
             </div>
 
@@ -5260,9 +5470,16 @@ export default function DashboardApp({ onLockStaff }) {
                 type="button"
                 className="btn-primary"
                 style={{ flex: 1 }}
-                onClick={handlePrintReceipt}
+                onClick={() => handlePrintReceipt(printBillOrder, thermalPaperSize)}
               >
-                <Printer size={16} /> Print Receipt (80mm)
+                <Printer size={16} /> Print Receipt ({thermalPaperSize})
+              </button>
+              <button
+                type="button"
+                className="btn-brand-outline"
+                onClick={() => handleDownloadReceipt(printBillOrder)}
+              >
+                <Download size={16} /> Download Slip
               </button>
               <button
                 type="button"
@@ -5323,67 +5540,78 @@ export default function DashboardApp({ onLockStaff }) {
         </div>
       )}
 
-      {/* 80mm ESC/POS Thermal Receipt Portal (Isolated 1-Page Print Centered in Middle) */}
+      {/* Thermal Receipt Print Portal (Optimized for 58mm & 80mm ESC/POS Printers) */}
       {typeof document !== 'undefined' && printBillOrder && createPortal(
-        <div id="thermal-receipt-print-root">
-          <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8 }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '0.04em' }}>TABLEMINT</div>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Fine Dining Restaurant & Bar</div>
-            <div style={{ fontSize: '0.72rem', color: '#333' }}>Plot 42, Green Avenue, MG Road</div>
-            <div style={{ fontSize: '0.68rem', color: '#555' }}>GSTIN: 27AAACS1234M1Z5 • FSSAI: 11521034000456</div>
-            <div style={{ margin: '6px 0 3px', borderTop: '1px dashed #999' }} />
-            <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>TAX INVOICE / CASH BILL</div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 700 }}>
+        <div id="thermal-receipt-print-root" className={`paper-${thermalPaperSize}`}>
+          <div style={{ textAlign: 'center', borderBottom: '1px dashed #000', paddingBottom: 6, marginBottom: 6 }}>
+            <div style={{ fontSize: thermalPaperSize === '58mm' ? '1.15rem' : '1.35rem', fontWeight: 900, letterSpacing: '0.04em' }}>
+              {currentUser?.restaurantName || 'TABLEMINT'}
+            </div>
+            <div style={{ fontSize: '0.72rem', fontWeight: 600 }}>Fine Dining Restaurant & Bar</div>
+            <div style={{ fontSize: '0.68rem', color: '#222' }}>Plot 42, Green Avenue, MG Road</div>
+            <div style={{ fontSize: '0.64rem', color: '#333' }}>GSTIN: 27AAACS1234M1Z5 • FSSAI: 11521034000456</div>
+            <div style={{ margin: '5px 0 3px', borderTop: '1px dashed #000' }} />
+            <div style={{ fontWeight: 800, fontSize: thermalPaperSize === '58mm' ? '0.78rem' : '0.86rem' }}>
+              TAX INVOICE / CASH BILL
+            </div>
+            <div style={{ fontSize: '0.74rem', fontWeight: 700 }}>
               Bill #{printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
             </div>
-            <div style={{ fontSize: '0.7rem' }}>
+            <div style={{ fontSize: '0.66rem', color: '#333' }}>
               Date: {new Date(printBillOrder.createdAt || Date.now()).toLocaleDateString()} {new Date(printBillOrder.createdAt || Date.now()).toLocaleTimeString()}
             </div>
           </div>
 
-          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 800, paddingBottom: 4, borderBottom: '1px solid #ccc' }}>
-              <span>ITEM</span>
-              <span>QTY x RATE</span>
-              <span>AMOUNT</span>
+          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 6, marginBottom: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 800, paddingBottom: 3, borderBottom: '1px solid #000' }}>
+              <span style={{ flex: 1 }}>ITEM</span>
+              <span style={{ minWidth: 42, textAlign: 'center' }}>QTY</span>
+              <span style={{ minWidth: 48, textAlign: 'right' }}>AMOUNT</span>
             </div>
             {printBillOrder.items?.map((it, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', fontWeight: 600, padding: '3px 0' }}>
-                <span style={{ flex: 1, paddingRight: 6 }}>{it.name}</span>
-                <span style={{ minWidth: 55, textAlign: 'center' }}>{it.quantity} x {it.price}</span>
-                <span style={{ minWidth: 55, textAlign: 'right' }}>₹{it.price * it.quantity}</span>
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: thermalPaperSize === '58mm' ? '0.72rem' : '0.78rem', fontWeight: 600, padding: '2px 0' }}>
+                <span style={{ flex: 1, paddingRight: 4, wordBreak: 'break-word' }}>
+                  {it.name}
+                  {it.quantity > 1 && (
+                    <span style={{ fontSize: '0.64rem', color: '#555', display: 'block' }}>
+                      ({it.quantity} x ₹{it.price})
+                    </span>
+                  )}
+                </span>
+                <span style={{ minWidth: 42, textAlign: 'center' }}>{it.quantity}</span>
+                <span style={{ minWidth: 48, textAlign: 'right' }}>₹{it.price * it.quantity}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 8, marginBottom: 8, fontSize: '0.76rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+          <div style={{ borderBottom: '1px dashed #000', paddingBottom: 6, marginBottom: 6, fontSize: thermalPaperSize === '58mm' ? '0.72rem' : '0.78rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
               <span>Subtotal:</span>
               <span>₹{printBillOrder.subtotal || Math.round((printBillOrder.total || 0) / 1.05)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
               <span>CGST (2.5%):</span>
               <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1px 0' }}>
               <span>SGST (2.5%):</span>
               <span>₹{Math.round(((printBillOrder.tax || Math.round((printBillOrder.total || 0) * 0.05)) / 2))}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 900, paddingTop: 4, marginTop: 4, borderTop: '1px dashed #000' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: thermalPaperSize === '58mm' ? '0.96rem' : '1.08rem', fontWeight: 900, paddingTop: 4, marginTop: 3, borderTop: '1px dashed #000' }}>
               <span>TOTAL AMOUNT:</span>
               <span>₹{printBillOrder.total}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 700, marginTop: 3 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', fontWeight: 700, marginTop: 2 }}>
               <span>Payment Status:</span>
-              <span>PAID (UPI / COUNTER)</span>
+              <span>PAID ({printBillOrder.paymentMethod || 'UPI / COUNTER'})</span>
             </div>
           </div>
 
-          <div style={{ textAlign: 'center', fontSize: '0.72rem', paddingTop: 2 }}>
+          <div style={{ textAlign: 'center', fontSize: '0.68rem', paddingTop: 2 }}>
             <div style={{ fontWeight: 800 }}>*** THANK YOU FOR DINING WITH US ***</div>
-            <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit TableMint Again!</div>
-            <div style={{ fontSize: '0.6rem', color: '#666', marginTop: 6, borderTop: '1px dotted #ccc', paddingTop: 4 }}>
-              80mm ESC/POS Thermal Paper Roll Size
+            <div style={{ fontSize: '0.64rem', marginTop: 2 }}>Please Visit Again!</div>
+            <div style={{ fontSize: '0.58rem', color: '#666', marginTop: 4, borderTop: '1px dotted #888', paddingTop: 3 }}>
+              {thermalPaperSize} ESC/POS Thermal Paper Roll Size
             </div>
           </div>
         </div>,
