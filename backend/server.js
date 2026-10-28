@@ -207,6 +207,25 @@ const MENU_FILE = path.join(DATA_DIR, 'menu.json');
 const TABLES_FILE = path.join(DATA_DIR, 'tables.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+
+const defaultSettings = {
+  restaurantName: 'TableMint',
+  tagline: 'Smart QR Dining & POS',
+  phone: '+91 98765 43210',
+  email: 'contact@tablemint.com',
+  address: 'MG Road, Pune, Maharashtra 411001',
+  currency: '₹',
+  taxRate: 5,
+  serviceCharge: 0,
+  upiId: 'tablemint@upi',
+  upiPayeeName: 'TableMint Restaurant',
+  upiQrEnabled: true,
+  acceptedPaymentMethods: ['UPI', 'Cash', 'Card'],
+  soundAlerts: true,
+  autoAcceptOrders: false,
+  sessionTimeoutHours: 3
+};
 
 // Read & Write helpers
 function readData(file, fallback = []) {
@@ -216,6 +235,7 @@ function readData(file, fallback = []) {
       if (file.includes('tables.json')) return defaultTables;
       if (file.includes('orders.json')) return defaultOrders;
       if (file.includes('users.json')) return defaultUsers;
+      if (file.includes('settings.json')) return defaultSettings;
       return fallback;
     }
     const content = fs.readFileSync(file, 'utf8');
@@ -231,6 +251,7 @@ function readData(file, fallback = []) {
     if (file.includes('tables.json')) return defaultTables;
     if (file.includes('orders.json')) return defaultOrders;
     if (file.includes('users.json')) return defaultUsers;
+    if (file.includes('settings.json')) return defaultSettings;
     return fallback;
   }
 }
@@ -254,6 +275,21 @@ function getUsers() {
 
 function saveUsers(users) {
   writeData(USERS_FILE, users);
+}
+
+function getSettings() {
+  const current = readData(SETTINGS_FILE, defaultSettings);
+  if (!current || typeof current !== 'object' || Array.isArray(current)) {
+    writeData(SETTINGS_FILE, defaultSettings);
+    return defaultSettings;
+  }
+  return { ...defaultSettings, ...current };
+}
+
+function saveSettings(settings) {
+  const merged = { ...getSettings(), ...settings, updatedAt: new Date().toISOString() };
+  writeData(SETTINGS_FILE, merged);
+  return merged;
 }
 
 // Session Token Helpers for Anti-Prank & Location Protection
@@ -493,6 +529,18 @@ app.post('/api/auth/change-password', requireStaffAuth, (req, res) => {
     console.error('Error changing password:', err);
     res.status(500).json({ success: false, error: 'Failed to change password. Please try again.' });
   }
+});
+
+// Get Restaurant Settings (Public for both Admin and Customer)
+app.get('/api/settings', (req, res) => {
+  res.json(getSettings());
+});
+
+// Update Settings (Staff Protected)
+app.post(['/api/settings', '/api/settings/update'], requireStaffAuth, (req, res) => {
+  const updated = saveSettings(req.body || {});
+  io.emit('settings:updated', updated);
+  res.json({ success: true, settings: updated });
 });
 
 // Server info & host URLs for QR generation
@@ -995,6 +1043,46 @@ app.patch('/api/orders/:id/status', requireStaffAuth, (req, res) => {
   }
 
   res.json(order);
+});
+
+// Customer settles bill / marks payment at the end
+app.post(['/api/orders/:id/pay', '/api/orders/:id/customer-pay'], (req, res) => {
+  const orderId = req.params.id;
+  const { paymentMethod = 'UPI', transactionRef = '', token } = req.body || {};
+  const orders = readData(ORDERS_FILE);
+  const order = orders.find(o => o.id === orderId || o.orderNumber === parseInt(orderId, 10));
+  if (!order) {
+    return res.status(404).json({ error: 'Order not found' });
+  }
+
+  // Token validation if table sessionToken is set
+  const tables = readData(TABLES_FILE);
+  const table = tables.find(t => t.id === order.tableId);
+  if (table && table.sessionToken && token && token.trim() !== table.sessionToken.trim()) {
+    return res.status(403).json({ error: 'TOKEN_EXPIRED', message: 'Session expired' });
+  }
+
+  order.paymentStatus = 'paid';
+  order.paymentMethod = paymentMethod;
+  order.paidAt = new Date().toISOString();
+  if (transactionRef) order.transactionRef = transactionRef;
+  writeData(ORDERS_FILE, orders);
+
+  // Broadcast to kitchen, admin, and table
+  io.emit('order:status_changed', order);
+  io.to('admin').emit('order:status_changed', order);
+  io.to(`table_${order.tableId}`).emit('order:status_changed', order);
+
+  // Send high-priority alert to admin/staff
+  io.emit('service:payment_received', {
+    orderId: order.id,
+    tableId: order.tableId,
+    tableName: order.tableName,
+    amount: order.total,
+    method: paymentMethod
+  });
+
+  res.json({ success: true, order, message: `Payment of ₹${order.total} marked as paid via ${paymentMethod}` });
 });
 
 // Active Service Calls (In-Memory Queue for Real-Time Dashboard)

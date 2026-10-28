@@ -765,5 +765,32 @@
     "paymentStatus": "paid",
     "paymentMethod": "Pay at Counter / UPI",
     "completedAt": "2026-10-28T15:47:45.254Z"
+  },
+  {
+    "id": "ORD-126",
+    "orderNumber": 126,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Payment Test Guest",
+    "status": "served",
+    "createdAt": "2026-10-28T16:31:39.198Z",
+    "items": [
+      {
+        "id": 1,
+        "name": "Paneer Butter Masala",
+        "price": 280,
+        "quantity": 1,
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "subtotal": 280,
+    "tax": 14,
+    "total": 294,
+    "notes": "",
+    "paymentStatus": "paid",
+    "paymentMethod": "UPI",
+    "updatedAt": "2026-10-28T16:31:39.202Z",
+    "paidAt": "2026-10-28T16:31:39.205Z"
   }
 ]

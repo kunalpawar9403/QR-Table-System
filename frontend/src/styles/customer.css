@@ -2144,3 +2144,275 @@
   line-height: 1.35;
 }
 
+/* =========================================================
+   CUSTOMER BILL SETTLEMENT & UPI QR (END OF MEAL)
+   ========================================================= */
+.food-cooking-status-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fffbeb;
+  border: 1px dashed #fde68a;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+.order-paid-badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 16px;
+  padding: 24px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+}
+
+.order-paid-badge-card .paid-icon-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.12);
+}
+
+.order-paid-badge-card .paid-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #065f46;
+  margin-bottom: 4px;
+}
+
+.order-paid-badge-card .paid-desc {
+  font-size: 0.86rem;
+  color: #047857;
+  line-height: 1.45;
+  max-width: 300px;
+}
+
+.customer-payment-card {
+  background: #ffffff;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 20px;
+  padding: 18px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-payment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.payment-pill-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ecfdf5;
+  color: #059669;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.payment-grand-total {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #10b981;
+  letter-spacing: -0.02em;
+}
+
+.payment-subtitle {
+  font-size: 0.84rem;
+  color: #64748b;
+  margin: 0 0 14px;
+  line-height: 1.45;
+}
+
+.customer-upi-qr-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .customer-upi-qr-card {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.qr-img-wrapper {
+  background: #ffffff;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+}
+
+.customer-upi-qr-img {
+  width: 140px;
+  height: 140px;
+  display: block;
+  border-radius: 6px;
+}
+
+.customer-upi-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.upi-merchant-name {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.upi-id-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #059669;
+  width: fit-content;
+}
+
+@media (max-width: 480px) {
+  .upi-id-badge {
+    margin: 0 auto;
+  }
+}
+
+.btn-copy-upi-tag {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px;
+}
+
+.btn-copy-upi-tag:hover {
+  color: #0f172a;
+}
+
+.customer-upi-app-icons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+  .customer-upi-app-icons {
+    justify-content: center;
+  }
+}
+
+.btn-mobile-upi-intent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #059669;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+  margin-bottom: 12px;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.btn-mobile-upi-intent:active {
+  transform: scale(0.98);
+  background: #047857;
+}
+
+.payment-settle-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-customer-confirm-paid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-customer-confirm-paid:hover {
+  background: #059669;
+}
+
+.btn-customer-pay-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btn-customer-pay-counter:hover {
+  background: #e2e8f0;
+}
+
+

@@ -1,0 +1,22 @@
+{
+  "restaurantName": "TableMint",
+  "tagline": "Smart QR Dining & POS",
+  "phone": "+91 98765 43210",
+  "email": "contact@tablemint.com",
+  "address": "MG Road, Pune, Maharashtra 411001",
+  "currency": "₹",
+  "taxRate": 5,
+  "serviceCharge": 0,
+  "upiId": "restaurant.owner@okhdfcbank",
+  "upiPayeeName": "TableMint Grand Bistro",
+  "upiQrEnabled": true,
+  "acceptedPaymentMethods": [
+    "UPI",
+    "Cash",
+    "Card"
+  ],
+  "soundAlerts": true,
+  "autoAcceptOrders": false,
+  "sessionTimeoutHours": 3,
+  "updatedAt": "2026-10-28T16:31:39.191Z"
+}

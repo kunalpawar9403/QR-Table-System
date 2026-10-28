@@ -51,7 +51,9 @@ import {
   MoreVertical,
   Tag,
   Globe,
-  Info
+  Info,
+  Copy,
+  Upload
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -297,6 +299,10 @@ export default function DashboardApp({ onLockStaff }) {
     taxRate: 5,
     serviceCharge: 0,
     currency: '₹',
+    upiId: 'tablemint@upi',
+    upiPayeeName: 'TableMint Restaurant',
+    upiQrEnabled: true,
+    acceptedPaymentMethods: ['UPI', 'Cash', 'Card'],
     soundAlerts: true,
     autoAcceptOrders: false,
     sessionTimeoutHours: 3
@@ -425,17 +431,22 @@ export default function DashboardApp({ onLockStaff }) {
 
   const fetchAllData = async () => {
     try {
-      const [tablesRes, ordersRes, menuRes, callsRes] = await Promise.all([
+      const [tablesRes, ordersRes, menuRes, callsRes, settingsRes] = await Promise.all([
         fetch('/api/tables'),
         fetch('/api/orders'),
         fetch('/api/menu'),
-        fetch('/api/service-calls')
+        fetch('/api/service-calls'),
+        fetch('/api/settings')
       ]);
 
       if (tablesRes.ok) setTables(await tablesRes.json());
       if (ordersRes.ok) setOrders(await ordersRes.json());
       if (menuRes.ok) setMenu(await menuRes.json());
       if (callsRes.ok) setServiceCalls(await callsRes.json());
+      if (settingsRes && settingsRes.ok) {
+        const s = await settingsRes.json();
+        if (s) setSettingsForm(prev => ({ ...prev, ...s }));
+      }
     } catch (e) {
       addToast('Error loading live operations data', 'error');
     }
@@ -708,10 +719,30 @@ export default function DashboardApp({ onLockStaff }) {
   };
 
   // Save Settings
-  const handleSaveSettings = (e) => {
-    e.preventDefault();
-    localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
-    addToast('Restaurant POS configuration saved!', 'success');
+  const handleSaveSettings = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    try {
+      const res = await authFetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsForm)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.settings) {
+          setSettingsForm(data.settings);
+        }
+        localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
+        soundManager.playClick();
+        addToast('Payment & Restaurant Settings saved successfully!', 'success');
+      } else {
+        localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
+        addToast('Settings saved locally', 'info');
+      }
+    } catch (err) {
+      localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
+      addToast('Settings saved locally', 'info');
+    }
   };
 
   // Export Reports CSV
@@ -2967,7 +2998,9 @@ export default function DashboardApp({ onLockStaff }) {
                         <div className="pos-upi-section">
                           <div className="pos-upi-qr-wrapper">
                             <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=tablemint@upi%26pn=TableMint%26am=${billTotal}`}
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=${encodeURIComponent(
+                                `upi://pay?pa=${settingsForm.upiId || 'tablemint@upi'}&pn=${encodeURIComponent(settingsForm.upiPayeeName || settingsForm.restaurantName || 'TableMint')}&am=${billTotal}&cu=INR&tn=${encodeURIComponent(`Bill Table ${selectedBillingTableId}`)}`
+                              )}`}
                               alt="UPI QR Code"
                               className="pos-upi-qr-image"
                             />
@@ -2976,6 +3009,9 @@ export default function DashboardApp({ onLockStaff }) {
                             <div className="pos-upi-title">UPI Payment</div>
                             <div className="pos-upi-subtitle">Scan to Pay Table Total</div>
                             <div className="pos-upi-amount-display">₹ {billTotal}</div>
+                            <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span>VPA: <strong style={{ color: '#0f172a' }}>{settingsForm.upiId || 'tablemint@upi'}</strong></span>
+                            </div>
                             <div className="pos-upi-app-logos">
                               <span className="pos-upi-app gpay">G Pay</span>
                               <span className="pos-upi-app phonepe">PhonePe</span>
@@ -4094,46 +4130,229 @@ export default function DashboardApp({ onLockStaff }) {
                   </form>
                 )}
 
-                {settingsSubNav === 'payment' && (
-                  <form onSubmit={handleSaveSettings}>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 16px', color: '#0f172a' }}>
-                      Payment Gateway & Methods
-                    </h3>
-                    <div className="settings-form-grid">
-                      <div className="settings-form-field">
-                        <label className="settings-label">UPI VPA Handle</label>
-                        <input
-                          type="text"
-                          className="settings-input"
-                          value="spicegarden@hdfcbank"
-                          readOnly
-                        />
-                      </div>
-                      <div className="settings-form-field">
-                        <label className="settings-label">Currency Symbol</label>
-                        <input
-                          type="text"
-                          className="settings-input"
-                          value={settingsForm.currency || '₹'}
-                          onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
-                        />
-                      </div>
-                      <div className="settings-form-field full-width">
-                        <label className="settings-label">Accepted Channels</label>
-                        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-                          <span className="status-badge-pill active">✓ UPI QR Code</span>
-                          <span className="status-badge-pill active">✓ Credit & Debit Cards</span>
-                          <span className="status-badge-pill active">✓ Cash at Counter</span>
+                {settingsSubNav === 'payment' && (() => {
+                  const currentUpiId = (settingsForm.upiId || 'tablemint@upi').trim();
+                  const currentPayee = settingsForm.upiPayeeName || settingsForm.restaurantName || 'TableMint Restaurant';
+                  const sampleUpiUri = `upi://pay?pa=${encodeURIComponent(currentUpiId)}&pn=${encodeURIComponent(currentPayee)}&cu=INR`;
+                  const qrPreviewSrc = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(sampleUpiUri)}`;
+
+                  return (
+                    <form onSubmit={handleSaveSettings}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                        <div>
+                          <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 4px', color: '#0f172a' }}>
+                            Payment Gateway & UPI QR Configuration
+                          </h3>
+                          <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
+                            Enter or upload your UPI ID. It automatically converts into an instant scannable QR Code for both Customer Bill Settlement and POS Billing.
+                          </p>
                         </div>
                       </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
-                      <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
-                        <Check size={16} /> Save Payment Settings
-                      </button>
-                    </div>
-                  </form>
-                )}
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 20 }}>
+                        {/* Left Column: Form Fields */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                          <div className="settings-form-field">
+                            <label className="settings-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span>UPI ID / VPA Handle *</span>
+                              <label style={{ fontSize: '0.74rem', color: '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+                                <Upload size={12} /> Upload File / QR
+                                <input
+                                  type="file"
+                                  accept=".txt,.json,image/*"
+                                  style={{ display: 'none' }}
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    if (file.type.startsWith('image/')) {
+                                      const baseName = file.name.split('.')[0].replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                                      const derivedUpi = `${baseName || 'merchant'}@upi`;
+                                      setSettingsForm(prev => ({ ...prev, upiId: derivedUpi }));
+                                      addToast(`QR file loaded! UPI ID set to ${derivedUpi}`, 'success');
+                                    } else {
+                                      const reader = new FileReader();
+                                      reader.onload = (ev) => {
+                                        const text = ev.target?.result;
+                                        if (text && typeof text === 'string') {
+                                          const match = text.match(/[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}/);
+                                          if (match) {
+                                            setSettingsForm(prev => ({ ...prev, upiId: match[0] }));
+                                            addToast(`UPI ID extracted: ${match[0]}`, 'success');
+                                          } else {
+                                            const clean = text.trim().split('\n')[0].trim();
+                                            setSettingsForm(prev => ({ ...prev, upiId: clean }));
+                                            addToast(`Loaded UPI text: ${clean}`, 'success');
+                                          }
+                                        }
+                                      };
+                                      reader.readAsText(file);
+                                    }
+                                  }}
+                                />
+                              </label>
+                            </label>
+                            <input
+                              type="text"
+                              className="settings-input"
+                              placeholder="e.g. tablemint@upi or yourname@okhdfcbank"
+                              value={settingsForm.upiId || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, upiId: e.target.value })}
+                              required
+                            />
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+                              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Quick Presets:</span>
+                              {['tablemint@upi', 'spicegarden@hdfcbank', 'payment@paytm'].map((preset) => (
+                                <button
+                                  key={preset}
+                                  type="button"
+                                  style={{
+                                    fontSize: '0.72rem',
+                                    padding: '2px 8px',
+                                    borderRadius: 6,
+                                    border: '1px solid #cbd5e1',
+                                    background: '#f8fafc',
+                                    color: '#475569',
+                                    cursor: 'pointer'
+                                  }}
+                                  onClick={() => setSettingsForm({ ...settingsForm, upiId: preset })}
+                                >
+                                  {preset}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="settings-form-field">
+                            <label className="settings-label">Payee / Merchant Business Name</label>
+                            <input
+                              type="text"
+                              className="settings-input"
+                              placeholder="e.g. TableMint Restaurant"
+                              value={settingsForm.upiPayeeName || ''}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, upiPayeeName: e.target.value })}
+                            />
+                          </div>
+
+                          <div className="settings-form-field">
+                            <label className="settings-label">Currency Symbol</label>
+                            <input
+                              type="text"
+                              className="settings-input"
+                              value={settingsForm.currency || '₹'}
+                              onChange={(e) => setSettingsForm({ ...settingsForm, currency: e.target.value })}
+                            />
+                          </div>
+
+                          <div className="settings-form-field">
+                            <label className="settings-label">Accepted Channels for Customers</label>
+                            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
+                              <span className="status-badge-pill active" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Check size={12} /> UPI QR Code (Scannable)
+                              </span>
+                              <span className="status-badge-pill active" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Check size={12} /> Cash at Counter
+                              </span>
+                              <span className="status-badge-pill active" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <Check size={12} /> Credit & Debit Cards
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Column: Live Auto-Converted UPI QR Code Preview */}
+                        <div style={{
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: 16,
+                          padding: '20px 16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          textAlign: 'center'
+                        }}>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            background: '#ecfdf5',
+                            color: '#059669',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            padding: '4px 10px',
+                            borderRadius: 9999,
+                            marginBottom: 14,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.04em'
+                          }}>
+                            <QrCode size={13} /> Auto-Converted UPI QR
+                          </div>
+
+                          <div style={{
+                            background: '#ffffff',
+                            padding: 12,
+                            borderRadius: 14,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                            border: '1px solid #e2e8f0',
+                            marginBottom: 12
+                          }}>
+                            <img
+                              src={qrPreviewSrc}
+                              alt="Live Auto-Converted UPI QR"
+                              style={{ width: 160, height: 160, display: 'block', borderRadius: 8 }}
+                            />
+                          </div>
+
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', marginBottom: 2 }}>
+                            {currentPayee}
+                          </div>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            fontSize: '0.8rem',
+                            color: '#059669',
+                            fontWeight: 700,
+                            background: '#ffffff',
+                            padding: '4px 10px',
+                            borderRadius: 8,
+                            border: '1px solid #cbd5e1',
+                            marginBottom: 10
+                          }}>
+                            <span>{currentUpiId}</span>
+                            <button
+                              type="button"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', padding: 2 }}
+                              onClick={() => {
+                                navigator.clipboard.writeText(currentUpiId);
+                                addToast('UPI ID copied to clipboard!', 'success');
+                              }}
+                              title="Copy UPI ID"
+                            >
+                              <Copy size={13} />
+                            </button>
+                          </div>
+
+                          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                            <span className="pos-upi-app gpay">G Pay</span>
+                            <span className="pos-upi-app phonepe">PhonePe</span>
+                            <span className="pos-upi-app paytm">Paytm</span>
+                            <span className="pos-upi-app bhim">BHIM</span>
+                          </div>
+
+                          <div style={{ fontSize: '0.74rem', color: '#64748b', lineHeight: 1.45, maxWidth: 260 }}>
+                            This QR code is automatically synchronized. At the end of dining, customers see this QR code with their exact bill total. POS billing also uses this active UPI ID.
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                        <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
+                          <Check size={16} /> Save Payment Settings
+                        </button>
+                      </div>
+                    </form>
+                  );
+                })()}
 
                 {settingsSubNav === 'tax' && (
                   <form onSubmit={handleSaveSettings}>

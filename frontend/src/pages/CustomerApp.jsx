@@ -37,7 +37,8 @@ import {
   Leaf,
   ShieldCheck,
   Smartphone,
-  QrCode
+  QrCode,
+  Copy
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -116,7 +117,12 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const [orderNotes, setOrderNotes] = useState('');
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('gpay');
+  const [restaurantSettings, setRestaurantSettings] = useState({
+    upiId: 'tablemint@upi',
+    upiPayeeName: 'TableMint Restaurant',
+    currency: '₹',
+    restaurantName: 'TableMint'
+  });
 
   // Modals & Screens
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
@@ -134,6 +140,24 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const [cameraActive, setCameraActive] = useState(false);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
+
+  // Load Restaurant & UPI Settings
+  useEffect(() => {
+    fetch('/api/settings')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data && data.upiId) setRestaurantSettings(data);
+      })
+      .catch(() => {});
+
+    const handleSettingsUpdated = (newSettings) => {
+      if (newSettings && newSettings.upiId) {
+        setRestaurantSettings(newSettings);
+      }
+    };
+    socket.on('settings:updated', handleSettingsUpdated);
+    return () => socket.off('settings:updated', handleSettingsUpdated);
+  }, []);
 
   // Check URL parameters and unlock table immediately
   useEffect(() => {
@@ -554,6 +578,40 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       addToast('Network error while placing order', 'error');
     } finally {
       setSubmittingOrder(false);
+    }
+  };
+
+  // Customer confirms payment via UPI QR code
+  const handleCustomerConfirmPaid = async () => {
+    if (!activeOrder) return;
+    try {
+      const res = await fetch(`/api/orders/${activeOrder.id}/pay`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentMethod: 'UPI',
+          token: tableToken
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.order) {
+          setActiveOrder(data.order);
+        } else {
+          setActiveOrder((prev) => prev ? { ...prev, paymentStatus: 'paid', paymentMethod: 'UPI' } : null);
+        }
+        soundManager.playClick();
+        confetti({
+          particleCount: 120,
+          spread: 75,
+          origin: { y: 0.6 }
+        });
+        addToast('Payment recorded via UPI! Thank you for dining with us.', 'success', 6000);
+      } else {
+        addToast('Alerted staff to confirm your payment.', 'info');
+      }
+    } catch (e) {
+      addToast('Alerted staff to confirm your payment.', 'info');
     }
   };
 
@@ -1070,41 +1128,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     <span>₹{grandTotal}</span>
                   </div>
                 </div>
-
-                {/* Or Pay with pills */}
-                <div className="pay-with-pills-row">
-                  <span className="pay-with-label">Or Pay with</span>
-                  <div className="pay-methods-grid">
-                    <button
-                      type="button"
-                      className={`pay-pill ${selectedPaymentMethod === 'gpay' ? 'active' : ''}`}
-                      onClick={() => setSelectedPaymentMethod('gpay')}
-                    >
-                      <span style={{ fontWeight: 800 }}>GPay</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`pay-pill ${selectedPaymentMethod === 'phonepe' ? 'active' : ''}`}
-                      onClick={() => setSelectedPaymentMethod('phonepe')}
-                    >
-                      <span style={{ fontWeight: 800 }}>PhonePe</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`pay-pill ${selectedPaymentMethod === 'paytm' ? 'active' : ''}`}
-                      onClick={() => setSelectedPaymentMethod('paytm')}
-                    >
-                      <span style={{ fontWeight: 800 }}>Paytm</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`pay-pill ${selectedPaymentMethod === 'card' ? 'active' : ''}`}
-                      onClick={() => setSelectedPaymentMethod('card')}
-                    >
-                      <span style={{ fontWeight: 800 }}>Card</span>
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -1355,6 +1378,117 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                       <span style={{ color: '#10b981' }}>₹{activeOrder.total}</span>
                     </div>
                   </div>
+
+                  {/* =========================================================
+                      PAYMENT METHOD SECTION AT THE END (AFTER FOOD IS COMPLETED)
+                      ========================================================= */}
+                  {(() => {
+                    const isFoodCompleted = ['ready', 'served', 'completed'].includes(status);
+                    const isPaid = activeOrder.paymentStatus === 'paid';
+                    const upiString = `upi://pay?pa=${encodeURIComponent(restaurantSettings.upiId || 'tablemint@upi')}&pn=${encodeURIComponent(restaurantSettings.upiPayeeName || 'TableMint Restaurant')}&am=${activeOrder.total}&cu=INR&tn=${encodeURIComponent(`Table ${tableId} Bill`)}`;
+                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=${encodeURIComponent(upiString)}`;
+
+                    if (isPaid) {
+                      return (
+                        <div className="order-paid-badge-card">
+                          <div className="paid-icon-circle">
+                            <CheckCircle2 size={32} />
+                          </div>
+                          <div className="paid-title">Bill Paid & Settled</div>
+                          <div className="paid-desc">
+                            ₹{activeOrder.total} received via {activeOrder.paymentMethod || 'UPI'}. Thank you for dining with us!
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (!isFoodCompleted) {
+                      return (
+                        <div className="food-cooking-status-box">
+                          <Clock size={16} style={{ color: '#d97706', flexShrink: 0 }} />
+                          <span>Food is currently being prepared in the kitchen. Payment will be enabled here once your food is completed.</span>
+                        </div>
+                      );
+                    }
+
+                    // Food is completed & bill is unpaid: Show UPI QR & Settlement Methods!
+                    return (
+                      <div className="customer-payment-card">
+                        <div className="customer-payment-header">
+                          <div className="payment-pill-title">
+                            <Sparkles size={14} /> Settle Bill & Payment
+                          </div>
+                          <div className="payment-grand-total">₹{activeOrder.total}</div>
+                        </div>
+
+                        <p className="payment-subtitle">
+                          Your food is ready! Scan the UPI QR code below with any UPI App or tap to pay directly on your phone:
+                        </p>
+
+                        {/* Auto-Converted Dynamic UPI QR Code */}
+                        <div className="customer-upi-qr-card">
+                          <div className="qr-img-wrapper">
+                            <img
+                              src={qrUrl}
+                              alt="UPI Payment QR Code"
+                              className="customer-upi-qr-img"
+                            />
+                          </div>
+
+                          <div className="customer-upi-details">
+                            <div className="upi-merchant-name">{restaurantSettings.upiPayeeName || 'TableMint Restaurant'}</div>
+                            <div className="upi-id-badge">
+                              <span>{restaurantSettings.upiId || 'tablemint@upi'}</span>
+                              <button
+                                type="button"
+                                className="btn-copy-upi-tag"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(restaurantSettings.upiId || 'tablemint@upi');
+                                  addToast('UPI ID copied to clipboard!', 'success');
+                                }}
+                                title="Copy UPI ID"
+                              >
+                                <Copy size={13} /> Copy
+                              </button>
+                            </div>
+                            <div className="customer-upi-app-icons">
+                              <span className="pos-upi-app gpay">G Pay</span>
+                              <span className="pos-upi-app phonepe">PhonePe</span>
+                              <span className="pos-upi-app paytm">Paytm</span>
+                              <span className="pos-upi-app bhim">BHIM</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 1-Tap Mobile Intent Link */}
+                        <a
+                          href={upiString}
+                          className="btn-mobile-upi-intent"
+                        >
+                          <Smartphone size={18} />
+                          <span>Tap to Pay with UPI App (GPay / PhonePe / Paytm)</span>
+                        </a>
+
+                        {/* Customer Settlement Actions */}
+                        <div className="payment-settle-actions">
+                          <button
+                            type="button"
+                            className="btn-customer-confirm-paid"
+                            onClick={handleCustomerConfirmPaid}
+                          >
+                            <Check size={16} /> I Have Completed UPI Payment
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-customer-pay-counter"
+                            onClick={() => handleServiceCall('bill')}
+                          >
+                            <Receipt size={16} /> Pay Cash / Card at Counter
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Add more items button */}
                   <button
