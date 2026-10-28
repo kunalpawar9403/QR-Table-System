@@ -475,7 +475,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         });
 
         addToast(`Order #${placedOrder.orderNumber || placedOrder.id} confirmed!`, 'success', 5000);
-        setTrackingModalOpen(true);
+        setTrackingModalOpen(false);
+        setActiveBottomNav('orders');
       } else {
         if (res.status === 403 || data.error === 'TOKEN_EXPIRED') {
           setSessionExpired(true);
@@ -1075,96 +1076,262 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           </header>
 
           <div className="tracking-sheet-card" style={{ boxShadow: 'none', borderRadius: 0, padding: '16px' }}>
-            <div className="tracking-hero-status">
-              <div className="cloche-icon-badge">
-                <ChefHat size={38} />
+            {!activeOrder ? (
+              <div style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                <div style={{ width: 68, height: 68, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                  <ClipboardList size={34} style={{ color: '#94a3b8' }} />
+                </div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>No Active Order</h3>
+                <p style={{ fontSize: '0.86rem', maxWidth: 280, margin: '0 auto 20px', lineHeight: 1.45 }}>
+                  You haven't placed an order yet. Browse our delicious menu and add dishes to your cart!
+                </p>
+                <button
+                  type="button"
+                  className="btn-brand-primary"
+                  style={{ margin: '0 auto', padding: '12px 28px', borderRadius: 9999, fontWeight: 700 }}
+                  onClick={() => setActiveBottomNav('menu')}
+                >
+                  Explore Menu →
+                </button>
               </div>
-              <h2>Order Placed!</h2>
-              <p>Your order has been sent to the kitchen.</p>
-            </div>
+            ) : (() => {
+              const status = (activeOrder.status || 'pending').toLowerCase();
+              const isStep1Done = true; // Order placed is always done once order exists
+              const isStep2Done = ['ready', 'served', 'completed'].includes(status);
+              const isStep2Current = ['pending', 'preparing'].includes(status);
+              const isStep3Done = ['served', 'completed'].includes(status);
+              const isStep3Current = status === 'ready';
+              const isStep4Done = ['served', 'completed'].includes(status);
 
-            {/* Vertical Stepper Timeline */}
-            <div className="vertical-timeline-box">
-              {/* Step 1: Order Placed */}
-              <div className="timeline-step-row completed">
-                <div className="timeline-dot-col">
-                  <div className="timeline-dot check">
-                    <Check size={14} />
+              const line1Active = ['preparing', 'ready', 'served', 'completed'].includes(status);
+              const line2Active = ['ready', 'served', 'completed'].includes(status);
+              const line3Active = ['served', 'completed'].includes(status);
+
+              const heroConfig = (() => {
+                switch (status) {
+                  case 'preparing':
+                    return {
+                      title: 'Kitchen is Cooking!',
+                      subtitle: 'The chef has started preparing your fresh dishes.',
+                      badgeBg: '#fef3c7',
+                      badgeColor: '#d97706',
+                      icon: <Flame size={38} />
+                    };
+                  case 'ready':
+                    return {
+                      title: 'Food is Ready!',
+                      subtitle: `Your order is ready and is being served to Table ${tableId} right now.`,
+                      badgeBg: '#ecfdf5',
+                      badgeColor: '#059669',
+                      icon: <Sparkles size={38} />
+                    };
+                  case 'served':
+                  case 'completed':
+                    return {
+                      title: 'Order Served!',
+                      subtitle: `Delivered to Table ${tableId}. Bon appétit! Enjoy your meal.`,
+                      badgeBg: '#ecfdf5',
+                      badgeColor: '#059669',
+                      icon: <CheckCircle2 size={38} />
+                    };
+                  case 'pending':
+                  default:
+                    return {
+                      title: 'Order Placed!',
+                      subtitle: `Sent straight to the kitchen for Table ${tableId}.`,
+                      badgeBg: '#ecfdf5',
+                      badgeColor: '#059669',
+                      icon: <ChefHat size={38} />
+                    };
+                }
+              })();
+
+              return (
+                <>
+                  <div className="tracking-hero-status">
+                    <div className="cloche-icon-badge" style={{ background: heroConfig.badgeBg, color: heroConfig.badgeColor }}>
+                      {heroConfig.icon}
+                    </div>
+                    <h2>{heroConfig.title}</h2>
+                    <p>{heroConfig.subtitle}</p>
                   </div>
-                  <div className="timeline-line active" />
-                </div>
-                <div className="timeline-content-col">
-                  <div className="step-label">Order Placed</div>
-                  <div className="step-time">Just now</div>
-                </div>
-              </div>
 
-              {/* Step 2: Preparing */}
-              <div className={`timeline-step-row ${activeOrder?.status === 'preparing' || activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'active'}`}>
-                <div className="timeline-dot-col">
-                  <div className="timeline-dot current">
-                    <div className="pulse-inner-ring" />
+                  {/* Vertical Stepper Timeline with Green Ticks */}
+                  <div className="vertical-timeline-box">
+                    {/* Step 1: Order Placed */}
+                    <div className="timeline-step-row completed">
+                      <div className="timeline-dot-col">
+                        <div className="timeline-dot check">
+                          <Check size={14} strokeWidth={3} />
+                        </div>
+                        <div className={`timeline-line ${line1Active ? 'active' : ''}`} />
+                      </div>
+                      <div className="timeline-content-col">
+                        <div className="step-label">Order Placed & Confirmed</div>
+                        <div className="step-sub">
+                          Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} sent to kitchen
+                        </div>
+                        <div className="step-time">
+                          {activeOrder.createdAt ? new Date(activeOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 2: Preparing in Kitchen */}
+                    <div className={`timeline-step-row ${isStep2Done ? 'completed' : (isStep2Current ? 'active' : 'pending')}`}>
+                      <div className="timeline-dot-col">
+                        <div className={`timeline-dot ${isStep2Done ? 'check' : (isStep2Current ? 'current' : '')}`}>
+                          {isStep2Done ? (
+                            <Check size={14} strokeWidth={3} />
+                          ) : isStep2Current ? (
+                            <div className="pulse-inner-ring" />
+                          ) : null}
+                        </div>
+                        <div className={`timeline-line ${line2Active ? 'active' : ''}`} />
+                      </div>
+                      <div className="timeline-content-col">
+                        <div className="step-label">Preparing in Kitchen</div>
+                        <div className="step-sub">
+                          {isStep2Done ? 'Food preparation complete' : (status === 'preparing' ? 'Chef is actively cooking your dishes' : 'Order queued in kitchen')}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 3: Ready for Serving */}
+                    <div className={`timeline-step-row ${isStep3Done ? 'completed' : (isStep3Current ? 'active' : 'pending')}`}>
+                      <div className="timeline-dot-col">
+                        <div className={`timeline-dot ${isStep3Done ? 'check' : (isStep3Current ? 'current' : '')}`}>
+                          {isStep3Done ? (
+                            <Check size={14} strokeWidth={3} />
+                          ) : isStep3Current ? (
+                            <div className="pulse-inner-ring" />
+                          ) : null}
+                        </div>
+                        <div className={`timeline-line ${line3Active ? 'active' : ''}`} />
+                      </div>
+                      <div className="timeline-content-col">
+                        <div className="step-label">Ready for Serving</div>
+                        <div className="step-sub">
+                          {isStep3Done ? 'Plated and dispatched' : (status === 'ready' ? 'Hot & ready! Waiter serving to table' : 'Estimated in 10-15 mins')}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Step 4: Delivered to Table */}
+                    <div className={`timeline-step-row ${isStep4Done ? 'completed' : 'pending'}`}>
+                      <div className="timeline-dot-col">
+                        <div className={`timeline-dot ${isStep4Done ? 'check' : ''}`}>
+                          {isStep4Done ? <Check size={14} strokeWidth={3} /> : null}
+                        </div>
+                      </div>
+                      <div className="timeline-content-col">
+                        <div className="step-label">Delivered & Served</div>
+                        <div className="step-sub">
+                          {isStep4Done ? `Served at Table ${tableId}. Enjoy your food!` : `Will be placed on Table ${tableId}`}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className={`timeline-line ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'active' : ''}`} />
-                </div>
-                <div className="timeline-content-col">
-                  <div className="step-label">Preparing</div>
-                  <div className="step-sub">Your food is being prepared in the kitchen</div>
-                </div>
-              </div>
 
-              {/* Step 3: Ready for Serving */}
-              <div className={`timeline-step-row ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
-                <div className="timeline-dot-col">
-                  <div className="timeline-dot">
-                    {activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? <Check size={14} /> : null}
+                  {/* Estimated Time Badge */}
+                  <div className="estimated-time-card">
+                    <Clock size={16} style={{ color: '#10b981' }} />
+                    <span>Status: <strong style={{ color: '#0f172a' }}>{status === 'served' || status === 'completed' ? 'Delivered' : (status === 'ready' ? 'Serving at table' : 'In Progress (10 – 15 mins)')}</strong></span>
                   </div>
-                  <div className="timeline-line" />
-                </div>
-                <div className="timeline-content-col">
-                  <div className="step-label">Ready for Serving</div>
-                  <div className="step-sub">Estimated 10-15 mins</div>
-                </div>
-              </div>
 
-              {/* Step 4: Delivered */}
-              <div className={`timeline-step-row ${activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
-                <div className="timeline-dot-col">
-                  <div className="timeline-dot">
-                    {activeOrder?.status === 'served' ? <Check size={14} /> : null}
+                  {/* Ordered Items Summary */}
+                  <div className="tracking-order-summary-card">
+                    <div className="tracking-order-summary-header">
+                      <div>
+                        <span style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>
+                          Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')}
+                        </span>
+                        <span style={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>
+                          Table {tableId} • {activeOrder.items?.length || 0} items
+                        </span>
+                      </div>
+                      <span style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        padding: '3px 9px',
+                        borderRadius: 9999,
+                        background: status === 'served' || status === 'ready' ? '#ecfdf5' : '#eff6ff',
+                        color: status === 'served' || status === 'ready' ? '#059669' : '#0284c7'
+                      }}>
+                        {status}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      {(activeOrder.items || []).map((it, idx) => (
+                        <div key={idx} className="tracking-order-item-row">
+                          <span>{it.quantity} x {it.name}</span>
+                          <span style={{ fontWeight: 700 }}>₹{it.price * it.quantity}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {activeOrder.notes && (
+                      <div style={{ fontSize: '0.74rem', color: '#64748b', fontStyle: 'italic', marginTop: 8, padding: '6px 10px', background: '#ffffff', borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                        Note: "{activeOrder.notes}"
+                      </div>
+                    )}
+
+                    <div className="tracking-order-total-row">
+                      <span>Total Bill</span>
+                      <span style={{ color: '#10b981' }}>₹{activeOrder.total}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="timeline-content-col">
-                  <div className="step-label">Delivered</div>
-                </div>
-              </div>
-            </div>
 
-            {/* Estimated Time Badge */}
-            <div className="estimated-time-card">
-              <Clock size={16} style={{ color: '#10b981' }} />
-              <span>Estimated Time: <strong>10 – 15 mins</strong></span>
-            </div>
+                  {/* Add more items button */}
+                  <button
+                    type="button"
+                    className="btn-brand-outline"
+                    style={{
+                      width: '100%',
+                      marginBottom: 16,
+                      padding: '12px 14px',
+                      justifyContent: 'center',
+                      borderRadius: 12,
+                      fontWeight: 700,
+                      gap: 8
+                    }}
+                    onClick={() => setActiveBottomNav('menu')}
+                  >
+                    <Plus size={16} /> Order More Food from Menu
+                  </button>
 
-            {/* Quick Assistance Actions */}
-            <div className="tracking-actions-grid">
-              <button
-                type="button"
-                className="tracking-action-btn"
-                onClick={() => setActiveBottomNav('waiter')}
-              >
-                <PhoneCall size={16} />
-                <span>Call Waiter</span>
-              </button>
-              <button
-                type="button"
-                className="tracking-action-btn"
-                onClick={() => handleServiceCall('bill')}
-              >
-                <Receipt size={16} />
-                <span>Request Bill</span>
-              </button>
-            </div>
+                  {/* Quick Assistance Actions */}
+                  <div className="tracking-actions-grid">
+                    <button
+                      type="button"
+                      className="tracking-action-btn"
+                      onClick={() => handleServiceCall('waiter')}
+                    >
+                      <PhoneCall size={16} />
+                      <span>Call Waiter</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="tracking-action-btn"
+                      onClick={() => handleServiceCall('water')}
+                    >
+                      <Droplets size={16} />
+                      <span>Drinking Water</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="tracking-action-btn"
+                      onClick={() => handleServiceCall('bill')}
+                    >
+                      <Receipt size={16} />
+                      <span>Request Bill</span>
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -1295,6 +1462,32 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         </div>
       )}
 
+      {/* Floating Live Order Progress Bar on Menu */}
+      {activeBottomNav === 'menu' && activeOrder && ['pending', 'preparing', 'ready'].includes(activeOrder.status) && (
+        <div
+          className="floating-order-tracker-bar"
+          onClick={() => {
+            soundManager.playClick();
+            setActiveBottomNav('orders');
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className="pulse-inner-ring" style={{ width: 10, height: 10 }} />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '0.88rem', letterSpacing: '0.01em' }}>
+                Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} is {activeOrder.status === 'pending' ? 'Placed' : (activeOrder.status === 'preparing' ? 'Cooking' : 'Ready')}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                Tap to view live kitchen tracking
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: 4 }}>
+            Track <ArrowRight size={14} />
+          </span>
+        </div>
+      )}
+
       {/* =========================================================
           STICKY BOTTOM NAVIGATION (ALWAYS VISIBLE ACROSS ALL PAGES)
           ========================================================= */}
@@ -1334,7 +1527,12 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             setActiveBottomNav('orders');
           }}
         >
-          <ClipboardList size={19} />
+          <div className="nav-icon-badge-wrap">
+            <ClipboardList size={19} />
+            {activeOrder && ['pending', 'preparing', 'ready'].includes(activeOrder.status) && (
+              <span className="nav-count-dot" style={{ background: '#10b981', width: 8, height: 8 }} />
+            )}
+          </div>
           <span>Orders</span>
         </button>
 
