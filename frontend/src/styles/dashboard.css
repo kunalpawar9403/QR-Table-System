@@ -6161,37 +6161,6 @@
     object-fit: cover;
   }
 
-  /* Clean Date Bar for Mobile Overview */
-  .mobile-date-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 4px 4px 8px;
-    margin-bottom: 4px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .mobile-date-text {
-    font-size: 0.88rem;
-    font-weight: 800;
-    color: #334155;
-  }
-
-  .mobile-date-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-    border-radius: 9999px;
-    padding: 4px 12px;
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: #0f172a;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  }
-
   /* Dedicated Mobile Profile Section */
   .mobile-profile-container {
     display: flex;

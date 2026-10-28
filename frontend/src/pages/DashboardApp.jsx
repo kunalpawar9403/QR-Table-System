@@ -1283,12 +1283,6 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <>
-            {/* Clean Date Filter Bar for Mobile Overview */}
-            <div className="mobile-date-bar hide-on-desktop">
-              <span className="mobile-date-text">Today, 27 Oct 2026</span>
-              <span className="mobile-date-tag">Today <ChevronDown size={12} /></span>
-            </div>
-
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
               {/* Card 1: Revenue */}
@@ -1370,47 +1364,54 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
 
               <div className="mobile-live-orders-list">
-                {(orders.length > 0 ? orders.slice(0, 4) : [
-                  { id: '1', orderNumber: 'T1234', tableName: 'Table 12', status: 'Preparing', time: '2 mins' },
-                  { id: '2', orderNumber: 'T1233', tableName: 'Table 5', status: 'Ready', time: '8 mins' },
-                  { id: '3', orderNumber: 'T1232', tableName: 'Table 8', status: 'Preparing', time: '12 mins' }
-                ]).map((order) => {
-                  const status = (order.status || 'Preparing').toLowerCase();
-                  return (
-                    <div
-                      key={order.id || order._id}
-                      className="mobile-live-order-row"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        setActiveTab('orders');
-                        setMobileSelectedOrder({
-                          id: order.id || '1',
-                          code: `#${order.orderNumber || 'T1234'}`,
-                          table: order.tableName || 'Table 12',
-                          items: '3 items',
-                          itemsList: [
-                            { name: 'Paneer Tikka', quantity: 2, price: 220 },
-                            { name: 'Chicken Biryani', quantity: 1, price: 280 },
-                            { name: 'Masala Dosa', quantity: 1, price: 180 }
-                          ],
-                          amount: 945,
-                          status: (order.status || 'preparing').toLowerCase(),
-                          time: order.time || '2 mins',
-                          notes: 'Less spicy, extra chutney'
-                        });
-                      }}
-                    >
-                      <div className="mobile-live-order-left">
-                        <span className="mobile-order-code">#{order.orderNumber || `T${order.tableId || 1}234`}</span>
-                        <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
+                {(() => {
+                  const activeKitchenOrders = orders.filter((o) => {
+                    const s = (o.status || '').toLowerCase();
+                    return ['pending', 'preparing', 'cooking', 'in-progress', 'ready'].includes(s);
+                  });
+                  const displayKitchenOrders = activeKitchenOrders.length > 0 ? activeKitchenOrders.slice(0, 4) : [
+                    { id: '1', orderNumber: 'T1234', tableName: 'Table 12', status: 'Preparing', time: '2 mins' },
+                    { id: '2', orderNumber: 'T1233', tableName: 'Table 5', status: 'Ready', time: '8 mins' },
+                    { id: '3', orderNumber: 'T1232', tableName: 'Table 8', status: 'Preparing', time: '12 mins' }
+                  ];
+                  return displayKitchenOrders.map((order) => {
+                    const status = (order.status || 'Preparing').toLowerCase();
+                    return (
+                      <div
+                        key={order.id || order._id}
+                        className="mobile-live-order-row"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => {
+                          setActiveTab('orders');
+                          setMobileSelectedOrder({
+                            id: order.id || '1',
+                            code: `#${order.orderNumber || 'T1234'}`,
+                            table: order.tableName || 'Table 12',
+                            items: '3 items',
+                            itemsList: [
+                              { name: 'Paneer Tikka', quantity: 2, price: 220 },
+                              { name: 'Chicken Biryani', quantity: 1, price: 280 },
+                              { name: 'Masala Dosa', quantity: 1, price: 180 }
+                            ],
+                            amount: 945,
+                            status: (order.status || 'preparing').toLowerCase(),
+                            time: order.time || '2 mins',
+                            notes: 'Less spicy, extra chutney'
+                          });
+                        }}
+                      >
+                        <div className="mobile-live-order-left">
+                          <span className="mobile-order-code">#{order.orderNumber || `T${order.tableId || 1}234`}</span>
+                          <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
+                        </div>
+                        <div className="mobile-live-order-right">
+                          <span className={`status-pill ${status}`}>{order.status || 'Preparing'}</span>
+                          <span className="mobile-order-time">{order.time || '2 mins'}</span>
+                        </div>
                       </div>
-                      <div className="mobile-live-order-right">
-                        <span className={`status-pill ${status}`}>{order.status || 'Preparing'}</span>
-                        <span className="mobile-order-time">{order.time || '2 mins'}</span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
 
