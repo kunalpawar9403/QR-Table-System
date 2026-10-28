@@ -1292,24 +1292,6 @@ export default function DashboardApp({ onLockStaff }) {
               />
             </div>
 
-            {/* Date Selector Row (Matching Exact Mobile UI Reference) */}
-            <div className="mobile-date-selector-row hide-on-desktop">
-              <div className="mobile-date-left">
-                <div className="mobile-calendar-icon-btn">
-                  <Calendar size={18} />
-                </div>
-                <span className="mobile-date-heading">Today, 27 Oct 2026</span>
-              </div>
-              <button
-                type="button"
-                className="mobile-date-dropdown-pill"
-                onClick={() => addToast('Viewing: Today, 27 Oct 2026', 'info')}
-              >
-                <span>Today</span>
-                <ChevronDown size={14} />
-              </button>
-            </div>
-
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
               {/* Card 1: Revenue */}

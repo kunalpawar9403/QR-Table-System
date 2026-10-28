@@ -4058,65 +4058,6 @@
     border-radius: 20px;
   }
 
-  /* Mobile Date Selector Row */
-  .mobile-date-selector-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 2px 0 4px;
-    box-sizing: border-box;
-  }
-
-  .mobile-date-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .mobile-calendar-icon-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #1e293b;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-    flex-shrink: 0;
-  }
-
-  .mobile-date-heading {
-    font-size: 0.98rem;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: -0.01em;
-  }
-
-  .mobile-date-dropdown-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 9999px;
-    padding: 6px 14px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #0f172a;
-    cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    font-family: inherit;
-    transition: all 0.2s ease;
-  }
-
-  .mobile-date-dropdown-pill:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
-
   /* Metric Card Waves */
   .metric-card-wave {
     position: absolute;
