@@ -6138,6 +6138,312 @@
   .mobile-more-chevron {
     color: #94a3b8;
   }
+
+  /* Mobile Header Avatar Button */
+  .mobile-header-avatar-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid #10b981;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .mobile-header-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Clean Date Bar for Mobile Overview */
+  .mobile-date-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 4px 8px;
+    margin-bottom: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-date-text {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #334155;
+  }
+
+  .mobile-date-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    padding: 4px 12px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Dedicated Mobile Profile Section */
+  .mobile-profile-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-profile-hero-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 22px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-profile-hero-avatar-wrap {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 12px;
+  }
+
+  .mobile-profile-hero-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  }
+
+  .mobile-profile-online-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    background: #10b981;
+    border: 2.5px solid #ffffff;
+    border-radius: 50%;
+  }
+
+  .mobile-profile-hero-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .mobile-profile-hero-email {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 4px 0 14px;
+  }
+
+  .mobile-profile-hero-pills {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-profile-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .mobile-profile-rest-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    background: #f8fafc;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .mobile-profile-section-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 18px 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-profile-card-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobile-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mobile-profile-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mobile-profile-input-group label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  .mobile-profile-input-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 0 12px;
+    height: 42px;
+    box-sizing: border-box;
+  }
+
+  .mobile-profile-input-box.disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+  }
+
+  .mobile-profile-input-box input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.88rem;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .mobile-profile-input-box.disabled input {
+    color: #64748b;
+    cursor: not-allowed;
+  }
+
+  .mobile-profile-icon {
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+
+  .mobile-profile-hint {
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+
+  .mobile-profile-save-btn {
+    width: 100%;
+    background: #07241a;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(7, 36, 26, 0.2);
+    margin-top: 4px;
+  }
+
+  .mobile-profile-password-btn {
+    width: 100%;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    margin-top: 4px;
+  }
+
+  .mobile-profile-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+
+  .mobile-profile-info-row:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-profile-info-row strong {
+    color: #0f172a;
+  }
+
+  .mobile-profile-signout-card {
+    margin-bottom: 24px;
+    width: 100%;
+  }
+
+  .mobile-profile-logout-btn {
+    width: 100%;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+  }
 }
 
 

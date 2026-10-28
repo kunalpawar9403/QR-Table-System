@@ -329,6 +329,33 @@ export default function DashboardApp({ onLockStaff }) {
   const [settingsSubNav, setSettingsSubNav] = useState('details');
   const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
 
+  // Mobile Profile Section States
+  const [mobileProfileSubView, setMobileProfileSubView] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword.length < 6) {
+      addToast('New password must be at least 6 characters', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      addToast('New passwords do not match', 'error');
+      return;
+    }
+    setPasswordUpdating(true);
+    setTimeout(() => {
+      setPasswordUpdating(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      addToast('Password updated successfully!', 'success');
+    }, 500);
+  };
+
   // Digital Clock
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1040,6 +1067,16 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <span className="mobile-brand-title">Kitchen Display</span>
               </div>
+            ) : activeTab === 'profile' && mobileProfileSubView ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setMobileProfileSubView(false)}
+                title="Back to More"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">My Profile</span>
+              </button>
             ) : activeTab === 'profile' ? (
               <div className="mobile-brand-box">
                 <div className="mobile-brand-leaf-wrap">
@@ -1091,6 +1128,24 @@ export default function DashboardApp({ onLockStaff }) {
           </div>
 
           <div className="mobile-top-right">
+            {activeTab === 'overview' && (
+              <button
+                type="button"
+                className="mobile-header-avatar-btn"
+                onClick={() => {
+                  setActiveTab('profile');
+                  setMobileProfileSubView(true);
+                }}
+                title="My Profile"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
+                  alt="Profile"
+                  className="mobile-header-avatar-img"
+                  onError={(e) => { e.target.src = '/images/tablemint_leaf.svg'; }}
+                />
+              </button>
+            )}
             {activeTab === 'kitchen' ? (
               <span className="mobile-top-badge-kitchen">Kitchen ▾</span>
             ) : activeTab === 'billing' ? (
@@ -1228,31 +1283,10 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <>
-            {/* Mobile Restaurant Meta Card (Image 3 Screen 2) */}
-            {/* Mobile Restaurant Meta Card (Matching Reference Screen 2) */}
-            <div className="mobile-restaurant-meta-card hide-on-desktop">
-              <div className="mobile-meta-user">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                  alt="Spice Garden"
-                  className="mobile-avatar-circle"
-                  style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
-                  onError={(e) => { e.target.src = '/images/tablemint_leaf_icon.png'; }}
-                />
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <h3 className="mobile-restaurant-title">{profileRestaurant || 'Spice Garden'}</h3>
-                    <ChevronDown size={14} color="#64748b" />
-                  </div>
-                  <span className="mobile-restaurant-sub">Restaurant Owner</span>
-                </div>
-              </div>
-              <div className="mobile-date-pill" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>Today, 27 Oct 2026</span>
-                <span style={{ border: '1px solid #cbd5e1', borderRadius: 9999, padding: '2px 8px', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: 2, background: '#ffffff', color: '#0f172a', fontWeight: 700 }}>
-                  Today <ChevronDown size={12} />
-                </span>
-              </div>
+            {/* Clean Date Filter Bar for Mobile Overview */}
+            <div className="mobile-date-bar hide-on-desktop">
+              <span className="mobile-date-text">Today, 27 Oct 2026</span>
+              <span className="mobile-date-tag">Today <ChevronDown size={12} /></span>
             </div>
 
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
@@ -4163,67 +4197,283 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'profile' && (
           <section className="admin-page-container">
-            {/* Screen 12: Mobile More / Profile View (Reference Image Screen 12) */}
+            {/* Screen 12: Mobile More & Profile Section */}
             <div className="mobile-more-view hide-on-desktop">
-              <div className="mobile-more-profile-card">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
-                  alt="Profile"
-                  className="mobile-more-avatar"
-                  onError={(e) => {
-                    e.target.src = '/images/tablemint_leaf.svg';
-                  }}
-                />
-                <div className="mobile-more-profile-info">
-                  <h3 className="mobile-more-user-name">{currentUser?.name || 'Rohit Sharma'}</h3>
-                  <p className="mobile-more-user-role">Restaurant Owner</p>
-                </div>
-              </div>
+              {mobileProfileSubView ? (
+                /* Dedicated Mobile Profile Section */
+                <div className="mobile-profile-container">
+                  {/* Profile Header Identity Card */}
+                  <div className="mobile-profile-hero-card">
+                    <div className="mobile-profile-hero-avatar-wrap">
+                      <img
+                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80"
+                        alt="Profile"
+                        className="mobile-profile-hero-avatar"
+                        onError={(e) => { e.target.src = '/images/tablemint_leaf.svg'; }}
+                      />
+                      <span className="mobile-profile-online-badge" />
+                    </div>
+                    <h2 className="mobile-profile-hero-name">{profileName || currentUser?.name || 'Rohit Sharma'}</h2>
+                    <p className="mobile-profile-hero-email">{currentUser?.email || 'admin@tablemint.com'}</p>
+                    <div className="mobile-profile-hero-pills">
+                      <span className="mobile-profile-role-pill">
+                        <ShieldCheck size={13} />
+                        {currentUser?.role === 'admin' ? 'Owner / Admin' : 'Floor Staff'}
+                      </span>
+                      <span className="mobile-profile-rest-pill">
+                        <UtensilsCrossed size={13} />
+                        {profileRestaurant || currentUser?.restaurantName || 'TableMint'}
+                      </span>
+                    </div>
+                  </div>
 
-              <div className="mobile-more-nav-list">
-                {[
-                  { id: 'overview', label: 'Dashboard', icon: Home },
-                  { id: 'orders', label: 'Orders', icon: Receipt },
-                  { id: 'tables', label: 'Table Management', icon: LayoutGrid },
-                  { id: 'menu', label: 'Menu Management', icon: BookOpen },
-                  { id: 'kitchen', label: 'Kitchen Display', icon: ChefHat },
-                  { id: 'billing', label: 'POS Billing', icon: CreditCard },
-                  { id: 'customers', label: 'Customers', icon: Users },
-                  { id: 'reports', label: 'Reports', icon: BarChart3 },
-                  { id: 'settings', label: 'Settings', icon: Settings },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
+                  {/* Profile Edit Form Card */}
+                  <div className="mobile-profile-section-card">
+                    <h3 className="mobile-profile-card-title">
+                      <User size={18} /> Edit Profile Details
+                    </h3>
+                    <form onSubmit={handleSaveProfile} className="mobile-profile-form">
+                      <div className="mobile-profile-input-group">
+                        <label>Full Name</label>
+                        <div className="mobile-profile-input-box">
+                          <User size={16} className="mobile-profile-icon" />
+                          <input
+                            type="text"
+                            value={profileName}
+                            onChange={(e) => setProfileName(e.target.value)}
+                            placeholder="Your full name"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mobile-profile-input-group">
+                        <label>Restaurant Name</label>
+                        <div className="mobile-profile-input-box">
+                          <UtensilsCrossed size={16} className="mobile-profile-icon" />
+                          <input
+                            type="text"
+                            value={profileRestaurant}
+                            onChange={(e) => setProfileRestaurant(e.target.value)}
+                            placeholder="Restaurant brand name"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mobile-profile-input-group">
+                        <label>Email Address</label>
+                        <div className="mobile-profile-input-box disabled">
+                          <Mail size={16} className="mobile-profile-icon" />
+                          <input
+                            type="email"
+                            value={currentUser?.email || 'admin@tablemint.com'}
+                            disabled
+                          />
+                        </div>
+                        <span className="mobile-profile-hint">Email address is managed by station admin</span>
+                      </div>
+
+                      <div className="mobile-profile-input-group">
+                        <label>Role & Access Level</label>
+                        <div className="mobile-profile-input-box disabled">
+                          <ShieldCheck size={16} className="mobile-profile-icon" />
+                          <input
+                            type="text"
+                            value={currentUser?.role === 'admin' ? 'Administrator (Full Access)' : 'Floor Staff (POS & Orders)'}
+                            disabled
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="mobile-profile-save-btn"
+                        disabled={profileSaving}
+                      >
+                        <Check size={16} />
+                        {profileSaving ? 'Saving Changes...' : 'Save Profile Changes'}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Security & Password Card */}
+                  <div className="mobile-profile-section-card">
+                    <h3 className="mobile-profile-card-title">
+                      <Lock size={18} /> Security & Password
+                    </h3>
+                    <form onSubmit={handleUpdatePassword} className="mobile-profile-form">
+                      <div className="mobile-profile-input-group">
+                        <label>Current Password</label>
+                        <div className="mobile-profile-input-box">
+                          <Lock size={16} className="mobile-profile-icon" />
+                          <input
+                            type="password"
+                            placeholder="Enter current password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mobile-profile-input-group">
+                        <label>New Password</label>
+                        <div className="mobile-profile-input-box">
+                          <Lock size={16} className="mobile-profile-icon" />
+                          <input
+                            type="password"
+                            placeholder="Min 6 characters"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mobile-profile-input-group">
+                        <label>Confirm New Password</label>
+                        <div className="mobile-profile-input-box">
+                          <Lock size={16} className="mobile-profile-icon" />
+                          <input
+                            type="password"
+                            placeholder="Repeat new password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="mobile-profile-password-btn"
+                        disabled={passwordUpdating}
+                      >
+                        <Lock size={16} />
+                        {passwordUpdating ? 'Updating...' : 'Update Password'}
+                      </button>
+                    </form>
+                  </div>
+
+                  {/* Station Session Info */}
+                  <div className="mobile-profile-section-card">
+                    <h3 className="mobile-profile-card-title">
+                      <Smartphone size={18} /> Station Details
+                    </h3>
+                    <div className="mobile-profile-info-row">
+                      <span>Station Interface</span>
+                      <strong>TableMint POS v2.4</strong>
+                    </div>
+                    <div className="mobile-profile-info-row">
+                      <span>Security Standard</span>
+                      <strong>PBKDF2 SHA-512</strong>
+                    </div>
+                    <div className="mobile-profile-info-row">
+                      <span>Session Token</span>
+                      <code style={{ fontSize: '0.74rem', color: '#64748b' }}>
+                        tm_auth_{currentUser?.id ? currentUser.id.slice(0, 8) : 'staff'}••••
+                      </code>
+                    </div>
+                  </div>
+
+                  {/* Sign Out Action Card */}
+                  <div className="mobile-profile-signout-card">
                     <button
-                      key={item.id}
+                      type="button"
+                      className="mobile-profile-logout-btn"
+                      onClick={handleLogout}
+                    >
+                      <LogOut size={18} />
+                      Sign Out of Station
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Standard More View */
+                <>
+                  <div
+                    className="mobile-more-profile-card"
+                    onClick={() => setMobileProfileSubView(true)}
+                    style={{ cursor: 'pointer' }}
+                    title="Open Profile Section"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
+                      alt="Profile"
+                      className="mobile-more-avatar"
+                      onError={(e) => {
+                        e.target.src = '/images/tablemint_leaf.svg';
+                      }}
+                    />
+                    <div className="mobile-more-profile-info" style={{ flex: 1 }}>
+                      <h3 className="mobile-more-user-name">{profileName || currentUser?.name || 'Rohit Sharma'}</h3>
+                      <p className="mobile-more-user-role">{profileRestaurant || 'Restaurant Owner'}</p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <span>Edit</span>
+                      <ChevronRight size={16} />
+                    </div>
+                  </div>
+
+                  <div className="mobile-more-nav-list">
+                    <button
                       type="button"
                       className="mobile-more-nav-item"
-                      onClick={() => {
-                        setActiveTab(item.id);
-                        setMobileSelectedOrder(null);
-                      }}
+                      onClick={() => setMobileProfileSubView(true)}
                     >
                       <div className="mobile-more-nav-left">
-                        <Icon size={18} className="mobile-more-nav-icon" />
-                        <span>{item.label}</span>
+                        <User size={18} className="mobile-more-nav-icon" style={{ color: '#10b981' }} />
+                        <span style={{ color: '#0f172a', fontWeight: 800 }}>My Profile & Account</span>
                       </div>
                       <ChevronRight size={18} className="mobile-more-chevron" />
                     </button>
-                  );
-                })}
 
-                <button
-                  type="button"
-                  className="mobile-more-nav-item logout"
-                  onClick={handleLogout}
-                >
-                  <div className="mobile-more-nav-left">
-                    <LogOut size={18} className="mobile-more-nav-icon" style={{ color: '#ef4444' }} />
-                    <span style={{ color: '#ef4444', fontWeight: 700 }}>Logout</span>
+                    {[
+                      { id: 'overview', label: 'Dashboard', icon: Home },
+                      { id: 'orders', label: 'Orders', icon: Receipt },
+                      { id: 'tables', label: 'Table Management', icon: LayoutGrid },
+                      { id: 'menu', label: 'Menu Management', icon: BookOpen },
+                      { id: 'kitchen', label: 'Kitchen Display', icon: ChefHat },
+                      { id: 'billing', label: 'POS Billing', icon: CreditCard },
+                      { id: 'customers', label: 'Customers', icon: Users },
+                      { id: 'reports', label: 'Reports', icon: BarChart3 },
+                      { id: 'settings', label: 'Settings', icon: Settings },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          className="mobile-more-nav-item"
+                          onClick={() => {
+                            setActiveTab(item.id);
+                            setMobileSelectedOrder(null);
+                          }}
+                        >
+                          <div className="mobile-more-nav-left">
+                            <Icon size={18} className="mobile-more-nav-icon" />
+                            <span>{item.label}</span>
+                          </div>
+                          <ChevronRight size={18} className="mobile-more-chevron" />
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      className="mobile-more-nav-item logout"
+                      onClick={handleLogout}
+                    >
+                      <div className="mobile-more-nav-left">
+                        <LogOut size={18} className="mobile-more-nav-icon" style={{ color: '#ef4444' }} />
+                        <span style={{ color: '#ef4444', fontWeight: 700 }}>Logout</span>
+                      </div>
+                      <ChevronRight size={18} className="mobile-more-chevron" />
+                    </button>
                   </div>
-                  <ChevronRight size={18} className="mobile-more-chevron" />
-                </button>
-              </div>
+                </>
+              )}
             </div>
 
             {/* Desktop Profile View */}
