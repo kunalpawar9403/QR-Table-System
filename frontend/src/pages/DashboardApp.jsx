@@ -1643,18 +1643,6 @@ export default function DashboardApp({ onLockStaff }) {
               </button>
             </div>
 
-            {/* Screen 5: Table Legend matching Mobile Reference Screen 5 */}
-            <div className="mobile-table-legend hide-on-desktop">
-              <span className="legend-item">
-                <span className="status-dot green" /> Available
-              </span>
-              <span className="legend-item">
-                <span className="status-dot red" /> Occupied
-              </span>
-              <span className="legend-item">
-                <span className="status-dot blue" /> Serving
-              </span>
-            </div>
 
             {/* Filter Pills matching Reference Screen 5 */}
             <div className="admin-filter-pills-row">
