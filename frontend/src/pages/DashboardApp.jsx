@@ -1806,6 +1806,22 @@ export default function DashboardApp({ onLockStaff }) {
                         </div>
                       </div>
                     ))}
+
+                  {totalOrdersPages > 1 && (
+                    <div className="mobile-pagination-wrapper">
+                      <PaginationBar
+                        currentPage={currentOrdersPage}
+                        totalPages={totalOrdersPages}
+                        totalItems={filteredOrders.length}
+                        itemsPerPage={ordersPerPage}
+                        onPageChange={(p) => {
+                          setOrdersPage(p);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        label="orders"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Clean Full-Width Data Table for Desktop */}
@@ -2227,50 +2243,85 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Screen 6: Mobile Menu Management Dish Cards (Reference Image Screen 6) */}
             <div className="mobile-menu-cards-list hide-on-desktop">
-              {[
-                { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, available: true, image: '/images/paneer_tikka.jpg' },
-                { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, available: true, image: '/images/chicken_biryani.jpg' },
-                { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, available: true, image: '/images/masala_dosa.jpg' },
-                { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, available: true, image: '/images/artisan_pizza.jpg' },
-                { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, available: false, image: '/images/green_salad.jpg' }
-              ]
-                .filter((d) => {
-                  const matchCat = menuCategoryFilter === 'all' || d.category?.toLowerCase() === menuCategoryFilter.toLowerCase();
-                  const matchSearch = !menuSearch.trim() || d.name?.toLowerCase().includes(menuSearch.toLowerCase());
-                  return matchCat && matchSearch;
-                })
-                .map((dish) => {
-                const isActive = dish.available !== false && dish.status !== 'inactive';
-                return (
-                  <div key={dish.id} className="mobile-menu-dish-card">
-                    <img
-                      src={dish.image || '/images/paneer_butter_masala.jpg'}
-                      alt={dish.name}
-                      className="mobile-menu-thumb"
-                      onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                    />
-                    <div className="mobile-menu-details">
-                      <div className="mobile-menu-dish-name">{dish.name}</div>
-                      <div className="mobile-menu-meta-line">
-                        <span className="mobile-menu-price">₹{dish.price}</span>
-                        <span className={`mobile-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}>
-                          <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} style={{ width: 8, height: 8 }} />
-                          {dish.isVeg ? 'Veg' : 'Non-Veg'}
-                        </span>
-                      </div>
-                    </div>
-                    {/* iOS Switch Toggle */}
-                    <label className="mobile-switch-toggle">
-                      <input
-                        type="checkbox"
-                        checked={isActive}
-                        onChange={() => handleToggleMenu(dish.id)}
+              {filteredMenu.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '36px 16px', background: '#ffffff', borderRadius: 16, border: '1px solid #e2e8f0', margin: '8px 0' }}>
+                  <p style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', margin: 0 }}>No dishes found</p>
+                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+                    Try searching with another keyword or pick another category
+                  </p>
+                </div>
+              ) : (
+                (paginatedMenu.length > 0 ? paginatedMenu : filteredMenu).map((dish) => {
+                  const isActive = dish.available !== false && dish.status !== 'inactive';
+                  return (
+                    <div key={dish.id} className="mobile-menu-dish-card">
+                      <img
+                        src={dish.image || '/images/paneer_butter_masala.jpg'}
+                        alt={dish.name}
+                        className="mobile-menu-thumb"
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                       />
-                      <span className="mobile-switch-slider" />
-                    </label>
-                  </div>
-                );
-              })}
+                      <div
+                        className="mobile-menu-details"
+                        onClick={() => {
+                          setEditingDish(dish);
+                          setDishForm({
+                            name: dish.name || '',
+                            category: dish.category || 'starters',
+                            price: dish.price || '',
+                            description: dish.description || '',
+                            image: dish.image || '',
+                            isVeg: dish.isVeg !== false
+                          });
+                          setMenuModalOpen(true);
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Click to edit item"
+                      >
+                        <div className="mobile-menu-dish-name">{dish.name}</div>
+                        <div className="mobile-menu-meta-line">
+                          <span className="mobile-menu-price">₹{dish.price}</span>
+                          <span className={`mobile-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}>
+                            <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} style={{ width: 8, height: 8 }} />
+                            {dish.isVeg ? 'Veg' : 'Non-Veg'}
+                          </span>
+                          {dish.category && (
+                            <span className="mobile-diet-tag" style={{ background: '#f1f5f9', color: '#64748b' }}>
+                              {dish.category.charAt(0).toUpperCase() + dish.category.slice(1)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {/* iOS Switch Toggle */}
+                      <label className="mobile-switch-toggle" title={isActive ? 'Active - click to disable' : 'Inactive - click to activate'}>
+                        <input
+                          type="checkbox"
+                          checked={isActive}
+                          onChange={() => handleToggleMenu(dish.id)}
+                        />
+                        <span className="mobile-switch-slider" />
+                      </label>
+                    </div>
+                  );
+                })
+              )}
+
+              {/* Mobile Menu Pagination Controls */}
+              {totalMenuPages > 1 && (
+                <div className="mobile-pagination-wrapper">
+                  <PaginationBar
+                    currentPage={currentMenuPage}
+                    totalPages={totalMenuPages}
+                    totalItems={filteredMenu.length}
+                    itemsPerPage={menuPerPage}
+                    onPageChange={(p) => {
+                      setMenuPage(p);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    label="dishes"
+                  />
+                </div>
+              )}
 
               <button
                 type="button"
