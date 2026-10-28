@@ -138,3 +138,21 @@ export async function updateUserProfile({ name, restaurantName }) {
     return { success: false, error: 'Connection error while updating profile.' };
   }
 }
+
+export async function changeUserPassword({ currentPassword, newPassword }) {
+  try {
+    const res = await authFetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return { success: true, message: data.message };
+    }
+    return { success: false, error: data.error || 'Failed to update password.' };
+  } catch (err) {
+    return { success: false, error: 'Connection error while updating password.' };
+  }
+}
+

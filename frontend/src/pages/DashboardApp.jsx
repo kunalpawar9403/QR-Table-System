@@ -47,6 +47,7 @@ import {
   LogOut,
   CreditCard,
   Eye,
+  EyeOff,
   MoreVertical,
   Tag,
   Globe,
@@ -54,7 +55,7 @@ import {
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff } from '../utils/staffAuth';
+import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import '../styles/dashboard.css';
@@ -335,11 +336,18 @@ export default function DashboardApp({ onLockStaff }) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
+    if (!currentPassword) {
+      addToast('Please enter your current password', 'error');
+      return;
+    }
     if (newPassword.length < 6) {
-      addToast('New password must be at least 6 characters', 'error');
+      addToast('New password must be at least 6 characters long', 'error');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -347,13 +355,21 @@ export default function DashboardApp({ onLockStaff }) {
       return;
     }
     setPasswordUpdating(true);
-    setTimeout(() => {
+    try {
+      const res = await changeUserPassword({ currentPassword, newPassword });
+      if (res.success) {
+        addToast(res.message || 'Password updated successfully!', 'success');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        addToast(res.error || 'Failed to update password. Check current password.', 'error');
+      }
+    } catch (err) {
+      addToast('Error communicating with server', 'error');
+    } finally {
       setPasswordUpdating(false);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      addToast('Password updated successfully!', 'success');
-    }, 500);
+    }
   };
 
   // Digital Clock
@@ -1116,6 +1132,16 @@ export default function DashboardApp({ onLockStaff }) {
                   Order #{mobileSelectedOrder.orderNumber || mobileSelectedOrder.code || mobileSelectedOrder.id}
                 </span>
               </button>
+            ) : activeTab === 'billing' ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setActiveTab('tables')}
+                title="Back to Tables"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">POS Billing</span>
+              </button>
             ) : activeTab === 'settings' && mobileSettingsSubNav ? (
               <button
                 type="button"
@@ -1124,23 +1150,51 @@ export default function DashboardApp({ onLockStaff }) {
                 title="Back to Settings"
               >
                 <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">
+                  {mobileSettingsSubNav === 'details' && 'Restaurant Details'}
+                  {mobileSettingsSubNav === 'tax' && 'Tax & Charges'}
+                  {mobileSettingsSubNav === 'payment' && 'Payment Settings'}
+                  {mobileSettingsSubNav === 'tables' && 'Table Settings'}
+                  {mobileSettingsSubNav === 'password' && 'Change Password'}
+                  {mobileSettingsSubNav === 'users' && 'Staff Management'}
+                  {mobileSettingsSubNav === 'notifications' && 'Notifications'}
+                  {!['details', 'tax', 'payment', 'tables', 'password', 'users', 'notifications'].includes(mobileSettingsSubNav) && 'Settings'}
+                </span>
+              </button>
+            ) : activeTab === 'settings' ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setActiveTab('profile')}
+                title="Back to More"
+              >
+                <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">Settings</span>
+              </button>
+            ) : ['reports', 'customers', 'stands'].includes(activeTab) ? (
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setActiveTab('profile')}
+                title="Back to More"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">
+                  {activeTab === 'reports' && 'Reports'}
+                  {activeTab === 'customers' && 'Customers'}
+                  {activeTab === 'stands' && 'QR Stands'}
+                </span>
               </button>
             ) : (
               <button
                 type="button"
                 className="mobile-back-btn"
                 onClick={() => setActiveTab('overview')}
-                title="Back to Dashboard"
+                title="Back to Home"
               >
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">
                   {activeTab === 'orders' && 'Orders'}
-                  {activeTab === 'billing' && 'POS Billing'}
-                  {activeTab === 'reports' && 'Reports'}
-                  {activeTab === 'customers' && 'Customers'}
-                  {activeTab === 'settings' && 'Settings'}
-                  {activeTab === 'stands' && 'QR Stands'}
                   {!['orders','tables','menu','kitchen','billing','reports','customers','settings','profile','stands'].includes(activeTab) && 'TableMint'}
                 </span>
               </button>
@@ -1589,13 +1643,13 @@ export default function DashboardApp({ onLockStaff }) {
 
             {/* Screen 5: Table Legend matching Mobile Reference Screen 5 */}
             <div className="mobile-table-legend hide-on-desktop">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <span className="legend-item">
                 <span className="status-dot green" /> Available
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <span className="legend-item">
                 <span className="status-dot red" /> Occupied
               </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <span className="legend-item">
                 <span className="status-dot blue" /> Serving
               </span>
             </div>
@@ -3623,8 +3677,8 @@ export default function DashboardApp({ onLockStaff }) {
                       type="button"
                       className="mobile-settings-row-item"
                       onClick={() => {
-                        setSettingsSubNav('users');
-                        setMobileSettingsSubNav('users');
+                        setSettingsSubNav('password');
+                        setMobileSettingsSubNav('password');
                       }}
                     >
                       <div className="mobile-settings-row-left">
@@ -3660,6 +3714,7 @@ export default function DashboardApp({ onLockStaff }) {
                   { id: 'payment', label: 'Payment Settings', icon: CreditCard },
                   { id: 'tax', label: 'Tax & Charges', icon: Receipt },
                   { id: 'tables', label: 'Table Settings', icon: LayoutGrid },
+                  { id: 'password', label: 'Change Password', icon: Lock },
                   { id: 'users', label: 'User Management', icon: Users },
                   { id: 'notifications', label: 'Notifications', icon: Bell },
                   { id: 'billing', label: 'Billing & Subscription', icon: DollarSign }
@@ -3886,6 +3941,95 @@ export default function DashboardApp({ onLockStaff }) {
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
                       <button type="submit" className="btn-brand-primary" style={{ padding: '11px 26px' }}>
                         <Check size={16} /> Save Table Settings
+                      </button>
+                    </div>
+                  </form>
+                )}
+
+                {settingsSubNav === 'password' && (
+                  <form onSubmit={handleUpdatePassword}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 8px', color: '#0f172a' }}>
+                      Change Account Password
+                    </h3>
+                    <p style={{ fontSize: '0.84rem', color: '#64748b', margin: '0 0 16px' }}>
+                      Ensure your restaurant operations remain protected by choosing a strong, unique password (minimum 6 characters).
+                    </p>
+                    <div className="settings-form-grid">
+                      <div className="settings-form-field full-width">
+                        <label className="settings-label">Current Password</label>
+                        <div className="settings-password-input-wrap">
+                          <input
+                            type={showCurrentPassword ? 'text' : 'password'}
+                            className="settings-input"
+                            style={{ width: '100%', paddingRight: '40px' }}
+                            placeholder="Enter current password"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                            title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="settings-form-field">
+                        <label className="settings-label">New Password</label>
+                        <div className="settings-password-input-wrap">
+                          <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            className="settings-input"
+                            style={{ width: '100%', paddingRight: '40px' }}
+                            placeholder="Min 6 characters"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            title={showNewPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="settings-form-field">
+                        <label className="settings-label">Confirm New Password</label>
+                        <div className="settings-password-input-wrap">
+                          <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            className="settings-input"
+                            style={{ width: '100%', paddingRight: '40px' }}
+                            placeholder="Re-enter new password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                          />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
+                      <button
+                        type="submit"
+                        className="btn-brand-primary"
+                        style={{ padding: '11px 26px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                        disabled={passwordUpdating}
+                      >
+                        <Lock size={16} /> {passwordUpdating ? 'Updating Password...' : 'Update Password'}
                       </button>
                     </div>
                   </form>
@@ -4357,12 +4501,20 @@ export default function DashboardApp({ onLockStaff }) {
                         <div className="mobile-profile-input-box">
                           <Lock size={16} className="mobile-profile-icon" />
                           <input
-                            type="password"
+                            type={showCurrentPassword ? 'text' : 'password'}
                             placeholder="Enter current password"
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             required
                           />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            style={{ position: 'static', marginLeft: 'auto' }}
+                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          >
+                            {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
                         </div>
                       </div>
 
@@ -4371,12 +4523,20 @@ export default function DashboardApp({ onLockStaff }) {
                         <div className="mobile-profile-input-box">
                           <Lock size={16} className="mobile-profile-icon" />
                           <input
-                            type="password"
+                            type={showNewPassword ? 'text' : 'password'}
                             placeholder="Min 6 characters"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             required
                           />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            style={{ position: 'static', marginLeft: 'auto' }}
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                          >
+                            {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
                         </div>
                       </div>
 
@@ -4385,12 +4545,20 @@ export default function DashboardApp({ onLockStaff }) {
                         <div className="mobile-profile-input-box">
                           <Lock size={16} className="mobile-profile-icon" />
                           <input
-                            type="password"
+                            type={showConfirmPassword ? 'text' : 'password'}
                             placeholder="Repeat new password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                           />
+                          <button
+                            type="button"
+                            className="settings-eye-toggle-btn"
+                            style={{ position: 'static', marginLeft: 'auto' }}
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                          </button>
                         </div>
                       </div>
 

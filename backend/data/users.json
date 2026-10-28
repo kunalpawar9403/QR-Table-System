@@ -3,11 +3,12 @@
     "id": "user_admin",
     "name": "Admin Manager",
     "email": "admin@tablemint.com",
-    "hash": "4233ff0b8042d252d72651369125c263f7b71b4fb4a763d4787a2f7ca143cd2011e52f4c45588bbf716fc80ce523a047f14e0fb25026747750f03b17a1d2bdeb",
-    "salt": "tablemint_static_salt_2026",
+    "hash": "2e981037dae6e609f02b537b005083905b697a605ca2e9087280c7f323270e7a5b4741c95f02d9edea7316a6d36df8209c583a78fe37542fe7a6dc9a6ee8e409",
+    "salt": "533a17e1ac4a92fe6c3598fdcce25b5e",
     "role": "admin",
     "restaurantName": "TableMint",
-    "createdAt": "2026-10-27T05:37:03.273Z"
+    "createdAt": "2026-10-27T05:37:03.273Z",
+    "updatedAt": "2026-10-28T06:19:24.111Z"
   },
   {
     "id": "user_1793079871110",

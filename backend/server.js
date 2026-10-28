@@ -439,6 +439,60 @@ app.patch('/api/auth/profile', requireStaffAuth, (req, res) => {
   }
 });
 
+// POST /api/auth/change-password - Change user password securely
+app.post('/api/auth/change-password', requireStaffAuth, (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword) {
+      return res.status(400).json({ success: false, error: 'Please enter your current password.' });
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
+    }
+
+    const token = req.headers['x-staff-token'] || req.query.staff_token;
+    const currentUser = verifyUserToken(token);
+    if (!currentUser) {
+      return res.status(401).json({ success: false, error: 'Unauthorized user session.' });
+    }
+
+    const users = getUsers();
+    let targetUser = users.find(u => u.id === currentUser.id);
+    if (!targetUser) {
+      if (currentUser.id === 'staff_pin') {
+        // Fallback to default admin if accessed from quick PIN station
+        targetUser = users.find(u => u.role === 'admin') || users[0];
+      }
+    }
+
+    if (!targetUser) {
+      return res.status(404).json({ success: false, error: 'User account not found.' });
+    }
+
+    // Verify current password
+    const isCurrentValid = verifyPassword(currentPassword, targetUser.hash, targetUser.salt);
+    if (!isCurrentValid) {
+      return res.status(400).json({ success: false, error: 'Current password is incorrect. Please try again.' });
+    }
+
+    // Hash and store new password
+    const { hash, salt } = hashPassword(newPassword);
+    targetUser.hash = hash;
+    targetUser.salt = salt;
+    targetUser.updatedAt = new Date().toISOString();
+
+    saveUsers(users);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully! Keep your new password secure.'
+    });
+  } catch (err) {
+    console.error('Error changing password:', err);
+    res.status(500).json({ success: false, error: 'Failed to change password. Please try again.' });
+  }
+});
+
 // Server info & host URLs for QR generation
 app.get('/api/info', (req, res) => {
   const isVercel = Boolean(process.env.VERCEL);
