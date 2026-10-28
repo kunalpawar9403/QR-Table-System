@@ -32,7 +32,8 @@ import {
   CookingPot,
   CupSoda,
   ClipboardList,
-  UserRound
+  UserRound,
+  Droplets
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -116,6 +117,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Modals & Screens
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
   const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [serviceNote, setServiceNote] = useState('');
 
   // Dish Customization Modal (Screen 3 in reference)
   const [customizingDish, setCustomizingDish] = useState(null);
@@ -650,224 +652,643 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     );
   }
 
-  // =========================================================
-  // SCREEN 2: MAIN MENU & CATEGORIES (IMAGE 2 SCREEN 2)
-  // =========================================================
   return (
     <div className="customer-app-wrapper">
-      {/* Sticky Mobile Header (Matching Exact Reference Screen 2) */}
-      <header className="mobile-menu-header">
-        <div className="menu-header-row">
-          <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
-            <TableMintLogoIcon size={24} />
-            <span className="header-brand-title">Table<span style={{ color: '#34d399' }}>Mint</span></span>
-          </div>
-          <div className="header-table-pill">
-            <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
-          </div>
-        </div>
+      {/* =========================================================
+          VIEW 1: MAIN MENU & CATEGORIES (SCREEN 2 IN REFERENCE)
+          ========================================================= */}
+      {activeBottomNav === 'menu' && (
+        <div className="customer-page-view menu-page-view">
+          {/* Sticky Mobile Header (Matching Exact Reference Screen 2) */}
+          <header className="mobile-menu-header">
+            <div className="menu-header-row">
+              <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
+                <TableMintLogoIcon size={24} />
+                <span className="header-brand-title">Table<span style={{ color: '#34d399' }}>Mint</span></span>
+              </div>
+              <div className="header-table-pill">
+                <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
+              </div>
+            </div>
 
-        {/* Search Bar Input */}
-        <div className="menu-search-box">
-          <Search size={16} className="menu-search-icon" />
-          <input
-            type="text"
-            className="menu-search-input"
-            placeholder="Search for dishes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
-            <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
-              <X size={14} />
-            </button>
-          )}
-        </div>
-      </header>
+            {/* Search Bar Input */}
+            <div className="menu-search-box">
+              <Search size={16} className="menu-search-icon" />
+              <input
+                type="text"
+                className="menu-search-input"
+                placeholder="Search for dishes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </header>
 
-      {/* Categories Horizontal Carousel (Matching Reference Screen 2) */}
-      <div className="categories-carousel-row">
-        {CATEGORIES.map((cat) => {
-          const isActive = category === cat.id;
-          const iconColor = isActive ? '#ffffff' : cat.color;
-          return (
+          {/* Categories Horizontal Carousel (Matching Reference Screen 2) */}
+          <div className="categories-carousel-row">
+            {CATEGORIES.map((cat) => {
+              const isActive = category === cat.id;
+              const iconColor = isActive ? '#ffffff' : cat.color;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`category-item-card ${isActive ? 'active' : ''}`}
+                  onClick={() => {
+                    soundManager.playClick();
+                    setCategory(cat.id);
+                  }}
+                >
+                  <div className="category-icon-box" style={{ background: isActive ? '#07241a' : cat.bg }}>
+                    {cat.id === 'all' && <LayoutGrid size={22} color={iconColor} />}
+                    {cat.id === 'starters' && <Soup size={22} color={iconColor} />}
+                    {cat.id === 'main-course' && <CookingPot size={22} color={iconColor} />}
+                    {cat.id === 'beverages' && <CupSoda size={22} color={iconColor} />}
+                  </div>
+                  <span className="category-label">{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Popular Dishes Section Header with View All */}
+          <div className="menu-section-header">
+            <h2 className="section-title-text">Popular Dishes</h2>
             <button
-              key={cat.id}
               type="button"
-              className={`category-item-card ${isActive ? 'active' : ''}`}
+              className="section-view-all-link"
               onClick={() => {
-                soundManager.playClick();
-                setCategory(cat.id);
+                setCategory('all');
+                setSearchQuery('');
+                setVegOnly(false);
               }}
             >
-              <div className="category-icon-box" style={{ background: isActive ? '#07241a' : cat.bg }}>
-                {cat.id === 'all' && <LayoutGrid size={22} color={iconColor} />}
-                {cat.id === 'starters' && <Soup size={22} color={iconColor} />}
-                {cat.id === 'main-course' && <CookingPot size={22} color={iconColor} />}
-                {cat.id === 'beverages' && <CupSoda size={22} color={iconColor} />}
-              </div>
-              <span className="category-label">{cat.label}</span>
+              View All
             </button>
-          );
-        })}
-      </div>
-
-      {/* Popular Dishes Section Header with View All */}
-      <div className="menu-section-header">
-        <h2 className="section-title-text">Popular Dishes</h2>
-        <button
-          type="button"
-          className="section-view-all-link"
-          onClick={() => {
-            setCategory('all');
-            setSearchQuery('');
-            setVegOnly(false);
-          }}
-        >
-          View All
-        </button>
-      </div>
-
-      {/* 2-Column Food Card Grid (Matching Image 2 Screen 2) */}
-      <div className="food-cards-grid-2col">
-        {loadingMenu ? (
-          <div className="menu-loading-state">
-            <div className="spinner-mint" />
-            <p>Loading fresh dishes...</p>
           </div>
-        ) : filteredDishes.length === 0 ? (
-          <div className="menu-empty-state">
-            <Utensils size={36} style={{ color: '#94a3b8', margin: '0 auto 10px' }} />
-            <p>No dishes found in this category.</p>
-          </div>
-        ) : (
-          filteredDishes.map((dish) => {
-            const count = getItemCount(dish.id);
-            const isFav = favorites.has(dish.id);
-            const isAvailable = dish.available !== false;
 
-            return (
-              <div
-                key={dish.id}
-                className={`dish-grid-card ${!isAvailable ? 'sold-out' : ''}`}
-                onClick={() => isAvailable && openCustomization(dish)}
-              >
-                {/* Image Wrap */}
-                <div className="dish-card-img-wrap">
-                  <img
-                    src={dish.image || '/images/paneer_tikka.jpg'}
-                    alt={dish.name}
-                    className="dish-card-img"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.src = '/images/paneer_tikka.jpg';
-                    }}
-                  />
+          {/* 2-Column Food Card Grid (Matching Image 2 Screen 2) */}
+          <div className="food-cards-grid-2col">
+            {loadingMenu ? (
+              <div className="menu-loading-state">
+                <div className="spinner-mint" />
+                <p>Loading fresh dishes...</p>
+              </div>
+            ) : filteredDishes.length === 0 ? (
+              <div className="menu-empty-state">
+                <Utensils size={36} style={{ color: '#94a3b8', margin: '0 auto 10px' }} />
+                <p>No dishes found in this category.</p>
+              </div>
+            ) : (
+              filteredDishes.map((dish) => {
+                const count = getItemCount(dish.id);
+                const isFav = favorites.has(dish.id);
+                const isAvailable = dish.available !== false;
 
-                  {/* Favorite Heart Button in top right */}
-                  <button
-                    type="button"
-                    className={`dish-fav-btn ${isFav ? 'active' : ''}`}
-                    onClick={(e) => toggleFavorite(dish.id, e)}
-                    aria-label="Favorite"
+                return (
+                  <div
+                    key={dish.id}
+                    className={`dish-grid-card ${!isAvailable ? 'sold-out' : ''}`}
+                    onClick={() => isAvailable && openCustomization(dish)}
                   >
-                    <Heart size={14} fill={isFav ? '#ef4444' : 'none'} color={isFav ? '#ef4444' : '#ffffff'} />
-                  </button>
+                    {/* Image Wrap */}
+                    <div className="dish-card-img-wrap">
+                      <img
+                        src={dish.image || '/images/paneer_tikka.jpg'}
+                        alt={dish.name}
+                        className="dish-card-img"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.src = '/images/paneer_tikka.jpg';
+                        }}
+                      />
 
-                  {!isAvailable && <div className="dish-sold-badge">Sold Out</div>}
-                </div>
+                      {/* Favorite Heart Button in top right */}
+                      <button
+                        type="button"
+                        className={`dish-fav-btn ${isFav ? 'active' : ''}`}
+                        onClick={(e) => toggleFavorite(dish.id, e)}
+                        aria-label="Favorite"
+                      >
+                        <Heart size={14} fill={isFav ? '#ef4444' : 'none'} color={isFav ? '#ef4444' : '#ffffff'} />
+                      </button>
 
-                {/* Dish Card Content - Guaranteed NO Overlap */}
-                <div className="dish-card-body">
-                  {/* Title Row with Inline Veg / Non-Veg Icon */}
-                  <div className="dish-card-title-row">
-                    <h3 className="dish-card-title">{dish.name}</h3>
-                    <span
-                      className={`dish-inline-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}
-                      title={dish.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
-                    >
-                      <span className="diet-dot" />
-                    </span>
-                  </div>
+                      {!isAvailable && <div className="dish-sold-badge">Sold Out</div>}
+                    </div>
 
-                  <p className="dish-card-desc">{dish.description || 'Specially prepared by TableMint chefs.'}</p>
+                    {/* Dish Card Content - Guaranteed NO Overlap */}
+                    <div className="dish-card-body">
+                      {/* Title Row with Inline Veg / Non-Veg Icon */}
+                      <div className="dish-card-title-row">
+                        <h3 className="dish-card-title">{dish.name}</h3>
+                        <span
+                          className={`dish-inline-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}
+                          title={dish.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                        >
+                          <span className="diet-dot" />
+                        </span>
+                      </div>
 
-                  <div className="dish-card-footer">
-                    <span className="dish-card-price">₹ {dish.price}</span>
+                      <p className="dish-card-desc">{dish.description || 'Specially prepared by TableMint chefs.'}</p>
 
-                    {isAvailable && (
-                      <div onClick={(e) => e.stopPropagation()}>
-                        {count > 0 ? (
-                          <div className="grid-qty-stepper">
-                            <button
-                              type="button"
-                              className="grid-stepper-btn"
-                              onClick={() => updateQuantity(dish.id, -1)}
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus size={12} />
-                            </button>
-                            <span className="grid-stepper-val">{count}</span>
-                            <button
-                              type="button"
-                              className="grid-stepper-btn"
-                              onClick={() => updateQuantity(dish.id, 1)}
-                              aria-label="Increase quantity"
-                            >
-                              <Plus size={12} />
-                            </button>
+                      <div className="dish-card-footer">
+                        <span className="dish-card-price">₹ {dish.price}</span>
+
+                        {isAvailable && (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            {count > 0 ? (
+                              <div className="grid-qty-stepper">
+                                <button
+                                  type="button"
+                                  className="grid-stepper-btn"
+                                  onClick={() => updateQuantity(dish.id, -1)}
+                                  aria-label="Decrease quantity"
+                                >
+                                  <Minus size={12} />
+                                </button>
+                                <span className="grid-stepper-val">{count}</span>
+                                <button
+                                  type="button"
+                                  className="grid-stepper-btn"
+                                  onClick={() => updateQuantity(dish.id, 1)}
+                                  aria-label="Increase quantity"
+                                >
+                                  <Plus size={12} />
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                className="btn-add-food-pill"
+                                onClick={(e) => quickAddToCart(dish, e)}
+                              >
+                                + Add
+                              </button>
+                            )}
                           </div>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn-add-food-pill"
-                            onClick={(e) => quickAddToCart(dish, e)}
-                          >
-                            + Add
-                          </button>
                         )}
                       </div>
-                    )}
+                    </div>
                   </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Floating Cart Pill (Shows when cart has items) */}
+          {cart.length > 0 && (
+            <div className="cart-floating-cta-bar">
+              <div className="cart-cta-left">
+                <span className="cart-badge-circle">{totalCartCount}</span>
+                <div className="cart-cta-pricing">
+                  <span className="cart-cta-total">₹{grandTotal}</span>
+                  <span className="cart-cta-sub">Total with GST</span>
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
-
-      {/* Floating Cart Pill (Shows when cart has items) */}
-      {cart.length > 0 && !isCartOpen && (
-        <div className="cart-floating-cta-bar">
-          <div className="cart-cta-left">
-            <span className="cart-badge-circle">{totalCartCount}</span>
-            <div className="cart-cta-pricing">
-              <span className="cart-cta-total">₹{grandTotal}</span>
-              <span className="cart-cta-sub">Total with GST</span>
+              <button
+                type="button"
+                className="cart-cta-btn"
+                onClick={() => {
+                  soundManager.playClick();
+                  setActiveBottomNav('cart');
+                }}
+              >
+                <span>View Cart</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
-          </div>
-          <button
-            type="button"
-            className="cart-cta-btn"
-            onClick={() => setIsCartOpen(true)}
-          >
-            <span>View Cart</span>
-            <ArrowRight size={16} />
-          </button>
+          )}
         </div>
       )}
 
       {/* =========================================================
-          STICKY BOTTOM NAVIGATION (SCREEN 2 IN REFERENCE)
+          VIEW 2: YOUR CART & CHECKOUT (SCREEN 4 IN REFERENCE)
+          ========================================================= */}
+      {activeBottomNav === 'cart' && (
+        <div className="customer-page-view cart-page-view">
+          <header className="page-nav-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                type="button"
+                className="back-icon-btn"
+                onClick={() => setActiveBottomNav('menu')}
+                aria-label="Back to menu"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <h2 className="page-header-title">Your Cart</h2>
+            </div>
+            {cart.length > 0 && (
+              <button type="button" className="cart-clear-all-btn" onClick={clearCart}>
+                Clear All
+              </button>
+            )}
+          </header>
+
+          <div className="checkout-sheet-scroll">
+            {cart.length === 0 ? (
+              <div className="empty-cart-view">
+                <ShoppingCart size={48} style={{ color: '#cbd5e1', marginBottom: 12 }} />
+                <h4>Your cart is empty</h4>
+                <p>Explore delicious specialties from our menu!</p>
+                <button
+                  type="button"
+                  className="btn-add-food-pill"
+                  style={{ marginTop: 16, padding: '10px 20px', fontSize: '0.9rem' }}
+                  onClick={() => setActiveBottomNav('menu')}
+                >
+                  Explore Menu
+                </button>
+              </div>
+            ) : (
+              <div className="cart-items-list">
+                {cart.map((item, idx) => (
+                  <div key={`${item.id}-${idx}`} className="cart-checkout-item-row">
+                    <img
+                      src={item.image || '/images/paneer_tikka.jpg'}
+                      alt={item.name}
+                      className="cart-item-thumbnail"
+                    />
+                    <div className="cart-item-details">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <h4 className="cart-item-name">{item.name}</h4>
+                        <span className={`dish-inline-diet-tag ${item.isVeg ? 'veg' : 'non-veg'}`}>
+                          <span className="diet-dot" />
+                        </span>
+                      </div>
+                      {item.notes && <div className="cart-item-notes">{item.notes}</div>}
+                      <div className="cart-item-price-unit">₹{item.price}</div>
+                    </div>
+
+                    <div className="cart-item-actions">
+                      <div className="cart-stepper-box">
+                        <button
+                          type="button"
+                          className="cart-stepper-btn"
+                          onClick={() => updateQuantity(item.id, -1, item.notes)}
+                        >
+                          <Minus size={13} />
+                        </button>
+                        <span className="cart-stepper-val">{item.quantity}</span>
+                        <button
+                          type="button"
+                          className="cart-stepper-btn"
+                          onClick={() => updateQuantity(item.id, 1, item.notes)}
+                        >
+                          <Plus size={13} />
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        className="cart-item-delete-btn"
+                        onClick={() => updateQuantity(item.id, -item.quantity, item.notes)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Cooking Instruction Note */}
+                <div className="special-request-input-wrap">
+                  <input
+                    type="text"
+                    className="special-request-field"
+                    placeholder="Any special request (e.g. less salt, warm water)..."
+                    value={orderNotes}
+                    onChange={(e) => setOrderNotes(e.target.value)}
+                  />
+                </div>
+
+                {/* Bill Details Summary Card */}
+                <div className="bill-details-card">
+                  <div className="bill-details-title">Bill Details</div>
+                  <div className="bill-row">
+                    <span>Subtotal</span>
+                    <span>₹{subtotal}</span>
+                  </div>
+                  <div className="bill-row">
+                    <span>GST (5%)</span>
+                    <span>₹{gstAmount}</span>
+                  </div>
+                  <div className="bill-row total-highlight">
+                    <span>Total</span>
+                    <span>₹{grandTotal}</span>
+                  </div>
+                </div>
+
+                {/* Or Pay with pills */}
+                <div className="pay-with-pills-row">
+                  <span className="pay-with-label">Or Pay with</span>
+                  <div className="pay-methods-grid">
+                    <button
+                      type="button"
+                      className={`pay-pill ${selectedPaymentMethod === 'gpay' ? 'active' : ''}`}
+                      onClick={() => setSelectedPaymentMethod('gpay')}
+                    >
+                      <span style={{ fontWeight: 800 }}>GPay</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`pay-pill ${selectedPaymentMethod === 'phonepe' ? 'active' : ''}`}
+                      onClick={() => setSelectedPaymentMethod('phonepe')}
+                    >
+                      <span style={{ fontWeight: 800 }}>PhonePe</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`pay-pill ${selectedPaymentMethod === 'paytm' ? 'active' : ''}`}
+                      onClick={() => setSelectedPaymentMethod('paytm')}
+                    >
+                      <span style={{ fontWeight: 800 }}>Paytm</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`pay-pill ${selectedPaymentMethod === 'card' ? 'active' : ''}`}
+                      onClick={() => setSelectedPaymentMethod('card')}
+                    >
+                      <span style={{ fontWeight: 800 }}>Card</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {cart.length > 0 && (
+            <div className="checkout-sheet-footer">
+              <button
+                type="button"
+                className="btn-place-order"
+                disabled={submittingOrder}
+                onClick={handlePlaceOrder}
+              >
+                <Sparkles size={18} />
+                {submittingOrder ? 'Placing Order...' : 'Place Order'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* =========================================================
+          VIEW 3: ORDER CONFIRMATION & TRACKING (SCREEN 5 IN REFERENCE)
+          ========================================================= */}
+      {activeBottomNav === 'orders' && (
+        <div className="customer-page-view orders-page-view">
+          <header className="page-nav-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                type="button"
+                className="back-icon-btn"
+                onClick={() => setActiveBottomNav('menu')}
+                aria-label="Back to menu"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <h2 className="page-header-title">Order Tracking</h2>
+            </div>
+            <div className="header-table-pill">
+              <UtensilsCrossed size={13} /> Table {tableId}
+            </div>
+          </header>
+
+          <div className="tracking-sheet-card" style={{ boxShadow: 'none', borderRadius: 0, padding: '16px' }}>
+            <div className="tracking-hero-status">
+              <div className="cloche-icon-badge">
+                <ChefHat size={38} />
+              </div>
+              <h2>Order Placed!</h2>
+              <p>Your order has been sent to the kitchen.</p>
+            </div>
+
+            {/* Vertical Stepper Timeline */}
+            <div className="vertical-timeline-box">
+              {/* Step 1: Order Placed */}
+              <div className="timeline-step-row completed">
+                <div className="timeline-dot-col">
+                  <div className="timeline-dot check">
+                    <Check size={14} />
+                  </div>
+                  <div className="timeline-line active" />
+                </div>
+                <div className="timeline-content-col">
+                  <div className="step-label">Order Placed</div>
+                  <div className="step-time">Just now</div>
+                </div>
+              </div>
+
+              {/* Step 2: Preparing */}
+              <div className={`timeline-step-row ${activeOrder?.status === 'preparing' || activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'active'}`}>
+                <div className="timeline-dot-col">
+                  <div className="timeline-dot current">
+                    <div className="pulse-inner-ring" />
+                  </div>
+                  <div className={`timeline-line ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'active' : ''}`} />
+                </div>
+                <div className="timeline-content-col">
+                  <div className="step-label">Preparing</div>
+                  <div className="step-sub">Your food is being prepared in the kitchen</div>
+                </div>
+              </div>
+
+              {/* Step 3: Ready for Serving */}
+              <div className={`timeline-step-row ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
+                <div className="timeline-dot-col">
+                  <div className="timeline-dot">
+                    {activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? <Check size={14} /> : null}
+                  </div>
+                  <div className="timeline-line" />
+                </div>
+                <div className="timeline-content-col">
+                  <div className="step-label">Ready for Serving</div>
+                  <div className="step-sub">Estimated 10-15 mins</div>
+                </div>
+              </div>
+
+              {/* Step 4: Delivered */}
+              <div className={`timeline-step-row ${activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
+                <div className="timeline-dot-col">
+                  <div className="timeline-dot">
+                    {activeOrder?.status === 'served' ? <Check size={14} /> : null}
+                  </div>
+                </div>
+                <div className="timeline-content-col">
+                  <div className="step-label">Delivered</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Estimated Time Badge */}
+            <div className="estimated-time-card">
+              <Clock size={16} style={{ color: '#10b981' }} />
+              <span>Estimated Time: <strong>10 – 15 mins</strong></span>
+            </div>
+
+            {/* Quick Assistance Actions */}
+            <div className="tracking-actions-grid">
+              <button
+                type="button"
+                className="tracking-action-btn"
+                onClick={() => setActiveBottomNav('waiter')}
+              >
+                <PhoneCall size={16} />
+                <span>Call Waiter</span>
+              </button>
+              <button
+                type="button"
+                className="tracking-action-btn"
+                onClick={() => handleServiceCall('bill')}
+              >
+                <Receipt size={16} />
+                <span>Request Bill</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          VIEW 4: CALL WAITER & SERVICE ASSISTANCE
+          ========================================================= */}
+      {activeBottomNav === 'waiter' && (
+        <div className="customer-page-view waiter-page-view">
+          <header className="page-nav-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <button
+                type="button"
+                className="back-icon-btn"
+                onClick={() => setActiveBottomNav('menu')}
+                aria-label="Back to menu"
+              >
+                <ArrowLeft size={18} />
+              </button>
+              <h2 className="page-header-title">Call Waiter</h2>
+            </div>
+            <div className="header-table-pill">
+              <UtensilsCrossed size={13} /> Table {tableId}
+            </div>
+          </header>
+
+          <div className="waiter-page-content">
+            {/* Hero Service Card */}
+            <div className="waiter-hero-card">
+              <div className="waiter-hero-bell">
+                <Bell size={32} />
+              </div>
+              <h3 className="waiter-hero-title">Need Assistance?</h3>
+              <p className="waiter-hero-subtitle">
+                Tap any button below and staff will be immediately alerted at Table {tableId}.
+              </p>
+            </div>
+
+            {/* 4 Quick Assistance Cards Grid */}
+            <div className="waiter-services-grid">
+              <button
+                type="button"
+                className="waiter-service-card"
+                onClick={() => handleServiceCall('waiter')}
+              >
+                <div className="waiter-service-icon-box waiter-color">
+                  <UserRound size={26} />
+                </div>
+                <div className="waiter-service-info">
+                  <span className="waiter-service-name">Call Waiter</span>
+                  <span className="waiter-service-desc">Staff will visit your table</span>
+                </div>
+                <span className="waiter-service-action-pill">Call Now →</span>
+              </button>
+
+              <button
+                type="button"
+                className="waiter-service-card"
+                onClick={() => handleServiceCall('water')}
+              >
+                <div className="waiter-service-icon-box water-color">
+                  <Droplets size={26} />
+                </div>
+                <div className="waiter-service-info">
+                  <span className="waiter-service-name">Drinking Water</span>
+                  <span className="waiter-service-desc">Fresh glass or bottle water</span>
+                </div>
+                <span className="waiter-service-action-pill">Request →</span>
+              </button>
+
+              <button
+                type="button"
+                className="waiter-service-card"
+                onClick={() => handleServiceCall('tissue')}
+              >
+                <div className="waiter-service-icon-box cutlery-color">
+                  <Utensils size={26} />
+                </div>
+                <div className="waiter-service-info">
+                  <span className="waiter-service-name">Cutlery & Napkins</span>
+                  <span className="waiter-service-desc">Plates, spoons, extra napkins</span>
+                </div>
+                <span className="waiter-service-action-pill">Request →</span>
+              </button>
+
+              <button
+                type="button"
+                className="waiter-service-card"
+                onClick={() => handleServiceCall('bill')}
+              >
+                <div className="waiter-service-icon-box bill-color">
+                  <Receipt size={26} />
+                </div>
+                <div className="waiter-service-info">
+                  <span className="waiter-service-name">Request Bill</span>
+                  <span className="waiter-service-desc">Check & payment options</span>
+                </div>
+                <span className="waiter-service-action-pill">Request →</span>
+              </button>
+            </div>
+
+            {/* Custom Assistance Note Input */}
+            <div className="waiter-custom-note-card">
+              <label className="waiter-note-label">Special Request or Note (Optional)</label>
+              <div className="waiter-input-row">
+                <input
+                  type="text"
+                  className="waiter-note-input"
+                  placeholder="e.g. Extra spicy chutney, baby chair, clean table..."
+                  value={serviceNote}
+                  onChange={(e) => setServiceNote(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="waiter-note-submit-btn"
+                  onClick={() => {
+                    if (serviceNote.trim()) {
+                      handleServiceCall(serviceNote);
+                      setServiceNote('');
+                    }
+                  }}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          STICKY BOTTOM NAVIGATION (ALWAYS VISIBLE ACROSS ALL PAGES)
           ========================================================= */}
       <nav className="mobile-bottom-nav-bar">
         <button
           type="button"
-          className={`nav-tab-btn ${activeBottomNav === 'menu' && !isCartOpen && !trackingModalOpen ? 'active' : ''}`}
+          className={`nav-tab-btn ${activeBottomNav === 'menu' ? 'active' : ''}`}
           onClick={() => {
+            soundManager.playClick();
             setActiveBottomNav('menu');
-            setIsCartOpen(false);
-            setTrackingModalOpen(false);
           }}
         >
           <Utensils size={19} />
@@ -876,10 +1297,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
         <button
           type="button"
-          className={`nav-tab-btn ${isCartOpen ? 'active' : ''}`}
+          className={`nav-tab-btn ${activeBottomNav === 'cart' ? 'active' : ''}`}
           onClick={() => {
+            soundManager.playClick();
             setActiveBottomNav('cart');
-            setIsCartOpen(true);
           }}
         >
           <div className="nav-icon-badge-wrap">
@@ -891,10 +1312,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
         <button
           type="button"
-          className={`nav-tab-btn ${trackingModalOpen ? 'active' : ''}`}
+          className={`nav-tab-btn ${activeBottomNav === 'orders' ? 'active' : ''}`}
           onClick={() => {
+            soundManager.playClick();
             setActiveBottomNav('orders');
-            setTrackingModalOpen(true);
           }}
         >
           <ClipboardList size={19} />
@@ -903,9 +1324,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
         <button
           type="button"
-          className={`nav-tab-btn ${serviceModalOpen ? 'active' : ''}`}
+          className={`nav-tab-btn ${activeBottomNav === 'waiter' ? 'active' : ''}`}
           onClick={() => {
-            setServiceModalOpen(true);
+            soundManager.playClick();
+            setActiveBottomNav('waiter');
           }}
         >
           <UserRound size={19} />
@@ -1057,340 +1479,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     selectedAddons.reduce((sum, a) => sum + a.price, 0)
                   ) * modalQuantity}
                 </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================
-          SCREEN 4: YOUR CART & CHECKOUT (IMAGE 2 SCREEN 4)
-          ========================================================= */}
-      {isCartOpen && (
-        <div className="modal-backdrop-customization" onClick={() => setIsCartOpen(false)}>
-          <div className="cart-checkout-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="checkout-sheet-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button
-                  type="button"
-                  className="back-icon-btn"
-                  onClick={() => setIsCartOpen(false)}
-                >
-                  <ArrowLeft size={18} />
-                </button>
-                <h3>Your Cart</h3>
-              </div>
-              {cart.length > 0 && (
-                <button type="button" className="cart-clear-all-btn" onClick={clearCart}>
-                  Clear All
-                </button>
-              )}
-            </div>
-
-            <div className="checkout-sheet-scroll">
-              {cart.length === 0 ? (
-                <div className="empty-cart-view">
-                  <ShoppingCart size={48} style={{ color: '#cbd5e1', marginBottom: 12 }} />
-                  <h4>Your cart is empty</h4>
-                  <p>Explore delicious specialties from our menu!</p>
-                </div>
-              ) : (
-                <div className="cart-items-list">
-                  {cart.map((item, idx) => (
-                    <div key={`${item.id}-${idx}`} className="cart-checkout-item-row">
-                      <img
-                        src={item.image || '/images/paneer_tikka.jpg'}
-                        alt={item.name}
-                        className="cart-item-thumbnail"
-                      />
-                      <div className="cart-item-details">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <h4 className="cart-item-name">{item.name}</h4>
-                          <span className={`dish-inline-diet-tag ${item.isVeg ? 'veg' : 'non-veg'}`}>
-                            <span className="diet-dot" />
-                          </span>
-                        </div>
-                        {item.notes && <div className="cart-item-notes">{item.notes}</div>}
-                        <div className="cart-item-price-unit">₹{item.price}</div>
-                      </div>
-
-                      <div className="cart-item-actions">
-                        <div className="cart-stepper-box">
-                          <button
-                            type="button"
-                            className="cart-stepper-btn"
-                            onClick={() => updateQuantity(item.id, -1, item.notes)}
-                          >
-                            <Minus size={13} />
-                          </button>
-                          <span className="cart-stepper-val">{item.quantity}</span>
-                          <button
-                            type="button"
-                            className="cart-stepper-btn"
-                            onClick={() => updateQuantity(item.id, 1, item.notes)}
-                          >
-                            <Plus size={13} />
-                          </button>
-                        </div>
-                        <button
-                          type="button"
-                          className="cart-item-delete-btn"
-                          onClick={() => updateQuantity(item.id, -item.quantity, item.notes)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Cooking Instruction Note */}
-                  <div className="special-request-input-wrap">
-                    <input
-                      type="text"
-                      className="special-request-field"
-                      placeholder="Any special request (e.g. less salt, warm water)..."
-                      value={orderNotes}
-                      onChange={(e) => setOrderNotes(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Bill Details Summary Card */}
-                  <div className="bill-details-card">
-                    <div className="bill-details-title">Bill Details</div>
-                    <div className="bill-row">
-                      <span>Subtotal</span>
-                      <span>₹{subtotal}</span>
-                    </div>
-                    <div className="bill-row">
-                      <span>GST (5%)</span>
-                      <span>₹{gstAmount}</span>
-                    </div>
-                    <div className="bill-row total-highlight">
-                      <span>Total</span>
-                      <span>₹{grandTotal}</span>
-                    </div>
-                  </div>
-
-                  {/* Or Pay with pills */}
-                  <div className="pay-with-pills-row">
-                    <span className="pay-with-label">Or Pay with</span>
-                    <div className="pay-methods-grid">
-                      <button
-                        type="button"
-                        className={`pay-pill ${selectedPaymentMethod === 'gpay' ? 'active' : ''}`}
-                        onClick={() => setSelectedPaymentMethod('gpay')}
-                      >
-                        GPay
-                      </button>
-                      <button
-                        type="button"
-                        className={`pay-pill ${selectedPaymentMethod === 'phonepe' ? 'active' : ''}`}
-                        onClick={() => setSelectedPaymentMethod('phonepe')}
-                      >
-                        PhonePe
-                      </button>
-                      <button
-                        type="button"
-                        className={`pay-pill ${selectedPaymentMethod === 'paytm' ? 'active' : ''}`}
-                        onClick={() => setSelectedPaymentMethod('paytm')}
-                      >
-                        Paytm
-                      </button>
-                      <button
-                        type="button"
-                        className={`pay-pill ${selectedPaymentMethod === 'card' ? 'active' : ''}`}
-                        onClick={() => setSelectedPaymentMethod('card')}
-                      >
-                        Card / Cash
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {cart.length > 0 && (
-              <div className="checkout-sheet-footer">
-                <button
-                  type="button"
-                  className="btn-place-order"
-                  disabled={submittingOrder}
-                  onClick={handlePlaceOrder}
-                >
-                  <Sparkles size={18} />
-                  {submittingOrder ? 'Placing Order...' : 'Place Order'}
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================
-          SCREEN 5: ORDER CONFIRMATION & TRACKING (IMAGE 2 SCREEN 5)
-          ========================================================= */}
-      {trackingModalOpen && (
-        <div className="modal-backdrop-customization" onClick={() => setTrackingModalOpen(false)}>
-          <div className="tracking-sheet-card" onClick={(e) => e.stopPropagation()}>
-            <div className="tracking-sheet-header">
-              <button
-                type="button"
-                className="back-icon-btn"
-                onClick={() => setTrackingModalOpen(false)}
-              >
-                <ArrowLeft size={18} />
-              </button>
-              <h3>Order Tracking</h3>
-              <div style={{ width: 24 }} />
-            </div>
-
-            <div className="tracking-sheet-body">
-              {/* Cloche Illustration & Headline */}
-              <div className="tracking-hero-status">
-                <div className="cloche-icon-badge">
-                  <ChefHat size={38} />
-                </div>
-                <h2>Order Placed!</h2>
-                <p>Your order has been sent to the kitchen.</p>
-              </div>
-
-              {/* Vertical Stepper Timeline */}
-              <div className="vertical-timeline-box">
-                {/* Step 1: Order Placed */}
-                <div className="timeline-step-row completed">
-                  <div className="timeline-dot-col">
-                    <div className="timeline-dot check">
-                      <Check size={14} />
-                    </div>
-                    <div className="timeline-line active" />
-                  </div>
-                  <div className="timeline-content-col">
-                    <div className="step-label">Order Placed</div>
-                    <div className="step-time">Just now</div>
-                  </div>
-                </div>
-
-                {/* Step 2: Preparing */}
-                <div className={`timeline-step-row ${activeOrder?.status === 'preparing' || activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'active'}`}>
-                  <div className="timeline-dot-col">
-                    <div className="timeline-dot current">
-                      <div className="pulse-inner-ring" />
-                    </div>
-                    <div className={`timeline-line ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'active' : ''}`} />
-                  </div>
-                  <div className="timeline-content-col">
-                    <div className="step-label">Preparing</div>
-                    <div className="step-sub">Your food is being prepared in the kitchen</div>
-                  </div>
-                </div>
-
-                {/* Step 3: Ready for Serving */}
-                <div className={`timeline-step-row ${activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
-                  <div className="timeline-dot-col">
-                    <div className="timeline-dot">
-                      {activeOrder?.status === 'ready' || activeOrder?.status === 'served' ? <Check size={14} /> : null}
-                    </div>
-                    <div className="timeline-line" />
-                  </div>
-                  <div className="timeline-content-col">
-                    <div className="step-label">Ready for Serving</div>
-                    <div className="step-sub">Estimated 10-15 mins</div>
-                  </div>
-                </div>
-
-                {/* Step 4: Delivered */}
-                <div className={`timeline-step-row ${activeOrder?.status === 'served' ? 'completed' : 'pending'}`}>
-                  <div className="timeline-dot-col">
-                    <div className="timeline-dot">
-                      {activeOrder?.status === 'served' ? <Check size={14} /> : null}
-                    </div>
-                  </div>
-                  <div className="timeline-content-col">
-                    <div className="step-label">Delivered</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Estimated Time Badge */}
-              <div className="estimated-time-card">
-                <Clock size={16} style={{ color: '#10b981' }} />
-                <span>Estimated Time: <strong>10 – 15 mins</strong></span>
-              </div>
-
-              {/* Quick Assistance Actions */}
-              <div className="tracking-actions-grid">
-                <button
-                  type="button"
-                  className="tracking-action-btn"
-                  onClick={() => handleServiceCall('waiter')}
-                >
-                  <PhoneCall size={16} />
-                  <span>Call Waiter</span>
-                </button>
-                <button
-                  type="button"
-                  className="tracking-action-btn"
-                  onClick={() => handleServiceCall('bill')}
-                >
-                  <Receipt size={16} />
-                  <span>Request Bill</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Service Call Modal */}
-      {serviceModalOpen && (
-        <div className="modal-backdrop-customization" onClick={() => setServiceModalOpen(false)}>
-          <div className="service-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="service-modal-header">
-              <h3>Call Waiter / Service</h3>
-              <button
-                type="button"
-                className="close-service-btn"
-                onClick={() => setServiceModalOpen(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <p className="service-modal-desc">
-              Staff will be immediately alerted at Table {tableId}
-            </p>
-
-            <div className="service-buttons-grid">
-              <button
-                type="button"
-                className="service-btn-pill"
-                onClick={() => handleServiceCall('water')}
-              >
-                <span className="service-emoji">💧</span>
-                <span>Water</span>
-              </button>
-              <button
-                type="button"
-                className="service-btn-pill"
-                onClick={() => handleServiceCall('waiter')}
-              >
-                <span className="service-emoji">🙋‍♂️</span>
-                <span>Call Waiter</span>
-              </button>
-              <button
-                type="button"
-                className="service-btn-pill"
-                onClick={() => handleServiceCall('tissue')}
-              >
-                <span className="service-emoji">🧻</span>
-                <span>Cutlery/Tissues</span>
-              </button>
-              <button
-                type="button"
-                className="service-btn-pill"
-                onClick={() => handleServiceCall('bill')}
-              >
-                <span className="service-emoji">💳</span>
-                <span>Bring Bill</span>
               </button>
             </div>
           </div>
