@@ -2751,23 +2751,23 @@ export default function DashboardApp({ onLockStaff }) {
               {/* Left Column: Active Bill & UPI QR Payment */}
               <div className="pos-bill-active-card">
                 <div className="pos-bill-card-header">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
-                      Table {selectedBillingTableId} (#T1234)
+                  <div className="pos-bill-header-left">
+                    <h3 className="pos-bill-title">
+                      Table {selectedBillingTableId} <span className="pos-bill-tag">(#T{1230 + Number(selectedBillingTableId)})</span>
                     </h3>
-                    <span className="status-badge-pill served" style={{ fontSize: '0.74rem' }}>
+                    <span className="status-badge-pill served">
                       Dine-in
                     </span>
                   </div>
                   <select
-                    className="btn-brand-outline"
-                    style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#f8fafc' }}
+                    className="pos-bill-table-select"
                     value={selectedBillingTableId}
                     onChange={(e) => setSelectedBillingTableId(parseInt(e.target.value, 10))}
+                    title="Switch Table"
                   >
                     {tables.map((t) => (
                       <option key={t.id} value={t.id}>
-                        Table {t.id} ({t.name})
+                        Table {t.id}
                       </option>
                     ))}
                   </select>
@@ -2776,45 +2776,45 @@ export default function DashboardApp({ onLockStaff }) {
                 {/* Items Breakdown Table matching Screen 8 */}
                 <div className="pos-bill-items-list">
                   <div className="pos-bill-item-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="pos-bill-item-left">
                       <img
                         src="/images/paneer_tikka.jpg"
                         alt="Paneer Tikka"
-                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        className="pos-bill-item-img"
                         onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                       />
-                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Paneer Tikka</span>
+                      <span className="pos-bill-item-name">Paneer Tikka</span>
                     </div>
-                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x2</span>
-                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 440</span>
+                    <span className="pos-bill-item-qty">x2</span>
+                    <span className="pos-bill-item-price">₹ 440</span>
                   </div>
 
                   <div className="pos-bill-item-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="pos-bill-item-left">
                       <img
                         src="/images/chicken_biryani.jpg"
                         alt="Chicken Biryani"
-                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        className="pos-bill-item-img"
                         onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                       />
-                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Chicken Biryani</span>
+                      <span className="pos-bill-item-name">Chicken Biryani</span>
                     </div>
-                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x1</span>
-                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 280</span>
+                    <span className="pos-bill-item-qty">x1</span>
+                    <span className="pos-bill-item-price">₹ 280</span>
                   </div>
 
                   <div className="pos-bill-item-row">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="pos-bill-item-left">
                       <img
                         src="/images/masala_dosa.jpg"
                         alt="Masala Dosa"
-                        style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                        className="pos-bill-item-img"
                         onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                       />
-                      <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>Masala Dosa</span>
+                      <span className="pos-bill-item-name">Masala Dosa</span>
                     </div>
-                    <span style={{ color: '#64748b', fontSize: '0.84rem' }}>x1</span>
-                    <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>₹ 180</span>
+                    <span className="pos-bill-item-qty">x1</span>
+                    <span className="pos-bill-item-price">₹ 180</span>
                   </div>
                 </div>
 
@@ -2822,11 +2822,11 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="pos-bill-calc-box">
                   <div className="pos-bill-calc-row">
                     <span>Subtotal</span>
-                    <span>₹ 900</span>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ 900</span>
                   </div>
                   <div className="pos-bill-calc-row">
                     <span>GST (5%)</span>
-                    <span>₹ 45</span>
+                    <span style={{ fontWeight: 700, color: '#0f172a' }}>₹ 45</span>
                   </div>
                   <div className="pos-bill-calc-row total">
                     <span>Total</span>
@@ -2853,7 +2853,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <div className="pos-upi-section">
                     <div className="pos-upi-qr-wrapper">
                       <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=945`}
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=upi://pay?pa=spicegarden@upi%26pn=Spice%20Garden%26am=945`}
                         alt="UPI QR Code"
                         className="pos-upi-qr-image"
                       />
