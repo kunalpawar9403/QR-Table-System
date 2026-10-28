@@ -49,7 +49,7 @@
 .sidebar-top {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* Brand header */
@@ -57,19 +57,20 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 0 6px;
+  padding: 2px 6px;
 }
 
 .sidebar-logo-badge {
-  width: 44px;
-  height: 44px;
-  background: transparent;
+  width: 42px;
+  height: 42px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.22);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 }
 
@@ -80,24 +81,23 @@
 }
 
 .brand-mint-text {
-  color: #00e676;
-  text-shadow: 0 0 12px rgba(0, 230, 118, 0.4);
+  color: #10b981;
 }
 
 .sidebar-brand-text h2 {
-  font-size: 1.05rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
   color: #ffffff;
   margin: 0;
   line-height: 1.2;
 }
 
 .sidebar-brand-text p {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   color: #64748b;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin: 0;
 }
@@ -106,37 +106,48 @@
 .sidebar-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: 10px;
-  color: #a7f3d0;
-  font-size: 0.84rem;
+  color: #94a3b8;
+  font-size: 0.86rem;
   font-weight: 600;
   background: transparent;
   width: 100%;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   cursor: pointer;
   border: 1px solid transparent;
+  user-select: none;
+}
+
+.sidebar-nav-item svg {
+  color: #64748b;
+  transition: color 0.18s ease;
+  flex-shrink: 0;
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+}
+
+.sidebar-nav-item:hover svg {
+  color: #a7f3d0;
 }
 
 .sidebar-nav-item.active {
   background: #10b981 !important;
-  border-color: transparent !important;
+  border-color: #10b981 !important;
   color: #ffffff !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.28) !important;
 }
 
 .sidebar-nav-item.active svg {
@@ -150,17 +161,22 @@
 }
 
 .sidebar-badge {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 999px;
+  min-width: 20px;
+  text-align: center;
+  transition: all 0.18s ease;
 }
 
 .sidebar-nav-item.active .sidebar-badge {
-  background: rgba(0, 0, 0, 0.25) !important;
+  background: rgba(255, 255, 255, 0.24) !important;
   color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .sidebar-divider {
@@ -171,10 +187,10 @@
 
 /* Sidebar bottom Live Sync card */
 .sidebar-bottom-status {
-  background: rgba(16, 185, 129, 0.05);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: 14px;
-  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 11px 13px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -183,8 +199,9 @@
 }
 
 .sidebar-bottom-status:hover {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(52, 211, 153, 0.3);
+  transform: translateY(-1px);
 }
 
 .status-card-left {
@@ -198,20 +215,20 @@
   height: 8px;
   border-radius: 50%;
   background: #10b981;
-  box-shadow: 0 0 10px #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
   flex-shrink: 0;
 }
 
 .status-card-title {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  color: #34d399;
+  color: #ffffff;
   line-height: 1.2;
 }
 
 .status-card-sub {
   font-size: 0.7rem;
-  color: #64748b;
+  color: #94a3b8;
   margin-top: 1px;
 }
 
