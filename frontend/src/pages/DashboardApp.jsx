@@ -1283,6 +1283,33 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <div className="overview-content-wrapper">
+            {/* Promo Hero Banner (Matching Exact Mobile UI Reference) */}
+            <div className="mobile-promo-hero-banner hide-on-desktop">
+              <img
+                src="/images/tablemint_promo_banner.jpg"
+                alt="TableMint - Faster Orders, Happier Customers"
+                className="mobile-promo-banner-img"
+              />
+            </div>
+
+            {/* Date Selector Row (Matching Exact Mobile UI Reference) */}
+            <div className="mobile-date-selector-row hide-on-desktop">
+              <div className="mobile-date-left">
+                <div className="mobile-calendar-icon-btn">
+                  <Calendar size={18} />
+                </div>
+                <span className="mobile-date-heading">Today, 27 Oct 2026</span>
+              </div>
+              <button
+                type="button"
+                className="mobile-date-dropdown-pill"
+                onClick={() => addToast('Viewing: Today, 27 Oct 2026', 'info')}
+              >
+                <span>Today</span>
+                <ChevronDown size={14} />
+              </button>
+            </div>
+
             {/* 4 Metric Cards (Matching Reference Screen 2: 2x2 Grid) */}
             <div className="kpi-four-grid">
               {/* Card 1: Revenue */}
@@ -1296,9 +1323,13 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="metric-content">
                   <span className="metric-title">Revenue</span>
                   <div className="metric-value">
-                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '12,450'}
+                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '6,327.3'}
                   </div>
                 </div>
+                <svg className="metric-card-wave wave-green" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
+                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#10b981" fillOpacity="0.14"/>
+                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#10b981" fillOpacity="0.25"/>
+                </svg>
               </div>
 
               {/* Card 2: Total Orders */}
@@ -1313,8 +1344,12 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Total Orders</span>
-                  <div className="metric-value">{orders.length > 0 ? orders.length : 48}</div>
+                  <div className="metric-value">{orders.length > 0 ? orders.length : 19}</div>
                 </div>
+                <svg className="metric-card-wave wave-amber" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
+                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#f59e0b" fillOpacity="0.14"/>
+                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#f59e0b" fillOpacity="0.25"/>
+                </svg>
               </div>
 
               {/* Card 3: Active Tables */}
@@ -1326,11 +1361,15 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Active Tables</span>
-                  <div className="metric-value" style={{ color: '#2563eb', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="metric-value" style={{ color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb', display: 'inline-block' }} />
-                    {occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}
+                    <span style={{ color: '#2563eb' }}>{occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}</span>
                   </div>
                 </div>
+                <svg className="metric-card-wave wave-blue" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
+                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#3b82f6" fillOpacity="0.14"/>
+                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#3b82f6" fillOpacity="0.25"/>
+                </svg>
               </div>
 
               {/* Card 4: Avg. Order Value */}
@@ -1345,8 +1384,12 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Avg. Order Value</span>
-                  <div className="metric-value">₹{avgTicket || 258}</div>
+                  <div className="metric-value">₹{avgTicket || 333}</div>
                 </div>
+                <svg className="metric-card-wave wave-purple" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
+                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#8b5cf6" fillOpacity="0.14"/>
+                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#8b5cf6" fillOpacity="0.25"/>
+                </svg>
               </div>
             </div>
 
@@ -1359,7 +1402,7 @@ export default function DashboardApp({ onLockStaff }) {
                   className="mobile-view-all-link"
                   onClick={() => setActiveTab('orders')}
                 >
-                  View All
+                  View All <ChevronRight size={14} />
                 </button>
               </div>
 
@@ -1369,13 +1412,13 @@ export default function DashboardApp({ onLockStaff }) {
                     const s = (o.status || '').toLowerCase();
                     return ['pending', 'preparing', 'cooking', 'in-progress', 'ready'].includes(s);
                   });
-                  const displayKitchenOrders = activeKitchenOrders.length > 0 ? activeKitchenOrders.slice(0, 4) : [
+                  const displayKitchenOrders = activeKitchenOrders.length > 0 ? activeKitchenOrders.slice(0, 3) : [
                     { id: '1', orderNumber: 'T1234', tableName: 'Table 12', status: 'Preparing', time: '2 mins' },
                     { id: '2', orderNumber: 'T1233', tableName: 'Table 5', status: 'Ready', time: '8 mins' },
                     { id: '3', orderNumber: 'T1232', tableName: 'Table 8', status: 'Preparing', time: '12 mins' }
                   ];
                   return displayKitchenOrders.map((order) => {
-                    const status = (order.status || 'Preparing').toLowerCase();
+                    const isReady = (order.status || '').toLowerCase() === 'ready';
                     return (
                       <div
                         key={order.id || order._id}
@@ -1405,8 +1448,11 @@ export default function DashboardApp({ onLockStaff }) {
                           <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
                         </div>
                         <div className="mobile-live-order-right">
-                          <span className={`status-pill ${status}`}>{order.status || 'Preparing'}</span>
-                          <span className="mobile-order-time">{order.time || '2 mins'}</span>
+                          <span className={`mobile-status-tag ${isReady ? 'ready' : 'preparing'}`}>
+                            {isReady ? 'READY' : 'PREPARING'}
+                          </span>
+                          <span className="mobile-order-time">{order.time || (isReady ? '8 mins' : '2 mins')}</span>
+                          <ChevronRight size={16} className="mobile-order-chevron" />
                         </div>
                       </div>
                     );
