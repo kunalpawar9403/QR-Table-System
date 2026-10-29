@@ -221,6 +221,13 @@ export default function DashboardApp({ onLockStaff }) {
     }
   }, [currentUser]);
 
+  const getUserInitials = (name) => {
+    if (!name) return 'AM';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   // Mobile Bottom Admin Drawer & Navigation State
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [mobileSelectedOrder, setMobileSelectedOrder] = useState(null);
@@ -1455,12 +1462,17 @@ export default function DashboardApp({ onLockStaff }) {
                 }}
                 title="My Profile"
               >
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                  alt="Profile"
-                  className="mobile-header-avatar-img"
-                  onError={(e) => { e.target.src = '/images/tablemint_leaf.svg'; }}
-                />
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt="Profile"
+                    className="mobile-header-avatar-img"
+                  />
+                ) : (
+                  <span className="mobile-header-avatar-initials">
+                    {getUserInitials(profileName || currentUser?.name || 'Admin Manager')}
+                  </span>
+                )}
               </button>
             )}
             {activeTab === 'kitchen' ? (
@@ -1548,26 +1560,29 @@ export default function DashboardApp({ onLockStaff }) {
               {serviceCalls.length > 0 && <span className="topbar-bell-dot" />}
             </button>
 
-            {/* Profile Pill matching Rohit Sharma (Restaurant Owner) in Reference */}
+            {/* Profile Pill */}
             <div
               className="topbar-profile-pill"
               onClick={() => setActiveTab('profile')}
               title="View Profile / Logout"
             >
               <div className="topbar-avatar-wrap">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                  alt="Rohit Sharma"
-                  className="topbar-avatar-img"
-                  onError={(e) => {
-                    e.target.src = '/images/tablemint_leaf_icon.png';
-                  }}
-                />
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt="Profile"
+                    className="topbar-avatar-img"
+                  />
+                ) : (
+                  <div className="topbar-avatar-initials">
+                    {getUserInitials(profileName || currentUser?.name || 'Admin Manager')}
+                  </div>
+                )}
                 <span className="topbar-online-dot" />
               </div>
               <div className="topbar-profile-meta hide-on-mobile">
-                <div className="topbar-profile-name">{currentUser?.name || 'Rohit Sharma'}</div>
-                <div className="topbar-profile-role">Restaurant Owner</div>
+                <div className="topbar-profile-name">{profileName || currentUser?.name || 'Admin Manager'}</div>
+                <div className="topbar-profile-role">{profileRestaurant || currentUser?.restaurantName || 'Restaurant Owner'}</div>
               </div>
             </div>
           </div>
@@ -4721,7 +4736,7 @@ export default function DashboardApp({ onLockStaff }) {
                       </thead>
                       <tbody>
                         {[
-                          { name: 'Rohit Sharma', role: 'Owner / Admin', email: 'rohit@spicegarden.com', status: 'active' },
+                          { name: currentUser?.name || 'Admin Manager', role: 'Owner / Admin', email: currentUser?.email || 'admin@tablemint.com', status: 'active' },
                           { name: 'Amit Patel', role: 'Floor Manager', email: 'amit@spicegarden.com', status: 'active' },
                           { name: 'Priya Sharma', role: 'Head Cashier', email: 'priya@spicegarden.com', status: 'active' },
                           { name: 'Rahul Chef', role: 'Head Chef (KDS)', email: 'kitchen@spicegarden.com', status: 'active' }
@@ -5059,15 +5074,20 @@ export default function DashboardApp({ onLockStaff }) {
                   {/* Profile Header Identity Card */}
                   <div className="mobile-profile-hero-card">
                     <div className="mobile-profile-hero-avatar-wrap">
-                      <img
-                        src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80"
-                        alt="Profile"
-                        className="mobile-profile-hero-avatar"
-                        onError={(e) => { e.target.src = '/images/tablemint_leaf.svg'; }}
-                      />
+                      {currentUser?.avatar ? (
+                        <img
+                          src={currentUser.avatar}
+                          alt="Profile"
+                          className="mobile-profile-hero-avatar"
+                        />
+                      ) : (
+                        <div className="mobile-profile-hero-avatar-initials">
+                          {getUserInitials(profileName || currentUser?.name || 'Admin Manager')}
+                        </div>
+                      )}
                       <span className="mobile-profile-online-badge" />
                     </div>
-                    <h2 className="mobile-profile-hero-name">{profileName || currentUser?.name || 'Rohit Sharma'}</h2>
+                    <h2 className="mobile-profile-hero-name">{profileName || currentUser?.name || 'Admin Manager'}</h2>
                     <p className="mobile-profile-hero-email">{currentUser?.email || 'admin@tablemint.com'}</p>
                     <div className="mobile-profile-hero-pills">
                       <span className="mobile-profile-role-pill">
@@ -5276,16 +5296,19 @@ export default function DashboardApp({ onLockStaff }) {
                     style={{ cursor: 'pointer' }}
                     title="Open Profile Section"
                   >
-                    <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
-                      alt="Profile"
-                      className="mobile-more-avatar"
-                      onError={(e) => {
-                        e.target.src = '/images/tablemint_leaf.svg';
-                      }}
-                    />
+                    {currentUser?.avatar ? (
+                      <img
+                        src={currentUser.avatar}
+                        alt="Profile"
+                        className="mobile-more-avatar"
+                      />
+                    ) : (
+                      <div className="mobile-more-avatar-initials">
+                        {getUserInitials(profileName || currentUser?.name || 'Admin Manager')}
+                      </div>
+                    )}
                     <div className="mobile-more-profile-info" style={{ flex: 1 }}>
-                      <h3 className="mobile-more-user-name">{profileName || currentUser?.name || 'Rohit Sharma'}</h3>
+                      <h3 className="mobile-more-user-name">{profileName || currentUser?.name || 'Admin Manager'}</h3>
                       <p className="mobile-more-user-role">{profileRestaurant || 'Restaurant Owner'}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontWeight: 700, fontSize: '0.8rem' }}>
@@ -6151,16 +6174,34 @@ export default function DashboardApp({ onLockStaff }) {
           <div className="mobile-admin-drawer-card" onClick={(e) => e.stopPropagation()}>
             <div className="drawer-header-row">
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                  alt="Rohit Sharma"
-                  style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #10b981' }}
-                  onError={(e) => {
-                    e.target.src = '/images/tablemint_leaf_icon.png';
-                  }}
-                />
+                {currentUser?.avatar ? (
+                  <img
+                    src={currentUser.avatar}
+                    alt="Profile"
+                    style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #10b981' }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #07241a 0%, #059669 100%)',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: '0.92rem',
+                      border: '2px solid #10b981',
+                      flexShrink: 0
+                    }}
+                  >
+                    {getUserInitials(profileName || currentUser?.name || 'Admin Manager')}
+                  </div>
+                )}
                 <div>
-                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.02rem' }}>{currentUser?.name || 'Rohit Sharma'}</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.02rem' }}>{profileName || currentUser?.name || 'Admin Manager'}</div>
                   <div style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 600 }}>Restaurant Owner</div>
                 </div>
               </div>

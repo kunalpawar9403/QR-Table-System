@@ -3344,6 +3344,22 @@
   object-fit: cover;
 }
 
+.topbar-avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #07241a 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #10b981;
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
 .topbar-online-dot {
   position: absolute;
   bottom: 0;
@@ -6876,6 +6892,22 @@
     flex-shrink: 0;
   }
 
+  .mobile-more-avatar-initials {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #07241a 0%, #059669 100%);
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #10b981;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
   .mobile-more-profile-info {
     display: flex;
     flex-direction: column;
@@ -6948,19 +6980,33 @@
 
   /* Mobile Header Avatar Button */
   .mobile-header-avatar-btn {
-    width: 40px !important;
-    height: 40px !important;
+    width: 38px !important;
+    height: 38px !important;
     border-radius: 50% !important;
-    border: 2.5px solid #22d3ee !important;
-    box-shadow: 0 0 10px rgba(34, 211, 238, 0.5) !important;
+    border: 2px solid #10b981 !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.35) !important;
     padding: 0;
-    background: transparent;
+    background: linear-gradient(135deg, #07241a 0%, #064e3b 100%) !important;
+    color: #ffffff !important;
     cursor: pointer;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+  }
+
+  .mobile-header-avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.05em;
+    user-select: none;
   }
 
   .mobile-header-avatar-img {
@@ -7006,6 +7052,22 @@
     object-fit: cover;
     border: 3px solid #10b981;
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  }
+
+  .mobile-profile-hero-avatar-initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #07241a 0%, #059669 100%);
+    color: #ffffff;
+    font-size: 1.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #10b981;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    user-select: none;
   }
 
   .mobile-profile-online-badge {
