@@ -43,19 +43,34 @@ const defaultSettings = {
   sessionTimeoutHours: 3
 };
 
-// Safe atomic file writer
-function atomicWriteFileSync(filePath, data) {
-  try {
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    const tempPath = `${filePath}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`;
-    fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(tempPath, filePath);
-  } catch (err) {
-    console.error(`[DB File Error] Failed atomic write to ${filePath}:`, err.message);
+// ----------------- High-Speed In-Memory Cache (RAM speed: 0.1ms) -----------------
+const cache = {
+  orders: [],
+  tables: [],
+  menu: [],
+  settings: { ...defaultSettings },
+  users: []
+};
+
+// Non-blocking Debounced File Writer
+const pendingWrites = new Map();
+function scheduleFileWrite(filePath, data) {
+  if (pendingWrites.has(filePath)) {
+    clearTimeout(pendingWrites.get(filePath));
   }
+  const timer = setTimeout(() => {
+    pendingWrites.delete(filePath);
+    try {
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      const tempPath = `${filePath}.${Date.now()}.${Math.random().toString(36).slice(2, 6)}.tmp`;
+      fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), 'utf8');
+      fs.renameSync(tempPath, filePath);
+    } catch (err) {
+      console.error(`[DB Cache File Error] ${filePath}:`, err.message);
+    }
+  }, 400); // 400ms debounce
+  pendingWrites.set(filePath, timer);
 }
 
 function readJsonFile(filePath, fallback = []) {
@@ -174,6 +189,46 @@ const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
 
 let isConnectedToMongo = false;
 
+// Populate cache into memory on startup
+async function loadCacheFromMongoOrDisk() {
+  if (isConnectedToMongo) {
+    try {
+      console.log('[DB Cache] Loading data into ultra-fast in-memory cache...');
+      const [tables, menu, users, settingsDoc, orders] = await Promise.all([
+        TableModel.find().sort({ id: 1 }).lean(),
+        MenuItemModel.find().lean(),
+        UserModel.find().lean(),
+        SettingModel.findOne({ key: 'global' }).lean(),
+        OrderModel.find().lean()
+      ]);
+
+      cache.tables = tables && tables.length > 0 ? tables : readJsonFile(TABLES_FILE, defaultTables);
+      cache.menu = menu && menu.length > 0 ? menu : readJsonFile(MENU_FILE, defaultMenu);
+      cache.users = users && users.length > 0 ? users : readJsonFile(USERS_FILE, defaultUsers);
+      cache.orders = orders && orders.length > 0 ? orders : readJsonFile(ORDERS_FILE, defaultOrders);
+      if (settingsDoc) {
+        const { _id, __v, key, ...clean } = settingsDoc;
+        cache.settings = { ...defaultSettings, ...clean };
+      } else {
+        cache.settings = { ...defaultSettings, ...readJsonFile(SETTINGS_FILE, defaultSettings) };
+      }
+
+      console.log(`⚡ [DB Cache Ready] Instant RAM Cache: ${cache.menu.length} menu items, ${cache.tables.length} tables, ${cache.orders.length} orders.`);
+      return;
+    } catch (err) {
+      console.error('[DB Cache Init Error]:', err.message);
+    }
+  }
+
+  // Fallback to local files
+  cache.tables = readJsonFile(TABLES_FILE, defaultTables);
+  cache.menu = readJsonFile(MENU_FILE, defaultMenu);
+  cache.users = readJsonFile(USERS_FILE, defaultUsers);
+  cache.settings = { ...defaultSettings, ...readJsonFile(SETTINGS_FILE, defaultSettings) };
+  cache.orders = readJsonFile(ORDERS_FILE, defaultOrders);
+  console.log(`⚡ [DB Cache Ready] File mode cache loaded into RAM.`);
+}
+
 async function seedMongoIfEmpty() {
   try {
     const tableCount = await TableModel.countDocuments();
@@ -228,306 +283,222 @@ async function initDatabase() {
     console.log(' [DB] For cloud persistence on Render, set MONGODB_URI');
     console.log('----------------------------------------------------');
     isConnectedToMongo = false;
+    await loadCacheFromMongoOrDisk();
     return false;
   }
 
   try {
     console.log('[DB] Connecting to MongoDB Atlas...');
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 7000
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 10
     });
     isConnectedToMongo = true;
     console.log('✅ [DB] Connected to MongoDB Atlas successfully.');
     await seedMongoIfEmpty();
+    await loadCacheFromMongoOrDisk();
     return true;
   } catch (err) {
     console.error('⚠️  [DB] MongoDB Atlas connection failed:', err.message);
     console.log(' [DB] Falling back to safe atomic local storage.');
     isConnectedToMongo = false;
+    await loadCacheFromMongoOrDisk();
     return false;
   }
 }
 
-// ----------------- Unified Data Access APIs -----------------
+// ----------------- Ultra-Fast In-Memory Data APIs (Sub-Millisecond Speed) -----------------
 
-// ORDERS
-async function getOrders() {
-  if (isConnectedToMongo) {
-    try {
-      const docs = await OrderModel.find().lean();
-      return docs || [];
-    } catch (e) {
-      console.error('[DB] getOrders error:', e.message);
-    }
-  }
-  return readJsonFile(ORDERS_FILE, defaultOrders);
+// ORDERS (Instant RAM access + Background DB write)
+function getOrders() {
+  return cache.orders;
 }
 
-async function saveOrder(order) {
-  if (isConnectedToMongo) {
-    try {
-      const updated = await OrderModel.findOneAndUpdate(
-        { id: order.id },
-        { ...order, updatedAt: new Date().toISOString() },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-      ).lean();
-      return updated;
-    } catch (e) {
-      console.error('[DB] saveOrder error:', e.message);
-    }
-  }
-  // File fallback
-  const orders = readJsonFile(ORDERS_FILE, defaultOrders);
-  const idx = orders.findIndex(o => o.id === order.id);
+function saveOrder(order) {
+  const idx = cache.orders.findIndex(o => o.id === order.id);
+  const updatedOrder = { ...order, updatedAt: new Date().toISOString() };
   if (idx >= 0) {
-    orders[idx] = { ...orders[idx], ...order, updatedAt: new Date().toISOString() };
+    cache.orders[idx] = updatedOrder;
   } else {
-    orders.push(order);
+    cache.orders.push(updatedOrder);
   }
-  atomicWriteFileSync(ORDERS_FILE, orders);
-  return order;
+
+  // Non-blocking background sync to MongoDB
+  if (isConnectedToMongo) {
+    OrderModel.findOneAndUpdate(
+      { id: order.id },
+      updatedOrder,
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).catch(e => console.error('[DB BG Order Error]:', e.message));
+  }
+
+  scheduleFileWrite(ORDERS_FILE, cache.orders);
+  return updatedOrder;
 }
 
-async function updateOrder(id, updates) {
-  if (isConnectedToMongo) {
-    try {
-      const doc = await OrderModel.findOneAndUpdate(
-        { id },
-        { ...updates, updatedAt: new Date().toISOString() },
-        { new: true }
-      ).lean();
-      return doc;
-    } catch (e) {
-      console.error('[DB] updateOrder error:', e.message);
-    }
-  }
-  // File fallback
-  const orders = readJsonFile(ORDERS_FILE, defaultOrders);
-  const idx = orders.findIndex(o => o.id === id);
+function updateOrder(id, updates) {
+  const idx = cache.orders.findIndex(o => o.id === id);
   if (idx >= 0) {
-    orders[idx] = { ...orders[idx], ...updates, updatedAt: new Date().toISOString() };
-    atomicWriteFileSync(ORDERS_FILE, orders);
-    return orders[idx];
+    cache.orders[idx] = { ...cache.orders[idx], ...updates, updatedAt: new Date().toISOString() };
+    const updated = cache.orders[idx];
+
+    // Non-blocking background sync to MongoDB
+    if (isConnectedToMongo) {
+      OrderModel.updateOne(
+        { id },
+        { $set: { ...updates, updatedAt: updated.updatedAt } }
+      ).catch(e => console.error('[DB BG Update Order Error]:', e.message));
+    }
+
+    scheduleFileWrite(ORDERS_FILE, cache.orders);
+    return updated;
   }
   return null;
 }
 
-// TABLES
-async function getTables() {
-  if (isConnectedToMongo) {
-    try {
-      const docs = await TableModel.find().sort({ id: 1 }).lean();
-      if (docs && docs.length > 0) return docs;
-    } catch (e) {
-      console.error('[DB] getTables error:', e.message);
-    }
-  }
-  return readJsonFile(TABLES_FILE, defaultTables);
+function setAllOrders(orders) {
+  cache.orders = orders;
+  scheduleFileWrite(ORDERS_FILE, cache.orders);
+  return cache.orders;
 }
 
-async function saveTables(tables) {
-  if (isConnectedToMongo) {
-    try {
-      for (const t of tables) {
-        await TableModel.findOneAndUpdate(
-          { id: t.id },
-          t,
-          { upsert: true, new: true }
-        );
+// TABLES (Instant RAM access + Background DB write)
+function getTables() {
+  return cache.tables;
+}
+
+function saveTables(tables) {
+  cache.tables = tables;
+  if (isConnectedToMongo && Array.isArray(tables)) {
+    // Bulk write in background - 1 network call instead of 10 sequential queries
+    const bulkOps = tables.map(t => ({
+      updateOne: {
+        filter: { id: t.id },
+        update: { $set: t },
+        upsert: true
       }
-    } catch (e) {
-      console.error('[DB] saveTables error:', e.message);
-    }
+    }));
+    TableModel.bulkWrite(bulkOps).catch(e => console.error('[DB BG Tables Bulk Error]:', e.message));
   }
-  atomicWriteFileSync(TABLES_FILE, tables);
-  return tables;
+  scheduleFileWrite(TABLES_FILE, cache.tables);
+  return cache.tables;
 }
 
-async function updateTable(id, updates) {
+function updateTable(id, updates) {
   const tableId = parseInt(id, 10);
-  if (isConnectedToMongo) {
-    try {
-      const doc = await TableModel.findOneAndUpdate(
+  const idx = cache.tables.findIndex(t => t.id === tableId);
+  if (idx >= 0) {
+    cache.tables[idx] = { ...cache.tables[idx], ...updates };
+    const updated = cache.tables[idx];
+
+    // Non-blocking background sync to MongoDB
+    if (isConnectedToMongo) {
+      TableModel.updateOne(
         { id: tableId },
-        updates,
-        { new: true }
-      ).lean();
-      if (doc) return doc;
-    } catch (e) {
-      console.error('[DB] updateTable error:', e.message);
+        { $set: updates }
+      ).catch(e => console.error('[DB BG Update Table Error]:', e.message));
     }
-  }
-  // File fallback
-  const tables = readJsonFile(TABLES_FILE, defaultTables);
-  const idx = tables.findIndex(t => t.id === tableId);
-  if (idx >= 0) {
-    tables[idx] = { ...tables[idx], ...updates };
-    atomicWriteFileSync(TABLES_FILE, tables);
-    return tables[idx];
+
+    scheduleFileWrite(TABLES_FILE, cache.tables);
+    return updated;
   }
   return null;
 }
 
-// MENU
-async function getMenu() {
-  if (isConnectedToMongo) {
-    try {
-      const docs = await MenuItemModel.find().lean();
-      if (docs && docs.length > 0) return docs;
-    } catch (e) {
-      console.error('[DB] getMenu error:', e.message);
-    }
-  }
-  return readJsonFile(MENU_FILE, defaultMenu);
+// MENU (Instant RAM access + Background DB write)
+function getMenu() {
+  return cache.menu;
 }
 
-async function saveMenu(menu) {
-  if (isConnectedToMongo) {
-    try {
-      await MenuItemModel.deleteMany({});
-      if (menu && menu.length > 0) {
-        await MenuItemModel.insertMany(menu);
-      }
-    } catch (e) {
-      console.error('[DB] saveMenu error:', e.message);
-    }
+function saveMenu(menu) {
+  cache.menu = menu;
+  if (isConnectedToMongo && Array.isArray(menu)) {
+    MenuItemModel.deleteMany({}).then(() => {
+      if (menu.length > 0) MenuItemModel.insertMany(menu);
+    }).catch(e => console.error('[DB BG Menu Save Error]:', e.message));
   }
-  atomicWriteFileSync(MENU_FILE, menu);
-  return menu;
+  scheduleFileWrite(MENU_FILE, cache.menu);
+  return cache.menu;
 }
 
-async function updateMenuItem(id, updates) {
-  if (isConnectedToMongo) {
-    try {
-      const doc = await MenuItemModel.findOneAndUpdate(
+function updateMenuItem(id, updates) {
+  const idx = cache.menu.findIndex(m => m.id === id);
+  if (idx >= 0) {
+    cache.menu[idx] = { ...cache.menu[idx], ...updates };
+    const updated = cache.menu[idx];
+
+    if (isConnectedToMongo) {
+      MenuItemModel.updateOne(
         { id },
-        updates,
-        { new: true }
-      ).lean();
-      if (doc) return doc;
-    } catch (e) {
-      console.error('[DB] updateMenuItem error:', e.message);
+        { $set: updates }
+      ).catch(e => console.error('[DB BG Menu Update Error]:', e.message));
     }
-  }
-  const menu = readJsonFile(MENU_FILE, defaultMenu);
-  const idx = menu.findIndex(m => m.id === id);
-  if (idx >= 0) {
-    menu[idx] = { ...menu[idx], ...updates };
-    atomicWriteFileSync(MENU_FILE, menu);
-    return menu[idx];
+
+    scheduleFileWrite(MENU_FILE, cache.menu);
+    return updated;
   }
   return null;
 }
 
-async function deleteMenuItem(id) {
+function deleteMenuItem(id) {
+  cache.menu = cache.menu.filter(m => m.id !== id);
   if (isConnectedToMongo) {
-    try {
-      await MenuItemModel.deleteOne({ id });
-    } catch (e) {
-      console.error('[DB] deleteMenuItem error:', e.message);
-    }
+    MenuItemModel.deleteOne({ id }).catch(e => console.error('[DB BG Menu Delete Error]:', e.message));
   }
-  const menu = readJsonFile(MENU_FILE, defaultMenu).filter(m => m.id !== id);
-  atomicWriteFileSync(MENU_FILE, menu);
+  scheduleFileWrite(MENU_FILE, cache.menu);
   return true;
 }
 
-// SETTINGS
-async function getSettings() {
+// SETTINGS (Instant RAM access + Background DB write)
+function getSettings() {
+  return cache.settings;
+}
+
+function saveSettings(newSettings) {
+  cache.settings = { ...defaultSettings, ...cache.settings, ...newSettings, updatedAt: new Date().toISOString() };
   if (isConnectedToMongo) {
-    try {
-      const doc = await SettingModel.findOne({ key: 'global' }).lean();
-      if (doc) {
-        const { _id, __v, key, ...cleanSettings } = doc;
-        return { ...defaultSettings, ...cleanSettings };
+    SettingModel.findOneAndUpdate(
+      { key: 'global' },
+      { $set: cache.settings },
+      { upsert: true }
+    ).catch(e => console.error('[DB BG Settings Error]:', e.message));
+  }
+  scheduleFileWrite(SETTINGS_FILE, cache.settings);
+  return cache.settings;
+}
+
+// USERS (Instant RAM access + Background DB write)
+function getUsers() {
+  return cache.users;
+}
+
+function saveUsers(users) {
+  cache.users = users;
+  if (isConnectedToMongo && Array.isArray(users)) {
+    const bulkOps = users.map(u => ({
+      updateOne: {
+        filter: { id: u.id },
+        update: { $set: u },
+        upsert: true
       }
-    } catch (e) {
-      console.error('[DB] getSettings error:', e.message);
-    }
+    }));
+    UserModel.bulkWrite(bulkOps).catch(e => console.error('[DB BG Users Bulk Error]:', e.message));
   }
-  const current = readJsonFile(SETTINGS_FILE, defaultSettings);
-  return { ...defaultSettings, ...current };
+  scheduleFileWrite(USERS_FILE, cache.users);
+  return cache.users;
 }
 
-async function saveSettings(newSettings) {
-  const merged = { ...defaultSettings, ...(await getSettings()), ...newSettings, updatedAt: new Date().toISOString() };
-  if (isConnectedToMongo) {
-    try {
-      await SettingModel.findOneAndUpdate(
-        { key: 'global' },
-        merged,
-        { upsert: true, new: true }
-      );
-    } catch (e) {
-      console.error('[DB] saveSettings error:', e.message);
-    }
-  }
-  atomicWriteFileSync(SETTINGS_FILE, merged);
-  return merged;
-}
-
-// USERS
-async function getUsers() {
-  if (isConnectedToMongo) {
-    try {
-      const docs = await UserModel.find().lean();
-      if (docs && docs.length > 0) return docs;
-    } catch (e) {
-      console.error('[DB] getUsers error:', e.message);
-    }
-  }
-  const users = readJsonFile(USERS_FILE, defaultUsers);
-  if (!users || !Array.isArray(users) || users.length === 0) {
-    atomicWriteFileSync(USERS_FILE, defaultUsers);
-    return defaultUsers;
-  }
-  return users;
-}
-
-async function saveUsers(users) {
-  if (isConnectedToMongo) {
-    try {
-      for (const u of users) {
-        await UserModel.findOneAndUpdate(
-          { id: u.id },
-          u,
-          { upsert: true, new: true }
-        );
-      }
-    } catch (e) {
-      console.error('[DB] saveUsers error:', e.message);
-    }
-  }
-  atomicWriteFileSync(USERS_FILE, users);
-  return users;
-}
-
-async function getUserByEmail(email) {
+function getUserByEmail(email) {
   const cleanEmail = (email || '').trim().toLowerCase();
-  if (isConnectedToMongo) {
-    try {
-      const user = await UserModel.findOne({ email: cleanEmail }).lean();
-      if (user) return user;
-    } catch (e) {
-      console.error('[DB] getUserByEmail error:', e.message);
-    }
-  }
-  const users = await getUsers();
-  return users.find(u => (u.email || '').toLowerCase() === cleanEmail) || null;
+  return cache.users.find(u => (u.email || '').toLowerCase() === cleanEmail) || null;
 }
 
-async function createUser(userData) {
+function createUser(userData) {
+  cache.users.push(userData);
   if (isConnectedToMongo) {
-    try {
-      const created = await UserModel.create(userData);
-      return created.toObject();
-    } catch (e) {
-      console.error('[DB] createUser error:', e.message);
-    }
+    UserModel.create(userData).catch(e => console.error('[DB BG Create User Error]:', e.message));
   }
-  const users = await getUsers();
-  users.push(userData);
-  await saveUsers(users);
+  scheduleFileWrite(USERS_FILE, cache.users);
   return userData;
 }
 
@@ -536,6 +507,7 @@ module.exports = {
   getOrders,
   saveOrder,
   updateOrder,
+  setAllOrders,
   getTables,
   saveTables,
   updateTable,

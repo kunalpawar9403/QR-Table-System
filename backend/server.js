@@ -234,40 +234,31 @@ const defaultSettings = {
   sessionTimeoutHours: 3
 };
 
-// Async Read & Write helpers bridging to DB adapter
-async function readData(file, fallback = []) {
-  if (file.includes('orders.json')) return await db.getOrders();
-  if (file.includes('tables.json')) return await db.getTables();
-  if (file.includes('menu.json')) return await db.getMenu();
-  if (file.includes('users.json')) return await db.getUsers();
-  if (file.includes('settings.json')) return await db.getSettings();
+// Ultra-Fast In-Memory Read & Write helpers (instant RAM speed: < 0.1ms)
+function readData(file, fallback = []) {
+  if (file.includes('orders.json')) return db.getOrders();
+  if (file.includes('tables.json')) return db.getTables();
+  if (file.includes('menu.json')) return db.getMenu();
+  if (file.includes('users.json')) return db.getUsers();
+  if (file.includes('settings.json')) return db.getSettings();
   return fallback;
 }
 
-async function writeData(file, data) {
+function writeData(file, data) {
   if (file.includes('orders.json')) {
-    if (Array.isArray(data)) {
-      for (const order of data) {
-        await db.saveOrder(order);
-      }
-    }
-    return;
+    return db.setAllOrders(data);
   }
   if (file.includes('tables.json')) {
-    await db.saveTables(data);
-    return;
+    return db.saveTables(data);
   }
   if (file.includes('menu.json')) {
-    await db.saveMenu(data);
-    return;
+    return db.saveMenu(data);
   }
   if (file.includes('users.json')) {
-    await db.saveUsers(data);
-    return;
+    return db.saveUsers(data);
   }
   if (file.includes('settings.json')) {
-    await db.saveSettings(data);
-    return;
+    return db.saveSettings(data);
   }
 }
 
@@ -714,10 +705,10 @@ app.patch('/api/tables/:id/vacant', requireStaffAuth, async (req, res) => {
   // ROTATE TOKEN: Old customer links/bookmarks are expired
   table.sessionToken = generateTableToken(table.id);
   table.tokenCreatedAt = new Date().toISOString();
-  await writeData(TABLES_FILE, tables);
+  db.updateTable(table.id, table);
 
   // Close out active orders on this table as completed
-  const orders = await readData(ORDERS_FILE);
+  const orders = readData(ORDERS_FILE);
   let completedCount = 0;
   orders.forEach(order => {
     if (order.tableId === tableId && !['completed', 'cancelled'].includes(order.status)) {
@@ -725,15 +716,16 @@ app.patch('/api/tables/:id/vacant', requireStaffAuth, async (req, res) => {
       order.paymentStatus = 'paid';
       order.completedAt = new Date().toISOString();
       completedCount++;
+      db.updateOrder(order.id, {
+        status: 'completed',
+        paymentStatus: 'paid',
+        completedAt: order.completedAt
+      });
       io.to(`table_${tableId}`).emit('order:status_changed', order);
       io.to('kitchen').emit('order:status_changed', order);
       io.to('admin').emit('order:status_changed', order);
     }
   });
-
-  if (completedCount > 0) {
-    await writeData(ORDERS_FILE, orders);
-  }
 
   // Clear active service calls for this table
   activeServiceCalls = activeServiceCalls.filter(c => c.tableId !== tableId);
@@ -835,7 +827,7 @@ app.patch('/api/tables/:id/occupy', requireStaffAuth, async (req, res) => {
   table.manualStatus = 'occupied';
   table.status = 'occupied';
   table.occupiedAt = new Date().toISOString();
-  await writeData(TABLES_FILE, tables);
+  db.updateTable(table.id, table);
 
   io.emit('tables:updated', tables);
   io.emit('table:status_changed', { tableId, status: 'occupied' });
@@ -966,12 +958,16 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
   };
 
   orders.push(newOrder);
-  await writeData(ORDERS_FILE, orders);
+  db.saveOrder(newOrder);
 
   table.status = 'occupied';
   table.manualStatus = 'occupied';
   table.occupiedAt = new Date().toISOString();
-  await writeData(TABLES_FILE, tables);
+  db.updateTable(table.id, {
+    status: 'occupied',
+    manualStatus: 'occupied',
+    occupiedAt: table.occupiedAt
+  });
 
   io.emit('order:new', newOrder);
   io.to('kitchen').emit('order:new', newOrder);
@@ -1003,7 +999,7 @@ app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
     order.completedAt = new Date().toISOString();
     order.paymentStatus = 'paid';
   }
-  await writeData(ORDERS_FILE, orders);
+  db.updateOrder(order.id, order);
 
   io.emit('order:status_changed', order);
   io.to('kitchen').emit('order:status_changed', order);
@@ -1023,7 +1019,7 @@ app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
         table.lastClearedAt = new Date().toISOString();
         table.sessionToken = generateTableToken(table.id);
         table.tokenCreatedAt = new Date().toISOString();
-        await writeData(TABLES_FILE, tables);
+        db.updateTable(table.id, table);
 
         io.to(`table_${table.id}`).emit('table:session_expired', {
           tableId: table.id,
@@ -1059,7 +1055,7 @@ app.post(['/api/orders/:id/pay', '/api/orders/:id/customer-pay'], async (req, re
   order.paymentMethod = paymentMethod;
   order.paidAt = new Date().toISOString();
   if (transactionRef) order.transactionRef = transactionRef;
-  await writeData(ORDERS_FILE, orders);
+  db.updateOrder(order.id, order);
 
   io.emit('order:status_changed', order);
   io.to('admin').emit('order:status_changed', order);
