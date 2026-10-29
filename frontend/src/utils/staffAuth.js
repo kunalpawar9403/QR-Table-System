@@ -108,9 +108,13 @@ export async function checkStaffAuth() {
 
 export async function authFetch(url, options = {}) {
   const token = getStaffToken();
+  const currentUser = getCurrentUser();
   const headers = { ...(options.headers || {}) };
   if (token) {
     headers['x-staff-token'] = token;
+  }
+  if (currentUser && (currentUser.restaurantSlug || currentUser.restaurantName)) {
+    headers['x-restaurant-slug'] = currentUser.restaurantSlug || currentUser.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
   }
   const res = await fetch(url, { ...options, headers });
   if (res.status === 401) {

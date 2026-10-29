@@ -113,10 +113,13 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Cart & Orders
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [customerName, setCustomerName] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
+
+  // Multi-restaurant tenant parameter from URL
+  const restaurantParam = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('restaurant') || '';
+
   const [restaurantSettings, setRestaurantSettings] = useState({
     upiId: 'tablemint@upi',
     upiPayeeName: 'TableMint Restaurant',
@@ -143,21 +146,22 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
   // Load Restaurant & UPI Settings
   useEffect(() => {
-    fetch('/api/settings')
+    const q = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
+    fetch(`/api/settings${q}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data && data.upiId) setRestaurantSettings(data);
+        if (data && (data.upiId || data.restaurantName)) setRestaurantSettings(data);
       })
       .catch(() => {});
 
     const handleSettingsUpdated = (newSettings) => {
-      if (newSettings && newSettings.upiId) {
+      if (newSettings && (newSettings.upiId || newSettings.restaurantName)) {
         setRestaurantSettings(newSettings);
       }
     };
     socket.on('settings:updated', handleSettingsUpdated);
     return () => socket.off('settings:updated', handleSettingsUpdated);
-  }, []);
+  }, [restaurantParam]);
 
   // Check URL parameters and unlock table immediately
   useEffect(() => {
@@ -186,12 +190,13 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Fetch Menu
   useEffect(() => {
     fetchMenu();
-  }, []);
+  }, [restaurantParam]);
 
   const fetchMenu = async () => {
     try {
       setLoadingMenu(true);
-      const res = await fetch('/api/menu');
+      const q = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
+      const res = await fetch(`/api/menu${q}`);
       if (res.ok) {
         const data = await res.json();
         setMenu(data);
@@ -207,7 +212,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   useEffect(() => {
     if (!tableId) return;
 
-    socket.emit('join-table', { tableId });
+    socket.emit('join', { role: 'customer', tableId, restaurant: restaurantParam });
+    socket.emit('join-table', { tableId, restaurant: restaurantParam });
 
     const handleStatusChanged = (order) => {
       if (order.tableId === tableId || order.tableNumber === tableId) {
@@ -528,7 +534,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         tableName: `Table ${tableId}`,
         token: tableToken,
         sessionToken: tableToken,
-        customerName: customerName.trim() || `Guest (Table ${tableId})`,
+        restaurantSlug: restaurantParam || undefined,
+        guestName: `Table ${tableId} Guest`,
         items: cart.map((item) => ({
           id: item.id,
           name: item.name,
@@ -634,7 +641,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           tableName: `Table ${tableId}`,
           token: tableToken,
           type: typeLabel,
-          note: customNote || (typeof type === 'string' && !['waiter', 'water', 'tissue', 'bill'].includes(type) ? type : '')
+          note: customNote || (typeof type === 'string' && !['waiter', 'water', 'tissue', 'bill'].includes(type) ? type : ''),
+          restaurantSlug: restaurantParam || undefined
         })
       });
 

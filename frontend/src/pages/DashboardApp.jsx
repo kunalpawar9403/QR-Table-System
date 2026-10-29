@@ -146,7 +146,6 @@ const VALID_DASHBOARD_TABS = [
   'menu',
   'kitchen',
   'billing',
-  'customers',
   'reports',
   'settings',
   'stands',
@@ -1227,16 +1226,6 @@ export default function DashboardApp({ onLockStaff }) {
             </button>
 
             <button
-              className={`sidebar-nav-item ${activeTab === 'customers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('customers')}
-            >
-              <div className="sidebar-item-left">
-                <Users size={18} />
-                <span>Customers</span>
-              </div>
-            </button>
-
-            <button
               className={`sidebar-nav-item ${activeTab === 'reports' ? 'active' : ''}`}
               onClick={() => setActiveTab('reports')}
             >
@@ -1421,7 +1410,7 @@ export default function DashboardApp({ onLockStaff }) {
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">Settings</span>
               </button>
-            ) : ['reports', 'customers', 'stands'].includes(activeTab) ? (
+            ) : ['reports', 'stands'].includes(activeTab) ? (
               <button
                 type="button"
                 className="mobile-back-btn"
@@ -1431,7 +1420,6 @@ export default function DashboardApp({ onLockStaff }) {
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">
                   {activeTab === 'reports' && 'Reports'}
-                  {activeTab === 'customers' && 'Customers'}
                   {activeTab === 'stands' && 'QR Stands'}
                 </span>
               </button>
@@ -1445,7 +1433,7 @@ export default function DashboardApp({ onLockStaff }) {
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">
                   {activeTab === 'orders' && 'Orders'}
-                  {!['orders','tables','menu','kitchen','billing','reports','customers','settings','profile','stands'].includes(activeTab) && 'TableMint'}
+                  {!['orders','tables','menu','kitchen','billing','reports','settings','profile','stands'].includes(activeTab) && 'TableMint'}
                 </span>
               </button>
             )}
@@ -2099,10 +2087,10 @@ export default function DashboardApp({ onLockStaff }) {
                   ))}
                 </div>
 
-                {/* Customer Notes */}
+                {/* Order Notes */}
                 <div className="mobile-customer-notes-box">
-                  <div className="notes-label">Customer Notes</div>
-                  <div className="notes-text">{mobileSelectedOrder.notes || 'Less spicy, extra chutney'}</div>
+                  <div className="notes-label">Order Notes</div>
+                  <div className="notes-text">{mobileSelectedOrder.notes || 'None'}</div>
                 </div>
 
                 {/* Financial Summary */}
@@ -3484,146 +3472,6 @@ export default function DashboardApp({ onLockStaff }) {
                   );
                 })()}
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* ========================================================
-            TAB: CUSTOMERS MANAGEMENT (IMAGE 1 PANEL 8 & IMAGE 3 SCREEN 10)
-            ======================================================== */}
-        {activeTab === 'customers' && (
-          <section className="admin-page-container">
-            <div className="page-header-row">
-              <div>
-                <h2 className="page-title">Customers</h2>
-                <p className="page-subtitle">View and manage your customers</p>
-              </div>
-              <button
-                className="btn-brand-primary"
-                onClick={() => addToast('Add Customer modal opened', 'info')}
-              >
-                <Plus size={16} /> Add Customer
-              </button>
-            </div>
-
-            {/* Screen 10: Mobile Search Bar Pill (Reference Image Screen 10) */}
-            <div className="mobile-search-pill-box hide-on-desktop">
-              <Search size={16} />
-              <input
-                type="text"
-                placeholder="Search customers..."
-                value={customerSearch}
-                onChange={(e) => setCustomerSearch(e.target.value)}
-              />
-            </div>
-
-            {/* Filter and Search Bar for Desktop */}
-            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap' }}>
-              <div className="topbar-search-box" style={{ maxWidth: 360 }}>
-                <Search size={15} className="topbar-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search customers..."
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  className="topbar-search-input"
-                />
-              </div>
-
-              <select
-                className="btn-brand-outline"
-                style={{ padding: '8px 14px', fontSize: '0.82rem', background: '#f8fafc' }}
-              >
-                <option>All Customers</option>
-                <option>Frequent Diners</option>
-                <option>High Spenders</option>
-              </select>
-            </div>
-
-            {/* Screen 10: Mobile Customers List View (Reference Image Screen 10) */}
-            <div className="mobile-customers-list-view hide-on-desktop">
-              {[
-                { id: '1', name: 'Amit Patel', phone: '87654 3210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
-                { id: '2', name: 'Priya Sharma', phone: '91234 6780', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
-                { id: '3', name: 'Rahul Kumar', phone: '99887 7665', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
-                { id: '4', name: 'Sneha Joshi', phone: '98712 3456', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
-                { id: '5', name: 'Vikram Singh', phone: '97654 3210', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' },
-                { id: '6', name: 'Neha Desai', phone: '98765 4321', email: 'neha@email.com', orders: 9, spent: 2250, date: 'Oct 21, 2026' }
-              ]
-                .filter((c) =>
-                  !customerSearch.trim() ||
-                  c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-                  c.phone.includes(customerSearch)
-                )
-                .map((c) => {
-                  const initials = c.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-                  return (
-                    <div key={c.id} className="mobile-customer-card">
-                      <div className="mobile-customer-avatar-initial">
-                        {initials}
-                      </div>
-                      <div className="mobile-customer-details">
-                        <div className="mobile-customer-name">{c.name}</div>
-                        <div className="mobile-customer-phone">+91 {c.phone}</div>
-                      </div>
-                      <div className="mobile-customer-stats">
-                        <div className="mobile-customer-orders">{c.orders} Orders</div>
-                        <div className="mobile-customer-spent">₹ {c.spent.toLocaleString('en-IN')}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-
-            {/* Data Table matching Reference Panel 8 for Desktop */}
-            <div className="admin-table-card hide-on-mobile">
-              <table className="admin-clean-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Total Orders</th>
-                    <th>Total Spent</th>
-                    <th>Last Visit</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    { id: '1', name: 'Amit Patel', phone: '9876543210', email: 'amit@email.com', orders: 12, spent: 3450, date: 'Oct 26, 2026' },
-                    { id: '2', name: 'Priya Sharma', phone: '9123456789', email: 'priya@email.com', orders: 8, spent: 2180, date: 'Oct 25, 2026' },
-                    { id: '3', name: 'Rahul Kumar', phone: '9868776655', email: 'rahul@email.com', orders: 15, spent: 4120, date: 'Oct 24, 2026' },
-                    { id: '4', name: 'Sneha Joshi', phone: '9871234567', email: 'sneha@email.com', orders: 6, spent: 1650, date: 'Oct 23, 2026' },
-                    { id: '5', name: 'Vikram Singh', phone: '9765432100', email: 'vikram@email.com', orders: 10, spent: 2880, date: 'Oct 22, 2026' }
-                  ]
-                    .filter((c) =>
-                      !customerSearch.trim() ||
-                      c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-                      c.phone.includes(customerSearch)
-                    )
-                    .map((c) => (
-                      <tr key={c.id}>
-                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{c.name}</td>
-                        <td style={{ color: '#475569' }}>{c.phone}</td>
-                        <td style={{ color: '#64748b' }}>{c.email}</td>
-                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{c.orders}</td>
-                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {c.spent.toLocaleString('en-IN')}</td>
-                        <td style={{ color: '#94a3b8', fontSize: '0.82rem' }}>{c.date}</td>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <button className="btn-row-action" onClick={() => addToast(`Customer: ${c.name}`, 'info')}>
-                              Edit
-                            </button>
-                            <button className="btn-row-dots">
-                              <MoreVertical size={15} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
             </div>
           </section>
         )}
@@ -5337,7 +5185,6 @@ export default function DashboardApp({ onLockStaff }) {
                       { id: 'menu', label: 'Menu Management', icon: BookOpen },
                       { id: 'kitchen', label: 'Kitchen Display', icon: ChefHat },
                       { id: 'billing', label: 'POS Billing', icon: CreditCard },
-                      { id: 'customers', label: 'Customers', icon: Users },
                       { id: 'reports', label: 'Reports', icon: BarChart3 },
                       { id: 'settings', label: 'Settings', icon: Settings },
                     ].map((item) => {
@@ -6152,7 +5999,7 @@ export default function DashboardApp({ onLockStaff }) {
 
         <button
           type="button"
-          className={`mobile-bottom-btn ${['profile', 'billing', 'kitchen', 'customers', 'reports', 'settings', 'stands'].includes(activeTab) ? 'active' : ''}`}
+          className={`mobile-bottom-btn ${['profile', 'billing', 'kitchen', 'reports', 'settings', 'stands'].includes(activeTab) ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('profile');
             setMobileMoreOpen(false);
@@ -6242,23 +6089,6 @@ export default function DashboardApp({ onLockStaff }) {
                 <div>
                   <div className="drawer-btn-title">Kitchen Display</div>
                   <div className="drawer-btn-sub">KDS Orders</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className={`drawer-action-btn ${activeTab === 'customers' ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveTab('customers');
-                  setMobileMoreOpen(false);
-                }}
-              >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>
-                  <Users size={20} />
-                </div>
-                <div>
-                  <div className="drawer-btn-title">Customers</div>
-                  <div className="drawer-btn-sub">Registered Diners</div>
                 </div>
               </button>
 

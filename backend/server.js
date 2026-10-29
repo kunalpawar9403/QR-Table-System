@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const QRCode = require('qrcode');
 const os = require('os');
@@ -35,27 +36,15 @@ function verifyPassword(password, hash, salt) {
   }
 }
 
-const defaultAdminCreds = hashPassword('admin123', 'tablemint_static_salt_2026');
-const defaultUsers = [
-  {
-    id: 'user_admin',
-    name: 'Admin Manager',
-    email: 'admin@tablemint.com',
-    hash: defaultAdminCreds.hash,
-    salt: defaultAdminCreds.salt,
-    role: 'admin',
-    restaurantName: 'TableMint',
-    createdAt: new Date().toISOString()
-  }
-];
-
 function generateUserToken(user) {
+  const rSlug = db.slugifyRestaurant(user.restaurantSlug || user.restaurantName);
   const payload = Buffer.from(JSON.stringify({
     id: user.id,
     name: user.name,
     email: user.email,
     role: user.role || 'admin',
     restaurantName: user.restaurantName || 'TableMint',
+    restaurantSlug: rSlug,
     time: Date.now()
   })).toString('base64url');
   const signature = crypto.createHmac('sha256', STAFF_SECRET).update(payload).digest('hex');
@@ -65,7 +54,14 @@ function generateUserToken(user) {
 function verifyUserToken(token) {
   if (!token || typeof token !== 'string') return null;
   if (token === STAFF_PIN) {
-    return { id: 'staff_pin', name: 'POS Floor Staff', email: 'staff@tablemint.local', role: 'staff', restaurantName: 'TableMint' };
+    return {
+      id: 'staff_pin',
+      name: 'POS Floor Staff',
+      email: 'staff@tablemint.local',
+      role: 'staff',
+      restaurantName: 'TableMint',
+      restaurantSlug: 'tablemint'
+    };
   }
   const parts = token.split('.');
   if (parts.length !== 2) return null;
@@ -76,27 +72,23 @@ function verifyUserToken(token) {
       return null;
     }
     if (payload.startsWith('staff-')) {
-      return { id: 'staff_pin', name: 'POS Floor Staff', email: 'staff@tablemint.local', role: 'staff', restaurantName: 'TableMint' };
+      return {
+        id: 'staff_pin',
+        name: 'POS Floor Staff',
+        email: 'staff@tablemint.local',
+        role: 'staff',
+        restaurantName: 'TableMint',
+        restaurantSlug: 'tablemint'
+      };
     }
     const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    if (!decoded.restaurantSlug) {
+      decoded.restaurantSlug = db.slugifyRestaurant(decoded.restaurantName);
+    }
     return decoded;
   } catch (e) {
     return null;
   }
-}
-
-function generateStaffToken() {
-  return generateUserToken({
-    id: 'staff_pin',
-    name: 'POS Floor Staff',
-    email: 'staff@tablemint.local',
-    role: 'staff',
-    restaurantName: 'TableMint'
-  });
-}
-
-function verifyStaffToken(token) {
-  return Boolean(verifyUserToken(token));
 }
 
 function requireStaffAuth(req, res, next) {
@@ -114,13 +106,36 @@ function requireStaffAuth(req, res, next) {
   });
 }
 
+function getRequestRestaurantSlug(req) {
+  if (req.user && (req.user.restaurantSlug || req.user.restaurantName)) {
+    return db.slugifyRestaurant(req.user.restaurantSlug || req.user.restaurantName);
+  }
+  const fromHeader = req.headers['x-restaurant-slug'] || req.headers['x-restaurant-id'];
+  if (fromHeader) return db.slugifyRestaurant(fromHeader);
+  const fromQuery = req.query.restaurant || req.query.restaurantSlug;
+  if (fromQuery) return db.slugifyRestaurant(fromQuery);
+  if (req.body && (req.body.restaurantSlug || req.body.restaurant)) {
+    return db.slugifyRestaurant(req.body.restaurantSlug || req.body.restaurant);
+  }
+  return 'tablemint';
+}
+
 const app = express();
 const server = http.createServer(app);
+
+// Enable reverse proxy support (Render, Vercel, Nginx, Cloudflare)
+app.set('trust proxy', 1);
+
+// High-speed response compression for production
+app.use(compression());
+
 const io = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE']
-  }
+  },
+  pingTimeout: 30000,
+  pingInterval: 15000
 });
 
 const PORT = process.env.PORT || 3000;
@@ -139,47 +154,71 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Prevent aggressive browser caching of dashboard JS/CSS
-app.use((req, res, next) => {
+// Static Asset Cache for Production Performance
+const distDir = fs.existsSync(path.join(__dirname, '..', 'frontend', 'dist'))
+  ? path.join(__dirname, '..', 'frontend', 'dist')
+  : path.join(__dirname, 'dist');
+
+app.use(express.static(distDir, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
+
+app.use('/images', express.static(path.join(distDir, 'images'), {
+  maxAge: '7d'
+}));
+
+// Prevent aggressive browser caching of dynamic API requests
+app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   next();
 });
 
-// Rate Limiters
+// Production Rate Limiters - Designed for high concurrency without false-positives on shared Wi-Fi
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 mins
-  max: 25, // 25 attempts
+  windowMs: 15 * 60 * 1000,
+  max: 50,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'TOO_MANY_REQUESTS', message: 'Too many authentication attempts. Please try again after 15 minutes.' }
 });
 
 const orderLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 mins
-  max: 40, // 40 orders
+  windowMs: 5 * 60 * 1000,
+  max: 60, // 60 orders per 5 min per table
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'TOO_MANY_REQUESTS', message: 'Order limit reached. Please wait a few moments before placing another order.' }
+  validate: { keyGeneratorIpFallback: false },
+  keyGenerator: (req) => {
+    const table = req.body?.tableId || req.query?.table || 'generic';
+    const rSlug = getRequestRestaurantSlug(req);
+    return `${req.ip || 'ip'}_${rSlug}_T${table}`;
+  },
+  message: { error: 'TOO_MANY_REQUESTS', message: 'Order limit reached for this table. Please wait a moment before placing another order.' }
 });
 
 const serviceLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 mins
-  max: 15,
+  windowMs: 3 * 60 * 1000,
+  max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { keyGeneratorIpFallback: false },
+  keyGenerator: (req) => {
+    const table = req.body?.tableId || req.query?.table || 'generic';
+    const rSlug = getRequestRestaurantSlug(req);
+    return `${req.ip || 'ip'}_${rSlug}_T${table}`;
+  },
   message: { error: 'TOO_MANY_REQUESTS', message: 'Assistance request received. A staff member is on their way.' }
 });
-
-// Serve React Vite dist build from frontend/dist
-const distDir = fs.existsSync(path.join(__dirname, '..', 'frontend', 'dist'))
-  ? path.join(__dirname, '..', 'frontend', 'dist')
-  : path.join(__dirname, 'dist');
-app.use(express.static(distDir));
-app.use('/images', express.static(path.join(distDir, 'images')));
 
 // Helper to determine local network IP for real phone scanning
 function getLocalIpAddress() {
@@ -197,115 +236,8 @@ function getLocalIpAddress() {
 
 const LOCAL_IP = getLocalIpAddress();
 
-// Bundled fallback data for initial bootstrapping
-const defaultMenu = require('./data/menu.json');
-const defaultTables = require('./data/tables.json');
-let defaultOrders = [];
-try {
-  defaultOrders = require('./data/orders.json');
-} catch (e) {
-  defaultOrders = [];
-}
-
-const DEFAULT_DATA_DIR = path.join(__dirname, 'data');
-const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : DEFAULT_DATA_DIR;
-
-const MENU_FILE = path.join(DATA_DIR, 'menu.json');
-const TABLES_FILE = path.join(DATA_DIR, 'tables.json');
-const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
-
-const defaultSettings = {
-  restaurantName: 'TableMint',
-  tagline: 'Smart QR Dining & POS',
-  phone: '+91 98765 43210',
-  email: 'contact@tablemint.com',
-  address: 'MG Road, Pune, Maharashtra 411001',
-  currency: '₹',
-  taxRate: 5,
-  serviceCharge: 0,
-  upiId: 'tablemint@upi',
-  upiPayeeName: 'TableMint Restaurant',
-  upiQrEnabled: true,
-  acceptedPaymentMethods: ['UPI', 'Cash', 'Card'],
-  soundAlerts: true,
-  autoAcceptOrders: false,
-  sessionTimeoutHours: 3
-};
-
-// Ultra-Fast In-Memory Read & Write helpers (instant RAM speed: < 0.1ms)
-function readData(file, fallback = []) {
-  if (file.includes('orders.json')) return db.getOrders();
-  if (file.includes('tables.json')) return db.getTables();
-  if (file.includes('menu.json')) return db.getMenu();
-  if (file.includes('users.json')) return db.getUsers();
-  if (file.includes('settings.json')) return db.getSettings();
-  return fallback;
-}
-
-function writeData(file, data) {
-  if (file.includes('orders.json')) {
-    return db.setAllOrders(data);
-  }
-  if (file.includes('tables.json')) {
-    return db.saveTables(data);
-  }
-  if (file.includes('menu.json')) {
-    return db.saveMenu(data);
-  }
-  if (file.includes('users.json')) {
-    return db.saveUsers(data);
-  }
-  if (file.includes('settings.json')) {
-    return db.saveSettings(data);
-  }
-}
-
-async function getUsers() {
-  return await db.getUsers();
-}
-
-async function saveUsers(users) {
-  return await db.saveUsers(users);
-}
-
-async function getSettings() {
-  return await db.getSettings();
-}
-
-async function saveSettings(settings) {
-  return await db.saveSettings(settings);
-}
-
-// Session Token Helpers for Anti-Prank & Location Protection
-function generateTableToken(tableId) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let rand = '';
-  for (let i = 0; i < 6; i++) {
-    rand += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return `T${tableId}-${rand}`;
-}
-
-async function ensureTableTokens() {
-  try {
-    const tables = await db.getTables();
-    let modified = false;
-    tables.forEach(t => {
-      if (!t.sessionToken) {
-        t.sessionToken = generateTableToken(t.id);
-        t.tokenCreatedAt = new Date().toISOString();
-        modified = true;
-      }
-    });
-    if (modified) {
-      await db.saveTables(tables);
-    }
-  } catch (err) {
-    console.error('Error ensuring table tokens:', err.message);
-  }
-}
+// Active Service Calls (In-Memory Queue for Real-Time Dashboard per Restaurant)
+let activeServiceCalls = [];
 
 // ----------------- API Endpoints -----------------
 
@@ -321,7 +253,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Authentication Endpoints (Sign In, Sign Up, Quick PIN)
+// Server info & host URLs for QR generation
+app.get('/api/info', (req, res) => {
+  const isVercel = Boolean(process.env.VERCEL);
+  const host = req.headers.host || `localhost:${PORT}`;
+  const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (!host.includes('localhost') && !host.includes('127.0.0.1'));
+  const protocol = isHttps ? 'https' : 'http';
+
+  res.json({
+    localIp: isVercel ? host : LOCAL_IP,
+    port: PORT,
+    localBaseUrl: isVercel ? `${protocol}://${host}` : `http://${LOCAL_IP}:${PORT}`,
+    browserBaseUrl: `${protocol}://${host}`,
+    isCloud: isVercel || (!host.includes('localhost') && !host.includes('127.0.0.1'))
+  });
+});
+
+// Authentication Endpoints
 app.post('/api/auth/signup', authLimiter, async (req, res) => {
   try {
     const { name, email, password, restaurantName, role } = req.body || {};
@@ -341,7 +289,10 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
       return res.status(400).json({ success: false, error: 'An account with this email address already exists. Please sign in instead.' });
     }
 
+    const restName = (restaurantName || 'TableMint').trim();
+    const rSlug = db.slugifyRestaurant(restName);
     const { hash, salt } = hashPassword(password);
+
     const newUser = {
       id: `user_${Date.now()}`,
       name: name.trim(),
@@ -349,18 +300,25 @@ app.post('/api/auth/signup', authLimiter, async (req, res) => {
       hash,
       salt,
       role: role === 'staff' ? 'staff' : 'admin',
-      restaurantName: (restaurantName || 'TableMint').trim(),
+      restaurantName: restName,
+      restaurantSlug: rSlug,
       createdAt: new Date().toISOString()
     };
 
     await db.createUser(newUser);
+
+    // Auto-initialize tables and settings for this restaurant
+    db.getTables(rSlug);
+    db.getMenu(rSlug);
+    db.getSettings(rSlug);
 
     const safeUser = {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
       role: newUser.role,
-      restaurantName: newUser.restaurantName
+      restaurantName: newUser.restaurantName,
+      restaurantSlug: newUser.restaurantSlug
     };
     const token = generateUserToken(safeUser);
 
@@ -389,12 +347,14 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid email address or password. Please try again.' });
     }
 
+    const rSlug = user.restaurantSlug || db.slugifyRestaurant(user.restaurantName);
     const safeUser = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role,
-      restaurantName: user.restaurantName
+      restaurantName: user.restaurantName || 'TableMint',
+      restaurantSlug: rSlug
     };
     const token = generateUserToken(safeUser);
 
@@ -408,10 +368,6 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
     console.error('Error during signin:', err);
     res.status(500).json({ success: false, error: 'Internal server error during sign in.' });
   }
-});
-
-app.post('/api/auth/verify-pin', authLimiter, (req, res) => {
-  return res.status(403).json({ success: false, error: 'Staff PIN login is disabled. Please log in with your email and password.' });
 });
 
 app.get('/api/auth/me', (req, res) => {
@@ -429,17 +385,11 @@ app.get('/api/auth/check', (req, res) => {
   res.json({ authenticated: Boolean(user), user: user || null });
 });
 
-// PATCH /api/auth/profile - Update user profile details
 app.patch('/api/auth/profile', requireStaffAuth, async (req, res) => {
   try {
     const { name, restaurantName } = req.body || {};
-    const token = req.headers['x-staff-token'] || req.query.staff_token;
-    const currentUser = verifyUserToken(token);
-    if (!currentUser) {
-      return res.status(401).json({ success: false, error: 'Unauthorized user session.' });
-    }
-
-    const users = await getUsers();
+    const currentUser = req.user;
+    const users = await db.getUsers();
     const userIndex = users.findIndex(u => u.id === currentUser.id);
     if (userIndex === -1) {
       return res.status(404).json({ success: false, error: 'User account not found.' });
@@ -450,17 +400,19 @@ app.patch('/api/auth/profile', requireStaffAuth, async (req, res) => {
     }
     if (restaurantName && restaurantName.trim()) {
       users[userIndex].restaurantName = restaurantName.trim();
+      users[userIndex].restaurantSlug = db.slugifyRestaurant(restaurantName);
     }
     users[userIndex].updatedAt = new Date().toISOString();
 
-    await saveUsers(users);
+    await db.saveUsers(users);
 
     const safeUser = {
       id: users[userIndex].id,
       name: users[userIndex].name,
       email: users[userIndex].email,
       role: users[userIndex].role,
-      restaurantName: users[userIndex].restaurantName
+      restaurantName: users[userIndex].restaurantName,
+      restaurantSlug: users[userIndex].restaurantSlug
     };
     const newToken = generateUserToken(safeUser);
 
@@ -476,7 +428,6 @@ app.patch('/api/auth/profile', requireStaffAuth, async (req, res) => {
   }
 });
 
-// POST /api/auth/change-password - Change user password securely
 app.post('/api/auth/change-password', requireStaffAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body || {};
@@ -487,13 +438,8 @@ app.post('/api/auth/change-password', requireStaffAuth, async (req, res) => {
       return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
     }
 
-    const token = req.headers['x-staff-token'] || req.query.staff_token;
-    const currentUser = verifyUserToken(token);
-    if (!currentUser) {
-      return res.status(401).json({ success: false, error: 'Unauthorized user session.' });
-    }
-
-    const users = await getUsers();
+    const currentUser = req.user;
+    const users = await db.getUsers();
     let targetUser = users.find(u => u.id === currentUser.id);
     if (!targetUser && currentUser.id === 'staff_pin') {
       targetUser = users.find(u => u.role === 'admin') || users[0];
@@ -513,7 +459,7 @@ app.post('/api/auth/change-password', requireStaffAuth, async (req, res) => {
     targetUser.salt = salt;
     targetUser.updatedAt = new Date().toISOString();
 
-    await saveUsers(users);
+    await db.saveUsers(users);
 
     res.json({
       success: true,
@@ -525,62 +471,52 @@ app.post('/api/auth/change-password', requireStaffAuth, async (req, res) => {
   }
 });
 
-// Get Restaurant Settings (Public for both Admin and Customer)
+// Settings Endpoints (Multi-Tenant Scoped)
 app.get('/api/settings', async (req, res) => {
-  const settings = await getSettings();
+  const rSlug = getRequestRestaurantSlug(req);
+  const settings = await db.getSettings(rSlug);
   res.json(settings);
 });
 
-// Update Settings (Staff Protected)
 app.post(['/api/settings', '/api/settings/update'], requireStaffAuth, async (req, res) => {
-  const updated = await saveSettings(req.body || {});
+  const rSlug = getRequestRestaurantSlug(req);
+  const updated = await db.saveSettings(req.body || {}, rSlug);
+  io.to(`restaurant_${rSlug}`).emit('settings:updated', updated);
   io.emit('settings:updated', updated);
   res.json({ success: true, settings: updated });
 });
 
-// Server info & host URLs for QR generation
-app.get('/api/info', (req, res) => {
-  const isVercel = Boolean(process.env.VERCEL);
-  const host = req.headers.host || `localhost:${PORT}`;
-  const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (!host.includes('localhost') && !host.includes('127.0.0.1'));
-  const protocol = isHttps ? 'https' : 'http';
-
-  res.json({
-    localIp: isVercel ? host : LOCAL_IP,
-    port: PORT,
-    localBaseUrl: isVercel ? `${protocol}://${host}` : `http://${LOCAL_IP}:${PORT}`,
-    browserBaseUrl: `${protocol}://${host}`,
-    isCloud: isVercel || (!host.includes('localhost') && !host.includes('127.0.0.1'))
-  });
-});
-
-// Menu Endpoints (CRUD)
+// Menu Endpoints (Multi-Tenant Scoped)
 app.get('/api/menu', async (req, res) => {
-  const menu = await readData(MENU_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const menu = await db.getMenu(rSlug);
   res.json(menu);
 });
 
-// Toggle Availability (86'd)
 app.patch('/api/menu/:id/toggle', requireStaffAuth, async (req, res) => {
-  const menu = await readData(MENU_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const menu = await db.getMenu(rSlug);
   const item = menu.find(i => i.id === req.params.id);
   if (!item) return res.status(404).json({ error: 'Item not found' });
   item.available = !item.available;
-  await writeData(MENU_FILE, menu);
-  io.emit('menu:updated', menu);
+  await db.updateMenuItem(item.id, { available: item.available }, rSlug);
+  const updatedMenu = await db.getMenu(rSlug);
+  io.to(`restaurant_${rSlug}`).emit('menu:updated', updatedMenu);
+  io.emit('menu:updated', updatedMenu);
   res.json(item);
 });
 
-// Add New Menu Item
 app.post('/api/menu', requireStaffAuth, async (req, res) => {
   const { name, category, price, description, image, isVeg, isSpecial, prepTime } = req.body;
   if (!name || !price) {
     return res.status(400).json({ error: 'Name and price are required' });
   }
 
-  const menu = await readData(MENU_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const menu = await db.getMenu(rSlug);
   const newItem = {
-    id: `item-${Date.now().toString().slice(-5)}`,
+    id: `item-${Date.now().toString().slice(-6)}`,
+    restaurantSlug: rSlug,
     name: name.trim(),
     category: (category || 'north-indian').toLowerCase(),
     price: parseFloat(price) || 0,
@@ -595,19 +531,20 @@ app.post('/api/menu', requireStaffAuth, async (req, res) => {
   };
 
   menu.push(newItem);
-  await writeData(MENU_FILE, menu);
+  await db.saveMenu(menu, rSlug);
+  io.to(`restaurant_${rSlug}`).emit('menu:updated', menu);
   io.emit('menu:updated', menu);
   res.status(201).json(newItem);
 });
 
-// Update / Edit Menu Item
 app.put('/api/menu/:id', requireStaffAuth, async (req, res) => {
-  const menu = await readData(MENU_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const menu = await db.getMenu(rSlug);
   const idx = menu.findIndex(i => i.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Item not found' });
 
   const { name, category, price, description, image, isVeg, isSpecial, prepTime, available } = req.body;
-  menu[idx] = {
+  const updatedItem = {
     ...menu[idx],
     name: name ? name.trim() : menu[idx].name,
     category: category ? category.toLowerCase() : menu[idx].category,
@@ -620,226 +557,32 @@ app.put('/api/menu/:id', requireStaffAuth, async (req, res) => {
     available: available !== undefined ? Boolean(available) : menu[idx].available
   };
 
-  await writeData(MENU_FILE, menu);
-  io.emit('menu:updated', menu);
-  res.json(menu[idx]);
+  await db.updateMenuItem(req.params.id, updatedItem, rSlug);
+  const updatedMenu = await db.getMenu(rSlug);
+  io.to(`restaurant_${rSlug}`).emit('menu:updated', updatedMenu);
+  io.emit('menu:updated', updatedMenu);
+  res.json(updatedItem);
 });
 
-// Delete Menu Item
 app.delete('/api/menu/:id', requireStaffAuth, async (req, res) => {
-  let menu = await readData(MENU_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const menu = await db.getMenu(rSlug);
   const exists = menu.some(i => i.id === req.params.id);
   if (!exists) return res.status(404).json({ error: 'Item not found' });
 
-  menu = menu.filter(i => i.id !== req.params.id);
-  await writeData(MENU_FILE, menu);
-  io.emit('menu:updated', menu);
+  await db.deleteMenuItem(req.params.id, rSlug);
+  const updatedMenu = await db.getMenu(rSlug);
+  io.to(`restaurant_${rSlug}`).emit('menu:updated', updatedMenu);
+  io.emit('menu:updated', updatedMenu);
   res.json({ success: true, deletedId: req.params.id });
 });
 
-// Tables Endpoints (CRUD & Occupancy Controls)
-app.post('/api/tables', requireStaffAuth, async (req, res) => {
-  const { name, capacity, section } = req.body;
-  const tables = await readData(TABLES_FILE);
-  const nextId = tables.length > 0 ? Math.max(...tables.map(t => t.id || 0)) + 1 : 1;
-  const newTable = {
-    id: nextId,
-    name: name ? name.trim() : `Table ${nextId}`,
-    capacity: parseInt(capacity, 10) || 4,
-    section: section ? section.trim() : 'Indoor Dining',
-    status: 'available',
-    manualStatus: 'vacant',
-    sessionToken: generateTableToken(nextId),
-    tokenCreatedAt: new Date().toISOString()
-  };
-  tables.push(newTable);
-  await writeData(TABLES_FILE, tables);
-  io.emit('tables:updated', tables);
-  res.status(201).json(newTable);
-});
-
-// Update / Edit Table details (Name, Capacity, Section)
-app.put('/api/tables/:id', requireStaffAuth, async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  const tables = await readData(TABLES_FILE);
-  const idx = tables.findIndex(t => t.id === tableId);
-  if (idx === -1) return res.status(404).json({ error: 'Table not found' });
-
-  const { name, capacity, section } = req.body;
-  tables[idx] = {
-    ...tables[idx],
-    name: name ? name.trim() : tables[idx].name,
-    capacity: capacity !== undefined ? parseInt(capacity, 10) : tables[idx].capacity,
-    section: section ? section.trim() : tables[idx].section
-  };
-
-  await writeData(TABLES_FILE, tables);
-  io.emit('tables:updated', tables);
-  res.json(tables[idx]);
-});
-
-// Delete Table
-app.delete('/api/tables/:id', requireStaffAuth, async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  let tables = await readData(TABLES_FILE);
-  const exists = tables.some(t => t.id === tableId);
-  if (!exists) return res.status(404).json({ error: 'Table not found' });
-
-  tables = tables.filter(t => t.id !== tableId);
-  await writeData(TABLES_FILE, tables);
-  io.emit('tables:updated', tables);
-  res.json({ success: true, deletedId: tableId });
-});
-
-// MAKE VACANT: Called when customer finishes food / settles bill
-app.patch('/api/tables/:id/vacant', requireStaffAuth, async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  const tables = await readData(TABLES_FILE);
-  const table = tables.find(t => t.id === tableId);
-  if (!table) return res.status(404).json({ error: 'Table not found' });
-
-  table.manualStatus = 'vacant';
-  table.status = 'available';
-  table.lastClearedAt = new Date().toISOString();
-
-  // ROTATE TOKEN: Old customer links/bookmarks are expired
-  table.sessionToken = generateTableToken(table.id);
-  table.tokenCreatedAt = new Date().toISOString();
-  db.updateTable(table.id, table);
-
-  // Close out active orders on this table as completed
-  const orders = readData(ORDERS_FILE);
-  let completedCount = 0;
-  orders.forEach(order => {
-    if (order.tableId === tableId && !['completed', 'cancelled'].includes(order.status)) {
-      order.status = 'completed';
-      order.paymentStatus = 'paid';
-      order.completedAt = new Date().toISOString();
-      completedCount++;
-      db.updateOrder(order.id, {
-        status: 'completed',
-        paymentStatus: 'paid',
-        completedAt: order.completedAt
-      });
-      io.to(`table_${tableId}`).emit('order:status_changed', order);
-      io.to('kitchen').emit('order:status_changed', order);
-      io.to('admin').emit('order:status_changed', order);
-    }
-  });
-
-  // Clear active service calls for this table
-  activeServiceCalls = activeServiceCalls.filter(c => c.tableId !== tableId);
-  io.emit('service:updated', activeServiceCalls);
-
-  io.emit('tables:updated', tables);
-  io.emit('table:status_changed', { tableId, status: 'vacant' });
-  io.to(`table_${tableId}`).emit('table:vacated', { tableId });
-  io.to(`table_${tableId}`).emit('table:session_expired', {
-    tableId,
-    tableName: table.name,
-    message: 'Dining session has been completed by staff. Previous session links are expired.'
-  });
-
-  res.json({
-    success: true,
-    table,
-    newToken: table.sessionToken,
-    message: `${table.name} has been made VACANT. Session token refreshed to ${table.sessionToken}.`
-  });
-});
-
-// Verify table token
-app.get('/api/tables/:id/verify-token', async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  const token = req.query.token;
-  const tables = await readData(TABLES_FILE);
-  const orders = await readData(ORDERS_FILE);
-  let table = tables.find(t => t.id === tableId);
-  if (!table) {
-    table = {
-      id: tableId,
-      name: `Table ${tableId}`,
-      capacity: 4,
-      sessionToken: `T${tableId}-ACTIVE`,
-      status: 'available'
-    };
-  }
-
-  if (!table.sessionToken) {
-    table.sessionToken = generateTableToken(table.id);
-    table.tokenCreatedAt = new Date().toISOString();
-    await writeData(TABLES_FILE, tables);
-  }
-
-  const activeOrders = orders.filter(
-    o => o.tableId === table.id && !['completed', 'cancelled'].includes(o.status)
-  );
-  const isOccupied = activeOrders.length > 0 || table.manualStatus === 'occupied' || table.status === 'occupied';
-
-  const isValid = Boolean(token && typeof token === 'string' && table.sessionToken && token.trim() === table.sessionToken.trim());
-
-  res.json({
-    valid: isValid,
-    tableId: table.id,
-    tableName: table.name,
-    status: isOccupied ? 'occupied' : 'available',
-    manualStatus: table.manualStatus,
-    activeToken: isValid ? table.sessionToken : undefined,
-    message: isValid
-      ? 'Table session is active and verified.'
-      : 'Dining session has been completed by staff. Previous session links and tokens are expired. Please scan the current QR code on your table stand.'
-  });
-});
-
-// Manually Regenerate Table Token
-app.post('/api/tables/:id/regenerate-token', requireStaffAuth, async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  const tables = await readData(TABLES_FILE);
-  const table = tables.find(t => t.id === tableId);
-  if (!table) return res.status(404).json({ error: 'Table not found' });
-
-  table.sessionToken = generateTableToken(table.id);
-  table.tokenCreatedAt = new Date().toISOString();
-  await writeData(TABLES_FILE, tables);
-
-  io.to(`table_${tableId}`).emit('table:session_expired', {
-    tableId,
-    tableName: table.name,
-    message: 'Staff refreshed the table QR code. Please scan the new QR stand on your table.'
-  });
-  io.emit('tables:updated', tables);
-
-  res.json({
-    success: true,
-    tableId,
-    newToken: table.sessionToken,
-    message: `Generated fresh QR token ${table.sessionToken} for ${table.name}`
-  });
-});
-
-// MARK OCCUPIED: Staff seats walk-in guests before QR scan
-app.patch('/api/tables/:id/occupy', requireStaffAuth, async (req, res) => {
-  const tableId = parseInt(req.params.id, 10);
-  const tables = await readData(TABLES_FILE);
-  const table = tables.find(t => t.id === tableId);
-  if (!table) return res.status(404).json({ error: 'Table not found' });
-
-  table.manualStatus = 'occupied';
-  table.status = 'occupied';
-  table.occupiedAt = new Date().toISOString();
-  db.updateTable(table.id, table);
-
-  io.emit('tables:updated', tables);
-  io.emit('table:status_changed', { tableId, status: 'occupied' });
-
-  res.json({ success: true, table, message: `${table.name} marked as OCCUPIED.` });
-});
-
-// Get all tables with real-time occupancy status
+// Tables Endpoints (Multi-Tenant Scoped)
 app.get('/api/tables', async (req, res) => {
-  const tables = await readData(TABLES_FILE);
-  const orders = await readData(ORDERS_FILE);
-  
+  const rSlug = getRequestRestaurantSlug(req);
+  const tables = await db.getTables(rSlug);
+  const orders = await db.getOrders(rSlug);
+
   const enriched = tables.map(table => {
     const activeOrders = orders.filter(
       o => o.tableId === table.id && !['completed', 'cancelled'].includes(o.status)
@@ -859,22 +602,226 @@ app.get('/api/tables', async (req, res) => {
       latestOrder: activeOrders[activeOrders.length - 1] || null
     };
   });
-  
+
   res.json(enriched);
 });
 
-// Orders (Protected for Staff/Admin/Kitchen)
+app.post('/api/tables', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const { name, capacity, section } = req.body;
+  const tables = await db.getTables(rSlug);
+  const nextId = tables.length > 0 ? Math.max(...tables.map(t => t.id || 0)) + 1 : 1;
+  const newTable = {
+    id: nextId,
+    restaurantSlug: rSlug,
+    name: name ? name.trim() : `Table ${nextId}`,
+    capacity: parseInt(capacity, 10) || 4,
+    section: section ? section.trim() : 'Indoor Dining',
+    status: 'available',
+    manualStatus: 'vacant',
+    sessionToken: db.generateTableToken(nextId),
+    tokenCreatedAt: new Date().toISOString()
+  };
+  tables.push(newTable);
+  await db.saveTables(tables, rSlug);
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+  io.emit('tables:updated', tables);
+  res.status(201).json(newTable);
+});
+
+app.put('/api/tables/:id', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  const tables = await db.getTables(rSlug);
+  const idx = tables.findIndex(t => t.id === tableId);
+  if (idx === -1) return res.status(404).json({ error: 'Table not found' });
+
+  const { name, capacity, section } = req.body;
+  tables[idx] = {
+    ...tables[idx],
+    name: name ? name.trim() : tables[idx].name,
+    capacity: capacity !== undefined ? parseInt(capacity, 10) : tables[idx].capacity,
+    section: section ? section.trim() : tables[idx].section
+  };
+
+  await db.saveTables(tables, rSlug);
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+  io.emit('tables:updated', tables);
+  res.json(tables[idx]);
+});
+
+app.delete('/api/tables/:id', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  let tables = await db.getTables(rSlug);
+  const exists = tables.some(t => t.id === tableId);
+  if (!exists) return res.status(404).json({ error: 'Table not found' });
+
+  tables = tables.filter(t => t.id !== tableId);
+  await db.saveTables(tables, rSlug);
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+  io.emit('tables:updated', tables);
+  res.json({ success: true, deletedId: tableId });
+});
+
+app.patch('/api/tables/:id/vacant', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  const tables = await db.getTables(rSlug);
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return res.status(404).json({ error: 'Table not found' });
+
+  table.manualStatus = 'vacant';
+  table.status = 'available';
+  table.lastClearedAt = new Date().toISOString();
+  table.sessionToken = db.generateTableToken(table.id);
+  table.tokenCreatedAt = new Date().toISOString();
+  db.updateTable(table.id, table, rSlug);
+
+  const orders = await db.getOrders(rSlug);
+  orders.forEach(order => {
+    if (order.tableId === tableId && !['completed', 'cancelled'].includes(order.status)) {
+      order.status = 'completed';
+      order.paymentStatus = 'paid';
+      order.completedAt = new Date().toISOString();
+      db.updateOrder(order.id, {
+        status: 'completed',
+        paymentStatus: 'paid',
+        completedAt: order.completedAt
+      }, rSlug);
+      io.to(`restaurant_${rSlug}_table_${tableId}`).emit('order:status_changed', order);
+      io.to(`table_${tableId}`).emit('order:status_changed', order);
+      io.to(`restaurant_${rSlug}_kitchen`).emit('order:status_changed', order);
+      io.to(`restaurant_${rSlug}_admin`).emit('order:status_changed', order);
+    }
+  });
+
+  activeServiceCalls = activeServiceCalls.filter(c => !(c.tableId === tableId && (c.restaurantSlug || 'tablemint') === rSlug));
+  io.to(`restaurant_${rSlug}`).emit('service:updated', activeServiceCalls);
+
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+  io.emit('tables:updated', tables);
+  io.to(`restaurant_${rSlug}`).emit('table:status_changed', { tableId, status: 'vacant' });
+  io.to(`restaurant_${rSlug}_table_${tableId}`).emit('table:vacated', { tableId });
+  io.to(`table_${tableId}`).emit('table:session_expired', {
+    tableId,
+    tableName: table.name,
+    message: 'Dining session has been completed by staff. Previous session links are expired.'
+  });
+
+  res.json({
+    success: true,
+    table,
+    newToken: table.sessionToken,
+    message: `${table.name} has been made VACANT. Session token refreshed.`
+  });
+});
+
+app.get('/api/tables/:id/verify-token', async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  const token = req.query.token;
+  const tables = await db.getTables(rSlug);
+  const orders = await db.getOrders(rSlug);
+  let table = tables.find(t => t.id === tableId);
+  if (!table) {
+    table = {
+      id: tableId,
+      restaurantSlug: rSlug,
+      name: `Table ${tableId}`,
+      capacity: 4,
+      sessionToken: `T${tableId}-ACTIVE`,
+      status: 'available'
+    };
+  }
+
+  if (!table.sessionToken) {
+    table.sessionToken = db.generateTableToken(table.id);
+    table.tokenCreatedAt = new Date().toISOString();
+    await db.updateTable(table.id, table, rSlug);
+  }
+
+  const activeOrders = orders.filter(
+    o => o.tableId === table.id && !['completed', 'cancelled'].includes(o.status)
+  );
+  const isOccupied = activeOrders.length > 0 || table.manualStatus === 'occupied' || table.status === 'occupied';
+  const isValid = Boolean(token && typeof token === 'string' && table.sessionToken && token.trim() === table.sessionToken.trim());
+
+  res.json({
+    valid: isValid,
+    tableId: table.id,
+    tableName: table.name,
+    status: isOccupied ? 'occupied' : 'available',
+    manualStatus: table.manualStatus,
+    activeToken: isValid ? table.sessionToken : undefined,
+    message: isValid
+      ? 'Table session is active and verified.'
+      : 'Dining session has been completed by staff. Previous session links are expired. Please scan the current QR code on your table stand.'
+  });
+});
+
+app.post('/api/tables/:id/regenerate-token', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  const tables = await db.getTables(rSlug);
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return res.status(404).json({ error: 'Table not found' });
+
+  table.sessionToken = db.generateTableToken(table.id);
+  table.tokenCreatedAt = new Date().toISOString();
+  await db.updateTable(table.id, table, rSlug);
+
+  io.to(`restaurant_${rSlug}_table_${tableId}`).emit('table:session_expired', {
+    tableId,
+    tableName: table.name,
+    message: 'Staff refreshed the table QR code. Please scan the new QR stand on your table.'
+  });
+  io.to(`table_${tableId}`).emit('table:session_expired', {
+    tableId,
+    tableName: table.name,
+    message: 'Staff refreshed the table QR code. Please scan the new QR stand on your table.'
+  });
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+
+  res.json({
+    success: true,
+    tableId,
+    newToken: table.sessionToken,
+    message: `Generated fresh QR token for ${table.name}`
+  });
+});
+
+app.patch('/api/tables/:id/occupy', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
+  const tableId = parseInt(req.params.id, 10);
+  const tables = await db.getTables(rSlug);
+  const table = tables.find(t => t.id === tableId);
+  if (!table) return res.status(404).json({ error: 'Table not found' });
+
+  table.manualStatus = 'occupied';
+  table.status = 'occupied';
+  table.occupiedAt = new Date().toISOString();
+  db.updateTable(table.id, table, rSlug);
+
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
+  io.to(`restaurant_${rSlug}`).emit('table:status_changed', { tableId, status: 'occupied' });
+
+  res.json({ success: true, table, message: `${table.name} marked as OCCUPIED.` });
+});
+
+// Orders Endpoints (Multi-Tenant Scoped)
 app.get('/api/orders', requireStaffAuth, async (req, res) => {
-  const orders = await readData(ORDERS_FILE);
+  const rSlug = getRequestRestaurantSlug(req);
+  const orders = await db.getOrders(rSlug);
   const sorted = [...orders].reverse();
   res.json(sorted);
 });
 
-// Orders for a specific table (Token Protected for Customer Dining Session)
 app.get('/api/orders/table/:tableId', async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   const tableId = parseInt(req.params.tableId, 10);
   const token = req.query.token || req.headers['x-table-token'];
-  const tables = await readData(TABLES_FILE);
+  const tables = await db.getTables(rSlug);
   const table = tables.find(t => t.id === tableId);
   if (!table) return res.status(404).json({ error: 'Table not found' });
 
@@ -885,29 +832,29 @@ app.get('/api/orders/table/:tableId', async (req, res) => {
     });
   }
 
-  const orders = await readData(ORDERS_FILE);
+  const orders = await db.getOrders(rSlug);
   const tableOrders = orders.filter(o => o.tableId === tableId);
   res.json(tableOrders);
 });
 
-// Place new order
 app.post('/api/orders', orderLimiter, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   const { tableId, items, notes, guestName } = req.body;
   const token = req.body.token || req.body.sessionToken;
   if (!tableId || !items || !items.length) {
     return res.status(400).json({ error: 'Invalid order parameters' });
   }
 
-  const tables = await readData(TABLES_FILE);
+  const tables = await db.getTables(rSlug);
   const table = tables.find(t => t.id === parseInt(tableId, 10));
   if (!table) {
     return res.status(404).json({ error: 'Table not found' });
   }
 
   if (!table.sessionToken) {
-    table.sessionToken = generateTableToken(table.id);
+    table.sessionToken = db.generateTableToken(table.id);
     table.tokenCreatedAt = new Date().toISOString();
-    await writeData(TABLES_FILE, tables);
+    await db.updateTable(table.id, table, rSlug);
   }
 
   if (!token || typeof token !== 'string' || token.trim() !== table.sessionToken.trim()) {
@@ -917,13 +864,13 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     });
   }
 
-  const orders = await readData(ORDERS_FILE);
+  const orders = await db.getOrders(rSlug);
   const orderNum = orders.length > 0 ? Math.max(...orders.map(o => o.orderNumber || 100)) + 1 : 101;
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const tax = +(subtotal * 0.05).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
 
-  const menu = await readData(MENU_FILE);
+  const menu = await db.getMenu(rSlug);
   const enrichedItems = items.map(item => {
     const match = menu.find(m =>
       (item.id && String(m.id) === String(item.id)) ||
@@ -942,6 +889,7 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
 
   const newOrder = {
     id: `ORD-${orderNum}`,
+    restaurantSlug: rSlug,
     orderNumber: orderNum,
     tableId: parseInt(tableId, 10),
     tableName: table.name,
@@ -957,7 +905,6 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     paymentMethod: 'Pay at Counter / UPI'
   };
 
-  orders.push(newOrder);
   db.saveOrder(newOrder);
 
   table.status = 'occupied';
@@ -967,27 +914,29 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     status: 'occupied',
     manualStatus: 'occupied',
     occupiedAt: table.occupiedAt
-  });
+  }, rSlug);
 
-  io.emit('order:new', newOrder);
+  io.to(`restaurant_${rSlug}_kitchen`).emit('order:new', newOrder);
+  io.to(`restaurant_${rSlug}_admin`).emit('order:new', newOrder);
+  io.to(`restaurant_${rSlug}_table_${tableId}`).emit('order:updated', newOrder);
   io.to('kitchen').emit('order:new', newOrder);
   io.to('admin').emit('order:new', newOrder);
   io.to(`table_${tableId}`).emit('order:updated', newOrder);
-  io.emit('table:status_changed', { tableId: parseInt(tableId, 10), status: 'occupied' });
-  io.emit('tables:updated', tables);
+  io.to(`restaurant_${rSlug}`).emit('table:status_changed', { tableId: parseInt(tableId, 10), status: 'occupied' });
+  io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
 
   res.status(201).json({ success: true, order: newOrder, ...newOrder });
 });
 
-// Update order status
 app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   const { status } = req.body;
   const validStatuses = ['new', 'pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'];
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
   }
 
-  const orders = await readData(ORDERS_FILE);
+  const orders = await db.getOrders(rSlug);
   const order = orders.find(o => o.id === req.params.id);
   if (!order) {
     return res.status(404).json({ error: 'Order not found' });
@@ -999,9 +948,11 @@ app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
     order.completedAt = new Date().toISOString();
     order.paymentStatus = 'paid';
   }
-  db.updateOrder(order.id, order);
+  db.updateOrder(order.id, order, rSlug);
 
-  io.emit('order:status_changed', order);
+  io.to(`restaurant_${rSlug}_kitchen`).emit('order:status_changed', order);
+  io.to(`restaurant_${rSlug}_admin`).emit('order:status_changed', order);
+  io.to(`restaurant_${rSlug}_table_${order.tableId}`).emit('order:status_changed', order);
   io.to('kitchen').emit('order:status_changed', order);
   io.to('admin').emit('order:status_changed', order);
   io.to(`table_${order.tableId}`).emit('order:status_changed', order);
@@ -1011,23 +962,28 @@ app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
       o => o.tableId === order.tableId && !['completed', 'cancelled'].includes(o.status)
     );
     if (remainingActive.length === 0) {
-      const tables = await readData(TABLES_FILE);
+      const tables = await db.getTables(rSlug);
       const table = tables.find(t => t.id === order.tableId);
       if (table) {
         table.status = 'available';
         table.manualStatus = 'vacant';
         table.lastClearedAt = new Date().toISOString();
-        table.sessionToken = generateTableToken(table.id);
+        table.sessionToken = db.generateTableToken(table.id);
         table.tokenCreatedAt = new Date().toISOString();
-        db.updateTable(table.id, table);
+        db.updateTable(table.id, table, rSlug);
 
+        io.to(`restaurant_${rSlug}_table_${table.id}`).emit('table:session_expired', {
+          tableId: table.id,
+          tableName: table.name,
+          message: 'All orders for this table are completed! Dining session closed.'
+        });
         io.to(`table_${table.id}`).emit('table:session_expired', {
           tableId: table.id,
           tableName: table.name,
           message: 'All orders for this table are completed! Dining session closed.'
         });
-        io.emit('table:status_changed', { tableId: table.id, status: 'vacant' });
-        io.emit('tables:updated', tables);
+        io.to(`restaurant_${rSlug}`).emit('table:status_changed', { tableId: table.id, status: 'vacant' });
+        io.to(`restaurant_${rSlug}`).emit('tables:updated', tables);
       }
     }
   }
@@ -1035,17 +991,17 @@ app.patch('/api/orders/:id/status', requireStaffAuth, async (req, res) => {
   res.json(order);
 });
 
-// Customer settles bill / marks payment at the end
 app.post(['/api/orders/:id/pay', '/api/orders/:id/customer-pay'], async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   const orderId = req.params.id;
   const { paymentMethod = 'UPI', transactionRef = '', token } = req.body || {};
-  const orders = await readData(ORDERS_FILE);
+  const orders = await db.getOrders(rSlug);
   const order = orders.find(o => o.id === orderId || o.orderNumber === parseInt(orderId, 10));
   if (!order) {
     return res.status(404).json({ error: 'Order not found' });
   }
 
-  const tables = await readData(TABLES_FILE);
+  const tables = await db.getTables(rSlug);
   const table = tables.find(t => t.id === order.tableId);
   if (table && table.sessionToken && token && token.trim() !== table.sessionToken.trim()) {
     return res.status(403).json({ error: 'TOKEN_EXPIRED', message: 'Session expired' });
@@ -1055,13 +1011,14 @@ app.post(['/api/orders/:id/pay', '/api/orders/:id/customer-pay'], async (req, re
   order.paymentMethod = paymentMethod;
   order.paidAt = new Date().toISOString();
   if (transactionRef) order.transactionRef = transactionRef;
-  db.updateOrder(order.id, order);
+  db.updateOrder(order.id, order, rSlug);
 
-  io.emit('order:status_changed', order);
+  io.to(`restaurant_${rSlug}_admin`).emit('order:status_changed', order);
+  io.to(`restaurant_${rSlug}_table_${order.tableId}`).emit('order:status_changed', order);
   io.to('admin').emit('order:status_changed', order);
   io.to(`table_${order.tableId}`).emit('order:status_changed', order);
 
-  io.emit('service:payment_received', {
+  io.to(`restaurant_${rSlug}`).emit('service:payment_received', {
     orderId: order.id,
     tableId: order.tableId,
     tableName: order.tableName,
@@ -1072,18 +1029,16 @@ app.post(['/api/orders/:id/pay', '/api/orders/:id/customer-pay'], async (req, re
   res.json({ success: true, order, message: `Payment of ₹${order.total} marked as paid via ${paymentMethod}` });
 });
 
-// Active Service Calls (In-Memory Queue for Real-Time Dashboard)
-let activeServiceCalls = [];
-
-// Get active service calls (Protected)
 app.get('/api/service-calls', requireStaffAuth, (req, res) => {
-  res.json(activeServiceCalls);
+  const rSlug = getRequestRestaurantSlug(req);
+  const filtered = activeServiceCalls.filter(c => (c.restaurantSlug || 'tablemint') === rSlug);
+  res.json(filtered);
 });
 
-// Call Waiter / Service Request
 app.post(['/api/service-call', '/api/service/call'], serviceLimiter, async (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   const { tableId, token, type, note } = req.body;
-  const tables = await readData(TABLES_FILE);
+  const tables = await db.getTables(rSlug);
   const foundTable = tables.find(t => t.id === parseInt(tableId, 10));
   if (!foundTable) {
     return res.status(404).json({ error: 'Table not found' });
@@ -1097,9 +1052,9 @@ app.post(['/api/service-call', '/api/service/call'], serviceLimiter, async (req,
   }
 
   const tableName = foundTable.name || `Table ${tableId}`;
-
   const callPayload = {
     id: 'SVC-' + Date.now().toString().slice(-4),
+    restaurantSlug: rSlug,
     tableId: parseInt(tableId, 10),
     tableName,
     type: type || 'Call Waiter',
@@ -1108,28 +1063,31 @@ app.post(['/api/service-call', '/api/service/call'], serviceLimiter, async (req,
   };
 
   activeServiceCalls.unshift(callPayload);
-  if (activeServiceCalls.length > 30) activeServiceCalls = activeServiceCalls.slice(0, 30);
+  if (activeServiceCalls.length > 50) activeServiceCalls = activeServiceCalls.slice(0, 50);
 
-  io.emit('service:call', callPayload);
-  io.emit('service:updated', activeServiceCalls);
+  io.to(`restaurant_${rSlug}_kitchen`).emit('service:call', callPayload);
+  io.to(`restaurant_${rSlug}_admin`).emit('service:call', callPayload);
+  io.to(`restaurant_${rSlug}`).emit('service:updated', activeServiceCalls.filter(c => (c.restaurantSlug || 'tablemint') === rSlug));
   io.to('kitchen').emit('service:call', callPayload);
   io.to('admin').emit('service:call', callPayload);
 
   res.json({ success: true, call: callPayload });
 });
 
-// Dismiss / Attended service call
 app.patch('/api/service-call/:id/dismiss', requireStaffAuth, (req, res) => {
+  const rSlug = getRequestRestaurantSlug(req);
   activeServiceCalls = activeServiceCalls.filter(c => c.id !== req.params.id);
-  io.emit('service:updated', activeServiceCalls);
-  res.json({ success: true, activeServiceCalls });
+  const filtered = activeServiceCalls.filter(c => (c.restaurantSlug || 'tablemint') === rSlug);
+  io.to(`restaurant_${rSlug}`).emit('service:updated', filtered);
+  res.json({ success: true, activeServiceCalls: filtered });
 });
 
 // QR Code Generator (Binary PNG Image or JSON data URL)
 app.get('/api/qrcode/:tableId', async (req, res) => {
   try {
+    const rSlug = getRequestRestaurantSlug(req);
     const tableId = parseInt(req.params.tableId, 10);
-    const tables = await readData(TABLES_FILE);
+    const tables = await db.getTables(rSlug);
     const table = tables.find(t => t.id === tableId);
 
     if (!table) {
@@ -1137,9 +1095,9 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
     }
 
     if (!table.sessionToken) {
-      table.sessionToken = generateTableToken(table.id);
+      table.sessionToken = db.generateTableToken(table.id);
       table.tokenCreatedAt = new Date().toISOString();
-      await writeData(TABLES_FILE, tables);
+      await db.updateTable(table.id, table, rSlug);
     }
 
     const isVercel = Boolean(process.env.VERCEL);
@@ -1154,8 +1112,9 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
 
     const isHttps = isVercel || req.headers['x-forwarded-proto'] === 'https' || (!host.includes('localhost') && !host.includes('127.0.0.1') && !host.startsWith('192.168.') && !host.startsWith('10.') && !host.startsWith('172.'));
     const protocol = isHttps ? 'https' : 'http';
-    const targetUrl = `${protocol}://${host}/?table=${tableId}&token=${table.sessionToken}`;
-    
+    const restParam = rSlug !== 'tablemint' ? `&restaurant=${encodeURIComponent(rSlug)}` : '';
+    const targetUrl = `${protocol}://${host}/?table=${tableId}&token=${table.sessionToken}${restParam}`;
+
     if (req.query.format === 'json') {
       const qrDataUrl = await QRCode.toDataURL(targetUrl, {
         width: 400,
@@ -1165,6 +1124,7 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
 
       return res.json({
         tableId,
+        restaurantSlug: rSlug,
         sessionToken: table.sessionToken,
         targetUrl,
         qrDataUrl
@@ -1187,26 +1147,46 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
   }
 });
 
-// Socket.io Connection Logic
+// Socket.io Connection Logic (Multi-Tenant Partitioned)
 io.on('connection', (socket) => {
   socket.on('join', (data = {}) => {
-    const { role, tableId } = typeof data === 'object' ? data : {};
-    if (role === 'kitchen') socket.join('kitchen');
-    if (role === 'admin') socket.join('admin');
-    if (tableId) socket.join(`table_${tableId}`);
+    const { role, tableId, restaurant } = typeof data === 'object' ? data : {};
+    const rSlug = db.slugifyRestaurant(restaurant);
+
+    socket.join(`restaurant_${rSlug}`);
+    if (role === 'kitchen') {
+      socket.join(`restaurant_${rSlug}_kitchen`);
+      socket.join('kitchen');
+    }
+    if (role === 'admin') {
+      socket.join(`restaurant_${rSlug}_admin`);
+      socket.join('admin');
+    }
+    if (tableId) {
+      socket.join(`restaurant_${rSlug}_table_${tableId}`);
+      socket.join(`table_${tableId}`);
+    }
   });
 
-  socket.on('join-admin', () => {
+  socket.on('join-admin', (data = {}) => {
+    const rSlug = db.slugifyRestaurant(data?.restaurant);
+    socket.join(`restaurant_${rSlug}_admin`);
     socket.join('admin');
   });
 
-  socket.on('join-kitchen', () => {
+  socket.on('join-kitchen', (data = {}) => {
+    const rSlug = db.slugifyRestaurant(data?.restaurant);
+    socket.join(`restaurant_${rSlug}_kitchen`);
     socket.join('kitchen');
   });
 
   socket.on('join-table', (data = {}) => {
     const tableId = typeof data === 'object' ? data.tableId : data;
-    if (tableId) socket.join(`table_${tableId}`);
+    const rSlug = db.slugifyRestaurant(data?.restaurant);
+    if (tableId) {
+      socket.join(`restaurant_${rSlug}_table_${tableId}`);
+      socket.join(`table_${tableId}`);
+    }
   });
 
   socket.on('disconnect', () => {});
@@ -1223,10 +1203,9 @@ app.get(['/', '/dashboard', '/kitchen', '/admin', '/qr-stands', '/customer'], (r
 
 async function startServer() {
   await db.initDatabase();
-  await ensureTableTokens();
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`====================================================`);
-    console.log(`  TableMint Smart Restaurant POS Started!          `);
+    console.log(`  TableMint Multi-Restaurant POS Ready for Production!`);
     console.log(`  Access URL:        http://localhost:${PORT}      `);
     console.log(`  Network Access:    http://${LOCAL_IP}:${PORT}    `);
     console.log(`  Database Mode:     ${db.getIsConnectedToMongo() ? 'MongoDB Atlas' : 'Local File Storage'}`);
@@ -1234,7 +1213,15 @@ async function startServer() {
   });
 }
 
-// Graceful shutdown on Render/Unix termination
+// Global safety error handlers for high concurrency stability
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT EXCEPTION]:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[UNHANDLED REJECTION]:', reason);
+});
+
 const handleGracefulShutdown = (signal) => {
   console.log(`\n[Server] Received ${signal}. Shutting down gracefully...`);
   server.close(async () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChefHat, Volume2, VolumeX, Clock, Check, ArrowRight, Flame } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch } from '../utils/staffAuth';
+import { authFetch, getCurrentUser } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import '../styles/kitchen.css';
 
@@ -31,7 +31,10 @@ export default function KitchenKdsApp() {
   };
 
   useEffect(() => {
-    socket.emit('join-kitchen');
+    const user = getCurrentUser();
+    const rSlug = user?.restaurantSlug || (user?.restaurantName ? user.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'tablemint');
+    socket.emit('join', { role: 'kitchen', restaurant: rSlug });
+    socket.emit('join-kitchen', { restaurant: rSlug });
 
     const handleNewOrder = (order) => {
       soundManager.playNewOrderChime();
@@ -115,7 +118,7 @@ export default function KitchenKdsApp() {
         <div style={{ textAlign: 'center', padding: '100px 20px', color: 'var(--text-muted)' }}>
           <ChefHat size={56} style={{ margin: '0 auto 16px', opacity: 0.3 }} />
           <h3>All Kitchen Orders Cleared!</h3>
-          <p>Standing by for incoming customer orders...</p>
+          <p>Standing by for incoming live orders...</p>
         </div>
       ) : (
         <div className="kds-tickets-grid">
