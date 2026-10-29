@@ -182,8 +182,123 @@
   flex-shrink: 0;
 }
 
+.stands-toolbar-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.stands-filter-select {
+  width: 180px;
+  margin: 0;
+}
+
+.stand-card-actions {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.stand-action-btn {
+  flex: 1;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stands-toast-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #10b981;
+  border: 1px solid #10b981;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  animation: fadeInToast 0.25s ease;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
 #single-stand-print-root {
   display: none !important;
+}
+
+/* =========================================================
+   MOBILE RESPONSIVE STYLES (< 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+  .stands-screen-wrap {
+    padding: 12px 10px 60px;
+  }
+
+  .stands-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .stands-toolbar-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .stands-filter-select {
+    width: 100% !important;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+
+  .stands-toolbar .btn-primary,
+  .stands-toolbar .btn-secondary {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+
+  .stands-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .qr-stand-card {
+    max-width: 360px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 22px 16px 18px;
+    box-sizing: border-box;
+  }
+
+  .stand-card-actions {
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .stand-action-btn {
+    width: 100%;
+    min-height: 44px;
+    font-size: 0.88rem;
+  }
 }
 
 /* Print Rules */
@@ -213,10 +328,10 @@
 
   body.printing-single-stand-only #single-stand-print-root {
     display: block !important;
-    width: 105mm !important;
-    max-width: 105mm !important;
-    margin: 10mm auto !important;
-    padding: 18px !important;
+    width: 95mm !important;
+    max-width: 95mm !important;
+    margin: 8mm auto !important;
+    padding: 16px !important;
     border: 2px solid #000000 !important;
     border-radius: 14px !important;
     background: #ffffff !important;
@@ -225,6 +340,7 @@
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    box-sizing: border-box !important;
   }
 
   /* All Stands Printing */

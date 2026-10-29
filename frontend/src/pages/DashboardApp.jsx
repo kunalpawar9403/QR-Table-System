@@ -53,7 +53,8 @@ import {
   Globe,
   Info,
   Copy,
-  Upload
+  Upload,
+  Share2
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -265,6 +266,7 @@ export default function DashboardApp({ onLockStaff }) {
 
   const [standsPage, setStandsPage] = useState(1);
   const standsPerPage = 6;
+  const [standsFilter, setStandsFilter] = useState('all');
   const [isPrintingAllStands, setIsPrintingAllStands] = useState(false);
 
   // Reset page when filter or search changes
@@ -967,6 +969,36 @@ export default function DashboardApp({ onLockStaff }) {
     }, 150);
   };
 
+  const handleShareOrDownloadStand = async (table) => {
+    const qrUrl = `/api/qrcode/${table.id}`;
+    const scanUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}`
+      : '';
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${table.name || 'Table ' + table.id} - TableMint QR Stand`,
+          text: `Scan QR to open digital menu for ${table.name || 'Table ' + table.id}`,
+          url: scanUrl
+        });
+        addToast(`Shared ${table.name || 'Table ' + table.id} QR link!`, 'success');
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // Direct Download Stand PNG
+    const link = document.createElement('a');
+    link.href = qrUrl;
+    link.download = `${(table.name || 'table-' + table.id).toLowerCase().replace(/\s+/g, '-')}-qr-stand.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    addToast(`Saved ${table.name || 'Table ' + table.id} QR Stand!`, 'success');
+  };
+
   // Clean up printing classes on print dialog dismissal
   useEffect(() => {
     const handleAfterPrint = () => {
@@ -1095,12 +1127,15 @@ export default function DashboardApp({ onLockStaff }) {
     currentOverviewTablesPage * overviewTablesPerPage
   );
 
-  // 5. QR Stands Pagination
-  const totalStandsPages = Math.max(1, Math.ceil(tables.length / standsPerPage));
+  // 5. QR Stands Filter & Pagination
+  const filteredStandsList = standsFilter === 'all'
+    ? tables
+    : tables.filter((t) => String(t.id) === String(standsFilter));
+  const totalStandsPages = Math.max(1, Math.ceil(filteredStandsList.length / standsPerPage));
   const currentStandsPage = Math.min(standsPage, totalStandsPages);
   const displayedStands = isPrintingAllStands
-    ? tables
-    : tables.slice((currentStandsPage - 1) * standsPerPage, currentStandsPage * standsPerPage);
+    ? filteredStandsList
+    : filteredStandsList.slice((currentStandsPage - 1) * standsPerPage, currentStandsPage * standsPerPage);
 
   return (
     <div className="dash-layout-container">
@@ -1846,12 +1881,22 @@ export default function DashboardApp({ onLockStaff }) {
                 <h2 className="page-title">Table Management</h2>
                 <p className="page-subtitle">Manage your restaurant tables, view status and assign orders</p>
               </div>
-              <button
-                className="btn-brand-primary"
-                onClick={() => setTableModalOpen(true)}
-              >
-                <Plus size={16} /> Add Table
-              </button>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setActiveTab('stands')}
+                  title="Print Acrylic QR Table Stands"
+                >
+                  <Printer size={15} /> Print QR Stands
+                </button>
+                <button
+                  className="btn-brand-primary"
+                  onClick={() => setTableModalOpen(true)}
+                >
+                  <Plus size={16} /> Add Table
+                </button>
+              </div>
             </div>
 
 
@@ -1929,29 +1974,54 @@ export default function DashboardApp({ onLockStaff }) {
                         {info.status === 'serving' && `Serving ${info.code}`}
                         {info.status === 'available' && 'Available'}
                       </div>
-                      {info.status !== 'available' && (
+                      <div style={{ display: 'flex', gap: 6, marginTop: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
                         <button
                           type="button"
-                          className="btn-vacate-table-badge"
+                          className="btn-table-qr-badge"
                           style={{
-                            marginTop: 8,
-                            padding: '3px 10px',
-                            fontSize: '0.74rem',
+                            padding: '3px 8px',
+                            fontSize: '0.72rem',
                             fontWeight: 700,
                             borderRadius: 6,
-                            border: '1px solid #fca5a5',
-                            background: '#fff',
-                            color: '#dc2626',
-                            cursor: 'pointer'
+                            border: '1px solid #d97706',
+                            background: '#fffbeb',
+                            color: '#b45309',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 3
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleVacateTable(tbl.id);
+                            setViewQrTable(tbl);
                           }}
+                          title="Print / View Table QR Stand"
                         >
-                          Vacate Table
+                          <QrCode size={12} /> Stand
                         </button>
-                      )}
+                        {info.status !== 'available' && (
+                          <button
+                            type="button"
+                            className="btn-vacate-table-badge"
+                            style={{
+                              padding: '3px 8px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              borderRadius: 6,
+                              border: '1px solid #fca5a5',
+                              background: '#fff',
+                              color: '#dc2626',
+                              cursor: 'pointer'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleVacateTable(tbl.id);
+                            }}
+                          >
+                            Vacate
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -2792,12 +2862,28 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'stands' && (
           <section className="admin-page-container">
-            <div className="page-header-row">
+            <div className="page-header-row stands-page-header-row">
               <div>
                 <h2 className="page-title">Table Acrylic QR Stands</h2>
                 <p className="page-subtitle">Luxury printable standees for contactless guest phone ordering</p>
               </div>
-              <div className="page-header-actions">
+              <div className="page-header-actions stands-actions-bar" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                <select
+                  className="dash-form-select stands-filter-select"
+                  style={{ width: 170, margin: 0, padding: '7px 12px', fontSize: '0.85rem' }}
+                  value={standsFilter}
+                  onChange={(e) => {
+                    setStandsFilter(e.target.value);
+                    setStandsPage(1);
+                  }}
+                >
+                  <option value="all">All Tables ({tables.length})</option>
+                  {tables.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name || `Table ${t.id}`}
+                    </option>
+                  ))}
+                </select>
                 <button className="btn-brand-primary" onClick={handlePrintAllStands}>
                   <Printer size={16} /> Print All Stands ({tables.length})
                 </button>
@@ -2876,7 +2962,7 @@ export default function DashboardApp({ onLockStaff }) {
                     </div>
 
                     {/* Action Buttons (Screen Only - Hidden in Print) */}
-                    <div className="stand-card-actions no-print" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                    <div className="stand-card-actions no-print">
                       <button
                         type="button"
                         className="btn-primary stand-print-btn"
@@ -2891,7 +2977,15 @@ export default function DashboardApp({ onLockStaff }) {
                         onClick={() => setViewQrTable(t)}
                         title="Preview & Download High-Res QR"
                       >
-                        <QrCode size={14} /> Preview QR
+                        <QrCode size={14} /> Preview
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-secondary stand-share-btn"
+                        onClick={() => handleShareOrDownloadStand(t)}
+                        title="Share QR or Save Stand Image"
+                      >
+                        <Share2 size={14} /> Share / Save
                       </button>
                     </div>
                   </div>

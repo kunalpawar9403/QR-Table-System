@@ -1,12 +1,11 @@
 [
   {
+    "_id": "6ae2d1e8b8311edc4a2940e0",
     "id": "ORD-101",
     "orderNumber": 101,
     "tableId": 3,
     "tableName": "Table 3",
     "guestName": "Table 3 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T14:40:00.000Z",
     "items": [
       {
         "id": "item-1",
@@ -31,23 +30,25 @@
         "notes": ""
       }
     ],
+    "notes": "Acrylic stand scan order from Table 3",
     "subtotal": 438,
     "tax": 21.9,
+    "serviceCharge": 0,
     "total": 459.9,
-    "notes": "Acrylic stand scan order from Table 3",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T15:43:10.955Z",
-    "completedAt": "2026-10-17T16:28:38.681Z"
+    "createdAt": "2026-10-17T14:40:00.000Z",
+    "updatedAt": "2026-10-29T05:58:23.638Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e1",
     "id": "ORD-102",
     "orderNumber": 102,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T15:41:55.536Z",
     "items": [
       {
         "id": "item-2",
@@ -61,23 +62,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 529,
     "tax": 26.45,
+    "serviceCharge": 0,
     "total": 555.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T15:43:05.121Z",
-    "completedAt": "2026-10-17T16:18:39.176Z"
+    "createdAt": "2026-10-17T15:41:55.536Z",
+    "updatedAt": "2026-10-29T05:58:23.876Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e2",
     "id": "ORD-103",
     "orderNumber": 103,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T16:29:17.128Z",
     "items": [
       {
         "id": "item-1",
@@ -91,23 +94,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 249,
     "tax": 12.45,
+    "serviceCharge": 0,
     "total": 261.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T17:18:05.488Z",
-    "completedAt": "2026-10-17T17:18:19.345Z"
+    "createdAt": "2026-10-17T16:29:17.128Z",
+    "updatedAt": "2026-10-29T05:58:24.111Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e3",
     "id": "ORD-104",
     "orderNumber": 104,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T17:19:28.731Z",
     "items": [
       {
         "id": "item-1",
@@ -121,23 +126,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 249,
     "tax": 12.45,
+    "serviceCharge": 0,
     "total": 261.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T17:20:27.725Z",
-    "completedAt": "2026-10-17T17:24:59.679Z"
+    "createdAt": "2026-10-17T17:19:28.731Z",
+    "updatedAt": "2026-10-29T05:58:24.347Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e4",
     "id": "ORD-105",
     "orderNumber": 105,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Table 2 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T18:03:44.552Z",
     "items": [
       {
         "id": "item-1",
@@ -151,23 +158,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 249,
     "tax": 12.45,
+    "serviceCharge": 0,
     "total": 261.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T18:08:00.134Z",
-    "completedAt": "2026-10-17T18:08:08.054Z"
+    "createdAt": "2026-10-17T18:03:44.552Z",
+    "updatedAt": "2026-10-29T05:58:24.584Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e5",
     "id": "ORD-106",
     "orderNumber": 106,
     "tableId": 3,
     "tableName": "Table 3",
     "guestName": "Table 3 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T19:07:12.747Z",
     "items": [
       {
         "id": "m1",
@@ -178,23 +187,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 380,
     "tax": 19,
+    "serviceCharge": 0,
     "total": 399,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T19:07:18.904Z",
-    "completedAt": "2026-10-17T19:07:18.904Z"
+    "createdAt": "2026-10-17T19:07:12.747Z",
+    "updatedAt": "2026-10-29T05:58:24.823Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e6",
     "id": "ORD-107",
     "orderNumber": 107,
     "tableId": 3,
     "tableName": "Table 3",
     "guestName": "Table 3 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T19:07:45.136Z",
     "items": [
       {
         "id": "m1",
@@ -205,22 +216,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 380,
     "tax": 19,
+    "serviceCharge": 0,
     "total": 399,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "completedAt": "2026-10-17T19:08:08.367Z"
+    "createdAt": "2026-10-17T19:07:45.136Z",
+    "updatedAt": "2026-10-29T05:58:25.058Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e7",
     "id": "ORD-108",
     "orderNumber": 108,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T19:09:37.173Z",
     "items": [
       {
         "id": "item-1",
@@ -234,23 +248,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 249,
     "tax": 12.45,
+    "serviceCharge": 0,
     "total": 261.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-17T19:09:51.432Z",
-    "completedAt": "2026-10-17T19:10:05.468Z"
+    "createdAt": "2026-10-17T19:09:37.173Z",
+    "updatedAt": "2026-10-29T05:58:25.294Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e8",
     "id": "ORD-109",
     "orderNumber": 109,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-17T19:11:23.608Z",
     "items": [
       {
         "id": "item-1",
@@ -264,22 +280,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 249,
     "tax": 12.45,
+    "serviceCharge": 0,
     "total": 261.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "completedAt": "2026-10-17T19:11:26.531Z"
+    "createdAt": "2026-10-17T19:11:23.608Z",
+    "updatedAt": "2026-10-29T05:58:25.532Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940e9",
     "id": "ORD-110",
     "orderNumber": 110,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-18T04:02:28.678Z",
     "items": [
       {
         "id": "item-4",
@@ -293,23 +312,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 149,
     "tax": 7.45,
+    "serviceCharge": 0,
     "total": 156.45,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-18T04:02:44.783Z",
-    "completedAt": "2026-10-18T04:03:22.235Z"
+    "createdAt": "2026-10-18T04:02:28.678Z",
+    "updatedAt": "2026-10-29T05:58:25.767Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940ea",
     "id": "ORD-111",
     "orderNumber": 111,
     "tableId": 8,
     "tableName": "Table 8",
     "guestName": "Table 8 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-18T11:46:38.967Z",
     "items": [
       {
         "id": "ni-1",
@@ -348,23 +369,25 @@
         "image": "/images/butter_naan.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 465,
     "tax": 23.25,
+    "serviceCharge": 0,
     "total": 488.25,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-18T11:47:25.847Z",
-    "completedAt": "2026-10-18T11:47:49.963Z"
+    "createdAt": "2026-10-18T11:46:38.967Z",
+    "updatedAt": "2026-10-29T05:58:26.003Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940eb",
     "id": "ORD-112",
     "orderNumber": 112,
     "tableId": 3,
     "tableName": "Table 3",
     "guestName": "Table 3 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T11:03:01.787Z",
     "items": [
       {
         "id": "ni-1",
@@ -376,23 +399,25 @@
         "image": "/images/kaju_masala.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 160,
     "tax": 8,
+    "serviceCharge": 0,
     "total": 168,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T11:03:13.356Z",
-    "completedAt": "2026-10-26T11:03:31.925Z"
+    "createdAt": "2026-10-26T11:03:01.787Z",
+    "updatedAt": "2026-10-29T05:58:26.239Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940ec",
     "id": "ORD-113",
     "orderNumber": 113,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T16:29:58.112Z",
     "items": [
       {
         "id": 1,
@@ -403,23 +428,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 320,
     "tax": 16,
+    "serviceCharge": 0,
     "total": 336,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T16:30:58.562Z",
-    "completedAt": "2026-10-26T16:30:58.562Z"
+    "createdAt": "2026-10-26T16:29:58.112Z",
+    "updatedAt": "2026-10-29T05:58:26.475Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940ed",
     "id": "ORD-114",
     "orderNumber": 114,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Table 2 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T17:18:22.378Z",
     "items": [
       {
         "id": 1,
@@ -430,22 +457,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 150,
     "tax": 7.5,
+    "serviceCharge": 0,
     "total": 157.5,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "completedAt": "2026-10-26T17:33:36.992Z"
+    "createdAt": "2026-10-26T17:18:22.378Z",
+    "updatedAt": "2026-10-29T05:58:26.711Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940ee",
     "id": "ORD-115",
     "orderNumber": 115,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Table 2 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T17:24:56.655Z",
     "items": [
       {
         "id": 1,
@@ -457,23 +487,25 @@
         "image": "/images/paneer_tikka.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 520,
     "tax": 26,
+    "serviceCharge": 0,
     "total": 546,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T17:24:56.666Z",
-    "completedAt": "2026-10-26T17:24:56.666Z"
+    "createdAt": "2026-10-26T17:24:56.655Z",
+    "updatedAt": "2026-10-29T05:58:26.947Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940ef",
     "id": "ORD-116",
     "orderNumber": 116,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Table 2 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T17:24:56.673Z",
     "items": [
       {
         "id": 1,
@@ -484,22 +516,25 @@
         "notes": ""
       }
     ],
+    "notes": "",
     "subtotal": 150,
     "tax": 7.5,
+    "serviceCharge": 0,
     "total": 157.5,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "completedAt": "2026-10-26T17:33:36.993Z"
+    "createdAt": "2026-10-26T17:24:56.673Z",
+    "updatedAt": "2026-10-29T05:58:27.182Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f0",
     "id": "ORD-117",
     "orderNumber": 117,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Table 2 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T17:34:15.515Z",
     "items": [
       {
         "id": 1,
@@ -511,23 +546,25 @@
         "image": "/images/paneer_tikka.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 520,
     "tax": 26,
+    "serviceCharge": 0,
     "total": 546,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T17:34:15.528Z",
-    "completedAt": "2026-10-26T17:34:15.528Z"
+    "createdAt": "2026-10-26T17:34:15.515Z",
+    "updatedAt": "2026-10-29T05:58:27.420Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f1",
     "id": "ORD-118",
     "orderNumber": 118,
     "tableId": 3,
     "tableName": "Table 3",
     "guestName": "Kunal",
-    "status": "completed",
-    "createdAt": "2026-10-26T17:46:10.340Z",
     "items": [
       {
         "id": 1,
@@ -539,23 +576,25 @@
         "image": "/images/chicken_biryani.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 340,
     "tax": 17,
+    "serviceCharge": 0,
     "total": 357,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T17:46:11.866Z",
-    "completedAt": "2026-10-26T17:46:11.866Z"
+    "createdAt": "2026-10-26T17:46:10.340Z",
+    "updatedAt": "2026-10-29T05:58:27.656Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f2",
     "id": "ORD-119",
     "orderNumber": 119,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Table 1 Guest",
-    "status": "completed",
-    "createdAt": "2026-10-26T18:00:07.894Z",
     "items": [
       {
         "id": "starters-1",
@@ -566,24 +605,25 @@
         "notes": ""
       }
     ],
+    "notes": "Extra spicy",
     "subtotal": 280,
     "tax": 14,
+    "serviceCharge": 0,
     "total": 294,
-    "notes": "Extra spicy",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-26T18:01:47.739Z",
-    "completedAt": "2026-10-26T18:01:47.739Z"
+    "createdAt": "2026-10-26T18:00:07.894Z",
+    "updatedAt": "2026-10-29T05:58:27.892Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f3",
     "id": "ORD-120",
     "orderNumber": 120,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "completed",
-    "createdAt": "2026-10-28T13:14:54.739Z",
-    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -604,22 +644,25 @@
         "image": "/images/chicken_biryani.jpg"
       }
     ],
+    "notes": "Less spicy, no onions in biryani",
     "subtotal": 720,
     "tax": 36,
+    "serviceCharge": 0,
     "total": 756,
-    "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "paid",
-    "paymentMethod": "UPI"
+    "status": "completed",
+    "paid": false,
+    "paymentMethod": "UPI",
+    "createdAt": "2026-10-28T13:14:54.739Z",
+    "updatedAt": "2026-10-29T05:58:28.128Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f4",
     "id": "ORD-121",
     "orderNumber": 121,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "completed",
-    "createdAt": "2026-10-28T13:17:33.575Z",
-    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -640,22 +683,25 @@
         "image": "/images/chicken_biryani.jpg"
       }
     ],
+    "notes": "Less spicy, no onions in biryani",
     "subtotal": 720,
     "tax": 36,
+    "serviceCharge": 0,
     "total": 756,
-    "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "paid",
-    "paymentMethod": "UPI"
+    "status": "completed",
+    "paid": false,
+    "paymentMethod": "UPI",
+    "createdAt": "2026-10-28T13:17:33.575Z",
+    "updatedAt": "2026-10-29T05:58:28.366Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f5",
     "id": "ORD-122",
     "orderNumber": 122,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Kunal",
-    "status": "completed",
-    "createdAt": "2026-10-28T13:18:47.698Z",
-    "completedAt": "2026-10-28T13:30:00.000Z",
     "items": [
       {
         "id": "pop-1",
@@ -676,22 +722,25 @@
         "image": "/images/chicken_biryani.jpg"
       }
     ],
+    "notes": "Less spicy, no onions in biryani",
     "subtotal": 720,
     "tax": 36,
+    "serviceCharge": 0,
     "total": 756,
-    "notes": "Less spicy, no onions in biryani",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "UPI",
-    "updatedAt": "2026-10-28T13:18:47.744Z"
+    "createdAt": "2026-10-28T13:18:47.698Z",
+    "updatedAt": "2026-10-29T05:58:28.602Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f6",
     "id": "ORD-123",
     "orderNumber": 123,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Rahul",
-    "status": "completed",
-    "createdAt": "2026-10-28T13:47:49.632Z",
     "items": [
       {
         "id": "pop-1",
@@ -712,23 +761,25 @@
         "image": "/images/masala_dosa.jpg"
       }
     ],
+    "notes": "Crispy dosa please",
     "subtotal": 400,
     "tax": 20,
+    "serviceCharge": 0,
     "total": 420,
-    "notes": "Crispy dosa please",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-28T14:00:53.902Z",
-    "completedAt": "2026-10-28T14:04:22.282Z"
+    "createdAt": "2026-10-28T13:47:49.632Z",
+    "updatedAt": "2026-10-29T05:58:28.838Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f7",
     "id": "ORD-124",
     "orderNumber": 124,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Arjun Verma",
-    "status": "completed",
-    "createdAt": "2026-10-28T14:22:38.502Z",
     "items": [
       {
         "id": "pop-1",
@@ -749,23 +800,25 @@
         "image": "/images/margherita_pizza.jpg"
       }
     ],
+    "notes": "Please serve quickly",
     "subtotal": 620,
     "tax": 31,
+    "serviceCharge": 0,
     "total": 651,
-    "notes": "Please serve quickly",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "updatedAt": "2026-10-28T14:22:38.511Z",
-    "completedAt": "2026-10-28T14:22:38.514Z"
+    "createdAt": "2026-10-28T14:22:38.502Z",
+    "updatedAt": "2026-10-29T05:58:29.073Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f8",
     "id": "ORD-125",
     "orderNumber": 125,
     "tableId": 2,
     "tableName": "Table 2",
     "guestName": "Guest A",
-    "status": "completed",
-    "createdAt": "2026-10-28T15:47:45.248Z",
     "items": [
       {
         "id": 1,
@@ -777,22 +830,25 @@
         "image": "/images/paneer_butter_masala.jpg"
       }
     ],
+    "notes": "",
     "subtotal": 280,
     "tax": 14,
+    "serviceCharge": 0,
     "total": 294,
-    "notes": "",
-    "paymentStatus": "paid",
+    "status": "completed",
+    "paid": false,
     "paymentMethod": "Pay at Counter / UPI",
-    "completedAt": "2026-10-28T15:47:45.254Z"
+    "createdAt": "2026-10-28T15:47:45.248Z",
+    "updatedAt": "2026-10-29T05:58:29.308Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e8b8311edc4a2940f9",
     "id": "ORD-126",
     "orderNumber": 126,
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Payment Test Guest",
-    "status": "completed",
-    "createdAt": "2026-10-28T16:31:39.198Z",
     "items": [
       {
         "id": 1,
@@ -804,14 +860,92 @@
         "image": "/images/paneer_butter_masala.jpg"
       }
     ],
+    "notes": "",
+    "subtotal": 280,
+    "tax": 14,
+    "serviceCharge": 0,
+    "total": 294,
+    "status": "completed",
+    "paid": false,
+    "paymentMethod": "UPI",
+    "paidAt": "2026-10-28T16:31:39.205Z",
+    "createdAt": "2026-10-28T16:31:39.198Z",
+    "updatedAt": "2026-10-29T05:58:29.543Z",
+    "__v": 0
+  },
+  {
+    "_id": "6ae2dfdf8cf79608565ab1c9",
+    "id": "ORD-127",
+    "__v": 0,
+    "createdAt": "2026-10-29T05:55:37.436Z",
+    "guestName": "Table 2 Guest",
+    "items": [
+      {
+        "id": "ni-5",
+        "name": "Veg Kolhapuri",
+        "price": 110,
+        "quantity": 1,
+        "image": "/images/veg_kolhapuri.jpg",
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "ni-4",
+        "name": "Veg Kadai",
+        "price": 115,
+        "quantity": 1,
+        "image": "/images/veg_kadai.jpg",
+        "options": [],
+        "notes": ""
+      },
+      {
+        "id": "ni-6",
+        "name": "Veg Hyderabadi",
+        "price": 110,
+        "quantity": 1,
+        "image": "/images/veg_hyderabadi.jpg",
+        "options": [],
+        "notes": ""
+      }
+    ],
+    "notes": "",
+    "orderNumber": 127,
+    "paid": false,
+    "paymentMethod": "Pay at Counter / UPI",
+    "serviceCharge": 0,
+    "status": "completed",
+    "subtotal": 335,
+    "tableId": 2,
+    "tableName": "Table 2",
+    "tax": 16.75,
+    "total": 351.75,
+    "updatedAt": "2026-10-29T05:58:29.779Z"
+  },
+  {
+    "id": "ORD-128",
+    "orderNumber": 128,
+    "tableId": 1,
+    "tableName": "Table 1",
+    "guestName": "Speed Test Diner",
+    "status": "pending",
+    "createdAt": "2026-10-29T08:17:18.893Z",
+    "items": [
+      {
+        "id": "starter-1",
+        "name": "Paneer Tikka",
+        "price": 280,
+        "quantity": 1,
+        "image": "/images/paneer_tikka.jpg",
+        "options": [],
+        "notes": ""
+      }
+    ],
     "subtotal": 280,
     "tax": 14,
     "total": 294,
-    "notes": "",
-    "paymentStatus": "paid",
-    "paymentMethod": "UPI",
-    "updatedAt": "2026-10-28T16:31:39.202Z",
-    "paidAt": "2026-10-28T16:31:39.205Z",
-    "completedAt": "2026-10-29T02:27:58.884Z"
+    "notes": "Speed test",
+    "paymentStatus": "unpaid",
+    "paymentMethod": "Pay at Counter / UPI",
+    "updatedAt": "2026-10-29T08:17:18.893Z"
   }
 ]

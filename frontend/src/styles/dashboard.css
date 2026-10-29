@@ -7223,5 +7223,80 @@
   }
 }
 
+/* =========================================================
+   MOBILE QR STANDS PRINTING & RESPONSIVE LAYOUT
+   ========================================================= */
+@media (max-width: 768px) {
+  .stands-page-header-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .stands-actions-bar {
+    width: 100% !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .stands-filter-select {
+    width: 100% !important;
+    height: 42px !important;
+    font-size: 0.92rem !important;
+  }
+
+  .stands-actions-bar .btn-brand-primary {
+    width: 100% !important;
+    justify-content: center !important;
+    height: 44px !important;
+    font-size: 0.92rem !important;
+  }
+
+  .qr-stands-grid-container {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    padding: 0 4px !important;
+  }
+
+  .qr-stand-print-card {
+    max-width: 350px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 22px 16px 18px !important;
+  }
+
+  .stand-qr-holder {
+    width: 160px !important;
+    height: 160px !important;
+  }
+
+  .stand-card-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+  }
+
+  .stand-card-actions button {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 11px 14px !important;
+    font-size: 0.88rem !important;
+    border-radius: 10px !important;
+  }
+}
+
+/* Mobile Print Media Optimization */
+@media print {
+  body.printing-single-stand-only #single-stand-print-root {
+    width: 100% !important;
+    max-width: 95mm !important;
+    margin: 4mm auto !important;
+    box-sizing: border-box !important;
+  }
+}
+
+
 
 

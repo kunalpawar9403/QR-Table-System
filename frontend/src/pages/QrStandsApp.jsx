@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Printer, ArrowLeft, QrCode, Sparkles, Wifi, ExternalLink } from 'lucide-react';
+import { Printer, ArrowLeft, QrCode, Sparkles, Wifi, ExternalLink, Share2, Download } from 'lucide-react';
 import '../styles/qr-stands.css';
 
 export default function QrStandsApp({ onBack }) {
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState('all');
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
 
   useEffect(() => {
     fetch('/api/tables')
@@ -33,6 +39,36 @@ export default function QrStandsApp({ onBack }) {
     setTimeout(() => {
       document.body.classList.remove('printing-all-stands-only');
     }, 1000);
+  };
+
+  const handleShareOrDownloadStand = async (table) => {
+    const qrUrl = `/api/qrcode/${table.id}`;
+    const scanUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}`
+      : '';
+
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: `${table.name || 'Table ' + table.id} - TableMint QR Stand`,
+          text: `Scan QR to open digital menu for ${table.name || 'Table ' + table.id}`,
+          url: scanUrl
+        });
+        showToast(`Shared ${table.name || 'Table ' + table.id} QR link!`);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') return;
+      }
+    }
+
+    // Direct Download Stand PNG
+    const link = document.createElement('a');
+    link.href = qrUrl;
+    link.download = `${(table.name || 'table-' + table.id).toLowerCase().replace(/\s+/g, '-')}-qr-stand.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`Saved ${table.name || 'Table ' + table.id} QR Stand!`);
   };
 
   useEffect(() => {
@@ -67,10 +103,9 @@ export default function QrStandsApp({ onBack }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+        <div className="stands-toolbar-actions">
           <select
-            className="dash-form-select"
-            style={{ width: 180, margin: 0 }}
+            className="dash-form-select stands-filter-select"
             value={selectedTable}
             onChange={(e) => setSelectedTable(e.target.value)}
           >
@@ -87,6 +122,12 @@ export default function QrStandsApp({ onBack }) {
           </button>
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="stands-toast-notification">
+          {toastMessage}
+        </div>
+      )}
 
       <div className="stands-grid">
         {displayedTables.map((t) => (
@@ -148,14 +189,22 @@ export default function QrStandsApp({ onBack }) {
               <div style={{ fontSize: '0.62rem', color: '#94a3b8', marginTop: 2 }}>Powered by QR Table System</div>
             </div>
 
-            <div className="no-print" style={{ width: '100%', marginTop: 14 }}>
+            <div className="stand-card-actions no-print">
               <button
                 type="button"
-                className="btn-primary"
-                style={{ width: '100%', fontSize: '0.82rem', padding: '9px 12px' }}
+                className="btn-primary stand-action-btn"
                 onClick={() => handlePrintSingle(t)}
+                title="Print single table acrylic stand"
               >
-                <Printer size={14} /> Print Stand
+                <Printer size={15} /> Print Stand
+              </button>
+              <button
+                type="button"
+                className="btn-secondary stand-action-btn"
+                onClick={() => handleShareOrDownloadStand(t)}
+                title="Share link or save QR stand image on mobile"
+              >
+                <Share2 size={15} /> Share / Save
               </button>
             </div>
           </div>

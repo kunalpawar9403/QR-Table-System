@@ -1,103 +1,104 @@
 [
   {
+    "_id": "6ae2d1e6b8311edc4a294082",
     "id": 1,
     "name": "Table 1",
     "capacity": 2,
-    "section": "Indoor Dining",
-    "status": "available",
-    "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-29T02:27:58.882Z",
-    "occupiedAt": "2026-10-28T16:31:39.199Z",
+    "status": "occupied",
     "sessionToken": "T1-5Z9KV9",
-    "tokenCreatedAt": "2026-10-29T02:27:58.882Z"
+    "tokenCreatedAt": "2026-10-29T02:27:58.882Z",
+    "__v": 0,
+    "manualStatus": "occupied",
+    "occupiedAt": "2026-10-29T08:17:18.894Z"
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294083",
     "id": 2,
     "name": "Table 2",
     "capacity": 4,
-    "section": "Indoor Dining",
     "status": "available",
-    "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-28T15:47:45.254Z",
-    "sessionToken": "T2-8E8P8W",
-    "tokenCreatedAt": "2026-10-28T15:47:45.254Z",
-    "occupiedAt": "2026-10-28T15:47:45.248Z"
+    "sessionToken": "T2-HESFBL",
+    "tokenCreatedAt": "2026-10-29T05:58:20.828Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294084",
     "id": 3,
     "name": "Table 3",
     "capacity": 4,
-    "section": "Indoor Dining",
     "status": "available",
-    "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-26T17:46:11.868Z",
     "sessionToken": "T3-L8PY54",
     "tokenCreatedAt": "2026-10-26T17:46:11.868Z",
-    "occupiedAt": "2026-10-26T17:46:10.341Z"
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294085",
     "id": 4,
     "name": "Table 4",
     "capacity": 6,
-    "section": "Indoor Dining",
     "status": "available",
     "sessionToken": "T4-QT8NJZ",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294086",
     "id": 5,
     "name": "Table 5",
     "capacity": 2,
-    "section": "Window View",
     "status": "available",
     "sessionToken": "T5-9SUBKQ",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294087",
     "id": 6,
     "name": "Table 6",
     "capacity": 4,
-    "section": "Window View",
     "status": "available",
     "sessionToken": "T6-ARZLH2",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294088",
     "id": 7,
     "name": "Table 7",
     "capacity": 4,
-    "section": "Patio Garden",
     "status": "available",
     "sessionToken": "T7-KNYAZA",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a294089",
     "id": 8,
     "name": "Table 8",
     "capacity": 6,
-    "section": "Patio Garden",
     "status": "available",
     "sessionToken": "T8-75SC26",
     "tokenCreatedAt": "2026-10-18T11:47:49.962Z",
-    "manualStatus": "vacant",
-    "lastClearedAt": "2026-10-18T11:47:49.962Z"
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a29408a",
     "id": 9,
     "name": "Bar 1",
     "capacity": 1,
-    "section": "Counter Bar",
     "status": "available",
     "sessionToken": "T9-AHEDDH",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   },
   {
+    "_id": "6ae2d1e6b8311edc4a29408b",
     "id": 10,
     "name": "Bar 2",
     "capacity": 1,
-    "section": "Counter Bar",
     "status": "available",
     "sessionToken": "T10-Z2P7QH",
-    "tokenCreatedAt": "2026-10-17T19:06:24.588Z"
+    "tokenCreatedAt": "2026-10-17T19:06:24.588Z",
+    "__v": 0
   }
 ]
