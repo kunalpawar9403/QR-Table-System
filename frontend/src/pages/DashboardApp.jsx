@@ -44,6 +44,7 @@ import {
   DollarSign,
   Menu,
   User,
+  Mail,
   LogOut,
   CreditCard,
   Eye,
@@ -1353,12 +1354,15 @@ export default function DashboardApp({ onLockStaff }) {
                 <span className="mobile-header-tab-title">My Profile</span>
               </button>
             ) : activeTab === 'profile' ? (
-              <div className="mobile-brand-box">
-                <div className="mobile-brand-leaf-wrap">
-                  <TableMintLogoIcon size={20} />
-                </div>
-                <span className="mobile-brand-title">More</span>
-              </div>
+              <button
+                type="button"
+                className="mobile-back-btn"
+                onClick={() => setActiveTab('overview')}
+                title="Back to Dashboard"
+              >
+                <ChevronLeft size={22} />
+                <span className="mobile-header-tab-title">More Operations</span>
+              </button>
             ) : activeTab === 'orders' && mobileSelectedOrder ? (
               <button
                 type="button"
