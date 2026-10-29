@@ -791,7 +791,7 @@
     "tableId": 1,
     "tableName": "Table 1",
     "guestName": "Payment Test Guest",
-    "status": "served",
+    "status": "completed",
     "createdAt": "2026-10-28T16:31:39.198Z",
     "items": [
       {
@@ -811,6 +811,7 @@
     "paymentStatus": "paid",
     "paymentMethod": "UPI",
     "updatedAt": "2026-10-28T16:31:39.202Z",
-    "paidAt": "2026-10-28T16:31:39.205Z"
+    "paidAt": "2026-10-28T16:31:39.205Z",
+    "completedAt": "2026-10-29T02:27:58.884Z"
   }
 ]

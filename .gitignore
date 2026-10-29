@@ -14,5 +14,7 @@ dist/
 # OS / Editor junk
 .DS_Store
 *.log
+*.tmp
+**/*.tmp
 .idea/
 .vscode/

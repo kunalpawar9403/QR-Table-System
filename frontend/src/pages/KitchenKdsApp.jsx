@@ -22,7 +22,7 @@ export default function KitchenKdsApp() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/orders');
+      const res = await authFetch('/api/orders');
       if (res.ok) {
         const data = await res.json();
         setTickets(data.filter((o) => o.status === 'pending' || o.status === 'preparing'));

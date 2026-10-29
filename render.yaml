@@ -1,12 +1,19 @@
 services:
   - type: web
-    name: qr-table-system
+    name: tablemint-qr-pos
     runtime: node
     plan: free
     buildCommand: npm run build
     startCommand: npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
         value: 20
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
       - key: STAFF_PIN
-        value: 1234
+        sync: false
+      - key: STAFF_SECRET
+        generateValue: true

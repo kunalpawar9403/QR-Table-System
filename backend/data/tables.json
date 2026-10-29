@@ -4,12 +4,12 @@
     "name": "Table 1",
     "capacity": 2,
     "section": "Indoor Dining",
-    "status": "occupied",
-    "manualStatus": "occupied",
-    "lastClearedAt": "2026-10-26T18:01:47.741Z",
+    "status": "available",
+    "manualStatus": "vacant",
+    "lastClearedAt": "2026-10-29T02:27:58.882Z",
     "occupiedAt": "2026-10-28T16:31:39.199Z",
-    "sessionToken": "T1-9UN92P",
-    "tokenCreatedAt": "2026-10-28T16:31:39.196Z"
+    "sessionToken": "T1-5Z9KV9",
+    "tokenCreatedAt": "2026-10-29T02:27:58.882Z"
   },
   {
     "id": 2,

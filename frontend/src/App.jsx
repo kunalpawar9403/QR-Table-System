@@ -1,8 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import CustomerApp from './pages/CustomerApp';
-import DashboardApp from './pages/DashboardApp';
-import KitchenKdsApp from './pages/KitchenKdsApp';
-import QrStandsApp from './pages/QrStandsApp';
+
+const DashboardApp = lazy(() => import('./pages/DashboardApp'));
+const KitchenKdsApp = lazy(() => import('./pages/KitchenKdsApp'));
+const QrStandsApp = lazy(() => import('./pages/QrStandsApp'));
+
+function ViewLoadingSpinner() {
+  return (
+    <div
+      style={{
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+        color: '#10b981'
+      }}
+    >
+      <div
+        style={{
+          width: 40,
+          height: 40,
+          border: '3px solid rgba(16, 185, 129, 0.15)',
+          borderTopColor: '#10b981',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }}
+      />
+      <span style={{ fontSize: '0.88rem', color: '#94a3b8', fontWeight: 600 }}>
+        Loading TableMint Terminal...
+      </span>
+    </div>
+  );
+}
 import StaffAuthModal from './components/StaffAuthModal';
 import TableMintSplashScreen from './components/TableMintSplashScreen';
 import { ToastProvider } from './components/Toast';
@@ -191,18 +222,20 @@ export default function App() {
               initialToken={new URLSearchParams(window.location.search).get('token') || ''}
             />
           )}
-          {currentView === 'dashboard' && (
-            <DashboardApp
-              onLockStaff={() => {
-                setIsStaffAuthenticated(false);
-                setStaffAuthModalOpen(true);
-              }}
-            />
-          )}
-          {currentView === 'kitchen' && <KitchenKdsApp />}
-          {currentView === 'stands' && (
-            <QrStandsApp onBack={() => switchView('dashboard')} />
-          )}
+          <Suspense fallback={<ViewLoadingSpinner />}>
+            {currentView === 'dashboard' && (
+              <DashboardApp
+                onLockStaff={() => {
+                  setIsStaffAuthenticated(false);
+                  setStaffAuthModalOpen(true);
+                }}
+              />
+            )}
+            {currentView === 'kitchen' && <KitchenKdsApp />}
+            {currentView === 'stands' && (
+              <QrStandsApp onBack={() => switchView('dashboard')} />
+            )}
+          </Suspense>
         </main>
 
         {/* Staff Authentication PIN Modal */}

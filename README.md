@@ -22,3 +22,32 @@ The system has been consolidated into **two core experiences**:
   * **Step 2:** If accessed without a scanned table, the **Scanner Screen** appears with a camera viewfinder or quick 1-tap table selector.
   * **Step 3:** Once scanned (e.g. Table 3 verified 🟢), the full **Spice Garden Menu Cards** unlock with dish photography, customization options, cart drawer, and live progress tracker!
   * **Step 4:** Once submitted, order immediately rings the chime on the Master Dashboard!
+
+---
+
+## 🚀 Production Deployment on Render
+
+This project is configured for **Render** Web Service deployment with persistent WebSockets (Socket.io) and MongoDB Atlas cloud database.
+
+### 1. MongoDB Atlas Setup (Free Cloud Database)
+1. Sign up / log in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Create a free shared cluster (**M0 Free Tier**).
+3. Under **Database Access**, create a user (e.g., `tablemint_admin`) with a secure password.
+4. Under **Network Access**, add IP `0.0.0.0/0` (Allow access from anywhere).
+5. Click **Connect** ➔ **Drivers** (Node.js) and copy your connection string:
+   ```
+   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/tablemint?retryWrites=true&w=majority
+   ```
+
+### 2. Deploy to Render
+1. Push this repository to your GitHub account.
+2. In the [Render Dashboard](https://dashboard.render.com/), click **New +** ➔ **Blueprint** (or **Web Service**).
+3. Connect your repository. Render automatically reads `render.yaml`.
+4. Configure the Environment Variables in Render:
+   - `MONGODB_URI`: Your MongoDB Atlas connection string.
+   - `STAFF_PIN`: 4-digit code for floor staff (e.g. `4829`).
+   - `STAFF_SECRET`: (Render generates this automatically via `render.yaml`).
+   - `NODE_ENV`: `production`.
+5. Click **Deploy**. The build will install dependencies, build the React Vite bundle, and boot the server.
+6. TableMint will automatically connect to MongoDB and migrate your menu, tables, and settings on first boot!
+

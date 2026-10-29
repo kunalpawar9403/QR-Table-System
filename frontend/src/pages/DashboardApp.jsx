@@ -509,9 +509,9 @@ export default function DashboardApp({ onLockStaff }) {
     try {
       const [tablesRes, ordersRes, menuRes, callsRes, settingsRes] = await Promise.all([
         fetch('/api/tables'),
-        fetch('/api/orders'),
+        authFetch('/api/orders'),
         fetch('/api/menu'),
-        fetch('/api/service-calls'),
+        authFetch('/api/service-calls'),
         fetch('/api/settings')
       ]);
 
