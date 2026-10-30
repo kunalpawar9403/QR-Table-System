@@ -143,11 +143,11 @@ export default function HomePage() {
 
                 {/* Subheading */}
                 <p style={{
-                  fontSize: '0.96rem',
+                  fontSize: '0.92rem',
                   color: '#e2e8f0',
-                  lineHeight: 1.55,
-                  margin: '0 0 20px 0',
-                  maxWidth: '510px',
+                  lineHeight: 1.5,
+                  margin: '0 0 15px 0',
+                  maxWidth: '480px',
                   textShadow: '0 1px 8px rgba(0,0,0,0.35)'
                 }}>
                   Empower your restaurant with intelligent table management, contactless ordering, powerful POS billing, live kitchen display, and real-time analytics — all in one easy platform.
@@ -157,9 +157,9 @@ export default function HomePage() {
                 <div className="tm-hero-actions" style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 10,
                   flexWrap: 'wrap',
-                  marginBottom: 20
+                  marginBottom: 15
                 }}>
                   <Link
                     to="/register"
@@ -171,17 +171,17 @@ export default function HomePage() {
                       gap: 8,
                       background: 'linear-gradient(135deg, #0BAF7A 0%, #089366 100%)',
                       color: '#FFFFFF',
-                      padding: '12px 24px',
+                      padding: '10px 22px',
                       borderRadius: '9999px',
                       fontWeight: 700,
-                      fontSize: '0.94rem',
-                      boxShadow: '0 6px 20px rgba(11, 175, 122, 0.45)',
+                      fontSize: '0.9rem',
+                      boxShadow: '0 6px 18px rgba(11, 175, 122, 0.4)',
                       textDecoration: 'none',
                       transition: 'all 0.18s ease'
                     }}
                   >
                     <span>Start 14 Days Free Trial</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </Link>
 
                   <Link
@@ -195,16 +195,16 @@ export default function HomePage() {
                       background: 'rgba(6, 45, 34, 0.75)',
                       border: '1px solid rgba(255, 255, 255, 0.28)',
                       color: '#FFFFFF',
-                      padding: '12px 22px',
+                      padding: '10px 20px',
                       borderRadius: '9999px',
                       fontWeight: 600,
-                      fontSize: '0.94rem',
+                      fontSize: '0.9rem',
                       backdropFilter: 'blur(8px)',
                       textDecoration: 'none',
                       transition: 'all 0.18s ease'
                     }}
                   >
-                    <Play size={16} fill="#FFFFFF" />
+                    <Play size={15} fill="#FFFFFF" />
                     <span>Watch Video Demo</span>
                   </Link>
                 </div>

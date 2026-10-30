@@ -497,12 +497,12 @@
 }
 
 .tm-hero-title {
-  font-size: clamp(2.1rem, 3.2vw, 2.9rem);
+  font-size: clamp(1.85rem, 2.7vw, 2.5rem);
   font-weight: 800;
-  line-height: 1.16;
+  line-height: 1.15;
   letter-spacing: -0.025em;
   color: #FFFFFF;
-  margin: 0 0 14px 0;
+  margin: 0 0 10px 0;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
 }
 
@@ -518,7 +518,7 @@
    HOME HERO - FLOATING CARD BANNER WITH GAPS
    ========================================================= */
 .tm-hero-banner-section {
-  padding: 16px 24px 40px 24px;
+  padding: 12px 24px 32px 24px;
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
@@ -528,7 +528,8 @@
 .tm-hero-home {
   position: relative;
   width: 100%;
-  min-height: 640px;
+  min-height: 480px;
+  max-height: 540px;
   display: flex;
   align-items: center;
   border-radius: 24px;
@@ -540,28 +541,26 @@
       rgba(4, 25, 19, 0.42) 65%, 
       rgba(4, 25, 19, 0.12) 100%),
     url('/images/landing/tablemint_hero_bg.jpg');
-  background-position: right 36%;
+  background-position: right center;
   background-size: cover;
   background-repeat: no-repeat;
   color: #FFFFFF;
-  padding: 54px 48px 84px 48px;
+  padding: 34px 44px 36px 44px;
   overflow: hidden;
-  box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .tm-hero-home-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 36px;
+  gap: 32px;
   align-items: center;
-  min-height: 480px;
-  margin-bottom: 24px;
+  min-height: 400px;
 }
 
 .tm-hero-showcase-spacer {
-  min-height: 420px;
+  min-height: 360px;
   pointer-events: none;
-  margin-bottom: 16px;
 }
 
 @media (max-width: 960px) {
