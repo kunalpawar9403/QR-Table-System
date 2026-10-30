@@ -118,20 +118,20 @@ export default function HomePage() {
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
               {/* Left Column: Shifted up and scaled so bottom buttons and checkmarks are fully visible */}
-              <div style={{ textAlign: 'left', maxWidth: '560px' }}>
+              <div style={{ textAlign: 'left', maxWidth: '560px', transform: 'translateY(-6px)' }}>
                 {/* Badge */}
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
                   color: '#16C995',
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   fontWeight: 800,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  marginBottom: 12
+                  marginBottom: 8
                 }}>
-                  <Sparkles size={14} />
+                  <Sparkles size={13} />
                   <span>Modern Restaurant Management</span>
                 </div>
 
@@ -143,10 +143,10 @@ export default function HomePage() {
 
                 {/* Subheading */}
                 <p style={{
-                  fontSize: '0.92rem',
+                  fontSize: '0.9rem',
                   color: '#e2e8f0',
-                  lineHeight: 1.5,
-                  margin: '0 0 15px 0',
+                  lineHeight: 1.48,
+                  margin: '0 0 12px 0',
                   maxWidth: '480px',
                   textShadow: '0 1px 8px rgba(0,0,0,0.35)'
                 }}>
@@ -159,7 +159,7 @@ export default function HomePage() {
                   alignItems: 'center',
                   gap: 10,
                   flexWrap: 'wrap',
-                  marginBottom: 15
+                  marginBottom: 12
                 }}>
                   <Link
                     to="/register"

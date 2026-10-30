@@ -518,7 +518,7 @@
    HOME HERO - FLOATING CARD BANNER WITH GAPS
    ========================================================= */
 .tm-hero-banner-section {
-  padding: 12px 24px 32px 24px;
+  padding: 4px 24px 28px 24px;
   max-width: 1440px;
   margin: 0 auto;
   width: 100%;
@@ -528,8 +528,8 @@
 .tm-hero-home {
   position: relative;
   width: 100%;
-  min-height: 480px;
-  max-height: 540px;
+  min-height: 420px;
+  max-height: 485px;
   display: flex;
   align-items: center;
   border-radius: 24px;
@@ -541,11 +541,11 @@
       rgba(4, 25, 19, 0.42) 65%, 
       rgba(4, 25, 19, 0.12) 100%),
     url('/images/landing/tablemint_hero_bg.jpg');
-  background-position: right center;
+  background-position: right 62%;
   background-size: cover;
   background-repeat: no-repeat;
   color: #FFFFFF;
-  padding: 34px 44px 36px 44px;
+  padding: 24px 44px 26px 44px;
   overflow: hidden;
   box-shadow: 0 20px 50px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
@@ -555,11 +555,11 @@
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 32px;
   align-items: center;
-  min-height: 400px;
+  min-height: 360px;
 }
 
 .tm-hero-showcase-spacer {
-  min-height: 360px;
+  min-height: 320px;
   pointer-events: none;
 }
 
