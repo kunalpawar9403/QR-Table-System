@@ -498,14 +498,37 @@
   }
 }
 
+.tm-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(22, 201, 149, 0.14);
+  color: #16C995;
+  border: 1px solid rgba(22, 201, 149, 0.32);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tm-hero-badge svg {
+  color: #16C995;
+  flex-shrink: 0;
+}
+
 .tm-hero-title {
-  font-size: clamp(1.85rem, 2.7vw, 2.5rem);
-  font-weight: 800;
-  line-height: 1.15;
+  font-size: clamp(2.15rem, 3.2vw, 2.85rem);
+  font-weight: 850;
+  line-height: 1.18;
   letter-spacing: -0.025em;
   color: #FFFFFF;
-  margin: 0 0 10px 0;
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
 }
 
 .tm-hero-title-accent {
@@ -516,11 +539,97 @@
   display: inline;
 }
 
+.tm-hero-subtitle {
+  font-size: 1rem;
+  color: #e2e8f0;
+  line-height: 1.62;
+  margin: 0 0 26px 0;
+  max-width: 510px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+  font-weight: 400;
+}
+
+.tm-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.tm-btn-hero-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0BAF7A 0%, #089366 100%);
+  color: #FFFFFF !important;
+  padding: 12px 26px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.94rem;
+  box-shadow: 0 8px 22px rgba(11, 175, 122, 0.45);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tm-btn-hero-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(11, 175, 122, 0.6);
+  background: linear-gradient(135deg, #0ec287 0%, #089366 100%);
+}
+
+.tm-btn-hero-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(6, 45, 34, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #FFFFFF !important;
+  padding: 12px 22px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.94rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tm-btn-hero-secondary:hover {
+  transform: translateY(-2px);
+  background: rgba(6, 45, 34, 0.95);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.tm-hero-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: #cbd5e1;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.tm-hero-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.tm-hero-trust-item svg {
+  color: #16C995;
+  flex-shrink: 0;
+}
+
 /* =========================================================
    HOME HERO - FLOATING CARD BANNER (Matches Other Sections)
    ========================================================= */
 .tm-hero-banner-section {
-  padding: 16px 24px 44px 24px;
+  padding: 48px 24px 52px 24px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -546,7 +655,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   color: #FFFFFF;
-  padding: 48px 48px;
+  padding: 56px 54px;
   overflow: hidden;
   box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
@@ -566,7 +675,7 @@
 
 @media (max-width: 960px) {
   .tm-hero-banner-section {
-    padding: 16px 16px 28px 16px;
+    padding: 28px 16px 36px 16px;
   }
 
   .tm-hero-home {
@@ -594,21 +703,24 @@
 
 @media (max-width: 768px) {
   .tm-hero-banner-section {
-    padding: 0 0 24px 0 !important;
+    padding: 20px 14px 28px 14px !important;
   }
 
   .tm-hero-home {
-    border-radius: 0 0 28px 28px !important;
-    border-top: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    padding: 38px 18px 48px !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 38px 20px 44px !important;
   }
 }
 
 @media (max-width: 480px) {
+  .tm-hero-banner-section {
+    padding: 14px 10px 24px 10px !important;
+  }
+
   .tm-hero-home {
-    padding: 32px 16px 40px !important;
+    padding: 30px 16px 38px !important;
+    border-radius: 16px !important;
   }
 }
 

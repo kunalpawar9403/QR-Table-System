@@ -118,19 +118,9 @@ export default function HomePage() {
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
               {/* Left Column: Vertically centered to match other section banners */}
-              <div style={{ textAlign: 'left', maxWidth: '530px' }}>
+              <div style={{ textAlign: 'left', maxWidth: '540px' }}>
                 {/* Badge */}
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  color: '#16C995',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  marginBottom: 12
-                }}>
+                <div className="tm-hero-badge">
                   <Sparkles size={14} />
                   <span>Modern Restaurant Management</span>
                 </div>
@@ -142,43 +132,15 @@ export default function HomePage() {
                 </h1>
 
                 {/* Subheading */}
-                <p style={{
-                  fontSize: '0.94rem',
-                  color: '#cbd5e1',
-                  lineHeight: 1.55,
-                  margin: '0 0 18px 0',
-                  maxWidth: '480px',
-                  textShadow: '0 1px 8px rgba(0,0,0,0.35)'
-                }}>
+                <p className="tm-hero-subtitle">
                   Empower your restaurant with intelligent table management, contactless ordering, powerful POS billing, live kitchen display, and real-time analytics — all in one easy platform.
                 </p>
 
                 {/* CTA Buttons */}
-                <div className="tm-hero-actions" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                  marginBottom: 18
-                }}>
+                <div className="tm-hero-actions">
                   <Link
                     to="/register"
                     className="tm-btn-hero-primary"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      background: 'linear-gradient(135deg, #0BAF7A 0%, #089366 100%)',
-                      color: '#FFFFFF',
-                      padding: '11px 24px',
-                      borderRadius: '9999px',
-                      fontWeight: 700,
-                      fontSize: '0.92rem',
-                      boxShadow: '0 6px 18px rgba(11, 175, 122, 0.4)',
-                      textDecoration: 'none',
-                      transition: 'all 0.18s ease'
-                    }}
                   >
                     <span>Start 14 Days Free Trial</span>
                     <ArrowRight size={16} />
@@ -187,22 +149,6 @@ export default function HomePage() {
                   <Link
                     to="/demo"
                     className="tm-btn-hero-secondary"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      background: 'rgba(6, 45, 34, 0.75)',
-                      border: '1px solid rgba(255, 255, 255, 0.28)',
-                      color: '#FFFFFF',
-                      padding: '11px 20px',
-                      borderRadius: '9999px',
-                      fontWeight: 600,
-                      fontSize: '0.92rem',
-                      backdropFilter: 'blur(8px)',
-                      textDecoration: 'none',
-                      transition: 'all 0.18s ease'
-                    }}
                   >
                     <Play size={15} fill="#FFFFFF" />
                     <span>Watch Video Demo</span>
@@ -210,24 +156,17 @@ export default function HomePage() {
                 </div>
 
                 {/* Trust Checkmarks */}
-                <div className="tm-hero-trust-row" style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 18,
-                  flexWrap: 'wrap',
-                  color: '#cbd5e1',
-                  fontSize: '0.85rem'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CheckCircle size={15} style={{ color: '#16C995', flexShrink: 0 }} />
+                <div className="tm-hero-trust-row">
+                  <div className="tm-hero-trust-item">
+                    <CheckCircle size={15} />
                     <span>No credit card required</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CheckCircle size={15} style={{ color: '#16C995', flexShrink: 0 }} />
-                    <span>Setup in minutes</span>
+                  <div className="tm-hero-trust-item">
+                    <CheckCircle size={15} />
+                    <span>Setup in 5 minutes</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CheckCircle size={15} style={{ color: '#16C995', flexShrink: 0 }} />
+                  <div className="tm-hero-trust-item">
+                    <CheckCircle size={15} />
                     <span>Works on all devices</span>
                   </div>
                 </div>
