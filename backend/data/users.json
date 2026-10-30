@@ -1,5 +1,6 @@
 [
   {
+    "_id": "6ae2d1e7b8311edc4a2940dc",
     "id": "user_admin",
     "name": "Admin Manager",
     "email": "admin@tablemint.com",
@@ -8,26 +9,21 @@
     "role": "admin",
     "restaurantName": "TableMint",
     "createdAt": "2026-10-27T05:37:03.273Z",
-    "updatedAt": "2026-10-28T06:19:24.111Z"
+    "updatedAt": "2026-10-28T06:19:24.111Z",
+    "__v": 0,
+    "restaurantSlug": "tablemint"
   },
   {
-    "id": "user_1793079871110",
-    "name": "Kunal Pawar",
-    "email": "kunal@restaurant.com",
-    "hash": "81f09ae7d0e5a9606a4beb82c63ed7a193a7cb36c86c65860ea25bb026152321fe80c7c8b6e68ff93991084d47181a434bc8f960f551856052fffa57fd9a0e4a",
-    "salt": "414cbf71f7eb8868da0cb5e65c012c99",
+    "_id": "6ae481338cf79608565db80d",
+    "email": "kunalpawar0309@gmail.com",
+    "__v": 0,
+    "createdAt": "2026-10-30T08:54:13.032Z",
+    "hash": "81c2d58016e6e0713f4b2dc3bbbd29daffd1109515b67c80a51931001a917482edc2f4570a813c244791e473323e02070caab401925b1b5430784caef887f697",
+    "id": "user_1793350453032",
+    "name": "Kunal pawar",
+    "restaurantName": "TableMint",
+    "restaurantSlug": "tablemint",
     "role": "admin",
-    "restaurantName": "TableMint POS",
-    "createdAt": "2026-10-27T05:44:31.110Z"
-  },
-  {
-    "id": "user_1793081063746",
-    "name": "Chef Mario",
-    "email": "mario@kitchen.com",
-    "hash": "138219b449dbd62e5c3845f0ec2207bb8911c3831b7dea7efc8e7535ce8c9c29881bfae6f050007ad3bd3224bbd2d5369d90126501111a3711a01733f2713528",
-    "salt": "4e288d41c8ba21ac14b647e84a5f85c8",
-    "role": "staff",
-    "restaurantName": "Mario Bistro",
-    "createdAt": "2026-10-27T06:04:23.746Z"
+    "salt": "744dcea729de0f3f4c80f3154b2e7906"
   }
 ]

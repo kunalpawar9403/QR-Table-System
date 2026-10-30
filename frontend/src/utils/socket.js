@@ -1,8 +1,13 @@
 import { io } from 'socket.io-client';
 
-// Connect to backend (relative path uses current host / Vite proxy)
+// Connect to backend with direct WebSocket transport for instant 0ms real-time delivery
 export const socket = io({
+  transports: ['websocket', 'polling'],
+  upgrade: true,
   autoConnect: true,
-  reconnectionAttempts: 10,
-  reconnectionDelay: 1000
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 300,
+  reconnectionDelayMax: 1500,
+  timeout: 10000
 });

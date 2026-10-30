@@ -1,22 +1,71 @@
-{
-  "restaurantName": "TableMint",
-  "tagline": "Smart QR Dining & POS",
-  "phone": "+91 98765 43210",
-  "email": "contact@tablemint.com",
-  "address": "MG Road, Pune, Maharashtra 411001",
-  "currency": "₹",
-  "taxRate": 5,
-  "serviceCharge": 0,
-  "upiId": "restaurant.owner@okhdfcbank",
-  "upiPayeeName": "TableMint Grand Bistro",
-  "upiQrEnabled": true,
-  "acceptedPaymentMethods": [
-    "UPI",
-    "Cash",
-    "Card"
-  ],
-  "soundAlerts": true,
-  "autoAcceptOrders": false,
-  "sessionTimeoutHours": 3,
-  "updatedAt": "2026-10-28T16:31:39.191Z"
-}
+[
+  {
+    "restaurantName": "TableMint",
+    "tagline": "Smart QR Dining & POS",
+    "phone": "+91 98765 43210",
+    "email": "contact@tablemint.com",
+    "address": "MG Road, Pune, Maharashtra 411001",
+    "currency": "₹",
+    "taxRate": 5,
+    "serviceCharge": 0,
+    "upiId": "7057078378@ibl",
+    "upiPayeeName": "TableMint Grand Bistro",
+    "upiQrEnabled": true,
+    "acceptedPaymentMethods": [
+      "UPI",
+      "Cash",
+      "Card"
+    ],
+    "soundAlerts": true,
+    "autoAcceptOrders": false,
+    "sessionTimeoutHours": 3,
+    "updatedAt": "2026-10-29T11:48:35.664Z",
+    "restaurantSlug": "tablemint"
+  },
+  {
+    "restaurantName": "Vikram Cloud Kitchen",
+    "tagline": "Smart QR Dining & POS",
+    "phone": "+91 98765 43210",
+    "email": "vikram_kitchen@tablemint.com",
+    "address": "Dining Hall & Kitchen",
+    "currency": "₹",
+    "taxRate": 5,
+    "serviceCharge": 0,
+    "upiId": "tablemint@upi",
+    "upiPayeeName": "TableMint Restaurant",
+    "upiQrEnabled": true,
+    "acceptedPaymentMethods": [
+      "UPI",
+      "Cash",
+      "Card"
+    ],
+    "soundAlerts": true,
+    "autoAcceptOrders": false,
+    "sessionTimeoutHours": 3,
+    "restaurantSlug": "vikram-cloud-kitchen",
+    "updatedAt": "2026-10-30T04:54:18.101Z"
+  },
+  {
+    "restaurantName": "Raj Times",
+    "tagline": "Smart QR Dining & POS",
+    "phone": "+91 98765 43210",
+    "email": "raj@gmail.com",
+    "address": "Dining Hall & Kitchen",
+    "currency": "₹",
+    "taxRate": 5,
+    "serviceCharge": 0,
+    "upiId": "tablemint@upi",
+    "upiPayeeName": "TableMint Restaurant",
+    "upiQrEnabled": true,
+    "acceptedPaymentMethods": [
+      "UPI",
+      "Cash",
+      "Card"
+    ],
+    "soundAlerts": true,
+    "autoAcceptOrders": false,
+    "sessionTimeoutHours": 3,
+    "restaurantSlug": "raj-times",
+    "updatedAt": "2026-10-30T10:26:05.971Z"
+  }
+]

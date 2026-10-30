@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Printer, ArrowLeft, QrCode, Sparkles, Wifi, ExternalLink, Share2, Download } from 'lucide-react';
+import { authFetch, getCurrentUser } from '../utils/staffAuth';
 import '../styles/qr-stands.css';
 
 export default function QrStandsApp({ onBack }) {
@@ -9,13 +10,17 @@ export default function QrStandsApp({ onBack }) {
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
+  const curUser = getCurrentUser();
+  const rSlug = curUser?.restaurantSlug || 'tablemint';
+  const restParam = rSlug !== 'tablemint' ? `&restaurant=${encodeURIComponent(rSlug)}` : '';
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
   };
 
   useEffect(() => {
-    fetch('/api/tables')
+    authFetch('/api/tables')
       .then((res) => res.json())
       .then(setTables)
       .catch(() => {});
@@ -42,9 +47,9 @@ export default function QrStandsApp({ onBack }) {
   };
 
   const handleShareOrDownloadStand = async (table) => {
-    const qrUrl = `/api/qrcode/${table.id}`;
+    const qrUrl = `/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`;
     const scanUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}`
+      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`
       : '';
 
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -154,7 +159,7 @@ export default function QrStandsApp({ onBack }) {
               <div className="stand-corner bottom-left" />
               <div className="stand-corner bottom-right" />
               <img
-                src={`/api/qrcode/${t.id}`}
+                src={`/api/qrcode/${t.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`}
                 alt={`Table ${t.id} QR`}
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
@@ -227,7 +232,7 @@ export default function QrStandsApp({ onBack }) {
 
           <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>
             <img
-              src={`/api/qrcode/${printingSingleTable.id}`}
+              src={`/api/qrcode/${printingSingleTable.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`}
               alt={`Table ${printingSingleTable.id} QR Code`}
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChefHat, Volume2, VolumeX, Clock, Check, ArrowRight, Flame } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, getCurrentUser } from '../utils/staffAuth';
+import { authFetch, getCurrentUser, getStaffToken } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import '../styles/kitchen.css';
 
@@ -31,10 +31,17 @@ export default function KitchenKdsApp() {
   };
 
   useEffect(() => {
-    const user = getCurrentUser();
-    const rSlug = user?.restaurantSlug || (user?.restaurantName ? user.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'tablemint');
-    socket.emit('join', { role: 'kitchen', restaurant: rSlug });
-    socket.emit('join-kitchen', { restaurant: rSlug });
+    const handleConnect = () => {
+      const user = getCurrentUser();
+      const rSlug = user?.restaurantSlug || (user?.restaurantName ? user.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'tablemint');
+      const token = getStaffToken();
+      socket.emit('join', { role: 'kitchen', restaurant: rSlug, token });
+      socket.emit('join-kitchen', { restaurant: rSlug, token });
+      fetchOrders();
+    };
+
+    handleConnect();
+    socket.on('connect', handleConnect);
 
     const handleNewOrder = (order) => {
       soundManager.playNewOrderChime();

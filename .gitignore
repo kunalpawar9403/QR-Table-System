@@ -18,3 +18,7 @@ dist/
 **/*.tmp
 .idea/
 .vscode/
+
+# Local backups
+*_backup*/
+*.backup

@@ -19,8 +19,16 @@ import {
 import { soundManager } from '../utils/sound';
 import { TableMintSplashLogo } from './TableMintLogoIcon';
 
-export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fullPage = false }) {
-  const [activeTab, setActiveTab] = useState('signin'); // 'signin' | 'signup'
+export default function StaffAuthModal({
+  isOpen,
+  onSuccess,
+  onClose,
+  message,
+  fullPage = false,
+  initialTab = 'signin',
+  selectedPlan = null
+}) {
+  const [activeTab, setActiveTab] = useState(initialTab); // 'signin' | 'signup'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(message || '');
   const [successMsg, setSuccessMsg] = useState('');
@@ -35,16 +43,18 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
-  const [signUpRestaurant, setSignUpRestaurant] = useState('TableMint');
+  const [signUpRestaurant, setSignUpRestaurant] = useState('Spice & Mint Bistro');
   const [signUpRole, setSignUpRole] = useState('admin');
+  const [signUpType, setSignUpType] = useState('restaurant'); // 'restaurant' | 'cafe' | 'bar' | 'cloud'
 
   useEffect(() => {
     if (isOpen) {
+      if (initialTab) setActiveTab(initialTab);
       setError(message || '');
       setSuccessMsg('');
       setLoading(false);
     }
-  }, [isOpen, message]);
+  }, [isOpen, initialTab, message]);
 
   const triggerError = (msg) => {
     setError(msg);
@@ -146,8 +156,8 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
 
         {/* Brand Header Matching Image 3 Screen 1 */}
         <div className="auth-brand-header">
-          <div className="auth-logo-leaf-box">
-            <TableMintSplashLogo size={62} />
+          <div className="auth-logo-leaf-box" style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
+            <TableMintSplashLogo size={44} />
           </div>
           <h1 className="auth-brand-heading">
             Table<span className="brand-mint-highlight">Mint</span>
@@ -356,6 +366,55 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               </button>
             </div>
 
+            {selectedPlan && (
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.12)',
+                border: '1px solid #10b981',
+                borderRadius: 10,
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '0.82rem',
+                color: '#065f46',
+                fontWeight: 700
+              }}>
+                <span>Plan: TableMint {selectedPlan.toUpperCase()}</span>
+                <span style={{ color: '#10b981', background: '#041711', padding: '2px 8px', borderRadius: 9999 }}>7-Day Free Trial</span>
+              </div>
+            )}
+
+            {/* Business Type Selector */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b' }}>Business Type:</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                {[
+                  { id: 'restaurant', label: 'Restaurant' },
+                  { id: 'cafe', label: 'Cafe' },
+                  { id: 'bar', label: 'Bar' },
+                  { id: 'cloud', label: 'Cloud K.' }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    style={{
+                      padding: '6px 4px',
+                      borderRadius: 8,
+                      border: signUpType === t.id ? '1.5px solid #10b981' : '1px solid #e2e8f0',
+                      background: signUpType === t.id ? '#ecfdf5' : '#ffffff',
+                      color: signUpType === t.id ? '#059669' : '#64748b',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setSignUpType(t.id)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Role Selection */}
             <div className="auth-role-row">
               <label className="auth-role-label">Role:</label>
@@ -382,7 +441,26 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
               className="btn-auth-green-pill"
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Sign Up'}
+              {loading ? 'Creating Dashboard...' : 'Create Account & Open Dashboard'}
+            </button>
+
+            {/* Quick Fill Test Restaurant */}
+            <button
+              type="button"
+              className="auth-demo-hint-btn"
+              onClick={() => {
+                const rand = Math.floor(100 + Math.random() * 900);
+                setSignUpName('Rohit Verma');
+                setSignUpRestaurant(`Mint Dining ${rand}`);
+                setSignUpEmail(`owner${rand}@tablemint.com`);
+                setSignUpPassword('admin123');
+                setError('');
+                soundManager.playClick();
+              }}
+              title="Click to fill new sample restaurant registration details"
+            >
+              <Sparkles size={12} />
+              <span>Fill New Sample Restaurant Details</span>
             </button>
 
             <div className="auth-footer-prompt">
@@ -418,8 +496,10 @@ export default function StaffAuthModal({ isOpen, onSuccess, onClose, message, fu
   }
 
   return (
-    <div className="modal-backdrop">
-      {cardContent}
+    <div className="modal-backdrop" onClick={onClose}>
+      <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px', margin: 'auto' }}>
+        {cardContent}
+      </div>
     </div>
   );
 }

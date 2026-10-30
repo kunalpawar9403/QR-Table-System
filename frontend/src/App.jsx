@@ -1,250 +1,245 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import PublicLayout from './components/layout/PublicLayout';
+import HomePage from './pages/HomePage';
+import FeaturesPage from './pages/FeaturesPage';
+import HowItWorksPage from './pages/HowItWorksPage';
+import SolutionsPage from './pages/SolutionsPage';
+import PricingPage from './pages/PricingPage';
+import DemoPage from './pages/DemoPage';
+import ContactPage from './pages/ContactPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import CustomerApp from './pages/CustomerApp';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { ToastProvider } from './components/Toast';
+import { logoutStaff } from './utils/staffAuth';
+import './index.css';
+import './styles/saas-website.css';
 
 const DashboardApp = lazy(() => import('./pages/DashboardApp'));
 const KitchenKdsApp = lazy(() => import('./pages/KitchenKdsApp'));
 const QrStandsApp = lazy(() => import('./pages/QrStandsApp'));
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('TableMint Dashboard Render Error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16,
+          background: '#07241a',
+          color: '#ffffff',
+          padding: 24,
+          textAlign: 'center'
+        }}>
+          <div style={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            background: 'rgba(239, 68, 68, 0.2)',
+            color: '#ef4444',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 24,
+            fontWeight: 800
+          }}>
+            !
+          </div>
+          <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.25rem' }}>Unable to load dashboard view</h2>
+          <p style={{ color: '#94a3b8', maxWidth: 480, fontSize: '0.88rem', margin: 0 }}>
+            {this.state.error?.message || 'A transient error occurred while preparing your restaurant workspace.'}
+          </p>
+          <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={() => { window.location.reload(); }}
+              style={{
+                padding: '10px 20px',
+                background: '#10b981',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Reload Page
+            </button>
+            <button
+              type="button"
+              onClick={() => { logoutStaff(); window.location.href = '/login'; }}
+              style={{
+                padding: '10px 20px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#cbd5e1',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Sign In Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ViewLoadingSpinner() {
   return (
     <div
       style={{
-        minHeight: '80vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 16,
+        background: '#07241a',
         color: '#10b981'
       }}
     >
       <div
         style={{
-          width: 40,
-          height: 40,
-          border: '3px solid rgba(16, 185, 129, 0.15)',
+          width: 44,
+          height: 44,
+          border: '3px solid rgba(16, 185, 129, 0.2)',
           borderTopColor: '#10b981',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite'
         }}
       />
-      <span style={{ fontSize: '0.88rem', color: '#94a3b8', fontWeight: 600 }}>
-        Loading TableMint Terminal...
+      <span style={{ fontSize: '0.9rem', color: '#cbd5e1', fontWeight: 600 }}>
+        Loading TableMint POS...
       </span>
     </div>
   );
 }
-import StaffAuthModal from './components/StaffAuthModal';
-import TableMintSplashScreen from './components/TableMintSplashScreen';
-import { ToastProvider } from './components/Toast';
-import { checkStaffAuth, getStaffToken } from './utils/staffAuth';
-import { Utensils, LayoutDashboard, ChefHat, QrCode, Lock } from 'lucide-react';
-import './index.css';
+
+// Interceptor component for legacy query parameters (?table=..., ?view=dashboard)
+function QueryParamInterceptor({ children }) {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  // If table QR scanned (e.g., /?table=4&token=xyz), launch Customer self-ordering immediately!
+  const tableParam = searchParams.get('table');
+  if (tableParam) {
+    const tableId = parseInt(tableParam, 10) || 1;
+    const token = searchParams.get('token') || '';
+    return <CustomerApp initialTable={tableId} initialToken={token} />;
+  }
+
+  // If legacy ?view=dashboard visited, redirect to /dashboard
+  const viewParam = searchParams.get('view');
+  if (viewParam === 'dashboard') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  if (viewParam === 'kitchen') {
+    return <Navigate to="/kitchen" replace />;
+  }
+  if (viewParam === 'stands') {
+    return <Navigate to="/stands" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [isStaffAuthenticated, setIsStaffAuthenticated] = useState(false);
-  const [staffAuthModalOpen, setStaffAuthModalOpen] = useState(false);
-  // Only show splash once per session when link/app is opened; do NOT show on page refresh
-  const [showSplash, setShowSplash] = useState(() => {
-    try {
-      const alreadyShown = sessionStorage.getItem('tablemint_splash_shown');
-      if (!alreadyShown) {
-        // Mark as shown immediately so refresh will not trigger it again
-        sessionStorage.setItem('tablemint_splash_shown', 'true');
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  });
-
-  const handleSplashComplete = () => {
-    setShowSplash(false);
-    try {
-      sessionStorage.setItem('tablemint_splash_shown', 'true');
-    } catch {
-      // ignore storage errors
-    }
-  };
-
-  useEffect(() => {
-    // Determine view: Only customer self-ordering if table or customer is requested
-    const path = window.location.pathname;
-    const search = window.location.search;
-    const urlParams = new URLSearchParams(search);
-
-    if (urlParams.get('table') || path.includes('customer') || search.includes('customer')) {
-      setCurrentView('customer');
-    } else {
-      // Staff always opens directly to the Admin POS Dashboard!
-      setCurrentView('dashboard');
-    }
-
-    // Check staff auth
-    checkStaffAuth().then((authed) => {
-      setIsStaffAuthenticated(authed);
-      if (!authed && !urlParams.get('table')) {
-        setStaffAuthModalOpen(true);
-      }
-    });
-
-    // Listen for unauthorized 401 events
-    const handleUnauthorized = () => {
-      setIsStaffAuthenticated(false);
-      setStaffAuthModalOpen(true);
-    };
-
-    window.addEventListener('staff:unauthorized', handleUnauthorized);
-    // Allow manual trigger for testing/preview from Settings/More menu
-    const handleTriggerSplash = () => setShowSplash(true);
-    window.addEventListener('tablemint:play-splash', handleTriggerSplash);
-
-    return () => {
-      window.removeEventListener('staff:unauthorized', handleUnauthorized);
-      window.removeEventListener('tablemint:play-splash', handleTriggerSplash);
-    };
-  }, []);
-
-  const handleStaffSuccess = () => {
-    setIsStaffAuthenticated(true);
-    setStaffAuthModalOpen(false);
-    // Directly open the Admin Dashboard upon successful login
-    setCurrentView('dashboard');
-    if (window.location.pathname !== '/' && !window.location.search.includes('table')) {
-      window.history.pushState({}, '', '/');
-    }
-  };
-
-  const switchView = (view) => {
-    if ((view === 'dashboard' || view === 'kitchen') && !isStaffAuthenticated) {
-      setStaffAuthModalOpen(true);
-      return;
-    }
-    setCurrentView(view);
-  };
-
-  // 1. Initial Launch Gate: When the app/link is opened, show ONLY the splash screen.
-  // Neither the login/signup page nor the dashboard is mounted or visible in the background!
-  if (showSplash) {
-    return <TableMintSplashScreen onComplete={handleSplashComplete} />;
-  }
-
-  // 2. Strict Staff Auth Gate: When unauthenticated on staff screens,
-  // ONLY the Login and Sign Up full-page view is rendered! The dashboard is never rendered in the background.
-  if (currentView !== 'customer' && !isStaffAuthenticated) {
-    return (
-      <ToastProvider>
-        <StaffAuthModal
-          isOpen={true}
-          fullPage={true}
-          onSuccess={handleStaffSuccess}
-        />
-      </ToastProvider>
-    );
-  }
-
   return (
     <ToastProvider>
-      <div className="app-root">
-        {/* Top App Role Switcher Bar (Only shown on staff screens like Kitchen/Stands, NEVER on Customer Menu or Dashboard) */}
-        {currentView !== 'dashboard' && currentView !== 'customer' && !new URLSearchParams(window.location.search).get('table') && (
-          <div
-            className="no-print"
-            style={{
-              background: 'rgba(11, 16, 29, 0.95)',
-              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-              padding: '8px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              position: 'sticky',
-              top: 0,
-              zIndex: 900,
-              backdropFilter: 'blur(16px)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  color: '#000',
-                  fontWeight: 900,
-                  fontSize: '0.72rem',
-                  padding: '3px 8px',
-                  borderRadius: 6
-                }}
-              >
-                TABLEMINT
-              </span>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Staff Terminal
-              </span>
-            </div>
+      <BrowserRouter>
+        <QueryParamInterceptor>
+          <Routes>
+            {/* Public SaaS Marketing Website with shared PublicLayout (Navbar & Footer) */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/features" element={<FeaturesPage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/solutions" element={<SolutionsPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Route>
 
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                className={`filter-pill-btn ${currentView === 'dashboard' ? 'active' : ''}`}
-                onClick={() => switchView('dashboard')}
-                title="Admin & POS Dashboard"
-              >
-                <LayoutDashboard size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                POS Dashboard
-              </button>
-              <button
-                className={`filter-pill-btn ${currentView === 'kitchen' ? 'active' : ''}`}
-                onClick={() => switchView('kitchen')}
-                title="Kitchen Display System"
-              >
-                <ChefHat size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                Kitchen KDS
-              </button>
-              <button
-                className={`filter-pill-btn ${currentView === 'stands' ? 'active' : ''}`}
-                onClick={() => switchView('stands')}
-                title="Print QR Acrylic Stands"
-              >
-                <QrCode size={13} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                QR Stands
-              </button>
-            </div>
-          </div>
-        )}
+            {/* Standalone Authentication Pages */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-        {/* Current Active View */}
-        <main>
-          {currentView === 'customer' && (
-            <CustomerApp
-              initialTable={
-                parseInt(new URLSearchParams(window.location.search).get('table'), 10) || 1
+            {/* Customer Self-Ordering App (when accessed directly via /customer) */}
+            <Route path="/customer" element={<CustomerApp />} />
+
+            {/* Protected POS Dashboard & Operational Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ErrorBoundary>
+                  <ProtectedRoute>
+                    <Suspense fallback={<ViewLoadingSpinner />}>
+                      <DashboardApp
+                        onLockStaff={() => {
+                          logoutStaff();
+                          window.location.href = '/';
+                        }}
+                        onOpenWebsite={() => {
+                          window.location.href = '/';
+                        }}
+                      />
+                    </Suspense>
+                  </ProtectedRoute>
+                </ErrorBoundary>
               }
-              initialToken={new URLSearchParams(window.location.search).get('token') || ''}
             />
-          )}
-          <Suspense fallback={<ViewLoadingSpinner />}>
-            {currentView === 'dashboard' && (
-              <DashboardApp
-                onLockStaff={() => {
-                  setIsStaffAuthenticated(false);
-                  setStaffAuthModalOpen(true);
-                }}
-              />
-            )}
-            {currentView === 'kitchen' && <KitchenKdsApp />}
-            {currentView === 'stands' && (
-              <QrStandsApp onBack={() => switchView('dashboard')} />
-            )}
-          </Suspense>
-        </main>
 
-        {/* Staff Authentication PIN Modal */}
-        <StaffAuthModal
-          isOpen={staffAuthModalOpen}
-          onSuccess={handleStaffSuccess}
-          onClose={currentView === 'customer' ? () => setStaffAuthModalOpen(false) : null}
-        />
-      </div>
+            <Route
+              path="/kitchen"
+              element={
+                <ErrorBoundary>
+                  <ProtectedRoute>
+                    <Suspense fallback={<ViewLoadingSpinner />}>
+                      <KitchenKdsApp />
+                    </Suspense>
+                  </ProtectedRoute>
+                </ErrorBoundary>
+              }
+            />
+
+            <Route
+              path="/stands"
+              element={
+                <ErrorBoundary>
+                  <ProtectedRoute>
+                    <Suspense fallback={<ViewLoadingSpinner />}>
+                      <QrStandsApp onBack={() => { window.location.href = '/dashboard'; }} />
+                    </Suspense>
+                  </ProtectedRoute>
+                </ErrorBoundary>
+              }
+            />
+
+            {/* Catch-all: redirect any unknown URL to Home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </QueryParamInterceptor>
+      </BrowserRouter>
     </ToastProvider>
   );
 }

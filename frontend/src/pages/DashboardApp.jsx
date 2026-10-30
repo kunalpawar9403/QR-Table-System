@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Home,
@@ -59,10 +59,18 @@ import {
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, clearStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
+import { authFetch, clearStaffToken, getStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import TableMintBannerSlider from '../components/TableMintBannerSlider';
+import EmptyMenuState from '../components/menu/EmptyMenuState';
+import MenuItemModal from '../components/menu/MenuItemModal';
+import CategoryManagementModal from '../components/menu/CategoryManagementModal';
+import MenuCsvImportModal from '../components/menu/MenuCsvImportModal';
+import MenuOcrModal from '../components/menu/MenuOcrModal';
+import CustomerMenuPreviewModal from '../components/menu/CustomerMenuPreviewModal';
+import DefaultMenuModal from '../components/menu/DefaultMenuModal';
+import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanner';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -178,14 +186,26 @@ function getStoredDashboardTab() {
   return 'overview';
 }
 
-export default function DashboardApp({ onLockStaff }) {
+export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
   const { addToast } = useToast();
 
   // Active Tab with persistence across browser page refreshes
   const [activeTab, setActiveTab] = useState(getStoredDashboardTab);
+  const activeTabRef = useRef(activeTab);
 
-  // Synchronize activeTab with LocalStorage and browser URL searchParams
+  // Unread / unseen notification badge counts (only for Orders and Kitchen Display)
+  const [unseenOrdersCount, setUnseenOrdersCount] = useState(0);
+  const [unseenKitchenCount, setUnseenKitchenCount] = useState(0);
+
+  // Synchronize activeTab with LocalStorage and browser URL searchParams & reset unseen counts upon visit
   useEffect(() => {
+    activeTabRef.current = activeTab;
+    if (activeTab === 'orders') {
+      setUnseenOrdersCount(0);
+    }
+    if (activeTab === 'kitchen') {
+      setUnseenKitchenCount(0);
+    }
     try {
       localStorage.setItem('tablemint_active_tab', activeTab);
       const url = new URL(window.location.href);
@@ -218,8 +238,24 @@ export default function DashboardApp({ onLockStaff }) {
     if (currentUser) {
       setProfileName(currentUser.name || '');
       setProfileRestaurant(currentUser.restaurantName || 'TableMint');
+      try {
+        const slug = currentUser.restaurantSlug || currentUser.restaurantName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'tablemint';
+        localStorage.setItem('tablemint_active_restaurant', slug);
+      } catch (e) {}
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    const handleAuth = (e) => {
+      if (e && e.detail) {
+        setCurrentUser(e.detail);
+      } else {
+        setCurrentUser(getCurrentUser());
+      }
+    };
+    window.addEventListener('staff:authenticated', handleAuth);
+    return () => window.removeEventListener('staff:authenticated', handleAuth);
+  }, []);
 
   const getUserInitials = (name) => {
     if (!name) return 'AM';
@@ -253,6 +289,14 @@ export default function DashboardApp({ onLockStaff }) {
   const [thermalPaperSize, setThermalPaperSize] = useState('58mm');
   const [menuModalOpen, setMenuModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [csvImportModalOpen, setCsvImportModalOpen] = useState(false);
+  const [ocrModalOpen, setOcrModalOpen] = useState(false);
+  const [previewQrModalOpen, setPreviewQrModalOpen] = useState(false);
+  const [defaultMenuModalOpen, setDefaultMenuModalOpen] = useState(false);
+  const [selectedMenuItems, setSelectedMenuItems] = useState([]);
+  const [loadingDemoMenu, setLoadingDemoMenu] = useState(false);
   const [tableModalOpen, setTableModalOpen] = useState(false);
   const [viewQrTable, setViewQrTable] = useState(null);
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
@@ -378,8 +422,32 @@ export default function DashboardApp({ onLockStaff }) {
   // Missing Filter & Sub-Nav States
   const [tableStatusFilter, setTableStatusFilter] = useState('all');
   const [analyticsSubTab, setAnalyticsSubTab] = useState('Revenue');
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState('today');
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [settingsSubNav, setSettingsSubNav] = useState('details');
   const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
+
+  const fetchAnalyticsReport = async (tf = analyticsTimeframe) => {
+    setLoadingAnalytics(true);
+    try {
+      const res = await authFetch(`/api/reports/analytics?timeframe=${tf}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAnalyticsData(data);
+      }
+    } catch (err) {
+      console.error('Failed to load analytics report:', err);
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'reports') {
+      fetchAnalyticsReport(analyticsTimeframe);
+    }
+  }, [activeTab, analyticsTimeframe]);
 
   // Mobile Profile Section States
   const [mobileProfileSubView, setMobileProfileSubView] = useState(false);
@@ -516,18 +584,20 @@ export default function DashboardApp({ onLockStaff }) {
 
   const fetchAllData = async () => {
     try {
-      const [tablesRes, ordersRes, menuRes, callsRes, settingsRes] = await Promise.all([
-        fetch('/api/tables'),
+      const [tablesRes, ordersRes, menuRes, callsRes, settingsRes, catsRes] = await Promise.all([
+        authFetch('/api/tables'),
         authFetch('/api/orders'),
-        fetch('/api/menu'),
+        authFetch('/api/menu?status=all'),
         authFetch('/api/service-calls'),
-        fetch('/api/settings')
+        authFetch('/api/settings'),
+        authFetch('/api/categories')
       ]);
 
       if (tablesRes.ok) setTables(await tablesRes.json());
       if (ordersRes.ok) setOrders(await ordersRes.json());
       if (menuRes.ok) setMenu(await menuRes.json());
       if (callsRes.ok) setServiceCalls(await callsRes.json());
+      if (catsRes && catsRes.ok) setCategories(await catsRes.json());
       if (settingsRes && settingsRes.ok) {
         const s = await settingsRes.json();
         if (s) setSettingsForm(prev => ({ ...prev, ...s }));
@@ -540,10 +610,14 @@ export default function DashboardApp({ onLockStaff }) {
   // Socket setup
   useEffect(() => {
     const handleConnect = () => {
-      socket.emit('join-admin');
-      socket.emit('join-kitchen');
-      socket.emit('join', { role: 'admin' });
-      socket.emit('join', { role: 'kitchen' });
+      const curUser = getCurrentUser();
+      const rSlug = curUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+      const token = getStaffToken();
+      socket.emit('join-admin', { restaurant: rSlug, token });
+      socket.emit('join-kitchen', { restaurant: rSlug, token });
+      socket.emit('join', { role: 'admin', restaurant: rSlug, token });
+      socket.emit('join', { role: 'kitchen', restaurant: rSlug, token });
+      fetchAllData();
     };
 
     handleConnect();
@@ -553,6 +627,14 @@ export default function DashboardApp({ onLockStaff }) {
       soundManager.playNewOrderChime();
       setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
       addToast(`🔔 New Order #${newOrder.orderNumber || newOrder.id} from ${newOrder.tableName}`, 'success', 6000);
+
+      // Increment unseen counters if user is not currently visiting that tab
+      if (activeTabRef.current !== 'orders') {
+        setUnseenOrdersCount((prev) => prev + 1);
+      }
+      if (activeTabRef.current !== 'kitchen') {
+        setUnseenKitchenCount((prev) => prev + 1);
+      }
 
       // Immediately set the table to occupied in state
       setTables((prev) =>
@@ -564,7 +646,7 @@ export default function DashboardApp({ onLockStaff }) {
       );
 
       // Refetch latest server table state
-      fetch('/api/tables')
+      authFetch('/api/tables')
         .then((r) => r.json())
         .then(setTables)
         .catch(() => {});
@@ -572,7 +654,7 @@ export default function DashboardApp({ onLockStaff }) {
 
     const handleStatusChanged = (updated) => {
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-      fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
+      authFetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
     };
 
     const handleTablesUpdated = (newTables) => {
@@ -589,7 +671,7 @@ export default function DashboardApp({ onLockStaff }) {
             : t
         )
       );
-      fetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
+      authFetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
     };
 
     const handleServiceCall = (call) => {
@@ -698,9 +780,9 @@ export default function DashboardApp({ onLockStaff }) {
     }
   };
 
-  // Save Dish
+  // Save Dish (Legacy & Quick)
   const handleSaveDish = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     try {
       const url = editingDish ? `/api/menu/${editingDish.id}` : '/api/menu';
       const method = editingDish ? 'PUT' : 'POST';
@@ -722,6 +804,203 @@ export default function DashboardApp({ onLockStaff }) {
       }
     } catch (err) {
       addToast('Error saving dish', 'error');
+    }
+  };
+
+  // Comprehensive Menu Item Save (Supports Variants, Add-ons, Status)
+  const handleSaveMenuItem = async (itemData) => {
+    try {
+      const isEdit = !!itemData.id;
+      const url = isEdit ? `/api/menu/${itemData.id}` : '/api/menu';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await authFetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(itemData)
+      });
+
+      if (res.ok) {
+        addToast(isEdit ? 'Item updated successfully!' : 'Item added to menu!', 'success');
+        setMenuModalOpen(false);
+        setEditingDish(null);
+        await fetchAllData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        addToast(err.error || 'Failed to save item', 'error');
+      }
+    } catch (err) {
+      addToast('Network error saving menu item', 'error');
+    }
+  };
+
+  // Duplicate Menu Item
+  const handleDuplicateItem = async (dishId) => {
+    try {
+      const res = await authFetch(`/api/menu/${dishId}/duplicate`, { method: 'POST' });
+      if (res.ok) {
+        addToast('Dish duplicated successfully!', 'success');
+        await fetchAllData();
+      } else {
+        addToast('Failed to duplicate item', 'error');
+      }
+    } catch (err) {
+      addToast('Error duplicating item', 'error');
+    }
+  };
+
+  // Delete Menu Item
+  const handleDeleteMenuItem = async (dishId) => {
+    if (!window.confirm('Are you sure you want to delete this menu item?')) return;
+    try {
+      const res = await authFetch(`/api/menu/${dishId}`, { method: 'DELETE' });
+      if (res.ok) {
+        addToast('Item removed from menu', 'success');
+        setSelectedMenuItems(prev => prev.filter(id => id !== dishId));
+        await fetchAllData();
+      } else {
+        addToast('Failed to delete item', 'error');
+      }
+    } catch (err) {
+      addToast('Error deleting item', 'error');
+    }
+  };
+
+  // Bulk Availability Toggle
+  const handleBulkAvailability = async (available) => {
+    if (!selectedMenuItems.length) return;
+    try {
+      const res = await authFetch('/api/menu/bulk-availability', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedMenuItems, available })
+      });
+      if (res.ok) {
+        addToast(`Updated availability for ${selectedMenuItems.length} items`, 'success');
+        setSelectedMenuItems([]);
+        await fetchAllData();
+      }
+    } catch (err) {
+      addToast('Error updating bulk availability', 'error');
+    }
+  };
+
+  // Bulk Publish / Draft Status
+  const handleBulkPublish = async (status) => {
+    if (!selectedMenuItems.length) return;
+    try {
+      const res = await authFetch('/api/menu/bulk-publish', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedMenuItems, status })
+      });
+      if (res.ok) {
+        addToast(`Updated publish status for ${selectedMenuItems.length} items`, 'success');
+        setSelectedMenuItems([]);
+        await fetchAllData();
+      }
+    } catch (err) {
+      addToast('Error updating bulk status', 'error');
+    }
+  };
+
+  // Seed Demo Indian Menu
+  const handleSeedDemoMenu = async () => {
+    setLoadingDemoMenu(true);
+    try {
+      const res = await authFetch('/api/menu/seed-demo', { method: 'POST' });
+      if (res.ok) {
+        addToast('Demo Indian menu catalog loaded successfully!', 'success');
+        await fetchAllData();
+      } else {
+        addToast('Failed to load demo menu', 'error');
+      }
+    } catch (err) {
+      addToast('Error loading demo menu', 'error');
+    } finally {
+      setLoadingDemoMenu(false);
+    }
+  };
+
+  // Category Management Handlers
+  const handleSaveCategory = async (catData) => {
+    const isEdit = !!catData.id;
+    const url = isEdit ? `/api/categories/${catData.id}` : '/api/categories';
+    const method = isEdit ? 'PUT' : 'POST';
+    const res = await authFetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(catData)
+    });
+    if (res.ok) {
+      await fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to save category');
+    }
+  };
+
+  const handleDeleteCategory = async (catId) => {
+    const res = await authFetch(`/api/categories/${catId}`, { method: 'DELETE' });
+    if (res.ok) {
+      await fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to delete category');
+    }
+  };
+
+  const handleReorderCategories = async (newOrderedCategories) => {
+    setCategories(newOrderedCategories);
+    const orderedIds = newOrderedCategories.map(c => c.id);
+    await authFetch('/api/categories/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderedIds })
+    });
+  };
+
+  const handleSeedSuggestedCategories = async () => {
+    const res = await authFetch('/api/categories/seed-suggested', { method: 'POST' });
+    if (res.ok) {
+      addToast('Added suggested categories!', 'success');
+      await fetchAllData();
+    }
+  };
+
+  // CSV Import Confirmation
+  const handleConfirmCsvImport = async (items) => {
+    const res = await authFetch('/api/menu/import-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      addToast(`Imported ${data.insertedCount} items successfully!`, 'success');
+      setCsvImportModalOpen(false);
+      await fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      addToast(err.error || 'Import failed', 'error');
+    }
+  };
+
+  // OCR Import Confirmation
+  const handleConfirmOcrImport = async (items) => {
+    const res = await authFetch('/api/menu/import-confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      addToast(`Added ${data.insertedCount} items from menu extraction!`, 'success');
+      setOcrModalOpen(false);
+      await fetchAllData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      addToast(err.error || 'Failed to import extracted items', 'error');
     }
   };
 
@@ -977,9 +1256,12 @@ export default function DashboardApp({ onLockStaff }) {
   };
 
   const handleShareOrDownloadStand = async (table) => {
-    const qrUrl = `/api/qrcode/${table.id}`;
+    const curUser = getCurrentUser();
+    const rSlug = curUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+    const restParam = rSlug !== 'tablemint' ? `&restaurant=${encodeURIComponent(rSlug)}` : '';
+    const qrUrl = `/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`;
     const scanUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}`
+      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`
       : '';
 
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -1082,7 +1364,10 @@ export default function DashboardApp({ onLockStaff }) {
 
   const activeMenuCategories = [
     'all',
-    ...Array.from(new Set(menu.map((m) => m.category).filter(Boolean)))
+    ...Array.from(new Set([
+      ...categories.map(c => c.name),
+      ...menu.map((m) => m.category).filter(Boolean)
+    ]))
   ];
 
   // Filter Menu
@@ -1176,13 +1461,18 @@ export default function DashboardApp({ onLockStaff }) {
 
             <button
               className={`sidebar-nav-item ${activeTab === 'orders' ? 'active' : ''}`}
-              onClick={() => setActiveTab('orders')}
+              onClick={() => {
+                setActiveTab('orders');
+                setUnseenOrdersCount(0);
+              }}
             >
               <div className="sidebar-item-left">
                 <Receipt size={18} />
                 <span>Orders</span>
               </div>
-              <span className="sidebar-badge">{orders.length || 24}</span>
+              {unseenOrdersCount > 0 && (
+                <span className="sidebar-badge sidebar-badge-new">{unseenOrdersCount}</span>
+              )}
             </button>
 
             <button
@@ -1203,17 +1493,22 @@ export default function DashboardApp({ onLockStaff }) {
                 <BookOpen size={18} />
                 <span>Menu Management</span>
               </div>
-              <span className="sidebar-badge">{menu.length || 24}</span>
             </button>
 
             <button
               className={`sidebar-nav-item ${activeTab === 'kitchen' ? 'active' : ''}`}
-              onClick={() => setActiveTab('kitchen')}
+              onClick={() => {
+                setActiveTab('kitchen');
+                setUnseenKitchenCount(0);
+              }}
             >
               <div className="sidebar-item-left">
                 <ChefHat size={18} />
                 <span>Kitchen Display</span>
               </div>
+              {unseenKitchenCount > 0 && (
+                <span className="sidebar-badge sidebar-badge-new">{unseenKitchenCount}</span>
+              )}
             </button>
 
             <button
@@ -1537,6 +1832,18 @@ export default function DashboardApp({ onLockStaff }) {
 
             <button
               className="header-circle-btn"
+              onClick={() => {
+                const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+                window.open(`/?table=1&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
+              }}
+              title="Open Customer Menu Card (Table 1)"
+              style={{ color: '#10b981' }}
+            >
+              <ExternalLink size={16} />
+            </button>
+
+            <button
+              className="header-circle-btn"
               onClick={() => setActiveTab('settings')}
               title="Settings"
             >
@@ -1607,6 +1914,24 @@ export default function DashboardApp({ onLockStaff }) {
             ======================================================== */}
         {activeTab === 'overview' && (
           <div className="overview-content-wrapper">
+            {/* SaaS Onboarding & Menu Setup Progress Banner */}
+            <OnboardingProgressBanner
+              settings={settingsForm}
+              categories={categories}
+              menu={menu}
+              tables={tables}
+              onNavigateTab={(tab) => {
+                if (tab === 'menu') setActiveTab('menu');
+                else if (tab === 'categories') {
+                  setActiveTab('menu');
+                  setCategoryModalOpen(true);
+                } else if (tab === 'tables') setActiveTab('tables');
+                else if (tab === 'settings') setActiveTab('settings');
+                else if (tab === 'stands') setActiveTab('stands');
+              }}
+              onOpenPreview={() => setPreviewQrModalOpen(true)}
+            />
+
             {/* Promo Hero Banner Slider (Auto-Scrolling 3 Banners) */}
             <TableMintBannerSlider
               className="hide-on-desktop"
@@ -1630,7 +1955,7 @@ export default function DashboardApp({ onLockStaff }) {
                 <div className="metric-content">
                   <span className="metric-title">Revenue</span>
                   <div className="metric-value">
-                    ₹{totalRevenue > 0 ? totalRevenue.toLocaleString('en-IN') : '6,327.3'}
+                    ₹{(totalRevenue || 0).toLocaleString('en-IN')}
                   </div>
                 </div>
                 <svg className="metric-card-wave wave-green" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
@@ -1651,7 +1976,7 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Total Orders</span>
-                  <div className="metric-value">{orders.length > 0 ? orders.length : 19}</div>
+                  <div className="metric-value">{orders.length}</div>
                 </div>
                 <svg className="metric-card-wave wave-amber" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
                   <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#f59e0b" fillOpacity="0.14"/>
@@ -1670,7 +1995,7 @@ export default function DashboardApp({ onLockStaff }) {
                   <span className="metric-title">Active Tables</span>
                   <div className="metric-value" style={{ color: '#0f172a', display: 'flex', alignItems: 'center', gap: 6 }}>
                     <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb', display: 'inline-block' }} />
-                    <span style={{ color: '#2563eb' }}>{occupiedTables > 0 ? `${occupiedTables} / ${tables.length}` : '8 / 12'}</span>
+                    <span style={{ color: '#2563eb' }}>{`${occupiedTables} / ${tables.length || 0}`}</span>
                   </div>
                 </div>
                 <svg className="metric-card-wave wave-blue" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
@@ -1691,7 +2016,7 @@ export default function DashboardApp({ onLockStaff }) {
                 </div>
                 <div className="metric-content">
                   <span className="metric-title">Avg. Order Value</span>
-                  <div className="metric-value">₹{avgTicket || 333}</div>
+                  <div className="metric-value">₹{avgTicket || 0}</div>
                 </div>
                 <svg className="metric-card-wave wave-purple" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
                   <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#8b5cf6" fillOpacity="0.14"/>
@@ -1719,12 +2044,15 @@ export default function DashboardApp({ onLockStaff }) {
                     const s = (o.status || '').toLowerCase();
                     return ['pending', 'preparing', 'cooking', 'in-progress', 'ready'].includes(s);
                   });
-                  const displayKitchenOrders = activeKitchenOrders.length > 0 ? activeKitchenOrders.slice(0, 3) : [
-                    { id: '1', orderNumber: 'T1234', tableName: 'Table 12', status: 'Preparing', time: '2 mins' },
-                    { id: '2', orderNumber: 'T1233', tableName: 'Table 5', status: 'Ready', time: '8 mins' },
-                    { id: '3', orderNumber: 'T1232', tableName: 'Table 8', status: 'Preparing', time: '12 mins' }
-                  ];
-                  return displayKitchenOrders.map((order) => {
+                  if (activeKitchenOrders.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '24px 16px', color: '#64748b' }}>
+                        <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9rem' }}>No active kitchen orders</p>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.8rem', opacity: 0.8 }}>Orders placed by customers will stream here live</p>
+                      </div>
+                    );
+                  }
+                  return activeKitchenOrders.slice(0, 5).map((order) => {
                     const isReady = (order.status || '').toLowerCase() === 'ready';
                     return (
                       <div
@@ -1733,21 +2061,7 @@ export default function DashboardApp({ onLockStaff }) {
                         style={{ cursor: 'pointer' }}
                         onClick={() => {
                           setActiveTab('orders');
-                          setMobileSelectedOrder({
-                            id: order.id || '1',
-                            code: `#${order.orderNumber || 'T1234'}`,
-                            table: order.tableName || 'Table 12',
-                            items: '3 items',
-                            itemsList: [
-                              { name: 'Paneer Tikka', quantity: 2, price: 220 },
-                              { name: 'Chicken Biryani', quantity: 1, price: 280 },
-                              { name: 'Masala Dosa', quantity: 1, price: 180 }
-                            ],
-                            amount: 945,
-                            status: (order.status || 'preparing').toLowerCase(),
-                            time: order.time || '2 mins',
-                            notes: 'Less spicy, extra chutney'
-                          });
+                          setMobileSelectedOrder(order);
                         }}
                       >
                         <div className="mobile-live-order-left">
@@ -1758,7 +2072,7 @@ export default function DashboardApp({ onLockStaff }) {
                           <span className={`mobile-status-tag ${isReady ? 'ready' : 'preparing'}`}>
                             {isReady ? 'READY' : 'PREPARING'}
                           </span>
-                          <span className="mobile-order-time">{order.time || (isReady ? '8 mins' : '2 mins')}</span>
+                          <span className="mobile-order-time">{order.time || (isReady ? 'Ready' : 'In Kitchen')}</span>
                           <ChevronRight size={16} className="mobile-order-chevron" />
                         </div>
                       </div>
@@ -2534,27 +2848,56 @@ export default function DashboardApp({ onLockStaff }) {
         )}
 
         {/* ========================================================
-            TAB: MENU MANAGEMENT (MATCHING REFERENCE IMAGE 1 PANEL 4)
+            TAB: MENU MANAGEMENT (SMART MENU BUILDER)
             ======================================================== */}
         {activeTab === 'menu' && (
           <section className="admin-page-container">
             <div className="page-header-row">
               <div>
                 <h2 className="page-title">Menu Management</h2>
-                <p className="page-subtitle">Add, edit and organize your restaurant menu items</p>
+                <p className="page-subtitle">Add, edit, organize and publish your live restaurant catalog</p>
               </div>
-              <div className="page-header-actions">
+              <div className="page-header-actions" style={{ flexWrap: 'wrap', gap: 8 }}>
                 <button
                   className="btn-brand-outline"
-                  onClick={() => addToast('Manage Categories modal', 'info')}
+                  style={{
+                    background: '#ecfdf5',
+                    borderColor: '#10b981',
+                    color: '#065f46',
+                    fontWeight: 700
+                  }}
+                  onClick={() => setDefaultMenuModalOpen(true)}
+                  title="Explore and import TableMint default starter menu catalog"
                 >
-                  <Tag size={15} /> Category
+                  <Sparkles size={15} style={{ color: '#059669' }} /> TableMint Default Menu
                 </button>
                 <button
                   className="btn-brand-outline"
-                  onClick={() => addToast('Import CSV modal', 'info')}
+                  onClick={() => setCategoryModalOpen(true)}
+                  title="Manage custom menu categories"
                 >
-                  <Download size={15} /> Import
+                  <Tag size={15} /> Categories ({categories.length})
+                </button>
+                <button
+                  className="btn-brand-outline"
+                  onClick={() => setCsvImportModalOpen(true)}
+                  title="Upload CSV or Excel spreadsheet"
+                >
+                  <Download size={15} /> Import CSV
+                </button>
+                <button
+                  className="btn-brand-outline"
+                  onClick={() => setOcrModalOpen(true)}
+                  title="Extract menu from photo using AI OCR"
+                >
+                  <Sparkles size={15} /> AI OCR Photo
+                </button>
+                <button
+                  className="btn-brand-outline"
+                  onClick={() => setPreviewQrModalOpen(true)}
+                  title="Preview digital customer QR menu"
+                >
+                  <QrCode size={15} /> Preview QR
                 </button>
                 <button
                   className="btn-brand-primary"
@@ -2562,7 +2905,7 @@ export default function DashboardApp({ onLockStaff }) {
                     setEditingDish(null);
                     setDishForm({
                       name: '',
-                      category: 'Starters',
+                      category: categories[0]?.name || 'Starters',
                       price: '',
                       description: '',
                       image: '',
@@ -2576,167 +2919,14 @@ export default function DashboardApp({ onLockStaff }) {
               </div>
             </div>
 
-            {/* Screen 6: Mobile Search Bar Pill (Reference Image Screen 6) */}
-            <div className="mobile-search-pill-box hide-on-desktop">
-              <Search size={16} />
-              <input
-                type="text"
-                placeholder="Search menu items..."
-                value={menuSearch}
-                onChange={(e) => {
-                  setMenuSearch(e.target.value);
-                  setMenuPage(1);
-                }}
-              />
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="admin-filter-pills-row">
-              {activeMenuCategories.map((c) => {
-                const count = c === 'all'
-                  ? (menu.length || 24)
-                  : menu.filter((m) => m.category === c).length;
-                const label = c === 'all'
-                  ? 'All Items'
-                  : c.charAt(0).toUpperCase() + c.slice(1);
-                return (
-                  <button
-                    key={c}
-                    className={`admin-filter-pill ${menuCategoryFilter === c ? 'active' : ''}`}
-                    onClick={() => {
-                      setMenuCategoryFilter(c);
-                      setMenuPage(1);
-                    }}
-                  >
-                    {label} ({count})
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Search & Filter Controls for Desktop */}
-            <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <div className="topbar-search-box" style={{ maxWidth: 320 }}>
-                <Search size={15} className="topbar-search-icon" />
-                <input
-                  type="text"
-                  placeholder="Search menu items..."
-                  value={menuSearch}
-                  onChange={(e) => {
-                    setMenuSearch(e.target.value);
-                    setMenuPage(1);
-                  }}
-                  className="topbar-search-input"
-                />
-              </div>
-
-              <select
-                className="btn-brand-outline"
-                style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
-                value={menuCategoryFilter}
-                onChange={(e) => {
-                  setMenuCategoryFilter(e.target.value);
-                  setMenuPage(1);
-                }}
-              >
-                {activeMenuCategories.map((c) => (
-                  <option key={c} value={c}>
-                    {c === 'all' ? 'All Categories' : c.charAt(0).toUpperCase() + c.slice(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Screen 6: Mobile Menu Management Dish Cards (Reference Image Screen 6) */}
-            <div className="mobile-menu-cards-list hide-on-desktop">
-              {filteredMenu.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '36px 16px', background: '#ffffff', borderRadius: 16, border: '1px solid #e2e8f0', margin: '8px 0' }}>
-                  <p style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', margin: 0 }}>No dishes found</p>
-                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
-                    Try searching with another keyword or pick another category
-                  </p>
-                </div>
-              ) : (
-                (paginatedMenu.length > 0 ? paginatedMenu : filteredMenu).map((dish) => {
-                  const isActive = dish.available !== false && dish.status !== 'inactive';
-                  return (
-                    <div key={dish.id} className="mobile-menu-dish-card">
-                      <img
-                        src={dish.image || '/images/paneer_butter_masala.jpg'}
-                        alt={dish.name}
-                        className="mobile-menu-thumb"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                      />
-                      <div
-                        className="mobile-menu-details"
-                        onClick={() => {
-                          setEditingDish(dish);
-                          setDishForm({
-                            name: dish.name || '',
-                            category: dish.category || 'starters',
-                            price: dish.price || '',
-                            description: dish.description || '',
-                            image: dish.image || '',
-                            isVeg: dish.isVeg !== false
-                          });
-                          setMenuModalOpen(true);
-                        }}
-                        style={{ cursor: 'pointer' }}
-                        title="Click to edit item"
-                      >
-                        <div className="mobile-menu-dish-name">{dish.name}</div>
-                        <div className="mobile-menu-meta-line">
-                          <span className="mobile-menu-price">₹{dish.price}</span>
-                          <span className={`mobile-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}>
-                            <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} style={{ width: 8, height: 8 }} />
-                            {dish.isVeg ? 'Veg' : 'Non-Veg'}
-                          </span>
-                          {dish.category && (
-                            <span className="mobile-diet-tag" style={{ background: '#f1f5f9', color: '#64748b' }}>
-                              {dish.category.charAt(0).toUpperCase() + dish.category.slice(1)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {/* iOS Switch Toggle */}
-                      <label className="mobile-switch-toggle" title={isActive ? 'Active - click to disable' : 'Inactive - click to activate'}>
-                        <input
-                          type="checkbox"
-                          checked={isActive}
-                          onChange={() => handleToggleMenu(dish.id)}
-                        />
-                        <span className="mobile-switch-slider" />
-                      </label>
-                    </div>
-                  );
-                })
-              )}
-
-              {/* Mobile Menu Pagination Controls */}
-              {totalMenuPages > 1 && (
-                <div className="mobile-pagination-wrapper">
-                  <PaginationBar
-                    currentPage={currentMenuPage}
-                    totalPages={totalMenuPages}
-                    totalItems={filteredMenu.length}
-                    itemsPerPage={menuPerPage}
-                    onPageChange={(p) => {
-                      setMenuPage(p);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    label="dishes"
-                  />
-                </div>
-              )}
-
-              <button
-                type="button"
-                className="mobile-sticky-add-item-btn"
-                onClick={() => {
+            {/* If Menu is completely empty, display the 4-Card Smart Empty State */}
+            {menu.length === 0 ? (
+              <EmptyMenuState
+                onAddManual={() => {
                   setEditingDish(null);
                   setDishForm({
                     name: '',
-                    category: 'Starters',
+                    category: categories[0]?.name || 'Starters',
                     price: '',
                     description: '',
                     image: '',
@@ -2744,123 +2934,425 @@ export default function DashboardApp({ onLockStaff }) {
                   });
                   setMenuModalOpen(true);
                 }}
-              >
-                <Plus size={18} /> Add Item
-              </button>
-            </div>
+                onManualAdd={() => {
+                  setEditingDish(null);
+                  setDishForm({
+                    name: '',
+                    category: categories[0]?.name || 'Starters',
+                    price: '',
+                    description: '',
+                    image: '',
+                    isVeg: true
+                  });
+                  setMenuModalOpen(true);
+                }}
+                onImportCsv={() => setCsvImportModalOpen(true)}
+                onCsvImport={() => setCsvImportModalOpen(true)}
+                onUploadOcr={() => setOcrModalOpen(true)}
+                onOcrImport={() => setOcrModalOpen(true)}
+                onSelectCategories={() => setCategoryModalOpen(true)}
+                onManageCategories={() => setCategoryModalOpen(true)}
+                onOpenDefaultMenu={() => setDefaultMenuModalOpen(true)}
+                onLoadDemo={() => setDefaultMenuModalOpen(true)}
+                onLoadDemoMenu={() => setDefaultMenuModalOpen(true)}
+                loadingDemo={loadingDemoMenu}
+              />
+            ) : (
+              <>
+                {/* Screen 6: Mobile Search Bar Pill (Reference Image Screen 6) */}
+                <div className="mobile-search-pill-box hide-on-desktop">
+                  <Search size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search menu items..."
+                    value={menuSearch}
+                    onChange={(e) => {
+                      setMenuSearch(e.target.value);
+                      setMenuPage(1);
+                    }}
+                  />
+                </div>
 
-            {/* Menu Items Table matching Reference Panel 4 for Desktop */}
-            <div className="admin-table-card hide-on-mobile">
-              <table className="admin-clean-table">
-                <thead>
-                  <tr>
-                    <th style={{ width: 40 }}><input type="checkbox" /></th>
-                    <th>Image</th>
-                    <th>Item Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(paginatedMenu.length > 0 ? paginatedMenu : (filteredMenu.length > 0 ? filteredMenu : menu.length > 0 ? menu : [
-                    { id: '1', name: 'Paneer Tikka', category: 'Starters', price: 220, isVeg: true, available: true, image: '/images/paneer_tikka.jpg' },
-                    { id: '2', name: 'Chicken Biryani', category: 'Main Course', price: 280, isVeg: false, available: true, image: '/images/chicken_biryani.jpg' },
-                    { id: '3', name: 'Masala Dosa', category: 'Main Course', price: 180, isVeg: true, available: true, image: '/images/masala_dosa.jpg' },
-                    { id: '4', name: 'Margherita Pizza', category: 'Main Course', price: 260, isVeg: true, available: true, image: '/images/artisan_pizza.jpg' },
-                    { id: '5', name: 'Caesar Salad', category: 'Starters', price: 200, isVeg: true, available: false, image: '/images/green_salad.jpg' }
-                  ])).map((dish) => {
-                    const isActive = dish.available !== false && dish.status !== 'inactive';
+                {/* Category Filter Pills */}
+                <div className="admin-filter-pills-row">
+                  {activeMenuCategories.map((c) => {
+                    const count = c === 'all'
+                      ? menu.length
+                      : menu.filter((m) => m.category === c).length;
+                    const label = c === 'all'
+                      ? 'All Items'
+                      : c.charAt(0).toUpperCase() + c.slice(1);
                     return (
-                      <tr key={dish.id}>
-                        <td><input type="checkbox" /></td>
-                        <td>
+                      <button
+                        key={c}
+                        className={`admin-filter-pill ${menuCategoryFilter === c ? 'active' : ''}`}
+                        onClick={() => {
+                          setMenuCategoryFilter(c);
+                          setMenuPage(1);
+                        }}
+                      >
+                        {label} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search & Filter Controls for Desktop */}
+                <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <div className="topbar-search-box" style={{ maxWidth: 320 }}>
+                      <Search size={15} className="topbar-search-icon" />
+                      <input
+                        type="text"
+                        placeholder="Search menu items..."
+                        value={menuSearch}
+                        onChange={(e) => {
+                          setMenuSearch(e.target.value);
+                          setMenuPage(1);
+                        }}
+                        className="topbar-search-input"
+                      />
+                    </div>
+
+                    <select
+                      className="btn-brand-outline"
+                      style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
+                      value={menuCategoryFilter}
+                      onChange={(e) => {
+                        setMenuCategoryFilter(e.target.value);
+                        setMenuPage(1);
+                      }}
+                    >
+                      {activeMenuCategories.map((c) => (
+                        <option key={c} value={c}>
+                          {c === 'all' ? 'All Categories' : c.charAt(0).toUpperCase() + c.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
+                    Showing {filteredMenu.length} of {menu.length} dishes
+                  </div>
+                </div>
+
+                {/* Bulk Action Toolbar */}
+                {selectedMenuItems.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: '#ecfdf5',
+                    border: '1px solid #a7f3d0',
+                    borderRadius: 12,
+                    padding: '10px 16px',
+                    margin: '12px 0',
+                    gap: 12,
+                    flexWrap: 'wrap'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#065f46', fontSize: '0.88rem' }}>
+                      <CheckCircle size={16} />
+                      <span>{selectedMenuItems.length} items selected</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                      <button
+                        className="btn-brand-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fff' }}
+                        onClick={() => handleBulkAvailability(true)}
+                      >
+                        Mark In-Stock
+                      </button>
+                      <button
+                        className="btn-brand-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fff' }}
+                        onClick={() => handleBulkAvailability(false)}
+                      >
+                        Mark Out-of-Stock
+                      </button>
+                      <button
+                        className="btn-brand-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fff' }}
+                        onClick={() => handleBulkPublish('published')}
+                      >
+                        Publish
+                      </button>
+                      <button
+                        className="btn-brand-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fff' }}
+                        onClick={() => handleBulkPublish('draft')}
+                      >
+                        Draft
+                      </button>
+                      <button
+                        className="btn-brand-outline"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem', background: '#fff', color: '#dc2626', borderColor: '#fca5a5' }}
+                        onClick={() => setSelectedMenuItems([])}
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Menu Management Dish Cards */}
+                <div className="mobile-menu-cards-list hide-on-desktop">
+                  {filteredMenu.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '36px 16px', background: '#ffffff', borderRadius: 16, border: '1px solid #e2e8f0', margin: '8px 0' }}>
+                      <p style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a', margin: 0 }}>No dishes found</p>
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', marginTop: 4 }}>
+                        Try searching with another keyword or pick another category
+                      </p>
+                    </div>
+                  ) : (
+                    (paginatedMenu.length > 0 ? paginatedMenu : filteredMenu).map((dish) => {
+                      const isActive = dish.available !== false && dish.status !== 'inactive';
+                      const isDraft = dish.status === 'draft';
+                      return (
+                        <div key={dish.id} className="mobile-menu-dish-card">
                           <img
                             src={dish.image || '/images/paneer_butter_masala.jpg'}
                             alt={dish.name}
-                            style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }}
+                            className="mobile-menu-thumb"
                             onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
                           />
-                        </td>
-                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{dish.name}</td>
-                        <td style={{ color: '#64748b' }}>
-                          {dish.category ? (dish.category.charAt(0).toUpperCase() + dish.category.slice(1)) : 'General'}
-                        </td>
-                        <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {dish.price}</td>
-                        <td>
-                          <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
-                          <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#059669' : '#dc2626' }}>
-                            {dish.isVeg ? 'Veg' : 'Non-Veg'}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            type="button"
-                            onClick={() => handleToggleMenu(dish.id)}
-                            className={`status-badge-pill ${isActive ? 'active' : 'inactive'}`}
-                            style={{ cursor: 'pointer', border: 'none' }}
-                            title="Click to toggle availability"
+                          <div
+                            className="mobile-menu-details"
+                            onClick={() => {
+                              setEditingDish(dish);
+                              setMenuModalOpen(true);
+                            }}
+                            style={{ cursor: 'pointer' }}
+                            title="Click to edit item"
                           >
-                            {isActive ? '• Active' : 'Inactive'}
-                          </button>
-                        </td>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <button
-                              className="btn-row-action"
-                              onClick={() => {
-                                setEditingDish(dish);
-                                setDishForm({
-                                  name: dish.name || '',
-                                  category: dish.category || 'Starters',
-                                  price: dish.price || '',
-                                  description: dish.description || '',
-                                  image: dish.image || '',
-                                  isVeg: !!dish.isVeg
-                                });
-                                setMenuModalOpen(true);
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn-row-dots"
-                              title="Delete Item"
-                              onClick={async () => {
-                                if (window.confirm(`Delete ${dish.name}?`)) {
-                                  try {
-                                    const res = await authFetch(`/api/menu/${dish.id}`, { method: 'DELETE' });
-                                    if (res.ok) {
-                                      addToast(`${dish.name} deleted`, 'info');
-                                      fetchAllData();
-                                    }
-                                  } catch (err) {
-                                    addToast('Failed to delete item', 'error');
-                                  }
-                                }
-                              }}
-                            >
-                              <Trash2 size={14} style={{ color: '#ef4444' }} />
-                            </button>
+                            <div className="mobile-menu-dish-name">
+                              {dish.name}
+                              {isDraft && (
+                                <span style={{ marginLeft: 6, fontSize: '0.68rem', padding: '2px 6px', background: '#fef3c7', color: '#92400e', borderRadius: 6, fontWeight: 700 }}>
+                                  DRAFT
+                                </span>
+                              )}
+                            </div>
+                            <div className="mobile-menu-meta-line">
+                              <span className="mobile-menu-price">
+                                {dish.variants?.length ? `From ₹${dish.variants[0].price}` : `₹${dish.price}`}
+                              </span>
+                              <span className={`mobile-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}>
+                                <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} style={{ width: 8, height: 8 }} />
+                                {dish.isVeg ? 'Veg' : 'Non-Veg'}
+                              </span>
+                              {dish.category && (
+                                <span className="mobile-diet-tag" style={{ background: '#f1f5f9', color: '#64748b' }}>
+                                  {dish.category.charAt(0).toUpperCase() + dish.category.slice(1)}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          {/* iOS Switch Toggle */}
+                          <label className="mobile-switch-toggle" title={isActive ? 'In Stock' : 'Out of Stock'}>
+                            <input
+                              type="checkbox"
+                              checked={isActive}
+                              onChange={() => handleToggleMenu(dish.id)}
+                            />
+                            <span className="mobile-switch-slider" />
+                          </label>
+                        </div>
+                      );
+                    })
+                  )}
 
-              <PaginationBar
-                currentPage={currentMenuPage}
-                totalPages={totalMenuPages}
-                totalItems={filteredMenu.length}
-                itemsPerPage={menuPerPage}
-                onPageChange={(p) => setMenuPage(p)}
-                label="menu items"
-              />
-            </div>
+                  {/* Mobile Menu Pagination Controls */}
+                  {totalMenuPages > 1 && (
+                    <div className="mobile-pagination-wrapper">
+                      <PaginationBar
+                        currentPage={currentMenuPage}
+                        totalPages={totalMenuPages}
+                        totalItems={filteredMenu.length}
+                        itemsPerPage={menuPerPage}
+                        onPageChange={(p) => {
+                          setMenuPage(p);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        label="dishes"
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    className="mobile-sticky-add-item-btn"
+                    onClick={() => {
+                      setEditingDish(null);
+                      setDishForm({
+                        name: '',
+                        category: categories[0]?.name || 'Starters',
+                        price: '',
+                        description: '',
+                        image: '',
+                        isVeg: true
+                      });
+                      setMenuModalOpen(true);
+                    }}
+                  >
+                    <Plus size={18} /> Add Item
+                  </button>
+                </div>
+
+                {/* Menu Items Table matching Reference Panel 4 for Desktop */}
+                <div className="admin-table-card hide-on-mobile">
+                  <table className="admin-clean-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 40 }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedMenuItems.length === paginatedMenu.length && paginatedMenu.length > 0}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedMenuItems(paginatedMenu.map(m => m.id));
+                              } else {
+                                setSelectedMenuItems([]);
+                              }
+                            }}
+                          />
+                        </th>
+                        <th>Image</th>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredMenu.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" style={{ textAlign: 'center', padding: '36px 16px', color: '#64748b' }}>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No dishes found</p>
+                            <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Try adjusting your search query or category filter</p>
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedMenu.map((dish) => {
+                          const isActive = dish.available !== false && dish.status !== 'inactive';
+                          const isDraft = dish.status === 'draft';
+                          const isSelected = selectedMenuItems.includes(dish.id);
+                          return (
+                            <tr key={dish.id} style={{ background: isSelected ? '#f0fdf4' : 'inherit' }}>
+                              <td>
+                                <input
+                                  type="checkbox"
+                                  checked={isSelected}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedMenuItems(prev => [...prev, dish.id]);
+                                    } else {
+                                      setSelectedMenuItems(prev => prev.filter(id => id !== dish.id));
+                                    }
+                                  }}
+                                />
+                              </td>
+                              <td>
+                                <img
+                                  src={dish.image || '/images/paneer_butter_masala.jpg'}
+                                  alt={dish.name}
+                                  style={{ width: 42, height: 42, borderRadius: 8, objectFit: 'cover' }}
+                                  onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                                />
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 700, color: '#0f172a' }}>{dish.name}</div>
+                                {dish.variants && dish.variants.length > 0 && (
+                                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>
+                                    {dish.variants.length} size variants ({dish.variants.map(v => v.name).join(', ')})
+                                  </div>
+                                )}
+                              </td>
+                              <td style={{ color: '#64748b' }}>
+                                {dish.category ? (dish.category.charAt(0).toUpperCase() + dish.category.slice(1)) : 'General'}
+                              </td>
+                              <td style={{ fontWeight: 800, color: '#0f172a' }}>
+                                {dish.variants?.length ? `From ₹${dish.variants[0].price}` : `₹ ${dish.price}`}
+                              </td>
+                              <td>
+                                <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
+                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#059669' : '#dc2626' }}>
+                                  {dish.isVeg ? 'Veg' : 'Non-Veg'}
+                                </span>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleMenu(dish.id)}
+                                    className={`status-badge-pill ${isActive ? 'active' : 'inactive'}`}
+                                    style={{ cursor: 'pointer', border: 'none' }}
+                                    title="Click to toggle availability"
+                                  >
+                                    {isActive ? '• In Stock' : 'Out of Stock'}
+                                  </button>
+                                  <span style={{
+                                    fontSize: '0.72rem',
+                                    fontWeight: 700,
+                                    padding: '3px 8px',
+                                    borderRadius: 6,
+                                    background: isDraft ? '#fef3c7' : '#ecfdf5',
+                                    color: isDraft ? '#92400e' : '#065f46'
+                                  }}>
+                                    {isDraft ? 'Draft' : 'Live'}
+                                  </span>
+                                </div>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <button
+                                    className="btn-row-action"
+                                    onClick={() => {
+                                      setEditingDish(dish);
+                                      setMenuModalOpen(true);
+                                    }}
+                                    title="Edit Item Details"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="btn-row-action"
+                                    onClick={() => handleDuplicateItem(dish.id)}
+                                    title="Duplicate Item"
+                                    style={{ background: '#f1f5f9', color: '#475569' }}
+                                  >
+                                    <Copy size={13} />
+                                  </button>
+                                  <button
+                                    className="btn-row-dots"
+                                    title="Delete Item"
+                                    onClick={() => handleDeleteMenuItem(dish.id)}
+                                  >
+                                    <Trash2 size={14} style={{ color: '#ef4444' }} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+
+                  {totalMenuPages > 1 && (
+                    <PaginationBar
+                      currentPage={currentMenuPage}
+                      totalPages={totalMenuPages}
+                      totalItems={filteredMenu.length}
+                      itemsPerPage={menuPerPage}
+                      onPageChange={(p) => setMenuPage(p)}
+                      label="menu items"
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </section>
         )}
 
@@ -2927,7 +3419,7 @@ export default function DashboardApp({ onLockStaff }) {
                       <div className="stand-corner bottom-left" />
                       <div className="stand-corner bottom-right" />
                       <img
-                        src={`/api/qrcode/${t.id}`}
+                        src={`/api/qrcode/${t.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`}
                         alt={`Table ${t.id} QR Code`}
                         className="stand-qr-image"
                         loading="eager"
@@ -3481,443 +3973,489 @@ export default function DashboardApp({ onLockStaff }) {
         )}
 
         {/* ========================================================
-            TAB: REPORTS & ANALYTICS
+            TAB: REPORTS & ANALYTICS (POWERED BY REAL MONGODB DATA)
             ======================================================== */}
-        {activeTab === 'reports' && (
-          <section className="admin-page-container">
-            <div className="page-header-row">
-              <div>
-                <h2 className="page-title">Reports & Analytics</h2>
-                <p className="page-subtitle">Track your restaurant performance and insights</p>
-              </div>
-              <div className="page-header-actions">
-                <select
-                  className="btn-brand-outline"
-                  style={{ padding: '8px 14px', fontSize: '0.82rem', background: '#f8fafc' }}
-                >
-                  <option>Today</option>
-                  <option>This Week</option>
-                  <option>This Month</option>
-                </select>
-                <div
-                  className="btn-brand-outline"
-                  style={{ padding: '8px 14px', fontSize: '0.82rem', cursor: 'default' }}
-                >
-                  <Calendar size={14} /> Oct 27, 2026
+        {activeTab === 'reports' && (() => {
+          const kpis = analyticsData?.kpis || {
+            totalRevenue: totalRevenue || 0,
+            totalOrders: orders.length,
+            avgOrderValue: avgTicket || 0,
+            totalCustomers: occupiedTables,
+            revenueGrowthPct: 0,
+            ordersGrowthPct: 0
+          };
+          const trend = analyticsData?.revenueTrend || [
+            { label: '6 AM', revenue: 0 },
+            { label: '9 AM', revenue: 0 },
+            { label: '12 PM', revenue: 0 },
+            { label: '3 PM', revenue: 0 },
+            { label: '6 PM', revenue: 0 },
+            { label: '9 PM', revenue: 0 }
+          ];
+          const maxTrendRev = Math.max(...trend.map(t => Number(t.revenue) || 0), 100);
+          const hasTrendData = trend.some(t => Number(t.revenue) > 0);
+
+          // SVG Area Curve points for Desktop (500x200)
+          const dPoints = trend.map((t, idx) => {
+            const x = trend.length > 1 ? (idx / (trend.length - 1)) * 500 : 250;
+            const rev = Number(t.revenue) || 0;
+            const y = hasTrendData ? Math.max(30, 180 - (rev / maxTrendRev) * 140) : 180;
+            return { x, y, ...t };
+          });
+          const dLinePath = dPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+          const dAreaPath = `${dLinePath} L 500,200 L 0,200 Z`;
+
+          // SVG Area Curve points for Mobile (320x120)
+          const mPoints = trend.map((t, idx) => {
+            const x = trend.length > 1 ? (idx / (trend.length - 1)) * 320 : 160;
+            const rev = Number(t.revenue) || 0;
+            const y = hasTrendData ? Math.max(15, 100 - (rev / maxTrendRev) * 80) : 100;
+            return { x, y, ...t };
+          });
+          const mLinePath = mPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+          const mAreaPath = `${mLinePath} L 320,120 L 0,120 Z`;
+
+          const topItems = analyticsData?.topSellingItems || [];
+          const hourlyList = analyticsData?.hourlyVolume || [];
+          const maxHourlyCount = Math.max(...hourlyList.map(h => Number(h.count) || 0), 4);
+          const statusList = analyticsData?.statusBreakdown || [
+            { status: 'Completed & Settled', count: orders.filter(o => o.paid).length, pct: '0%', color: '#10b981' },
+            { status: 'In Kitchen / Active', count: orders.filter(o => !o.paid && o.status !== 'cancelled').length, pct: '0%', color: '#0284c7' },
+            { status: 'Cancelled', count: orders.filter(o => o.status === 'cancelled').length, pct: '0%', color: '#ef4444' }
+          ];
+          const paymentList = analyticsData?.paymentBreakdown || [
+            { method: 'UPI (QR Pay, GPay, PhonePe)', amount: '₹ 0', pct: '0%', color: '#10b981' },
+            { method: 'Credit / Debit Cards', amount: '₹ 0', pct: '0%', color: '#0284c7' },
+            { method: 'Cash on Counter', amount: '₹ 0', pct: '0%', color: '#f59e0b' }
+          ];
+          const peak = analyticsData?.peakHours || {
+            lunchRush: { title: 'LUNCH RUSH', hours: '12:00 PM – 4:00 PM', count: 0, summary: 'No lunch orders recorded in this period.' },
+            dinnerRush: { title: 'DINNER RUSH', hours: '7:00 PM – 11:00 PM', count: 0, summary: 'No dinner orders recorded in this period.' }
+          };
+
+          return (
+            <section className="admin-page-container">
+              <div className="page-header-row">
+                <div>
+                  <h2 className="page-title">Reports & Analytics</h2>
+                  <p className="page-subtitle">Real-time performance metrics and business intelligence from MongoDB</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Screen 9: Mobile Filter Tabs (Reference Image Screen 9) */}
-            <div className="admin-filter-pills-row hide-on-desktop">
-              {['Revenue', 'Orders', 'Items', 'Payment'].map((tab) => (
-                <button
-                  key={tab}
-                  className={`admin-filter-pill ${analyticsSubTab.startsWith(tab.slice(0, 4)) || (tab === 'Items' && analyticsSubTab === 'Popular Items') ? 'active' : ''}`}
-                  onClick={() => setAnalyticsSubTab(tab === 'Items' ? 'Popular Items' : tab === 'Payment' ? 'Payment Methods' : tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Screen 9: Mobile Total Revenue Card with Chart */}
-            <div className="mobile-reports-chart-card hide-on-desktop">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Total Revenue</span>
-                <span className="metric-badge green" style={{ fontSize: '0.72rem' }}>
-                  <TrendingUp size={11} /> +12%
-                </span>
-              </div>
-              <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', marginBottom: 16 }}>
-                ₹ 12,450
-              </div>
-
-              {/* Chart with Y-axis and X-axis labels matching Screen 9 */}
-              <div style={{ display: 'flex', gap: 8, height: 160 }}>
-                {/* Y-axis labels */}
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, textAlign: 'right', paddingBottom: 18 }}>
-                  <span>15K</span>
-                  <span>10K</span>
-                  <span>5K</span>
-                  <span>0K</span>
-                </div>
-                {/* SVG Area */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ flex: 1, position: 'relative' }}>
-                    <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="55" x2="320" y2="55" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="90" x2="320" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                      <path
-                        d="M0,95 Q40,80 80,60 T160,35 T240,45 T320,15 L320,120 L0,120 Z"
-                        fill="url(#mobileRevGrad)"
-                      />
-                      <path
-                        d="M0,95 Q40,80 80,60 T160,35 T240,45 T320,15"
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                      />
-                      <circle cx="320" cy="15" r="4" fill="#07241a" stroke="#ffffff" strokeWidth="2" />
-                    </svg>
-                  </div>
-                  {/* X-axis labels */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: '#94a3b8', fontWeight: 700, paddingTop: 4 }}>
-                    <span>6 AM</span>
-                    <span>9 AM</span>
-                    <span>12 PM</span>
-                    <span>3 PM</span>
-                    <span>6 PM</span>
-                    <span>9 PM</span>
+                <div className="page-header-actions" style={{ flexWrap: 'wrap', gap: 10 }}>
+                  <select
+                    className="btn-brand-outline"
+                    style={{ padding: '8px 14px', fontSize: '0.84rem', background: '#f8fafc', fontWeight: 600, cursor: 'pointer' }}
+                    value={analyticsTimeframe}
+                    onChange={(e) => setAnalyticsTimeframe(e.target.value)}
+                  >
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="all">All Time</option>
+                  </select>
+                  <div
+                    className="btn-brand-outline"
+                    style={{ padding: '8px 14px', fontSize: '0.84rem', cursor: 'default', display: 'flex', alignItems: 'center', gap: 8, background: '#ffffff' }}
+                  >
+                    <Calendar size={14} style={{ color: '#059669' }} />
+                    <span style={{ fontWeight: 600 }}>{analyticsData?.dateRangeLabel || currentDate}</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Screen 9: Top Selling Items Leaderboard */}
-            <div className="mobile-top-selling-section hide-on-desktop">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items</h4>
-                <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
-                  View Menu ›
-                </span>
+              {/* Screen 9: Mobile Filter Tabs */}
+              <div className="admin-filter-pills-row hide-on-desktop">
+                {['Revenue', 'Orders', 'Items', 'Payment'].map((tab) => (
+                  <button
+                    key={tab}
+                    className={`admin-filter-pill ${analyticsSubTab.startsWith(tab.slice(0, 4)) || (tab === 'Items' && analyticsSubTab === 'Popular Items') ? 'active' : ''}`}
+                    onClick={() => setAnalyticsSubTab(tab === 'Items' ? 'Popular Items' : tab === 'Payment' ? 'Payment Methods' : tab)}
+                  >
+                    {tab}
+                  </button>
+                ))}
               </div>
-              {[
-                { rank: 1, name: 'Chicken Biryani', orders: '24 orders', image: '/images/chicken_biryani.jpg' },
-                { rank: 2, name: 'Paneer Tikka', orders: '18 orders', image: '/images/paneer_tikka.jpg' },
-                { rank: 3, name: 'Masala Dosa', orders: '16 orders', image: '/images/masala_dosa.jpg' },
-                { rank: 4, name: 'Margherita Pizza', orders: '14 orders', image: '/images/artisan_pizza.jpg' },
-                { rank: 5, name: 'Filter Coffee', orders: '12 orders', image: '/images/masala_dosa.jpg' }
-              ].map((item) => (
-                <div key={item.rank} className="mobile-top-selling-row">
-                  <div className="mobile-selling-rank">{item.rank}</div>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="mobile-selling-thumb"
-                    onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                  />
-                  <div className="mobile-selling-info">
-                    <div className="mobile-selling-name">{item.name}</div>
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
-                    {item.orders}
-                  </div>
-                </div>
-              ))}
-            </div>
 
-            {/* Top 4 KPI Metrics Row for Desktop */}
-            <div className="kpi-four-grid hide-on-mobile">
-              <div className="metric-card sales">
-                <div className="metric-card-header">
-                  <div className="metric-icon-box">₹</div>
-                  <span className="metric-badge green">
-                    <TrendingUp size={11} /> +12%
+              {/* Screen 9: Mobile Total Revenue Card with Real SVG Chart */}
+              <div className="mobile-reports-chart-card hide-on-desktop">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Total Revenue</span>
+                  <span className="metric-badge green" style={{ fontSize: '0.72rem' }}>
+                    <TrendingUp size={11} /> {kpis.revenueGrowthPct >= 0 ? `+${kpis.revenueGrowthPct}%` : `${kpis.revenueGrowthPct}%`}
                   </span>
                 </div>
-                <div className="metric-content">
-                  <span className="metric-title">Total Revenue</span>
-                  <div className="metric-value">₹ 12,450</div>
+                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', marginBottom: 16 }}>
+                  ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                 </div>
-              </div>
 
-              <div className="metric-card orders">
-                <div className="metric-card-header">
-                  <div className="metric-icon-box">
-                    <Receipt size={17} />
+                {/* Mobile Chart with Real Data Points */}
+                <div style={{ display: 'flex', gap: 8, height: 160 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, textAlign: 'right', paddingBottom: 18 }}>
+                    <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 1000)}K` : maxTrendRev}</span>
+                    <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 2000)}K` : Math.round(maxTrendRev / 2)}</span>
+                    <span>0</span>
                   </div>
-                  <span className="metric-badge amber">
-                    <Clock size={11} /> +6%
-                  </span>
-                </div>
-                <div className="metric-content">
-                  <span className="metric-title">Total Orders</span>
-                  <div className="metric-value">48</div>
-                </div>
-              </div>
-
-              <div className="metric-card ticket">
-                <div className="metric-card-header">
-                  <div className="metric-icon-box">
-                    <BarChart3 size={17} />
-                  </div>
-                  <span className="metric-badge blue">
-                    <TrendingUp size={11} /> +5%
-                  </span>
-                </div>
-                <div className="metric-content">
-                  <span className="metric-title">Avg. Order Value</span>
-                  <div className="metric-value">₹ 258</div>
-                </div>
-              </div>
-
-              <div className="metric-card occupancy">
-                <div className="metric-card-header">
-                  <div className="metric-icon-box">
-                    <Users size={17} />
-                  </div>
-                  <span className="metric-badge green">
-                    <TrendingUp size={11} /> +10%
-                  </span>
-                </div>
-                <div className="metric-content">
-                  <span className="metric-title">Total Customers</span>
-                  <div className="metric-value">36</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Filter Tabs matching Reference Panel 7 for Desktop */}
-            <div className="reports-tabs-row hide-on-mobile">
-              {['Revenue', 'Orders', 'Popular Items', 'Payment Methods', 'Peak Hours'].map((tab) => (
-                <button
-                  key={tab}
-                  className={`reports-tab-pill ${analyticsSubTab === tab ? 'active' : ''}`}
-                  onClick={() => setAnalyticsSubTab(tab)}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Split Content: Dynamically changes per analyticsSubTab for Desktop */}
-            <div className="hide-on-mobile">
-              {analyticsSubTab === 'Revenue' && (
-              <div className="reports-two-col-grid">
-                <div className="admin-card-inner">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend</h3>
-                    <div style={{ background: '#07241a', color: '#ffffff', padding: '4px 12px', borderRadius: 9999, fontSize: '0.78rem', fontWeight: 800 }}>
-                      ₹ 12,450
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+                        <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
+                        <line x1="0" y1="60" x2="320" y2="60" stroke="#f1f5f9" strokeWidth="1" />
+                        <line x1="0" y1="100" x2="320" y2="100" stroke="#f1f5f9" strokeWidth="1" />
+                        <path d={mAreaPath} fill="url(#mobileRevGrad)" />
+                        <path d={mLinePath} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+                        {mPoints.map((p, idx) => (
+                          <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 3.5 : 2} fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+                        ))}
+                      </svg>
                     </div>
-                  </div>
-
-                  {/* Smooth Area Curve SVG Chart */}
-                  <div style={{ width: '100%', height: 240, position: 'relative' }}>
-                    <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                          <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
-                      <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
-                      <path
-                        d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60 L 500,200 L 0,200 Z"
-                        fill="url(#revenueGrad)"
-                      />
-                      <path
-                        d="M 0,180 Q 80,170 120,150 T 220,120 T 320,80 T 400,45 T 500,60"
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                      />
-                      <circle cx="400" cy="45" r="5.5" fill="#10b981" stroke="#ffffff" strokeWidth="2.5" />
-                    </svg>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.74rem', fontWeight: 600, marginTop: 10, padding: '0 4px' }}>
-                    <span>8 AM</span>
-                    <span>9 AM</span>
-                    <span>12 PM</span>
-                    <span>3 PM</span>
-                    <span>6 PM</span>
-                    <span>9 PM</span>
-                  </div>
-                </div>
-
-                <div className="admin-card-inner">
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>
-                    Top Selling Items
-                  </h3>
-
-                  <div className="top-selling-ranked-list">
-                    {[
-                      { rank: 1, name: 'Chicken Biryani', orders: 28, image: '/images/chicken_biryani.jpg' },
-                      { rank: 2, name: 'Paneer Tikka', orders: 24, image: '/images/paneer_tikka.jpg' },
-                      { rank: 3, name: 'Masala Dosa', orders: 18, image: '/images/masala_dosa.jpg' },
-                      { rank: 4, name: 'Margherita Pizza', orders: 16, image: '/images/artisan_pizza.jpg' },
-                      { rank: 5, name: 'Caesar Salad', orders: 12, image: '/images/green_salad.jpg' }
-                    ].map((it) => (
-                      <div key={it.rank} className="top-selling-item-row">
-                        <div className="top-selling-left">
-                          <span className="rank-badge">{it.rank}</span>
-                          <img
-                            src={it.image}
-                            alt={it.name}
-                            className="top-selling-img"
-                            onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                          />
-                          <span className="top-selling-name">{it.name}</span>
-                        </div>
-                        <span className="top-selling-orders">{it.orders} orders</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {analyticsSubTab === 'Orders' && (
-              <div className="reports-two-col-grid">
-                <div className="admin-card-inner">
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Hourly Orders Volume</h3>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 210, padding: '20px 0 10px', borderBottom: '1px solid #e2e8f0' }}>
-                    {[
-                      { hour: '9 AM', count: 4 },
-                      { hour: '11 AM', count: 8 },
-                      { hour: '1 PM', count: 18 },
-                      { hour: '3 PM', count: 6 },
-                      { hour: '5 PM', count: 5 },
-                      { hour: '7 PM', count: 14 },
-                      { hour: '9 PM', count: 20 }
-                    ].map((h) => (
-                      <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
-                        <div style={{ width: '100%', height: `${(h.count / 20) * 140}px`, background: '#10b981', borderRadius: '6px 6px 0 0' }} />
-                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{h.hour}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="admin-card-inner">
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Orders by Status</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    {[
-                      { status: 'Completed & Settled', count: 42, pct: '88%', color: '#10b981' },
-                      { status: 'In Kitchen / Preparing', count: 4, pct: '8%', color: '#0284c7' },
-                      { status: 'Cancelled', count: 2, pct: '4%', color: '#ef4444' }
-                    ].map((s) => (
-                      <div key={s.status} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem' }}>
-                          <span style={{ fontWeight: 700, color: '#0f172a' }}>{s.status}</span>
-                          <span style={{ fontWeight: 800, color: '#64748b' }}>{s.count} ({s.pct})</span>
-                        </div>
-                        <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
-                          <div style={{ width: s.pct, height: '100%', background: s.color, borderRadius: 9999 }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {analyticsSubTab === 'Popular Items' && (
-              <div className="admin-card-inner">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>All Menu Performance Rankings</h3>
-                <table className="admin-clean-table">
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Dish Name</th>
-                      <th>Category</th>
-                      <th>Price</th>
-                      <th>Orders Count</th>
-                      <th>Total Sales</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { rank: 1, name: 'Chicken Biryani', category: 'Main Course', price: 280, count: 28, sales: '₹ 7,840' },
-                      { rank: 2, name: 'Paneer Tikka', category: 'Starters', price: 220, count: 24, sales: '₹ 5,280' },
-                      { rank: 3, name: 'Masala Dosa', category: 'Main Course', price: 180, count: 18, sales: '₹ 3,240' },
-                      { rank: 4, name: 'Margherita Pizza', category: 'Main Course', price: 260, count: 16, sales: '₹ 4,160' },
-                      { rank: 5, name: 'Caesar Salad', category: 'Starters', price: 200, count: 12, sales: '₹ 2,400' }
-                    ].map((row) => (
-                      <tr key={row.rank}>
-                        <td style={{ fontWeight: 800 }}>#{row.rank}</td>
-                        <td style={{ fontWeight: 700, color: '#0f172a' }}>{row.name}</td>
-                        <td style={{ color: '#64748b' }}>{row.category}</td>
-                        <td style={{ fontWeight: 700 }}>₹ {row.price}</td>
-                        <td style={{ fontWeight: 700, color: '#10b981' }}>{row.count} orders</td>
-                        <td style={{ fontWeight: 800, color: '#0f172a' }}>{row.sales}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {analyticsSubTab === 'Payment Methods' && (
-              <div className="reports-two-col-grid">
-                <div className="admin-card-inner">
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Payment Channel Distribution</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {[
-                      { method: 'UPI (QR Pay, GPay, PhonePe)', amount: '₹ 7,968', pct: '64%', color: '#10b981' },
-                      { method: 'Credit / Debit Cards', amount: '₹ 3,237', pct: '26%', color: '#0284c7' },
-                      { method: 'Cash on Counter', amount: '₹ 1,245', pct: '10%', color: '#f59e0b' }
-                    ].map((pm) => (
-                      <div key={pm.method} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem' }}>
-                          <span style={{ fontWeight: 700, color: '#0f172a' }}>{pm.method}</span>
-                          <span style={{ fontWeight: 800, color: '#0f172a' }}>{pm.amount} ({pm.pct})</span>
-                        </div>
-                        <div style={{ width: '100%', height: 10, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
-                          <div style={{ width: pm.pct, height: '100%', background: pm.color, borderRadius: 9999 }} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="admin-card-inner">
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Instant Settlement Status</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ padding: 14, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Total Revenue Collected Today</div>
-                      <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#07241a', marginTop: 2 }}>₹ 12,450</div>
-                    </div>
-                    <div style={{ padding: 14, background: '#ecfdf5', borderRadius: 12, border: '1px solid #a7f3d0' }}>
-                      <div style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>Bank Settlement Status</div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#065f46', marginTop: 2 }}>Auto-Settled to HDFC Primary Account</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: '#94a3b8', fontWeight: 700, paddingTop: 4 }}>
+                      {trend.map((t, idx) => (
+                        <span key={idx}>{t.label}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
-            )}
 
-            {analyticsSubTab === 'Peak Hours' && (
-              <div className="admin-card-inner">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Dining Peak Hours & Rush Analysis</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                  <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f59e0b', background: '#fef3c7', padding: '3px 8px', borderRadius: 9999 }}>
-                      LUNCH RUSH
+              {/* Screen 9: Mobile Top Selling Items Leaderboard */}
+              <div className="mobile-top-selling-section hide-on-desktop">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items</h4>
+                  <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                    View Menu ›
+                  </span>
+                </div>
+                {topItems.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '24px 16px', background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                    <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: '#475569' }}>No orders yet</p>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>Confirmed dish orders will rank here</p>
+                  </div>
+                ) : (
+                  topItems.slice(0, 5).map((item) => (
+                    <div key={item.rank} className="mobile-top-selling-row">
+                      <div className="mobile-selling-rank">{item.rank}</div>
+                      <img
+                        src={item.image || '/images/paneer_butter_masala.jpg'}
+                        alt={item.name}
+                        className="mobile-selling-thumb"
+                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                      />
+                      <div className="mobile-selling-info">
+                        <div className="mobile-selling-name">{item.name}</div>
+                        <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>₹{item.sales.toLocaleString('en-IN')}</div>
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
+                        {item.count} orders
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Top 4 Real KPI Metrics Row for Desktop */}
+              <div className="kpi-four-grid hide-on-mobile">
+                <div className="metric-card sales">
+                  <div className="metric-card-header">
+                    <div className="metric-icon-box">₹</div>
+                    <span className="metric-badge green">
+                      <TrendingUp size={11} /> {kpis.revenueGrowthPct >= 0 ? `+${kpis.revenueGrowthPct}%` : `${kpis.revenueGrowthPct}%`}
                     </span>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '8px 0 4px', color: '#0f172a' }}>12:00 PM – 3:00 PM</h4>
-                    <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
-                      Avg. 22 orders served. Table turnaround rate is 32 minutes.
-                    </p>
                   </div>
-                  <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#10b981', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
-                      DINNER RUSH
+                  <div className="metric-content">
+                    <span className="metric-title">Total Revenue</span>
+                    <div className="metric-value">₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}</div>
+                  </div>
+                </div>
+
+                <div className="metric-card orders">
+                  <div className="metric-card-header">
+                    <div className="metric-icon-box">
+                      <Receipt size={17} />
+                    </div>
+                    <span className="metric-badge amber">
+                      <Clock size={11} /> {kpis.ordersGrowthPct >= 0 ? `+${kpis.ordersGrowthPct}%` : `${kpis.ordersGrowthPct}%`}
                     </span>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '8px 0 4px', color: '#0f172a' }}>7:30 PM – 10:30 PM</h4>
-                    <p style={{ fontSize: '0.8rem', color: '#64748b', margin: 0 }}>
-                      Avg. 26 orders served. Peak restaurant occupancy reaches 94%.
-                    </p>
+                  </div>
+                  <div className="metric-content">
+                    <span className="metric-title">Total Orders</span>
+                    <div className="metric-value">{kpis.totalOrders || 0}</div>
+                  </div>
+                </div>
+
+                <div className="metric-card ticket">
+                  <div className="metric-card-header">
+                    <div className="metric-icon-box">
+                      <BarChart3 size={17} />
+                    </div>
+                    <span className="metric-badge blue">
+                      <TrendingUp size={11} /> Live
+                    </span>
+                  </div>
+                  <div className="metric-content">
+                    <span className="metric-title">Avg. Order Value</span>
+                    <div className="metric-value">₹ {(kpis.avgOrderValue || 0).toLocaleString('en-IN')}</div>
+                  </div>
+                </div>
+
+                <div className="metric-card occupancy">
+                  <div className="metric-card-header">
+                    <div className="metric-icon-box">
+                      <Users size={17} />
+                    </div>
+                    <span className="metric-badge green">
+                      <TrendingUp size={11} /> Tables
+                    </span>
+                  </div>
+                  <div className="metric-content">
+                    <span className="metric-title">Active / Served Tables</span>
+                    <div className="metric-value">{kpis.totalCustomers || 0}</div>
                   </div>
                 </div>
               </div>
-            )}
-            </div>
-          </section>
-        )}
+
+              {/* Filter Tabs matching Reference Panel 7 for Desktop */}
+              <div className="reports-tabs-row hide-on-mobile">
+                {['Revenue', 'Orders', 'Popular Items', 'Payment Methods', 'Peak Hours'].map((tab) => (
+                  <button
+                    key={tab}
+                    className={`reports-tab-pill ${analyticsSubTab === tab ? 'active' : ''}`}
+                    onClick={() => setAnalyticsSubTab(tab)}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Split Content: Dynamically changes per analyticsSubTab for Desktop */}
+              <div className="hide-on-mobile">
+                {analyticsSubTab === 'Revenue' && (
+                  <div className="reports-two-col-grid">
+                    <div className="admin-card-inner">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend ({analyticsTimeframe.toUpperCase()})</h3>
+                        <div style={{ background: '#07241a', color: '#10b981', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
+                          ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
+                        </div>
+                      </div>
+
+                      {/* Smooth Area Curve SVG Chart Powered by Database Data */}
+                      <div style={{ width: '100%', height: 240, position: 'relative' }}>
+                        <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                            </linearGradient>
+                          </defs>
+                          <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                          <line x1="0" y1="90" x2="500" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                          <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
+                          <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
+                          <path d={dAreaPath} fill="url(#revenueGrad)" />
+                          <path d={dLinePath} fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" />
+                          {dPoints.map((p, idx) => (
+                            <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 5 : 3} fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+                          ))}
+                        </svg>
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.74rem', fontWeight: 600, marginTop: 10, padding: '0 4px' }}>
+                        {trend.map((t, idx) => (
+                          <span key={idx}>{t.label}</span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="admin-card-inner">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                          Top Selling Items
+                        </h3>
+                        <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                          Manage Menu ›
+                        </span>
+                      </div>
+
+                      {topItems.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                          <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No items sold yet</p>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.82rem' }}>Confirmed dish orders will automatically rank here with quantities and revenue.</p>
+                        </div>
+                      ) : (
+                        <div className="top-selling-ranked-list">
+                          {topItems.slice(0, 5).map((it) => (
+                            <div key={it.rank} className="top-selling-item-row">
+                              <div className="top-selling-left">
+                                <span className="rank-badge">{it.rank}</span>
+                                <img
+                                  src={it.image || '/images/paneer_butter_masala.jpg'}
+                                  alt={it.name}
+                                  className="top-selling-img"
+                                  onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                                />
+                                <div>
+                                  <div className="top-selling-name">{it.name}</div>
+                                  <div style={{ fontSize: '0.74rem', color: '#059669', fontWeight: 600 }}>₹{it.sales.toLocaleString('en-IN')}</div>
+                                </div>
+                              </div>
+                              <span className="top-selling-orders">{it.count} orders</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {analyticsSubTab === 'Orders' && (
+                  <div className="reports-two-col-grid">
+                    <div className="admin-card-inner">
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Hourly Orders Volume</h3>
+                      {hourlyList.length === 0 || hourlyList.every(h => h.count === 0) ? (
+                        <div style={{ textAlign: 'center', padding: '60px 16px', color: '#64748b' }}>
+                          <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No orders placed during this timeframe</p>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.82rem' }}>Live order distribution across dining hours will display here</p>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16, height: 210, padding: '20px 0 10px', borderBottom: '1px solid #e2e8f0' }}>
+                          {hourlyList.map((h) => (
+                            <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
+                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 140)}px`, background: h.count > 0 ? '#10b981' : '#e2e8f0', borderRadius: '6px 6px 0 0' }} />
+                              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{h.hour}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="admin-card-inner">
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Orders by Status</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 10 }}>
+                        {statusList.map((s) => (
+                          <div key={s.status} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem' }}>
+                              <span style={{ fontWeight: 700, color: '#0f172a' }}>{s.status}</span>
+                              <span style={{ fontWeight: 800, color: '#64748b' }}>{s.count} ({s.pct})</span>
+                            </div>
+                            <div style={{ width: '100%', height: 10, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                              <div style={{ width: s.pct, height: '100%', background: s.color, borderRadius: 9999, transition: 'width 0.3s ease' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {analyticsSubTab === 'Popular Items' && (
+                  <div className="admin-card-inner">
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>All Menu Performance Rankings</h3>
+                    {topItems.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '48px 16px', color: '#64748b' }}>
+                        <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No menu performance data recorded</p>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.82rem' }}>Once customer orders are completed, full ranking analytics will show here.</p>
+                      </div>
+                    ) : (
+                      <table className="admin-clean-table">
+                        <thead>
+                          <tr>
+                            <th>Rank</th>
+                            <th>Dish Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Orders Count</th>
+                            <th>Total Sales</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {topItems.map((row) => (
+                            <tr key={row.rank}>
+                              <td style={{ fontWeight: 800 }}>#{row.rank}</td>
+                              <td style={{ fontWeight: 700, color: '#0f172a' }}>{row.name}</td>
+                              <td style={{ color: '#64748b' }}>{row.category}</td>
+                              <td style={{ fontWeight: 700 }}>₹ {row.price}</td>
+                              <td style={{ fontWeight: 700, color: '#10b981' }}>{row.count} orders</td>
+                              <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {row.sales.toLocaleString('en-IN')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                )}
+
+                {analyticsSubTab === 'Payment Methods' && (
+                  <div className="reports-two-col-grid">
+                    <div className="admin-card-inner">
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Payment Channel Distribution</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 18, marginTop: 10 }}>
+                        {paymentList.map((pm) => (
+                          <div key={pm.method} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem' }}>
+                              <span style={{ fontWeight: 700, color: '#0f172a' }}>{pm.method}</span>
+                              <span style={{ fontWeight: 800, color: '#0f172a' }}>{pm.amount} ({pm.pct})</span>
+                            </div>
+                            <div style={{ width: '100%', height: 10, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                              <div style={{ width: pm.pct, height: '100%', background: pm.color, borderRadius: 9999, transition: 'width 0.3s ease' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="admin-card-inner">
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Settlement Summary</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Total Revenue Collected ({analyticsTimeframe.toUpperCase()})</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#07241a', marginTop: 4 }}>
+                            ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
+                          </div>
+                        </div>
+                        <div style={{ padding: 16, background: '#ecfdf5', borderRadius: 12, border: '1px solid #a7f3d0' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 700 }}>Settlement Status</div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#065f46', marginTop: 4 }}>
+                            Direct UPI / Cash Settlement Active
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {analyticsSubTab === 'Peak Hours' && (
+                  <div className="admin-card-inner">
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Dining Peak Hours & Rush Analysis</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f59e0b', background: '#fef3c7', padding: '3px 8px', borderRadius: 9999 }}>
+                          {peak.lunchRush.title}
+                        </span>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '10px 0 6px', color: '#0f172a' }}>{peak.lunchRush.hours}</h4>
+                        <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
+                          {peak.lunchRush.summary}
+                        </p>
+                      </div>
+                      <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#10b981', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
+                          {peak.dinnerRush.title}
+                        </span>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '10px 0 6px', color: '#0f172a' }}>{peak.dinnerRush.hours}</h4>
+                        <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
+                          {peak.dinnerRush.summary}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          );
+        })()}
 
         {/* ========================================================
             TAB: SETTINGS
@@ -5546,87 +6084,65 @@ export default function DashboardApp({ onLockStaff }) {
         </div>
       )}
 
-      {/* Dish Edit / Add Modal */}
-      {menuModalOpen && (
-        <div className="modal-backdrop" onClick={() => setMenuModalOpen(false)}>
-          <div className="dash-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="dash-modal-header">
-              <h3>{editingDish ? 'Edit Dish Catalog' : 'Add New Dish'}</h3>
-              <button className="modal-close-btn" onClick={() => setMenuModalOpen(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <form onSubmit={handleSaveDish} className="dash-modal-body">
-              <div className="dash-form-group">
-                <label className="dash-form-label">Dish Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Butter Chicken"
-                  className="dash-form-input"
-                  value={dishForm.name}
-                  onChange={(e) => setDishForm({ ...dishForm, name: e.target.value })}
-                />
-              </div>
+      {/* Smart Menu Item Add / Edit Modal with Variants & Add-ons */}
+      <MenuItemModal
+        isOpen={menuModalOpen}
+        onClose={() => {
+          setMenuModalOpen(false);
+          setEditingDish(null);
+        }}
+        onSave={handleSaveMenuItem}
+        editingItem={editingDish}
+        categories={categories}
+      />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div className="dash-form-group">
-                  <label className="dash-form-label">Category</label>
-                  <select
-                    className="dash-form-select"
-                    value={dishForm.category}
-                    onChange={(e) => setDishForm({ ...dishForm, category: e.target.value })}
-                  >
-                    <option value="north-indian">North Indian</option>
-                    <option value="chinese">Chinese</option>
-                    <option value="tandoori">Tandoori</option>
-                    <option value="soup">Soups</option>
-                    <option value="snacks">Snacks</option>
-                    <option value="juice">Fresh Juices</option>
-                    <option value="milkshake">Milkshakes</option>
-                    <option value="ice-cream">Ice Creams</option>
-                  </select>
-                </div>
-                <div className="dash-form-group">
-                  <label className="dash-form-label">Price (₹)</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="280"
-                    className="dash-form-input"
-                    value={dishForm.price}
-                    onChange={(e) => setDishForm({ ...dishForm, price: e.target.value })}
-                  />
-                </div>
-              </div>
+      {/* Category Management Modal (Custom Categories, Delete Guard, Reordering) */}
+      <CategoryManagementModal
+        isOpen={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        categories={categories}
+        menuItems={menu}
+        onSaveCategory={handleSaveCategory}
+        onDeleteCategory={handleDeleteCategory}
+        onReorderCategories={handleReorderCategories}
+        onSeedSuggested={handleSeedSuggestedCategories}
+      />
 
-              <div className="dash-form-group">
-                <label className="dash-form-label">Description</label>
-                <textarea
-                  className="dash-form-textarea"
-                  rows={2}
-                  placeholder="Fresh ingredients, spices, and preparation..."
-                  value={dishForm.description}
-                  onChange={(e) => setDishForm({ ...dishForm, description: e.target.value })}
-                />
-              </div>
+      {/* Bulk CSV / Excel Import Modal */}
+      <MenuCsvImportModal
+        isOpen={csvImportModalOpen}
+        onClose={() => setCsvImportModalOpen(false)}
+        onConfirmImport={handleConfirmCsvImport}
+        categories={categories}
+      />
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: '#cbd5e1' }}>
-                <input
-                  type="checkbox"
-                  checked={dishForm.isVeg}
-                  onChange={(e) => setDishForm({ ...dishForm, isVeg: e.target.checked })}
-                />
-                Vegetarian Recipe
-              </label>
+      {/* AI OCR Photo & PDF Extraction Modal */}
+      <MenuOcrModal
+        isOpen={ocrModalOpen}
+        onClose={() => setOcrModalOpen(false)}
+        onConfirmImport={handleConfirmOcrImport}
+        categories={categories}
+      />
 
-              <button type="submit" className="btn-primary" style={{ marginTop: 8 }}>
-                Save Dish
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* TableMint Curated Default Starter Menu Catalog Modal */}
+      <DefaultMenuModal
+        isOpen={defaultMenuModalOpen}
+        onClose={() => setDefaultMenuModalOpen(false)}
+        existingMenu={menu}
+        onImportSuccess={fetchAllData}
+        authFetch={authFetch}
+        addToast={addToast}
+      />
+
+      {/* Interactive Mobile Customer Menu QR Preview Modal */}
+      <CustomerMenuPreviewModal
+        isOpen={previewQrModalOpen}
+        onClose={() => setPreviewQrModalOpen(false)}
+        restaurantName={currentUser?.restaurantName || 'TableMint Restaurant'}
+        restaurantSlug={currentUser?.restaurantSlug || 'tablemint'}
+        menu={menu}
+        categories={categories}
+      />
 
       {/* Thermal Bill Receipt Modal */}
       {printBillOrder && (
@@ -5771,7 +6287,7 @@ export default function DashboardApp({ onLockStaff }) {
             <div className="dash-modal-body" style={{ alignItems: 'center' }}>
               <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
                 <img
-                  src={`/api/qrcode/${viewQrTable.id}?t=${Date.now()}`}
+                  src={`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`}
                   alt={`Table ${viewQrTable.id} QR Code`}
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
@@ -5781,7 +6297,7 @@ export default function DashboardApp({ onLockStaff }) {
                 <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>
                   Scan Target Link:
                 </div>
-                {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}` : ''}
+                {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}` : ''}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
@@ -5795,9 +6311,20 @@ export default function DashboardApp({ onLockStaff }) {
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => window.open(`/api/qrcode/${viewQrTable.id}`, '_blank')}
+                  onClick={() => window.open(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`, '_blank')}
                 >
                   <Download size={15} /> Download PNG
+                </button>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  onClick={() => {
+                    const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+                    window.open(`/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
+                  }}
+                >
+                  <ExternalLink size={15} /> Open Customer Menu Card (Live Test)
                 </button>
               </div>
             </div>
@@ -5956,6 +6483,7 @@ export default function DashboardApp({ onLockStaff }) {
           className={`mobile-bottom-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => {
             setActiveTab('orders');
+            setUnseenOrdersCount(0);
             setMobileMoreOpen(false);
             setMobileSelectedOrder(null);
             setMobileSettingsSubNav(null);
@@ -5964,8 +6492,8 @@ export default function DashboardApp({ onLockStaff }) {
         >
           <div className="mobile-btn-badge-wrap">
             <Receipt size={19} />
-            {orders.length > 0 && (
-              <span className="mobile-tab-badge">{orders.length}</span>
+            {unseenOrdersCount > 0 && (
+              <span className="mobile-tab-badge">{unseenOrdersCount}</span>
             )}
           </div>
           <span>Orders</span>
@@ -6084,11 +6612,15 @@ export default function DashboardApp({ onLockStaff }) {
                 className={`drawer-action-btn ${activeTab === 'kitchen' ? 'active' : ''}`}
                 onClick={() => {
                   setActiveTab('kitchen');
+                  setUnseenKitchenCount(0);
                   setMobileMoreOpen(false);
                 }}
               >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                <div className="drawer-btn-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', position: 'relative' }}>
                   <ChefHat size={20} />
+                  {unseenKitchenCount > 0 && (
+                    <span className="mobile-tab-badge" style={{ position: 'absolute', top: -4, right: -4 }}>{unseenKitchenCount}</span>
+                  )}
                 </div>
                 <div>
                   <div className="drawer-btn-title">Kitchen Display</div>

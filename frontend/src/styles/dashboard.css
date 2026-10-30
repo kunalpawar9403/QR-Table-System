@@ -172,6 +172,25 @@
   transition: all 0.18s ease;
 }
 
+.sidebar-badge.sidebar-badge-new {
+  background: #10b981;
+  color: #ffffff;
+  font-weight: 800;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+  animation: badgePulse 2s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.45);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.7);
+  }
+}
+
 .sidebar-nav-item.active .sidebar-badge {
   background: rgba(255, 255, 255, 0.24) !important;
   color: #ffffff !important;

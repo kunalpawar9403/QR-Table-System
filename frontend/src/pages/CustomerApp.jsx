@@ -105,6 +105,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
   // Data & Filters
   const [menu, setMenu] = useState([]);
+  const [serverCategories, setServerCategories] = useState([]);
   const [loadingMenu, setLoadingMenu] = useState(true);
   const [category, setCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,8 +118,38 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const [submittingOrder, setSubmittingOrder] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
 
-  // Multi-restaurant tenant parameter from URL
-  const restaurantParam = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '').get('restaurant') || '';
+  // Multi-restaurant tenant parameter from URL, session, or active admin restaurant
+  const urlRestaurant = typeof window !== 'undefined'
+    ? (new URLSearchParams(window.location.search).get('restaurant') || '')
+    : '';
+
+  const [restaurantParam, setRestaurantParam] = useState(() => {
+    if (urlRestaurant) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('tablemint_customer_restaurant', urlRestaurant);
+      }
+      return urlRestaurant;
+    }
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('tablemint_customer_restaurant') ||
+                    localStorage.getItem('tablemint_active_restaurant') ||
+                    '';
+      if (saved) return saved;
+      try {
+        const u = JSON.parse(localStorage.getItem('tablemint_current_user') || '{}');
+        if (u && (u.restaurantSlug || u.restaurantName)) {
+          return u.restaurantSlug || u.restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        }
+      } catch (e) {}
+    }
+    return '';
+  });
+
+  useEffect(() => {
+    if (restaurantParam && typeof window !== 'undefined') {
+      sessionStorage.setItem('tablemint_customer_restaurant', restaurantParam);
+    }
+  }, [restaurantParam]);
 
   const [restaurantSettings, setRestaurantSettings] = useState({
     upiId: 'tablemint@upi',
@@ -196,10 +227,17 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     try {
       setLoadingMenu(true);
       const q = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
-      const res = await fetch(`/api/menu${q}`);
-      if (res.ok) {
-        const data = await res.json();
+      const [resMenu, resCats] = await Promise.all([
+        fetch(`/api/menu${q}`),
+        fetch(`/api/categories${q}`)
+      ]);
+      if (resMenu.ok) {
+        const data = await resMenu.json();
         setMenu(data);
+      }
+      if (resCats.ok) {
+        const catData = await resCats.json();
+        setServerCategories(catData || []);
       }
     } catch (e) {
       addToast('Error loading menu', 'error');
@@ -208,15 +246,25 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     }
   };
 
-  // Socket setup for table updates
+  // Socket setup for instant real-time table & order sync
   useEffect(() => {
     if (!tableId) return;
 
-    socket.emit('join', { role: 'customer', tableId, restaurant: restaurantParam });
-    socket.emit('join-table', { tableId, restaurant: restaurantParam });
+    const joinRooms = () => {
+      const rest = restaurantParam || sessionStorage.getItem('tablemint_customer_restaurant') || '';
+      socket.emit('join', { role: 'customer', tableId, restaurant: rest, token: tableToken });
+      socket.emit('join-table', { tableId, restaurant: rest, token: tableToken });
+      fetchMenu();
+      if (tableToken) {
+        fetchTableActiveOrder(tableId, tableToken);
+      }
+    };
+
+    joinRooms();
+    socket.on('connect', joinRooms);
 
     const handleStatusChanged = (order) => {
-      if (order.tableId === tableId || order.tableNumber === tableId) {
+      if (order && (order.tableId === tableId || order.tableNumber === tableId || String(order.tableId) === String(tableId))) {
         if (order.status === 'completed' || order.status === 'cancelled') {
           setActiveOrder(null);
         } else {
@@ -231,12 +279,20 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       }
     };
 
+    const handleOrderNew = (order) => {
+      if (order && (order.tableId === tableId || order.tableNumber === tableId || String(order.tableId) === String(tableId))) {
+        setActiveOrder(order);
+      }
+    };
+
     const handleMenuUpdated = (newMenu) => {
-      setMenu(newMenu);
+      if (Array.isArray(newMenu)) {
+        setMenu(newMenu);
+      }
     };
 
     const handleSessionExpired = (data) => {
-      if (!data || data.tableId === tableId) {
+      if (!data || data.tableId === tableId || String(data.tableId) === String(tableId)) {
         setSessionExpired(true);
         setExpiredReason(data?.message || 'Table dining session completed by staff.');
         setTableToken('');
@@ -254,17 +310,22 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     };
 
     socket.on('order:status_changed', handleStatusChanged);
+    socket.on('order:updated', handleStatusChanged);
+    socket.on('order:new', handleOrderNew);
     socket.on('menu:updated', handleMenuUpdated);
     socket.on('table:session_expired', handleSessionExpired);
     socket.on('table:vacated', handleSessionExpired);
 
     return () => {
+      socket.off('connect', joinRooms);
       socket.off('order:status_changed', handleStatusChanged);
+      socket.off('order:updated', handleStatusChanged);
+      socket.off('order:new', handleOrderNew);
       socket.off('menu:updated', handleMenuUpdated);
       socket.off('table:session_expired', handleSessionExpired);
       socket.off('table:vacated', handleSessionExpired);
     };
-  }, [tableId]);
+  }, [tableId, restaurantParam]);
 
   // Unlock table and verify token
   const unlockTable = async (tId, token = null) => {
@@ -283,7 +344,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     }
 
     try {
-      const res = await fetch(`/api/tables/${tId}/verify-token?token=${encodeURIComponent(storedToken)}`);
+      const restQ = restaurantParam ? `&restaurant=${encodeURIComponent(restaurantParam)}` : '';
+      const res = await fetch(`/api/tables/${tId}/verify-token?token=${encodeURIComponent(storedToken)}${restQ}`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.valid === false) {
@@ -336,7 +398,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       return;
     }
     try {
-      const res = await fetch(`/api/orders/table/${tId}?token=${encodeURIComponent(curToken)}`);
+      const restQ = restaurantParam ? `&restaurant=${encodeURIComponent(restaurantParam)}` : '';
+      const res = await fetch(`/api/orders/table/${tId}?token=${encodeURIComponent(curToken)}${restQ}`);
       if (res.status === 403) {
         setSessionExpired(true);
         setExpiredReason('Dining session has ended. Previous session token is expired.');
@@ -593,12 +656,14 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const handleCustomerConfirmPaid = async () => {
     if (!activeOrder) return;
     try {
-      const res = await fetch(`/api/orders/${activeOrder.id}/pay`, {
+      const restQ = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
+      const res = await fetch(`/api/orders/${activeOrder.id}/customer-pay${restQ}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paymentMethod: 'UPI',
-          token: tableToken
+          token: tableToken,
+          transactionRef: `UPI-${Date.now().toString().slice(-6)}`
         })
       });
       if (res.ok) {
@@ -606,7 +671,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         if (data && data.order) {
           setActiveOrder(data.order);
         } else {
-          setActiveOrder((prev) => prev ? { ...prev, paymentStatus: 'paid', paymentMethod: 'UPI' } : null);
+          setActiveOrder((prev) => prev ? { ...prev, paymentStatus: 'pending_verification', paymentMethod: 'UPI' } : null);
         }
         soundManager.playClick();
         confetti({
@@ -614,7 +679,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           spread: 75,
           origin: { y: 0.6 }
         });
-        addToast('Payment recorded via UPI! Thank you for dining with us.', 'success', 6000);
+        addToast('Payment reference submitted! A cashier is verifying and will complete your bill shortly.', 'success', 6000);
       } else {
         addToast('Alerted staff to confirm your payment.', 'info');
       }
@@ -667,16 +732,22 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Filter Dishes by Category, Veg only, Search
   const matchesCategory = (dishCat, selectedCat) => {
     if (selectedCat === 'all') return true;
-    if (dishCat === selectedCat) return true;
-    if (selectedCat === 'starters' && (dishCat === 'starters' || dishCat === 'snacks' || dishCat === 'soup')) return true;
-    if (selectedCat === 'main-course' && (dishCat === 'main-course' || dishCat === 'north-indian' || dishCat === 'tandoori')) return true;
-    if (selectedCat === 'beverages' && (dishCat === 'beverages' || dishCat === 'juice' || dishCat === 'milkshake')) return true;
-    if (selectedCat === 'desserts' && (dishCat === 'desserts' || dishCat === 'ice-cream')) return true;
-    if (selectedCat === 'chinese' && dishCat === 'chinese') return true;
+    if (!dishCat) return false;
+    const dLower = dishCat.toLowerCase().trim();
+    const sLower = selectedCat.toLowerCase().trim();
+    if (dLower === sLower) return true;
+    if (sLower === 'starters' && (dLower === 'starters' || dLower === 'snacks' || dLower === 'soup')) return true;
+    if (sLower === 'main-course' && (dLower === 'main-course' || dLower === 'north-indian' || dLower === 'tandoori' || dLower === 'main course')) return true;
+    if (sLower === 'beverages' && (dLower === 'beverages' || dLower === 'juice' || dLower === 'milkshake')) return true;
+    if (sLower === 'desserts' && (dLower === 'desserts' || dLower === 'ice-cream')) return true;
     return false;
   };
 
   const filteredDishes = menu.filter((dish) => {
+    // Section 4.F: Only show published and available items to customers
+    if (dish.status === 'draft' || dish.available === false || dish.isAvailable === false || dish.status === 'unavailable') {
+      return false;
+    }
     if (!matchesCategory(dish.category, category)) return false;
     if (vegOnly && !dish.isVeg) return false;
     if (searchQuery.trim()) {
@@ -845,10 +916,33 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             </div>
           </header>
 
-          {/* Categories Horizontal Carousel (Matching Reference Screen 2) */}
+          {/* Categories Horizontal Carousel (Dynamic Multi-Tenant Categories) */}
           <div className="categories-carousel-row">
-            {CATEGORIES.map((cat) => {
-              const isActive = category === cat.id;
+            {[
+              { id: 'all', label: 'All', bg: '#ecfdf5', color: '#059669' },
+              ...(serverCategories.length > 0
+                ? serverCategories.map((c, i) => {
+                    const colors = ['#ea580c', '#d97706', '#059669', '#0284c7', '#9333ea', '#e11d48'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#ecfdf5', '#f0f9ff', '#faf5ff', '#ffe4e6'];
+                    return {
+                      id: c.name.toLowerCase(),
+                      label: c.name,
+                      bg: bgs[i % bgs.length],
+                      color: colors[i % colors.length]
+                    };
+                  })
+                : [...new Set(menu.map(m => m.category || 'General'))].map((c, i) => {
+                    const colors = ['#ea580c', '#d97706', '#059669', '#0284c7', '#9333ea'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#ecfdf5', '#f0f9ff', '#faf5ff'];
+                    return {
+                      id: c.toLowerCase(),
+                      label: c.charAt(0).toUpperCase() + c.slice(1),
+                      bg: bgs[i % bgs.length],
+                      color: colors[i % colors.length]
+                    };
+                  }))
+            ].map((cat) => {
+              const isActive = category.toLowerCase() === cat.id.toLowerCase();
               const iconColor = isActive ? '#ffffff' : cat.color;
               return (
                 <button
@@ -861,10 +955,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                   }}
                 >
                   <div className="category-icon-box" style={{ background: isActive ? '#07241a' : cat.bg }}>
-                    {cat.id === 'all' && <LayoutGrid size={22} color={iconColor} />}
-                    {cat.id === 'starters' && <Soup size={22} color={iconColor} />}
-                    {cat.id === 'main-course' && <CookingPot size={22} color={iconColor} />}
-                    {cat.id === 'beverages' && <CupSoda size={22} color={iconColor} />}
+                    {cat.id === 'all' ? <LayoutGrid size={22} color={iconColor} /> :
+                     cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
+                     cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
+                     <CookingPot size={22} color={iconColor} />}
                   </div>
                   <span className="category-label">{cat.label}</span>
                 </button>
