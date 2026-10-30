@@ -505,13 +505,13 @@
   background: rgba(22, 201, 149, 0.14);
   color: #16C995;
   border: 1px solid rgba(22, 201, 149, 0.32);
-  padding: 6px 14px;
+  padding: 5px 13px;
   border-radius: 9999px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -522,12 +522,12 @@
 }
 
 .tm-hero-title {
-  font-size: clamp(2.15rem, 3.2vw, 2.85rem);
+  font-size: clamp(2.05rem, 3.1vw, 2.75rem);
   font-weight: 850;
   line-height: 1.18;
   letter-spacing: -0.025em;
   color: #FFFFFF;
-  margin: 0 0 16px 0;
+  margin: 0 0 12px 0;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
 }
 
@@ -540,10 +540,10 @@
 }
 
 .tm-hero-subtitle {
-  font-size: 1rem;
+  font-size: 0.98rem;
   color: #e2e8f0;
-  line-height: 1.62;
-  margin: 0 0 26px 0;
+  line-height: 1.58;
+  margin: 0 0 20px 0;
   max-width: 510px;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
   font-weight: 400;
@@ -554,7 +554,7 @@
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .tm-btn-hero-primary {
@@ -564,10 +564,10 @@
   gap: 8px;
   background: linear-gradient(135deg, #0BAF7A 0%, #089366 100%);
   color: #FFFFFF !important;
-  padding: 12px 26px;
+  padding: 11px 24px;
   border-radius: 9999px;
   font-weight: 700;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   box-shadow: 0 8px 22px rgba(11, 175, 122, 0.45);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -588,10 +588,10 @@
   background: rgba(6, 45, 34, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.28);
   color: #FFFFFF !important;
-  padding: 12px 22px;
+  padding: 11px 20px;
   border-radius: 9999px;
   font-weight: 600;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   text-decoration: none;
@@ -629,7 +629,7 @@
    HOME HERO - FLOATING CARD BANNER (Matches Other Sections)
    ========================================================= */
 .tm-hero-banner-section {
-  padding: 48px 24px 52px 24px;
+  padding: 20px 24px 38px 24px;
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -639,7 +639,7 @@
 .tm-hero-home {
   position: relative;
   width: 100%;
-  min-height: 520px;
+  min-height: 490px;
   display: flex;
   align-items: center;
   border-radius: 24px;
@@ -651,11 +651,11 @@
       rgba(4, 25, 19, 0.42) 65%,
       rgba(4, 25, 19, 0.12) 100%),
     url('/images/landing/tablemint_hero_bg.jpg');
-  background-position: right 46%;
+  background-position: right 48%;
   background-size: cover;
   background-repeat: no-repeat;
   color: #FFFFFF;
-  padding: 56px 54px;
+  padding: 46px 50px;
   overflow: hidden;
   box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
@@ -675,7 +675,7 @@
 
 @media (max-width: 960px) {
   .tm-hero-banner-section {
-    padding: 28px 16px 36px 16px;
+    padding: 16px 16px 28px 16px;
   }
 
   .tm-hero-home {
@@ -687,7 +687,7 @@
         rgba(4, 25, 19, 0.72) 100%),
       url('/images/landing/tablemint_hero_bg.jpg');
     background-position: center center;
-    padding: 44px 24px;
+    padding: 40px 22px;
     min-height: auto;
   }
 
@@ -703,23 +703,23 @@
 
 @media (max-width: 768px) {
   .tm-hero-banner-section {
-    padding: 20px 14px 28px 14px !important;
+    padding: 12px 12px 24px 12px !important;
   }
 
   .tm-hero-home {
     border-radius: 20px !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    padding: 38px 20px 44px !important;
+    padding: 34px 18px 40px !important;
   }
 }
 
 @media (max-width: 480px) {
   .tm-hero-banner-section {
-    padding: 14px 10px 24px 10px !important;
+    padding: 10px 8px 20px 8px !important;
   }
 
   .tm-hero-home {
-    padding: 30px 16px 38px !important;
+    padding: 28px 14px 34px !important;
     border-radius: 16px !important;
   }
 }
