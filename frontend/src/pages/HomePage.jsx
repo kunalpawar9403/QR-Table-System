@@ -118,20 +118,20 @@ export default function HomePage() {
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
               {/* Left Column: Vertically centered to match other section banners */}
-              <div style={{ textAlign: 'left', maxWidth: '560px' }}>
+              <div style={{ textAlign: 'left', maxWidth: '530px' }}>
                 {/* Badge */}
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 8,
                   color: '#16C995',
-                  fontSize: '0.78rem',
+                  fontSize: '0.8rem',
                   fontWeight: 800,
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  marginBottom: 8
+                  marginBottom: 12
                 }}>
-                  <Sparkles size={13} />
+                  <Sparkles size={14} />
                   <span>Modern Restaurant Management</span>
                 </div>
 
@@ -143,10 +143,10 @@ export default function HomePage() {
 
                 {/* Subheading */}
                 <p style={{
-                  fontSize: '0.9rem',
-                  color: '#e2e8f0',
-                  lineHeight: 1.48,
-                  margin: '0 0 12px 0',
+                  fontSize: '0.94rem',
+                  color: '#cbd5e1',
+                  lineHeight: 1.55,
+                  margin: '0 0 18px 0',
                   maxWidth: '480px',
                   textShadow: '0 1px 8px rgba(0,0,0,0.35)'
                 }}>
@@ -157,9 +157,9 @@ export default function HomePage() {
                 <div className="tm-hero-actions" style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 12,
                   flexWrap: 'wrap',
-                  marginBottom: 12
+                  marginBottom: 18
                 }}>
                   <Link
                     to="/register"
@@ -171,17 +171,17 @@ export default function HomePage() {
                       gap: 8,
                       background: 'linear-gradient(135deg, #0BAF7A 0%, #089366 100%)',
                       color: '#FFFFFF',
-                      padding: '10px 22px',
+                      padding: '11px 24px',
                       borderRadius: '9999px',
                       fontWeight: 700,
-                      fontSize: '0.9rem',
+                      fontSize: '0.92rem',
                       boxShadow: '0 6px 18px rgba(11, 175, 122, 0.4)',
                       textDecoration: 'none',
                       transition: 'all 0.18s ease'
                     }}
                   >
                     <span>Start 14 Days Free Trial</span>
-                    <ArrowRight size={15} />
+                    <ArrowRight size={16} />
                   </Link>
 
                   <Link
@@ -195,10 +195,10 @@ export default function HomePage() {
                       background: 'rgba(6, 45, 34, 0.75)',
                       border: '1px solid rgba(255, 255, 255, 0.28)',
                       color: '#FFFFFF',
-                      padding: '10px 20px',
+                      padding: '11px 20px',
                       borderRadius: '9999px',
                       fontWeight: 600,
-                      fontSize: '0.9rem',
+                      fontSize: '0.92rem',
                       backdropFilter: 'blur(8px)',
                       textDecoration: 'none',
                       transition: 'all 0.18s ease'
@@ -215,8 +215,8 @@ export default function HomePage() {
                   alignItems: 'center',
                   gap: 18,
                   flexWrap: 'wrap',
-                  color: '#e2e8f0',
-                  fontSize: '0.84rem'
+                  color: '#cbd5e1',
+                  fontSize: '0.85rem'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <CheckCircle size={15} style={{ color: '#16C995', flexShrink: 0 }} />
