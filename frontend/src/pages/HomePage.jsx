@@ -117,8 +117,8 @@ export default function HomePage() {
         <div className="tm-hero-home">
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
-              {/* Left Column: Shifted up and scaled so bottom buttons and checkmarks are fully visible */}
-              <div style={{ textAlign: 'left', maxWidth: '560px', transform: 'translateY(-6px)' }}>
+              {/* Left Column: Vertically centered to match other section banners */}
+              <div style={{ textAlign: 'left', maxWidth: '560px' }}>
                 {/* Badge */}
                 <div style={{
                   display: 'inline-flex',
