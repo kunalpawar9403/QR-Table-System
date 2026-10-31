@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import {
   UtensilsCrossed,
@@ -9,15 +9,11 @@ import {
   ShoppingCart,
   Clock,
   Sparkles,
-  Camera,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
   Receipt,
-  Users,
   X,
-  AlertTriangle,
-  RotateCcw,
   Heart,
   Globe,
   Flame,
@@ -26,7 +22,6 @@ import {
   PhoneCall,
   ChefHat,
   Utensils,
-  Share2,
   LayoutGrid,
   Soup,
   CookingPot,
@@ -45,13 +40,6 @@ import { soundManager } from '../utils/sound';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import '../styles/customer.css';
-
-const CATEGORIES = [
-  { id: 'all', label: 'All', bg: '#ecfdf5', color: '#059669' },
-  { id: 'starters', label: 'Starters', bg: '#fff7ed', color: '#ea580c' },
-  { id: 'main-course', label: 'Main Course', bg: '#fef3c7', color: '#d97706' },
-  { id: 'beverages', label: 'Beverages', bg: '#ffe4e6', color: '#e11d48' }
-];
 
 const ADDON_OPTIONS = [
   { id: 'chutney', label: 'Extra Chutney', price: 20 },
@@ -123,7 +111,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     ? (new URLSearchParams(window.location.search).get('restaurant') || '')
     : '';
 
-  const [restaurantParam, setRestaurantParam] = useState(() => {
+  const [restaurantParam] = useState(() => {
     if (urlRestaurant) {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('tablemint_customer_restaurant', urlRestaurant);
@@ -140,7 +128,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         if (u && (u.restaurantSlug || u.restaurantName)) {
           return u.restaurantSlug || u.restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         }
-      } catch (e) {}
+      } catch {}
     }
     return '';
   });
@@ -169,11 +157,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [modalQuantity, setModalQuantity] = useState(1);
-
-  // Camera Scanner
-  const [cameraActive, setCameraActive] = useState(false);
-  const videoRef = useRef(null);
-  const streamRef = useRef(null);
 
   // Load Restaurant & UPI Settings
   useEffect(() => {
@@ -239,7 +222,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         const catData = await resCats.json();
         setServerCategories(catData || []);
       }
-    } catch (e) {
+    } catch {
       addToast('Error loading menu', 'error');
     } finally {
       setLoadingMenu(false);
@@ -330,7 +313,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Unlock table and verify token
   const unlockTable = async (tId, token = null) => {
     setTableId(tId);
-    stopCamera();
 
     const storedToken = token || sessionStorage.getItem(`spice_token_${tId}`) || '';
     setTableToken(storedToken);
@@ -425,36 +407,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     } catch (e) {
       console.warn('Fetch table active order error', e);
     }
-  };
-
-  // Camera functions
-  const startCamera = async () => {
-    try {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        addToast('Camera not supported. Please select table below.', 'warning');
-        return;
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' }
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-      setCameraActive(true);
-      addToast('Point camera at Table QR stand', 'info');
-    } catch (err) {
-      addToast('Camera permission denied. Use quick picker below.', 'warning');
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setCameraActive(false);
   };
 
   // Toggle Favorite Heart
@@ -645,7 +597,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         }
         addToast(data.message || data.error || 'Failed to place order', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Network error while placing order', 'error');
     } finally {
       setSubmittingOrder(false);
@@ -683,7 +635,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       } else {
         addToast('Alerted staff to confirm your payment.', 'info');
       }
-    } catch (e) {
+    } catch {
       addToast('Alerted staff to confirm your payment.', 'info');
     }
   };
@@ -724,7 +676,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         }
         addToast(data.message || 'Failed to alert staff', 'error');
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to alert staff', 'error');
     }
   };
@@ -1294,7 +1246,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
               </div>
             ) : (() => {
               const status = (activeOrder.status || 'pending').toLowerCase();
-              const isStep1Done = true; // Order placed is always done once order exists
               const isStep2Done = ['ready', 'served', 'completed'].includes(status);
               const isStep2Current = ['pending', 'preparing'].includes(status);
               const isStep3Done = ['served', 'completed'].includes(status);

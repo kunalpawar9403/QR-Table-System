@@ -9,11 +9,7 @@ import {
   TrendingUp, 
   ArrowRight, 
   CheckCircle, 
-  Sparkles, 
-  Clock, 
-  ShieldCheck, 
-  Zap,
-  Check
+  Zap
 } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';

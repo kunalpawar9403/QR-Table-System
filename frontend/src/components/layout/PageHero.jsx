@@ -22,7 +22,7 @@ export default function PageHero({
 
           <h1 className="tm-page-hero-title" style={{ color: '#FFFFFF' }}>
             <span style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>{title}</span>{' '}
-            {titleAccent && <span style={{ color: '#16C995', WebkitTextFillColor: 'initial', background: 'linear-gradient(135deg, #FFFFFF 30%, #16C995 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{titleAccent}</span>}
+            {titleAccent && <span style={{ color: '#16C995', background: 'linear-gradient(135deg, #FFFFFF 30%, #16C995 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{titleAccent}</span>}
           </h1>
 
           {description && (

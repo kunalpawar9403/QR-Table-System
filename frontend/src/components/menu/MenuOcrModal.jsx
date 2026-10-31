@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Upload, CheckCircle2, AlertCircle, Info, Trash2 } from 'lucide-react';
+import { X, Sparkles, Upload, AlertCircle, Info, Trash2 } from 'lucide-react';
 
 export default function MenuOcrModal({
   isOpen,
@@ -47,7 +47,7 @@ export default function MenuOcrModal({
       } else {
         addToast(data.message || 'Failed to extract menu data', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Network error while processing menu image', 'error');
     } finally {
       setProcessing(false);
@@ -97,7 +97,7 @@ export default function MenuOcrModal({
       } else {
         addToast(data.error || 'Failed to commit extracted items', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error saving extracted menu items', 'error');
     } finally {
       setImporting(false);

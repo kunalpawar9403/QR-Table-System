@@ -1,18 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  UtensilsCrossed, 
-  Coffee, 
-  Wine, 
-  Flame, 
-  CheckCircle, 
   ArrowRight, 
-  Sparkles, 
-  Clock, 
-  TrendingUp, 
-  Layers, 
-  ShieldCheck,
-  Check
+  TrendingUp
 } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';

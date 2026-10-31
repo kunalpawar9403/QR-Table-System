@@ -17,7 +17,7 @@ export function getCurrentUser() {
   try {
     const raw = localStorage.getItem(USER_DATA_KEY);
     return raw ? JSON.parse(raw) : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -54,7 +54,7 @@ export async function signInWithCredentials(email, password) {
       return { success: true, token: data.token, user: data.user, message: data.message };
     }
     return { success: false, error: data.error || 'Failed to sign in. Please verify your credentials.' };
-  } catch (err) {
+  } catch {
     return { success: false, error: 'Network error connecting to server. Please try again.' };
   }
 }
@@ -79,7 +79,7 @@ export async function signUpWithCredentials({ name, email, password, restaurantN
       return { success: true, token: data.token, user: data.user, message: data.message };
     }
     return { success: false, error: data.error || 'Failed to create account.' };
-  } catch (err) {
+  } catch {
     return { success: false, error: 'Network error connecting to server. Please try again.' };
   }
 }
@@ -100,7 +100,7 @@ export async function checkStaffAuth() {
     }
     clearStaffToken();
     return false;
-  } catch (e) {
+  } catch {
     // If network temporarily drops, return true if user session is cached
     return Boolean(token);
   }
@@ -109,7 +109,7 @@ export async function checkStaffAuth() {
 export async function authFetch(url, options = {}) {
   const token = getStaffToken();
   const currentUser = getCurrentUser();
-  const headers = { ...(options.headers || {}) };
+  const headers = { ...options.headers };
   if (token) {
     headers['x-staff-token'] = token;
   }
@@ -138,7 +138,7 @@ export async function updateUserProfile({ name, restaurantName }) {
       return { success: true, user: data.user, message: data.message };
     }
     return { success: false, error: data.error || 'Failed to update profile' };
-  } catch (err) {
+  } catch {
     return { success: false, error: 'Connection error while updating profile.' };
   }
 }
@@ -155,8 +155,7 @@ export async function changeUserPassword({ currentPassword, newPassword }) {
       return { success: true, message: data.message };
     }
     return { success: false, error: data.error || 'Failed to update password.' };
-  } catch (err) {
+  } catch {
     return { success: false, error: 'Connection error while updating password.' };
   }
 }
-

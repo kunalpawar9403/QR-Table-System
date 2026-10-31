@@ -4,16 +4,13 @@ import {
   Menu, 
   X, 
   ArrowRight, 
-  LayoutDashboard, 
-  Sparkles,
-  ChevronDown
+  LayoutDashboard
 } from 'lucide-react';
-import { getStaffToken, getCurrentUser, logoutStaff } from '../../utils/staffAuth';
+import { getStaffToken, logoutStaff } from '../../utils/staffAuth';
 
 export default function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState(getCurrentUser());
   const [isAuthed, setIsAuthed] = useState(Boolean(getStaffToken()));
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,7 +31,6 @@ export default function PublicNavbar() {
   // Sync auth state
   useEffect(() => {
     setIsAuthed(Boolean(getStaffToken()));
-    setUser(getCurrentUser());
   }, []);
 
   // Lock body scroll when mobile drawer is open
@@ -63,7 +59,6 @@ export default function PublicNavbar() {
   const handleLogout = () => {
     logoutStaff();
     setIsAuthed(false);
-    setUser(null);
     navigate('/');
   };
 

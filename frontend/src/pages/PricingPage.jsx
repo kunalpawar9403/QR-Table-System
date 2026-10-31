@@ -6,10 +6,6 @@ import {
   HelpCircle, 
   ArrowRight, 
   Sparkles, 
-  ShieldCheck, 
-  Zap, 
-  Receipt,
-  CheckCircle2,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';

@@ -10,10 +10,8 @@ import {
   Settings,
   BarChart3,
   Users,
-  Link2,
   ChevronRight,
   ChevronLeft,
-  ChevronDown,
   Bell,
   Volume2,
   VolumeX,
@@ -25,20 +23,15 @@ import {
   Clock,
   Printer,
   Trash2,
-  Edit,
   ExternalLink,
   X,
   Calendar,
   UtensilsCrossed,
   TrendingUp,
-  Armchair,
-  Coffee,
   Check,
   ShieldCheck,
   Wifi,
   Download,
-  Sliders,
-  KeyRound,
   Smartphone,
   Sparkles,
   DollarSign,
@@ -49,7 +42,6 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  MoreVertical,
   Tag,
   Globe,
   Info,
@@ -59,7 +51,7 @@ import {
 } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
-import { authFetch, clearStaffToken, getStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
+import { authFetch, getStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
 import TableMintBannerSlider from '../components/TableMintBannerSlider';
@@ -180,13 +172,13 @@ function getStoredDashboardTab() {
         return saved;
       }
     }
-  } catch (e) {
+  } catch {
     // Ignore storage/url parsing exceptions
   }
   return 'overview';
 }
 
-export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
+export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsite }) {
   const { addToast } = useToast();
 
   // Active Tab with persistence across browser page refreshes
@@ -213,7 +205,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         url.searchParams.set('tab', activeTab);
         window.history.replaceState({ tab: activeTab }, '', url.toString());
       }
-    } catch (e) {
+    } catch {
       // Ignore
     }
   }, [activeTab]);
@@ -241,7 +233,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       try {
         const slug = currentUser.restaurantSlug || currentUser.restaurantName?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'tablemint';
         localStorage.setItem('tablemint_active_restaurant', slug);
-      } catch (e) {}
+      } catch {}
     }
   }, [currentUser]);
 
@@ -276,8 +268,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
   const [menu, setMenu] = useState([]);
   const [serviceCalls, setServiceCalls] = useState([]);
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString('en-US', { hour12: false }));
-  const [currentDate, setCurrentDate] = useState(
+  const [currentDate] = useState(
     new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   );
 
@@ -296,50 +287,26 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
   const [previewQrModalOpen, setPreviewQrModalOpen] = useState(false);
   const [defaultMenuModalOpen, setDefaultMenuModalOpen] = useState(false);
   const [selectedMenuItems, setSelectedMenuItems] = useState([]);
-  const [loadingDemoMenu, setLoadingDemoMenu] = useState(false);
   const [tableModalOpen, setTableModalOpen] = useState(false);
   const [viewQrTable, setViewQrTable] = useState(null);
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
 
   // Section Pagination States
-  const [ordersPage, setOrdersPage] = useState(1);
-  const ordersPerPage = 6;
-
   const [menuPage, setMenuPage] = useState(1);
   const [menuCategoryFilter, setMenuCategoryFilter] = useState('all');
   const menuPerPage = 8;
-
-  const [tablesPage, setTablesPage] = useState(1);
-  const tablesPerPage = 8;
-
-  const [overviewTablesPage, setOverviewTablesPage] = useState(1);
-  const overviewTablesPerPage = 8;
 
   const [standsPage, setStandsPage] = useState(1);
   const standsPerPage = 6;
   const [standsFilter, setStandsFilter] = useState('all');
   const [isPrintingAllStands, setIsPrintingAllStands] = useState(false);
 
-  // Reset page when filter or search changes
-  useEffect(() => {
-    setOrdersPage(1);
-  }, [orderFilter, orderSearch]);
-
+  // Reset menu page when search or category filter changes
   useEffect(() => {
     setMenuPage(1);
   }, [menuSearch, menuCategoryFilter]);
 
   // Form states
-  const [dishForm, setDishForm] = useState({
-    name: '',
-    category: 'mains',
-    price: '',
-    description: '',
-    image: '',
-    isVeg: true,
-    spiceLevel: 1
-  });
-
   const [tableForm, setTableForm] = useState({
     name: '',
     capacity: 4,
@@ -365,16 +332,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
   const [globalSearch, setGlobalSearch] = useState('');
 
   // Customers State (Image 1 Panel 8)
-  const [customers, setCustomers] = useState([
-    { id: 1, name: 'Amit Patel', phone: '+91 9876543210', email: 'amit@email.com', totalOrders: 12, totalSpent: 3450, lastVisit: 'Oct 26, 2026' },
-    { id: 2, name: 'Priya Sharma', phone: '+91 9123456780', email: 'priya@email.com', totalOrders: 8, totalSpent: 2180, lastVisit: 'Oct 25, 2026' },
-    { id: 3, name: 'Rahul Kumar', phone: '+91 9988776655', email: 'rahul@email.com', totalOrders: 15, totalSpent: 4120, lastVisit: 'Oct 24, 2026' },
-    { id: 4, name: 'Sneha Joshi', phone: '+91 9871234567', email: 'sneha@email.com', totalOrders: 6, totalSpent: 1650, lastVisit: 'Oct 23, 2026' },
-    { id: 5, name: 'Vikram Singh', phone: '+91 9765432100', email: 'vikram@email.com', totalOrders: 10, totalSpent: 2880, lastVisit: 'Oct 22, 2026' },
-    { id: 6, name: 'Neha Desai', phone: '+91 9876543211', email: 'neha@email.com', totalOrders: 9, totalSpent: 2250, lastVisit: 'Oct 21, 2026' }
-  ]);
-  const [customerSearch, setCustomerSearch] = useState('');
-
   // POS Billing State (Image 1 Panel 6)
   const [selectedBillingTableId, setSelectedBillingTableId] = useState(1);
   const [billingPaymentMethod, setBillingPaymentMethod] = useState('upi');
@@ -424,12 +381,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
   const [analyticsSubTab, setAnalyticsSubTab] = useState('Revenue');
   const [analyticsTimeframe, setAnalyticsTimeframe] = useState('today');
   const [analyticsData, setAnalyticsData] = useState(null);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
   const [settingsSubNav, setSettingsSubNav] = useState('details');
   const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
 
   const fetchAnalyticsReport = async (tf = analyticsTimeframe) => {
-    setLoadingAnalytics(true);
     try {
       const res = await authFetch(`/api/reports/analytics?timeframe=${tf}`);
       if (res.ok) {
@@ -438,8 +393,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       }
     } catch (err) {
       console.error('Failed to load analytics report:', err);
-    } finally {
-      setLoadingAnalytics(false);
     }
   };
 
@@ -484,7 +437,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       } else {
         addToast(res.error || 'Failed to update password. Check current password.', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error communicating with server', 'error');
     } finally {
       setPasswordUpdating(false);
@@ -567,16 +520,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
     return '/images/paneer_butter_masala.jpg';
   };
 
-  // Digital Clock
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('en-US', { hour12: false }));
-      setCurrentDate(now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   // Fetch Initial Data
   useEffect(() => {
     fetchAllData();
@@ -602,7 +545,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         const s = await settingsRes.json();
         if (s) setSettingsForm(prev => ({ ...prev, ...s }));
       }
-    } catch (e) {
+    } catch {
       addToast('Error loading live operations data', 'error');
     }
   };
@@ -724,7 +667,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         setServiceCalls((prev) => prev.filter((c) => c.id !== callId));
         soundManager.playClick();
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to dismiss alert', 'error');
     }
   };
@@ -742,7 +685,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         if (newStatus === 'ready') soundManager.playOrderReady();
         addToast(`Order updated to ${newStatus.toUpperCase()}`, 'success');
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to update order status', 'error');
     }
   };
@@ -760,7 +703,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         addToast(`Table ${tableId} is now vacant & available`, 'success');
         fetchAllData();
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to vacate table', 'error');
     }
   };
@@ -775,35 +718,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         soundManager.playClick();
         fetchAllData();
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to toggle item availability', 'error');
-    }
-  };
-
-  // Save Dish (Legacy & Quick)
-  const handleSaveDish = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    try {
-      const url = editingDish ? `/api/menu/${editingDish.id}` : '/api/menu';
-      const method = editingDish ? 'PUT' : 'POST';
-
-      const res = await authFetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...dishForm,
-          price: parseFloat(dishForm.price)
-        })
-      });
-
-      if (res.ok) {
-        addToast(editingDish ? 'Dish updated!' : 'New dish added!', 'success');
-        setMenuModalOpen(false);
-        setEditingDish(null);
-        fetchAllData();
-      }
-    } catch (err) {
-      addToast('Error saving dish', 'error');
     }
   };
 
@@ -829,7 +745,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         const err = await res.json().catch(() => ({}));
         addToast(err.error || 'Failed to save item', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Network error saving menu item', 'error');
     }
   };
@@ -844,7 +760,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       } else {
         addToast('Failed to duplicate item', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error duplicating item', 'error');
     }
   };
@@ -861,7 +777,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       } else {
         addToast('Failed to delete item', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error deleting item', 'error');
     }
   };
@@ -880,7 +796,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         setSelectedMenuItems([]);
         await fetchAllData();
       }
-    } catch (err) {
+    } catch {
       addToast('Error updating bulk availability', 'error');
     }
   };
@@ -899,26 +815,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         setSelectedMenuItems([]);
         await fetchAllData();
       }
-    } catch (err) {
+    } catch {
       addToast('Error updating bulk status', 'error');
-    }
-  };
-
-  // Seed Demo Indian Menu
-  const handleSeedDemoMenu = async () => {
-    setLoadingDemoMenu(true);
-    try {
-      const res = await authFetch('/api/menu/seed-demo', { method: 'POST' });
-      if (res.ok) {
-        addToast('Demo Indian menu catalog loaded successfully!', 'success');
-        await fetchAllData();
-      } else {
-        addToast('Failed to load demo menu', 'error');
-      }
-    } catch (err) {
-      addToast('Error loading demo menu', 'error');
-    } finally {
-      setLoadingDemoMenu(false);
     }
   };
 
@@ -1023,7 +921,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
       } else {
         addToast(res.error || 'Failed to update profile', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Connection error updating profile', 'error');
     } finally {
       setProfileSaving(false);
@@ -1059,26 +957,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         const err = await res.json();
         addToast(err.error || 'Failed to add table', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error saving table', 'error');
-    }
-  };
-
-  // Delete Table
-  const handleDeleteTable = async (tableId) => {
-    if (!window.confirm(`Delete Table ${tableId}? This action cannot be undone.`)) return;
-    try {
-      const res = await authFetch(`/api/tables/${tableId}`, {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        addToast(`Table ${tableId} removed`, 'info');
-        fetchAllData();
-      } else {
-        addToast('Failed to delete table', 'error');
-      }
-    } catch (e) {
-      addToast('Network error deleting table', 'error');
     }
   };
 
@@ -1103,35 +983,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
         localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
         addToast('Settings saved locally', 'info');
       }
-    } catch (err) {
+    } catch {
       localStorage.setItem('pos_settings', JSON.stringify(settingsForm));
       addToast('Settings saved locally', 'info');
     }
-  };
-
-  // Export Reports CSV
-  const handleExportReports = () => {
-    const rows = [
-      ['Order #', 'Table', 'Guest Name', 'Items Count', 'Total (INR)', 'Status', 'Timestamp'],
-      ...orders.map((o) => [
-        `#${o.orderNumber || o.id}`,
-        o.tableName,
-        o.customerName || 'Guest',
-        (o.items || []).reduce((sum, i) => sum + i.quantity, 0),
-        o.total || 0,
-        o.status,
-        new Date(o.createdAt).toLocaleString()
-      ])
-    ];
-    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map((r) => r.join(',')).join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `spice_garden_report_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    addToast('Sales report CSV exported successfully!', 'success');
   };
 
   // Test Print Receipt
@@ -1320,47 +1175,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
     .filter((o) => o.status !== 'cancelled')
     .reduce((sum, o) => sum + (o.total || 0), 0);
 
-  const pendingOrdersCount = orders.filter((o) => o.status === 'pending' || o.status === 'new').length;
   const occupiedTables = tables.filter(
     (t) => t.status === 'occupied' || t.currentStatus === 'occupied' || (t.activeOrdersCount && t.activeOrdersCount > 0)
   ).length;
-  const occupancyPercent = tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0;
   const avgTicket = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 328;
-
-  // Filter Orders
-  const filteredOrders = orders.filter((o) => {
-    if (orderFilter !== 'all') {
-      if (orderFilter === 'pending') {
-        if (o.status !== 'pending' && o.status !== 'new') return false;
-      } else if (o.status !== orderFilter) {
-        return false;
-      }
-    }
-    if (orderSearch.trim()) {
-      const q = orderSearch.toLowerCase();
-      const matchId = String(o.orderNumber || o.id).toLowerCase().includes(q);
-      const matchTable = (o.tableName || '').toLowerCase().includes(q);
-      const matchCust = (o.customerName || '').toLowerCase().includes(q);
-      if (!matchId && !matchTable && !matchCust) return false;
-    }
-    return true;
-  });
-
-  // Category Formatter & Dynamic Categories
-  const formatCategoryLabel = (cat) => {
-    if (!cat || cat === 'all') return 'All Dishes';
-    const map = {
-      'north-indian': 'North Indian',
-      'chinese': 'Chinese',
-      'tandoori': 'Tandoori',
-      'soup': 'Soups',
-      'snacks': 'Snacks',
-      'juice': 'Fresh Juices',
-      'milkshake': 'Milkshakes',
-      'ice-cream': 'Ice Creams'
-    };
-    return map[cat] || cat.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  };
 
   const activeMenuCategories = [
     'all',
@@ -1386,37 +1204,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
     return true;
   });
 
-  // Section Pagination Slices
-  // 1. Orders Pagination
-  const totalOrdersPages = Math.max(1, Math.ceil(filteredOrders.length / ordersPerPage));
-  const currentOrdersPage = Math.min(ordersPage, totalOrdersPages);
-  const paginatedOrders = filteredOrders.slice(
-    (currentOrdersPage - 1) * ordersPerPage,
-    currentOrdersPage * ordersPerPage
-  );
-
-  // 2. Menu Pagination
+  // Menu Pagination
   const totalMenuPages = Math.max(1, Math.ceil(filteredMenu.length / menuPerPage));
   const currentMenuPage = Math.min(menuPage, totalMenuPages);
   const paginatedMenu = filteredMenu.slice(
     (currentMenuPage - 1) * menuPerPage,
     currentMenuPage * menuPerPage
-  );
-
-  // 3. Floor Tables Pagination
-  const totalTablesPages = Math.max(1, Math.ceil(tables.length / tablesPerPage));
-  const currentTablesPage = Math.min(tablesPage, totalTablesPages);
-  const paginatedTables = tables.slice(
-    (currentTablesPage - 1) * tablesPerPage,
-    currentTablesPage * tablesPerPage
-  );
-
-  // 4. Overview Tables Pagination
-  const totalOverviewTablesPages = Math.max(1, Math.ceil(tables.length / overviewTablesPerPage));
-  const currentOverviewTablesPage = Math.min(overviewTablesPage, totalOverviewTablesPages);
-  const paginatedOverviewTables = tables.slice(
-    (currentOverviewTablesPage - 1) * overviewTablesPerPage,
-    currentOverviewTablesPage * overviewTablesPerPage
   );
 
   // 5. QR Stands Filter & Pagination
@@ -2903,14 +2696,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                   className="btn-brand-primary"
                   onClick={() => {
                     setEditingDish(null);
-                    setDishForm({
-                      name: '',
-                      category: categories[0]?.name || 'Starters',
-                      price: '',
-                      description: '',
-                      image: '',
-                      isVeg: true
-                    });
                     setMenuModalOpen(true);
                   }}
                 >
@@ -2924,26 +2709,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
               <EmptyMenuState
                 onAddManual={() => {
                   setEditingDish(null);
-                  setDishForm({
-                    name: '',
-                    category: categories[0]?.name || 'Starters',
-                    price: '',
-                    description: '',
-                    image: '',
-                    isVeg: true
-                  });
                   setMenuModalOpen(true);
                 }}
                 onManualAdd={() => {
                   setEditingDish(null);
-                  setDishForm({
-                    name: '',
-                    category: categories[0]?.name || 'Starters',
-                    price: '',
-                    description: '',
-                    image: '',
-                    isVeg: true
-                  });
                   setMenuModalOpen(true);
                 }}
                 onImportCsv={() => setCsvImportModalOpen(true)}
@@ -2955,7 +2724,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                 onOpenDefaultMenu={() => setDefaultMenuModalOpen(true)}
                 onLoadDemo={() => setDefaultMenuModalOpen(true)}
                 onLoadDemoMenu={() => setDefaultMenuModalOpen(true)}
-                loadingDemo={loadingDemoMenu}
               />
             ) : (
               <>
@@ -3183,14 +2951,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                     className="mobile-sticky-add-item-btn"
                     onClick={() => {
                       setEditingDish(null);
-                      setDishForm({
-                        name: '',
-                        category: categories[0]?.name || 'Starters',
-                        price: '',
-                        description: '',
-                        image: '',
-                        isVeg: true
-                      });
                       setMenuModalOpen(true);
                     }}
                   >
@@ -3714,7 +3474,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                           }
                           try {
                             await authFetch(`/api/tables/${selectedBillingTableId}/vacant`, { method: 'PATCH' });
-                          } catch (e) {}
+                          } catch {}
                           fetchAllData();
                           addToast(`Bill settled for Table ${selectedBillingTableId} & marked vacant`, 'success');
                         }}
@@ -4316,7 +4076,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                   <div className="reports-two-col-grid">
                     <div className="admin-card-inner">
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Hourly Orders Volume</h3>
-                      {hourlyList.length === 0 || hourlyList.every(h => h.count === 0) ? (
+                      {hourlyList.every(h => h.count === 0) ? (
                         <div style={{ textAlign: 'center', padding: '60px 16px', color: '#64748b' }}>
                           <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No orders placed during this timeframe</p>
                           <p style={{ margin: '4px 0 0', fontSize: '0.82rem' }}>Live order distribution across dining hours will display here</p>
@@ -4553,22 +4313,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                         <span>Change Password</span>
                       </div>
                       <ChevronRight size={18} className="mobile-settings-chevron" />
-                    </button>
-
-                    {/* Splash Screen & Loader Animation */}
-                    <button
-                      type="button"
-                      className="mobile-settings-row-item"
-                      onClick={() => window.dispatchEvent(new CustomEvent('tablemint:play-splash'))}
-                    >
-                      <div className="mobile-settings-row-left">
-                        <Sparkles size={18} className="mobile-settings-row-icon" style={{ color: '#10b981' }} />
-                        <span>Splash Screen & Loader</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontSize: '0.82rem', fontWeight: 700 }}>
-                        <span>Play</span>
-                        <ChevronRight size={18} className="mobile-settings-chevron" />
-                      </div>
                     </button>
 
                     {/* About App */}
@@ -5749,18 +5493,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite }) {
                         </button>
                       );
                     })}
-
-                    <button
-                      type="button"
-                      className="mobile-more-nav-item"
-                      onClick={() => window.dispatchEvent(new CustomEvent('tablemint:play-splash'))}
-                    >
-                      <div className="mobile-more-nav-left">
-                        <Sparkles size={18} className="mobile-more-nav-icon" style={{ color: '#10b981' }} />
-                        <span>Splash Screen & Loader</span>
-                      </div>
-                      <ChevronRight size={18} className="mobile-more-chevron" />
-                    </button>
 
                     <button
                       type="button"

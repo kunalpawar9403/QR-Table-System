@@ -115,7 +115,7 @@ export default function MenuCsvImportModal({
       } else {
         addToast(data.error || 'Failed to parse menu rows', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Network error while validating CSV', 'error');
     } finally {
       setValidating(false);
@@ -186,7 +186,7 @@ export default function MenuCsvImportModal({
       } else {
         addToast(data.error || 'Failed to import menu items', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Network error while importing menu', 'error');
     } finally {
       setImporting(false);

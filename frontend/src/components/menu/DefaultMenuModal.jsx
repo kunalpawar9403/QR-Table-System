@@ -3,11 +3,8 @@ import {
   X,
   Sparkles,
   Search,
-  CheckCircle2,
   UtensilsCrossed,
-  Layers,
   RefreshCw,
-  Plus,
   AlertTriangle,
   Info
 } from 'lucide-react';
@@ -50,7 +47,7 @@ export default function DefaultMenuModal({
         } else {
           if (isMounted) addToast('Failed to load TableMint default catalog', 'error');
         }
-      } catch (err) {
+      } catch {
         if (isMounted) addToast('Error connecting to TableMint menu library', 'error');
       } finally {
         if (isMounted) setLoadingTemplate(false);
@@ -140,7 +137,7 @@ export default function DefaultMenuModal({
         const err = await res.json().catch(() => ({}));
         addToast(err.error || 'Failed to import default menu', 'error');
       }
-    } catch (err) {
+    } catch {
       addToast('Error importing TableMint default menu', 'error');
     } finally {
       setImporting(false);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, UtensilsCrossed, Smartphone, Check, ExternalLink } from 'lucide-react';
+import { X, Search, UtensilsCrossed, Smartphone, ExternalLink } from 'lucide-react';
 
 export default function CustomerMenuPreviewModal({
   isOpen,

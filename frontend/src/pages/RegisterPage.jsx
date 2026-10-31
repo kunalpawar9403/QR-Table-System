@@ -7,13 +7,11 @@ import {
   Lock, 
   ArrowRight, 
   CheckCircle, 
-  Sparkles, 
   ShieldCheck, 
   Eye, 
   EyeOff,
   AlertCircle,
-  Zap,
-  Check
+  Zap
 } from 'lucide-react';
 import { signUpWithCredentials, getStaffToken } from '../utils/staffAuth';
 
@@ -81,7 +79,7 @@ export default function RegisterPage() {
       } else {
         setErrorMessage(res.error || 'Failed to create your restaurant account.');
       }
-    } catch (err) {
+    } catch {
       setErrorMessage('A network error occurred. Please try again.');
     } finally {
       setLoading(false);

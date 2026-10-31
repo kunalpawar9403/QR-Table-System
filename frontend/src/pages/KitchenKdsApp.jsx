@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChefHat, Volume2, VolumeX, Clock, Check, ArrowRight, Flame } from 'lucide-react';
+import { ChefHat, Volume2, VolumeX, Clock, Check, Flame } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { authFetch, getCurrentUser, getStaffToken } from '../utils/staffAuth';
@@ -27,7 +27,7 @@ export default function KitchenKdsApp() {
         const data = await res.json();
         setTickets(data.filter((o) => o.status === 'pending' || o.status === 'preparing'));
       }
-    } catch (e) {}
+    } catch {}
   };
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function KitchenKdsApp() {
           soundManager.playOrderReady();
         }
       }
-    } catch (e) {
+    } catch {
       addToast('Failed to update kitchen ticket', 'error');
     }
   };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 
 export default function OnboardingProgressBanner({
   settings = {},

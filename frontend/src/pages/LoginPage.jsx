@@ -9,7 +9,6 @@ import {
   Sparkles, 
   ShieldCheck, 
   CheckCircle,
-  LayoutDashboard,
   AlertCircle
 } from 'lucide-react';
 import { signInWithCredentials, getStaffToken } from '../utils/staffAuth';
@@ -53,7 +52,7 @@ export default function LoginPage() {
       } else {
         setErrorMessage(res.error || 'Failed to sign in. Please verify your credentials.');
       }
-    } catch (err) {
+    } catch {
       setErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);

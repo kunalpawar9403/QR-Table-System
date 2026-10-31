@@ -12,16 +12,10 @@ import {
   QrCode, 
   ShieldCheck, 
   Zap, 
-  Clock, 
   Check, 
-  Star,
-  Users,
-  UtensilsCrossed,
-  Coffee,
-  Wine,
-  Flame,
   ChevronRight,
-  Play
+  Play,
+  UtensilsCrossed
 } from 'lucide-react';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';

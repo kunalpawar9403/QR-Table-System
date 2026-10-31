@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { 
   Mail, 
   Send, 
   CheckCircle, 
-  Sparkles, 
-  ShieldCheck, 
-  ArrowRight,
   Clock,
-  MapPin,
-  MessageSquare
+  MapPin
 } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';

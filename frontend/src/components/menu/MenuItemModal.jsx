@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Check, Sparkles, AlertCircle } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 
 export default function MenuItemModal({
   isOpen,
@@ -175,7 +175,7 @@ export default function MenuItemModal({
         onClose();
         addToast(dish ? 'Dish updated successfully' : 'Dish added to menu', 'success');
       }
-    } catch (err) {
+    } catch {
       addToast('Error saving menu item', 'error');
     } finally {
       setSubmitting(false);

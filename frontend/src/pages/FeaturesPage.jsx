@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -11,22 +11,13 @@ import {
   Layers, 
   CheckCircle, 
   ArrowRight, 
-  Zap, 
-  Clock, 
-  Printer, 
-  Smartphone, 
-  Users, 
-  Settings, 
-  FileSpreadsheet,
-  Check
+  Zap
 } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
 
 export default function FeaturesPage() {
-  const [activeModuleIndex, setActiveModuleIndex] = useState(0);
-
   const featureModules = [
     {
       id: "dashboard",
@@ -213,7 +204,7 @@ export default function FeaturesPage() {
             padding: '12px 0',
             whiteSpace: 'nowrap'
           }}>
-            {featureModules.map((item, idx) => (
+            {featureModules.map((item) => (
               <a
                 key={item.id}
                 href={`#${item.id}`}

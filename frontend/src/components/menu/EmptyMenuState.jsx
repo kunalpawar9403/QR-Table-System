@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, FileSpreadsheet, Sparkles, Tag, UtensilsCrossed, ArrowRight, Zap } from 'lucide-react';
+import { Plus, FileSpreadsheet, Sparkles, Tag, UtensilsCrossed, ArrowRight } from 'lucide-react';
 
 export default function EmptyMenuState({
   onAddManual,

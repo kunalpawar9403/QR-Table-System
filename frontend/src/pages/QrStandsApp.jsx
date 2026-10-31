@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Printer, ArrowLeft, QrCode, Sparkles, Wifi, ExternalLink, Share2, Download } from 'lucide-react';
+import { Printer, ArrowLeft, Sparkles, Wifi, Share2 } from 'lucide-react';
 import { authFetch, getCurrentUser } from '../utils/staffAuth';
 import '../styles/qr-stands.css';
 

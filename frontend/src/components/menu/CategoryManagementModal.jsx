@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, Edit2, Tag, Check, ArrowUp, ArrowDown, AlertTriangle } from 'lucide-react';
+import { X, Plus, Trash2, Edit2, Tag, Check, ArrowUp, ArrowDown } from 'lucide-react';
 
 const SUGGESTED_PRESETS = [
   'Starters',
@@ -27,7 +27,6 @@ export default function CategoryManagementModal({
   onSaveCategory,
   onDeleteCategory,
   onReorderCategories,
-  onSeedSuggested,
   addToast
 }) {
   const [newCatName, setNewCatName] = useState('');
@@ -58,7 +57,7 @@ export default function CategoryManagementModal({
       setNewCatName('');
       setNewCatDesc('');
       addToast('Category created', 'success');
-    } catch (err) {
+    } catch {
       addToast('Failed to create category', 'error');
     } finally {
       setSubmitting(false);
@@ -77,7 +76,7 @@ export default function CategoryManagementModal({
         displayOrder: categories.length
       });
       addToast(`Added "${preset}" category`, 'success');
-    } catch (err) {
+    } catch {
       addToast('Failed to add category', 'error');
     }
   };
@@ -98,7 +97,7 @@ export default function CategoryManagementModal({
       });
       setEditingCatId(null);
       addToast('Category updated', 'success');
-    } catch (err) {
+    } catch {
       addToast('Failed to update category', 'error');
     }
   };
@@ -113,7 +112,7 @@ export default function CategoryManagementModal({
       try {
         await onDeleteCategory(cat.id, 'delete_items');
         addToast(`Category "${cat.name}" and ${itemsCount} item(s) deleted`, 'info');
-      } catch (err) {
+      } catch {
         addToast('Failed to delete category', 'error');
       }
     } else {
@@ -121,7 +120,7 @@ export default function CategoryManagementModal({
         try {
           await onDeleteCategory(cat.id, 'prevent');
           addToast(`Category "${cat.name}" deleted`, 'info');
-        } catch (err) {
+        } catch {
           addToast('Failed to delete category', 'error');
         }
       }
@@ -136,7 +135,7 @@ export default function CategoryManagementModal({
     reordered.splice(targetIdx, 0, moved);
     try {
       await onReorderCategories(reordered.map(c => c.id));
-    } catch (err) {
+    } catch {
       addToast('Failed to reorder categories', 'error');
     }
   };

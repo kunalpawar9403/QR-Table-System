@@ -33,11 +33,11 @@ function verifyPassword(password, hash, salt) {
     if (crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(checkScrypt, 'hex'))) {
       return true;
     }
-  } catch (e) {}
+  } catch {}
   try {
     const checkPbkdf2 = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
     return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(checkPbkdf2, 'hex'));
-  } catch (e) {
+  } catch {
     return false;
   }
 }
@@ -93,7 +93,7 @@ function verifyUserToken(token) {
       decoded.restaurantSlug = db.slugifyRestaurant(decoded.restaurantName);
     }
     return decoded;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -430,7 +430,7 @@ app.get('/api/staff', requireStaffAuth, async (req, res) => {
       createdAt: u.createdAt
     }));
     res.json(safeList);
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch staff list.' });
   }
 });
@@ -484,7 +484,7 @@ app.post('/api/staff', requireStaffAuth, async (req, res) => {
       },
       message: `Staff member ${newStaff.name} created successfully.`
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to create staff account.' });
   }
 });
@@ -504,7 +504,7 @@ app.delete('/api/staff/:id', requireStaffAuth, async (req, res) => {
       return res.status(404).json({ error: 'Staff account not found.' });
     }
     res.json({ success: true, message: 'Staff member removed successfully.' });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to remove staff member.' });
   }
 });
@@ -1112,7 +1112,6 @@ app.post('/api/menu/import-confirm', requireStaffAuth, async (req, res) => {
 
 // OCR / AI MENU EXTRACTION ABSTRACTION (Section 4.E)
 app.post('/api/menu/ocr-extract', requireStaffAuth, async (req, res) => {
-  const rSlug = getRequestRestaurantSlug(req);
   const apiKey = process.env.VISION_API_KEY || process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -1444,7 +1443,7 @@ app.get('/api/dashboard/stats', requireStaffAuth, async (req, res) => {
       totalTables: tables.length,
       occupancyPercent: tables.length > 0 ? Math.round((occupiedTables / tables.length) * 100) : 0
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({ error: 'Failed to calculate stats.' });
   }
 });
@@ -1970,7 +1969,6 @@ io.on('connection', (socket) => {
   // Customer Table Room Join (Validates session token before granting access)
   socket.on('join-table', async (data = {}) => {
     const tableId = typeof data === 'object' ? data.tableId : data;
-    const token = data?.token;
     const rSlug = db.slugifyRestaurant(data?.restaurant || data?.restaurantSlug);
 
     if (tableId) {
@@ -2039,7 +2037,7 @@ process.on('uncaughtException', (err) => {
   console.error('[UNCAUGHT EXCEPTION]:', err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   console.error('[UNHANDLED REJECTION]:', reason);
 });
 

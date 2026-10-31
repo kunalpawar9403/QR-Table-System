@@ -9,8 +9,7 @@ import {
   ShieldAlert,
   X,
   Sparkles,
-  CheckCircle2,
-  ArrowRight
+  CheckCircle2
 } from 'lucide-react';
 import {
   signInWithCredentials,
@@ -85,7 +84,7 @@ export default function StaffAuthModal({
       } else {
         triggerError(res.error || 'Failed to sign in. Please verify your credentials.');
       }
-    } catch (err) {
+    } catch {
       triggerError('Connection error. Please try again.');
     } finally {
       setLoading(false);
@@ -129,7 +128,7 @@ export default function StaffAuthModal({
       } else {
         triggerError(res.error || 'Failed to create account.');
       }
-    } catch (err) {
+    } catch {
       triggerError('Connection error. Please try again.');
     } finally {
       setLoading(false);

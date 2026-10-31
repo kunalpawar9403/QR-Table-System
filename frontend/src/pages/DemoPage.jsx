@@ -12,8 +12,6 @@ import {
   CheckCircle, 
   ArrowRight, 
   Sparkles, 
-  Clock, 
-  ShieldCheck,
   Mail,
   FileVideo
 } from 'lucide-react';
