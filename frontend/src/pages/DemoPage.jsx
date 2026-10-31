@@ -262,6 +262,7 @@ export default function DemoPage() {
               ref={videoRef}
               controls
               playsInline
+              preload="metadata"
               poster="/images/landing/hero_pos_mockup.jpg"
               style={{
                 width: '100%',
@@ -271,6 +272,7 @@ export default function DemoPage() {
               }}
             >
               <source src={videoSrc} type="video/mp4" />
+              <source src="/gemini_generated_video_3e7c2cd2.mp4" type="video/mp4" />
               Your browser does not support HTML5 video. Please try updating your browser.
             </video>
           </motion.div>
