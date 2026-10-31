@@ -13,6 +13,7 @@ import {
   ArrowRight, 
   Zap
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -247,9 +248,13 @@ export default function FeaturesPage() {
             {featureModules.map((mod, idx) => {
               const isEven = idx % 2 === 1;
               return (
-                <div
+                <motion.div
                   key={mod.id}
                   id={mod.id}
+                  initial={{ opacity: 0, y: 35 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.55, ease: 'easeOut' }}
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -320,26 +325,34 @@ export default function FeaturesPage() {
                     </div>
 
                     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                      <Link to="/demo" className="tm-btn tm-btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
-                        <span>See {mod.category} Demo</span>
-                        <ArrowRight size={14} />
-                      </Link>
-                      <Link to="/register" className="tm-btn tm-btn-secondary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
-                        Try It Free
-                      </Link>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Link to="/demo" className="tm-btn tm-btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+                          <span>See {mod.category} Demo</span>
+                          <ArrowRight size={14} />
+                        </Link>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Link to="/register" className="tm-btn tm-btn-secondary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+                          Try It Free
+                        </Link>
+                      </motion.div>
                     </div>
                   </div>
 
                   {/* Screenshot Visual */}
-                  <div style={{
-                    order: isEven ? 1 : 2,
-                    position: 'relative',
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-                    background: '#041711'
-                  }}>
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.25 }}
+                    style={{
+                      order: isEven ? 1 : 2,
+                      position: 'relative',
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
+                      background: '#041711'
+                    }}
+                  >
                     <span style={{
                       position: 'absolute',
                       top: 14,
@@ -367,8 +380,8 @@ export default function FeaturesPage() {
                         objectFit: 'cover'
                       }}
                     />
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               );
             })}
           </div>

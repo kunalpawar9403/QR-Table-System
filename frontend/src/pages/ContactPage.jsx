@@ -6,6 +6,7 @@ import {
   Clock,
   MapPin
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -50,7 +51,13 @@ export default function ContactPage() {
             alignItems: 'start'
           }}>
             {/* Left Column: Direct Email Details */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -25 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+            >
               <div>
                 <span style={{
                   display: 'inline-flex',
@@ -77,12 +84,17 @@ export default function ContactPage() {
               </div>
 
               {/* Primary Email Card */}
-              <div className="tm-card" style={{
-                background: '#FFFFFF',
-                border: '2px solid #0BAF7A',
-                boxShadow: '0 8px 30px rgba(11, 175, 122, 0.12)',
-                padding: '32px'
-              }}>
+              <motion.div 
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.25 }}
+                className="tm-card" 
+                style={{
+                  background: '#FFFFFF',
+                  border: '2px solid #0BAF7A',
+                  boxShadow: '0 8px 30px rgba(11, 175, 122, 0.12)',
+                  padding: '32px'
+                }}
+              >
                 <div style={{
                   width: 52,
                   height: 52,
@@ -125,15 +137,17 @@ export default function ContactPage() {
                   </a>
                 </div>
 
-                <a
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   href="mailto:support@tablemint.com?subject=TableMint%20POS%20Enquiry"
                   className="tm-btn tm-btn-primary"
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
                   <Mail size={16} />
                   <span>Send Us an Email</span>
-                </a>
-              </div>
+                </motion.a>
+              </motion.div>
 
               {/* Response Time & Security */}
               <div className="tm-card" style={{ padding: '24px' }}>
@@ -158,10 +172,17 @@ export default function ContactPage() {
                   Bangalore, Karnataka 560038, India
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right Column: Email Form */}
-            <div className="tm-card" style={{ padding: 'clamp(28px, 4vw, 44px)', borderRadius: '24px' }}>
+            <motion.div 
+              initial={{ opacity: 0, x: 25 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
+              className="tm-card" 
+              style={{ padding: 'clamp(28px, 4vw, 44px)', borderRadius: '24px' }}
+            >
               <div style={{ marginBottom: 24 }}>
                 <h3 style={{ fontSize: '1.5rem', color: '#172033', fontWeight: 800, marginBottom: 8 }}>
                   Send an Email Message
@@ -193,23 +214,27 @@ export default function ContactPage() {
                     Thank you, <strong>{formData.name}</strong>. We received your note. Click the button below to also launch your email client directly if needed:
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <button
+                    <motion.button
                       type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={handleOpenMailClient}
                       className="tm-btn tm-btn-primary"
                       style={{ width: '100%' }}
                     >
                       <Mail size={16} />
                       <span>Open in Mail App</span>
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
                       type="button"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setSubmitted(false)}
                       className="tm-btn tm-btn-secondary"
                       style={{ width: '100%' }}
                     >
                       Write Another Note
-                    </button>
+                    </motion.button>
                   </div>
                 </div>
               ) : (
@@ -303,13 +328,19 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button type="submit" className="tm-btn tm-btn-primary tm-btn-lg" style={{ width: '100%', marginTop: 6 }}>
+                  <motion.button 
+                    type="submit" 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="tm-btn tm-btn-primary tm-btn-lg" 
+                    style={{ width: '100%', marginTop: 6 }}
+                  >
                     <Send size={18} />
                     <span>Send Email Enquiry</span>
-                  </button>
+                  </motion.button>
                 </form>
               )}
-            </div>
+            </motion.div>
           </div>
         </PageContainer>
       </section>

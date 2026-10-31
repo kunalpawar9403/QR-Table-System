@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Zap
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { signUpWithCredentials, getStaffToken } from '../utils/staffAuth';
 
 export default function RegisterPage() {
@@ -194,15 +195,20 @@ export default function RegisterPage() {
         alignItems: 'center',
         padding: '40px 24px'
       }}>
-        <div style={{
-          width: '100%',
-          maxWidth: '480px',
-          background: '#FFFFFF',
-          borderRadius: '24px',
-          padding: 'clamp(28px, 4vw, 44px)',
-          boxShadow: '0 10px 35px rgba(6, 45, 34, 0.06)',
-          border: '1px solid #e2e8f0'
-        }}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.96, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          style={{
+            width: '100%',
+            maxWidth: '480px',
+            background: '#FFFFFF',
+            borderRadius: '24px',
+            padding: 'clamp(28px, 4vw, 44px)',
+            boxShadow: '0 10px 35px rgba(6, 45, 34, 0.06)',
+            border: '1px solid #e2e8f0'
+          }}
+        >
           {/* Header */}
           <div style={{ marginBottom: 24, textAlign: 'center' }}>
             <h1 style={{ fontSize: '1.8rem', color: '#172033', fontWeight: 800, marginBottom: 8 }}>
@@ -220,9 +226,11 @@ export default function RegisterPage() {
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {planOptions.map((opt) => (
-                <button
+                <motion.button
                   key={opt.id}
                   type="button"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => setSelectedPlan(opt.id)}
                   style={{
                     padding: '8px 6px',
@@ -241,7 +249,7 @@ export default function RegisterPage() {
                   <span style={{ fontSize: '0.74rem', color: selectedPlan === opt.id ? '#0BAF7A' : '#64748b', fontWeight: 600 }}>
                     {opt.price}
                   </span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </div>
@@ -392,9 +400,11 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className="tm-btn tm-btn-primary tm-btn-lg"
               style={{ width: '100%', marginTop: 8 }}
             >
@@ -406,7 +416,7 @@ export default function RegisterPage() {
                   <ArrowRight size={18} />
                 </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Switch to Login */}
@@ -418,7 +428,7 @@ export default function RegisterPage() {
               </Link>
             </p>
           </div>
-        </div>
+        </motion.div>
 
         <div style={{ marginTop: 20, textAlign: 'center' }}>
           <Link to="/" style={{ color: '#64748b', fontSize: '0.86rem', textDecoration: 'none' }}>

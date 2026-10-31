@@ -6,6 +6,7 @@ import {
   ArrowRight, 
   LayoutDashboard
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { getStaffToken, logoutStaff } from '../../utils/staffAuth';
 
 export default function PublicNavbar() {
@@ -107,33 +108,41 @@ export default function PublicNavbar() {
         <div className="tm-nav-actions">
           {isAuthed ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Link 
-                to="/dashboard" 
-                className="tm-btn-primary-nav"
-                style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
-              >
-                <LayoutDashboard size={15} />
-                <span>Dashboard</span>
-              </Link>
-              <button 
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Link 
+                  to="/dashboard" 
+                  className="tm-btn-primary-nav"
+                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                >
+                  <LayoutDashboard size={15} />
+                  <span>Dashboard</span>
+                </Link>
+              </motion.div>
+              <motion.button 
                 type="button" 
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={handleLogout}
                 className="tm-btn-ghost-nav"
                 style={{ fontSize: '0.82rem', padding: '7px 12px' }}
               >
                 Logout
-              </button>
+              </motion.button>
             </div>
           ) : (
-            <>
-              <Link to="/login" className="tm-btn-ghost-nav">
-                Login
-              </Link>
-              <Link to="/register" className="tm-btn-primary-nav">
-                <span>Get Started</span>
-                <ArrowRight size={14} />
-              </Link>
-            </>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Link to="/login" className="tm-btn-ghost-nav">
+                  Login
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <Link to="/register" className="tm-btn-primary-nav">
+                  <span>Get Started</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </motion.div>
+            </div>
           )}
         </div>
 

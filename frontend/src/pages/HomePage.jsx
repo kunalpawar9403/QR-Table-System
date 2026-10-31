@@ -17,6 +17,8 @@ import {
   Play,
   UtensilsCrossed
 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { TextEffect } from '../components/motion-primitives/text-effect';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
 
@@ -114,43 +116,77 @@ export default function HomePage() {
               {/* Left Column: Vertically centered to match other section banners */}
               <div style={{ textAlign: 'left', maxWidth: '540px' }}>
                 {/* Badge */}
-                <div className="tm-hero-badge">
+                <motion.div 
+                  className="tm-hero-badge"
+                  initial={{ opacity: 0, y: -12, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.45, ease: 'easeOut' }}
+                >
                   <Sparkles size={14} />
                   <span>Modern Restaurant Management</span>
-                </div>
+                </motion.div>
 
                 {/* Main Headline */}
                 <h1 className="tm-hero-title">
-                  The Smart Restaurant POS &{' '}
-                  <span className="tm-hero-title-accent">Contactless Dining Platform</span>
+                  <TextEffect per="word" as="span" preset="fade-in-blur" delay={0.15}>
+                    The Smart Restaurant POS &
+                  </TextEffect>{' '}
+                  <motion.span 
+                    className="tm-hero-title-accent"
+                    initial={{ opacity: 0, filter: 'blur(8px)', y: 10 }}
+                    animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.45 }}
+                    style={{ display: 'inline-block' }}
+                  >
+                    Contactless Dining Platform
+                  </motion.span>
                 </h1>
 
                 {/* Subheading */}
-                <p className="tm-hero-subtitle">
+                <motion.p 
+                  className="tm-hero-subtitle"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.35 }}
+                >
                   Empower your restaurant with intelligent table management, contactless ordering, powerful POS billing, live kitchen display, and real-time analytics — all in one easy platform.
-                </p>
+                </motion.p>
 
                 {/* CTA Buttons */}
-                <div className="tm-hero-actions">
-                  <Link
-                    to="/register"
-                    className="tm-btn-hero-primary"
-                  >
-                    <span>Start 14 Days Free Trial</span>
-                    <ArrowRight size={16} />
-                  </Link>
+                <motion.div 
+                  className="tm-hero-actions"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                    <Link
+                      to="/register"
+                      className="tm-btn-hero-primary"
+                    >
+                      <span>Start 14 Days Free Trial</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </motion.div>
 
-                  <Link
-                    to="/demo"
-                    className="tm-btn-hero-secondary"
-                  >
-                    <Play size={15} fill="#FFFFFF" />
-                    <span>Watch Video Demo</span>
-                  </Link>
-                </div>
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                    <Link
+                      to="/demo"
+                      className="tm-btn-hero-secondary"
+                    >
+                      <Play size={15} fill="#FFFFFF" />
+                      <span>Watch Video Demo</span>
+                    </Link>
+                  </motion.div>
+                </motion.div>
 
                 {/* Trust Checkmarks */}
-                <div className="tm-hero-trust-row">
+                <motion.div 
+                  className="tm-hero-trust-row"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6, delay: 0.65 }}
+                >
                   <div className="tm-hero-trust-item">
                     <CheckCircle size={15} />
                     <span>No credit card required</span>
@@ -163,7 +199,7 @@ export default function HomePage() {
                     <CheckCircle size={15} />
                     <span>Works on all devices</span>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* Right Column: Transparent spacer allowing the background image's laptop POS, smartphone menu & QR stand to shine through */}
@@ -183,34 +219,27 @@ export default function HomePage() {
       }}>
         <PageContainer>
           <div className="tm-stats-grid">
-            <div className="tm-stat-item">
-              <div className="tm-stat-number" style={{ color: '#062D22' }}>
-                3.5x
-              </div>
-              <p className="tm-stat-title">Faster Order Checkout</p>
-              <p className="tm-stat-desc">From order punch to printed receipt in under 4 seconds</p>
-            </div>
-            <div className="tm-stat-item">
-              <div className="tm-stat-number" style={{ color: '#0BAF7A' }}>
-                28%
-              </div>
-              <p className="tm-stat-title">Higher Average Order Value</p>
-              <p className="tm-stat-desc">With visual QR menu upselling and dessert prompts</p>
-            </div>
-            <div className="tm-stat-item">
-              <div className="tm-stat-number" style={{ color: '#062D22' }}>
-                0%
-              </div>
-              <p className="tm-stat-title">Kitchen Order Confusion</p>
-              <p className="tm-stat-desc">Direct-to-screen KDS replaces lost paper tickets</p>
-            </div>
-            <div className="tm-stat-item">
-              <div className="tm-stat-number" style={{ color: '#0BAF7A' }}>
-                ₹0
-              </div>
-              <p className="tm-stat-title">Expensive Hardware Lock-in</p>
-              <p className="tm-stat-desc">Runs on any iPad, tablet, laptop, or existing POS terminal</p>
-            </div>
+            {[
+              { num: '3.5x', color: '#062D22', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
+              { num: '28%', color: '#0BAF7A', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
+              { num: '0%', color: '#062D22', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
+              { num: '₹0', color: '#0BAF7A', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
+            ].map((stat, idx) => (
+              <motion.div 
+                key={idx}
+                className="tm-stat-item"
+                initial={{ opacity: 0, y: 22 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.45, delay: idx * 0.1 }}
+              >
+                <div className="tm-stat-number" style={{ color: stat.color }}>
+                  {stat.num}
+                </div>
+                <p className="tm-stat-title">{stat.title}</p>
+                <p className="tm-stat-desc">{stat.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </PageContainer>
       </section>
@@ -220,7 +249,13 @@ export default function HomePage() {
           ========================================================= */}
       <section className="tm-section-spacious" style={{ background: '#F4F7F6' }}>
         <PageContainer>
-          <div className="tm-section-header">
+          <motion.div 
+            className="tm-section-header"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="tm-section-badge">
               <Sparkles size={14} />
               <span>Full-Stack Restaurant Architecture</span>
@@ -231,7 +266,7 @@ export default function HomePage() {
             <p className="tm-section-subtitle">
               Everything your restaurant needs to operate smoothly from the moment guests are seated until the final receipt is settled.
             </p>
-          </div>
+          </motion.div>
 
           <div style={{
             display: 'grid',
@@ -239,7 +274,16 @@ export default function HomePage() {
             gap: 28
           }}>
             {features.map((feat, idx) => (
-              <div key={idx} className="tm-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <motion.div 
+                key={idx} 
+                className="tm-card" 
+                style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.4, delay: (idx % 3) * 0.08 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              >
                 <div className="tm-icon-box">
                   {feat.icon}
                 </div>
@@ -264,7 +308,7 @@ export default function HomePage() {
                   <span>Learn more</span>
                   <ArrowRight size={14} />
                 </Link>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -284,7 +328,12 @@ export default function HomePage() {
         <div className="tm-device-banner-card">
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-device-grid">
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -346,21 +395,28 @@ export default function HomePage() {
                   <span>See Multi-Device Live Demo</span>
                   <ArrowRight size={16} />
                 </Link>
-              </div>
+              </motion.div>
 
               {/* Showcase Image */}
-              <div style={{
-                borderRadius: '20px',
-                overflow: 'hidden',
-                boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.12)'
-              }}>
+              <motion.div 
+                style={{
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)'
+                }}
+                initial={{ opacity: 0, x: 24, scale: 0.98 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
+                whileHover={{ scale: 1.015, transition: { duration: 0.25 } }}
+              >
                 <img 
                   src="/images/landing/devices_showcase.jpg" 
                   alt="TableMint Works on iPad, Android Tablets, Windows and Mac"
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -371,7 +427,13 @@ export default function HomePage() {
           ========================================================= */}
       <section className="tm-section-spacious" style={{ background: '#FFFFFF' }}>
         <PageContainer>
-          <div className="tm-section-header">
+          <motion.div 
+            className="tm-section-header"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="tm-section-badge">
               <UtensilsCrossed size={14} />
               <span>Tailored Solutions</span>
@@ -382,7 +444,7 @@ export default function HomePage() {
             <p className="tm-section-subtitle">
               Whether you run a high-energy craft brewery or an intimate fine-dining destination, TableMint adapts to your service flow.
             </p>
-          </div>
+          </motion.div>
 
           <div style={{
             display: 'grid',
@@ -390,7 +452,7 @@ export default function HomePage() {
             gap: 24
           }}>
             {restaurantTypes.map((type, idx) => (
-              <div 
+              <motion.div 
                 key={idx}
                 style={{
                   borderRadius: '16px',
@@ -398,9 +460,13 @@ export default function HomePage() {
                   background: '#F4F7F6',
                   border: '1px solid #e2e8f0',
                   display: 'flex',
-                  flexDirection: 'column',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                  flexDirection: 'column'
                 }}
+                initial={{ opacity: 0, y: 22 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.45, delay: idx * 0.08 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
               >
                 <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
                   <img 
@@ -447,7 +513,7 @@ export default function HomePage() {
                     <ChevronRight size={14} />
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </PageContainer>
@@ -458,7 +524,13 @@ export default function HomePage() {
           ========================================================= */}
       <section className="tm-section-spacious" style={{ background: '#F4F7F6' }}>
         <PageContainer>
-          <div className="tm-section-header">
+          <motion.div 
+            className="tm-section-header"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="tm-section-badge">
               <Receipt size={14} />
               <span>Transparent SaaS Pricing</span>
@@ -479,8 +551,9 @@ export default function HomePage() {
               borderRadius: '9999px',
               marginTop: 24
             }}>
-              <button
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setBillingCycle('monthly')}
                 style={{
                   padding: '8px 20px',
@@ -496,9 +569,10 @@ export default function HomePage() {
                 }}
               >
                 Monthly Billing
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 type="button"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setBillingCycle('yearly')}
                 style={{
                   padding: '8px 20px',
@@ -526,9 +600,9 @@ export default function HomePage() {
                 }}>
                   SAVE 20%
                 </span>
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
           <div style={{
             display: 'grid',
@@ -537,7 +611,15 @@ export default function HomePage() {
             alignItems: 'stretch'
           }}>
             {/* Starter */}
-            <div className="tm-card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <motion.div 
+              className="tm-card" 
+              style={{ display: 'flex', flexDirection: 'column' }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.45 }}
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            >
               <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Starter</h3>
               <p style={{ fontSize: '0.9rem', color: '#5e6d82', marginBottom: 20 }}>
                 Ideal for small cafes, takeaway counters, and food trucks.
@@ -559,17 +641,25 @@ export default function HomePage() {
               <Link to="/register?plan=starter" className="tm-btn tm-btn-secondary" style={{ width: '100%' }}>
                 Get Started
               </Link>
-            </div>
+            </motion.div>
 
             {/* Standard - Featured */}
-            <div className="tm-card" style={{
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              borderColor: '#0BAF7A',
-              boxShadow: '0 12px 30px rgba(11, 175, 122, 0.15)',
-              borderWidth: 2
-            }}>
+            <motion.div 
+              className="tm-card" 
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative',
+                borderColor: '#0BAF7A',
+                boxShadow: '0 12px 30px rgba(11, 175, 122, 0.15)',
+                borderWidth: 2
+              }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.45, delay: 0.1 }}
+              whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.2 } }}
+            >
               <span style={{
                 position: 'absolute',
                 top: -12,
@@ -614,10 +704,18 @@ export default function HomePage() {
               <Link to="/register?plan=standard" className="tm-btn tm-btn-primary" style={{ width: '100%' }}>
                 Start 14-Day Free Trial
               </Link>
-            </div>
+            </motion.div>
 
             {/* Premium */}
-            <div className="tm-card" style={{ display: 'flex', flexDirection: 'column' }}>
+            <motion.div 
+              className="tm-card" 
+              style={{ display: 'flex', flexDirection: 'column' }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.45, delay: 0.2 }}
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+            >
               <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Premium</h3>
               <p style={{ fontSize: '0.9rem', color: '#5e6d82', marginBottom: 20 }}>
                 For high-volume multi-floor restaurants, bars, and multi-outlet chains.
@@ -646,7 +744,7 @@ export default function HomePage() {
               <Link to="/register?plan=premium" className="tm-btn tm-btn-secondary" style={{ width: '100%' }}>
                 Get Started
               </Link>
-            </div>
+            </motion.div>
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 40 }}>

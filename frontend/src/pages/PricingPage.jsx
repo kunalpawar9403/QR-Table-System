@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -143,8 +144,9 @@ export default function PricingPage() {
           border: '1px solid rgba(255, 255, 255, 0.18)',
           marginTop: 20
         }}>
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.95 }}
             onClick={() => setBillingCycle('monthly')}
             style={{
               padding: '9px 24px',
@@ -160,9 +162,10 @@ export default function PricingPage() {
             }}
           >
             Monthly Billing
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.95 }}
             onClick={() => setBillingCycle('yearly')}
             style={{
               padding: '9px 24px',
@@ -191,7 +194,7 @@ export default function PricingPage() {
             }}>
               SAVE 20%
             </span>
-          </button>
+          </motion.button>
         </div>
       </PageHero>
 
@@ -204,12 +207,17 @@ export default function PricingPage() {
             gap: 32,
             alignItems: 'stretch'
           }}>
-            {plans.map((p) => {
+            {plans.map((p, idx) => {
               const price = billingCycle === 'yearly' ? p.yearlyPrice : p.monthlyPrice;
               return (
-                <div
+                <motion.div
                   key={p.id}
                   className="tm-card"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                  whileHover={{ y: p.highlight ? -10 : -6, scale: p.highlight ? 1.015 : 1, transition: { duration: 0.2 } }}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -287,7 +295,7 @@ export default function PricingPage() {
                     <span>{p.ctaText}</span>
                     <ArrowRight size={16} />
                   </Link>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -385,8 +393,12 @@ export default function PricingPage() {
             {faqs.map((faq, idx) => {
               const isOpen = openFaq === idx;
               return (
-                <div
+                <motion.div
                   key={idx}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-20px' }}
+                  transition={{ duration: 0.35, delay: idx * 0.05 }}
                   style={{
                     background: '#FFFFFF',
                     borderRadius: '14px',
@@ -415,12 +427,22 @@ export default function PricingPage() {
                     </span>
                     {isOpen ? <ChevronUp size={20} style={{ color: '#0BAF7A' }} /> : <ChevronDown size={20} style={{ color: '#94a3b8' }} />}
                   </button>
-                  {isOpen && (
-                    <div style={{ padding: '0 24px 20px', color: '#5e6d82', fontSize: '0.95rem', lineHeight: 1.65 }}>
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <div style={{ padding: '0 24px 20px', color: '#5e6d82', fontSize: '0.95rem', lineHeight: 1.65 }}>
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               );
             })}
           </div>

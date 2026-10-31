@@ -11,6 +11,7 @@ import {
   CheckCircle, 
   Zap
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -130,8 +131,12 @@ export default function HowItWorksPage() {
         <PageContainer>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 60, maxWidth: '1080px', margin: '0 auto' }}>
             {steps.map((step, idx) => (
-              <div 
+              <motion.div 
                 key={idx}
+                initial={{ opacity: 0, y: 35 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-50px' }}
+                transition={{ duration: 0.5, delay: 0.05 }}
                 style={{
                   background: '#FFFFFF',
                   borderRadius: '24px',
@@ -211,13 +216,17 @@ export default function HowItWorksPage() {
                 </div>
 
                 {/* Screenshot Visual */}
-                <div style={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 12px 28px rgba(0, 0, 0, 0.08)',
-                  background: '#041711'
-                }}>
+                <motion.div 
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.25 }}
+                  style={{
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 12px 28px rgba(0, 0, 0, 0.08)',
+                    background: '#041711'
+                  }}
+                >
                   <img 
                     src={step.image} 
                     alt={step.title}
@@ -229,8 +238,8 @@ export default function HowItWorksPage() {
                       objectFit: 'cover'
                     }}
                   />
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
           </div>
         </PageContainer>
@@ -239,7 +248,13 @@ export default function HowItWorksPage() {
       {/* Comparison: TableMint vs Legacy POS */}
       <section style={{ padding: '80px 24px', background: '#FFFFFF', borderTop: '1px solid #e2e8f0' }}>
         <PageContainer>
-          <div className="tm-section-header">
+          <motion.div 
+            className="tm-section-header"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.5 }}
+          >
             <span className="tm-section-badge">
               <Zap size={14} />
               <span>Speed & Simplicity</span>
@@ -250,7 +265,7 @@ export default function HowItWorksPage() {
             <p className="tm-section-subtitle">
               See why modern restaurateurs are ditching clunky, on-premise hardware for TableMint's lightning-fast cloud OS.
             </p>
-          </div>
+          </motion.div>
 
           <div style={{
             display: 'grid',
@@ -260,13 +275,20 @@ export default function HowItWorksPage() {
             margin: '0 auto'
           }}>
             {/* TableMint */}
-            <div style={{
-              background: 'rgba(11, 175, 122, 0.04)',
-              border: '2px solid #0BAF7A',
-              borderRadius: '20px',
-              padding: '36px',
-              position: 'relative'
-            }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              style={{
+                background: 'rgba(11, 175, 122, 0.04)',
+                border: '2px solid #0BAF7A',
+                borderRadius: '20px',
+                padding: '36px',
+                position: 'relative'
+              }}
+            >
               <span style={{
                 position: 'absolute',
                 top: -12,
@@ -299,15 +321,22 @@ export default function HowItWorksPage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Legacy POS */}
-            <div style={{
-              background: '#F8FAFC',
-              border: '1px solid #e2e8f0',
-              borderRadius: '20px',
-              padding: '36px'
-            }}>
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              style={{
+                background: '#F8FAFC',
+                border: '1px solid #e2e8f0',
+                borderRadius: '20px',
+                padding: '36px'
+              }}
+            >
               <h3 style={{ fontSize: '1.4rem', color: '#64748b', marginBottom: 18 }}>
                 Traditional Legacy POS
               </h3>
@@ -326,7 +355,7 @@ export default function HowItWorksPage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
           </div>
         </PageContainer>
       </section>

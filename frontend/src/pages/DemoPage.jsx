@@ -15,6 +15,7 @@ import {
   Mail,
   FileVideo
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -243,14 +244,20 @@ export default function DemoPage() {
           </div>
 
           {/* Video Player Frame */}
-          <div style={{
-            background: '#041711',
-            borderRadius: '20px',
-            overflow: 'hidden',
-            border: '2px solid rgba(22, 201, 149, 0.35)',
-            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(11, 175, 122, 0.25)',
-            position: 'relative'
-          }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            style={{
+              background: '#041711',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              border: '2px solid rgba(22, 201, 149, 0.35)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(11, 175, 122, 0.25)',
+              position: 'relative'
+            }}
+          >
             <video
               ref={videoRef}
               controls
@@ -266,7 +273,7 @@ export default function DemoPage() {
               <source src={videoSrc} type="video/mp4" />
               Your browser does not support HTML5 video. Please try updating your browser.
             </video>
-          </div>
+          </motion.div>
 
           <div style={{
             textAlign: 'center',
@@ -307,9 +314,11 @@ export default function DemoPage() {
             marginBottom: 44
           }}>
             {modules.map((m) => (
-              <button
+              <motion.button
                 key={m.id}
                 type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => setActiveTourTab(m.id)}
                 style={{
                   display: 'inline-flex',
@@ -329,116 +338,130 @@ export default function DemoPage() {
               >
                 {m.icon}
                 <span>{m.label}</span>
-              </button>
+              </motion.button>
             ))}
           </div>
 
           {/* Module Showcase Card */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '24px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 12px 40px rgba(6, 45, 34, 0.08)',
-            padding: 'clamp(24px, 4vw, 48px)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 48,
-            alignItems: 'center'
-          }}>
-            {/* Screenshot */}
-            <div style={{
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 16px 36px rgba(0, 0, 0, 0.1)',
-              background: '#041711',
-              position: 'relative'
-            }}>
-              <span style={{
-                position: 'absolute',
-                top: 14,
-                left: 14,
-                background: 'rgba(6, 45, 34, 0.9)',
-                color: '#16C995',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                border: '1px solid rgba(22, 201, 149, 0.3)'
-              }}>
-                Live System Screen
-              </span>
-              <img 
-                src={currentMod.image} 
-                alt={currentMod.title}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTourTab}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                background: '#FFFFFF',
+                borderRadius: '24px',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 12px 40px rgba(6, 45, 34, 0.08)',
+                padding: 'clamp(24px, 4vw, 48px)',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: 48,
+                alignItems: 'center'
+              }}
+            >
+              {/* Screenshot */}
+              <motion.div 
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
                 style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block',
-                  maxHeight: '440px',
-                  objectFit: 'cover'
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 16px 36px rgba(0, 0, 0, 0.1)',
+                  background: '#041711',
+                  position: 'relative'
                 }}
-              />
-            </div>
+              >
+                <span style={{
+                  position: 'absolute',
+                  top: 14,
+                  left: 14,
+                  background: 'rgba(6, 45, 34, 0.9)',
+                  color: '#16C995',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(22, 201, 149, 0.3)',
+                  zIndex: 2
+                }}>
+                  Live System Screen
+                </span>
+                <img 
+                  src={currentMod.image} 
+                  alt={currentMod.title}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    maxHeight: '440px',
+                    objectFit: 'cover'
+                  }}
+                />
+              </motion.div>
 
-            {/* Content & Details */}
-            <div>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'rgba(11, 175, 122, 0.1)',
-                color: '#0BAF7A',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                marginBottom: 14
-              }}>
-                <span>Module Tour: {currentMod.label}</span>
+              {/* Content & Details */}
+              <div>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'rgba(11, 175, 122, 0.1)',
+                  color: '#0BAF7A',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  marginBottom: 14
+                }}>
+                  <span>Module Tour: {currentMod.label}</span>
+                </div>
+
+                <h3 style={{
+                  fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
+                  fontWeight: 800,
+                  color: '#172033',
+                  lineHeight: 1.25,
+                  marginBottom: 10
+                }}>
+                  {currentMod.title}
+                </h3>
+
+                <p style={{
+                  fontSize: '1.05rem',
+                  color: '#062D22',
+                  fontWeight: 600,
+                  marginBottom: 20
+                }}>
+                  {currentMod.tagline}
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
+                  {currentMod.points.map((pt, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#172033' }}>
+                      <CheckCircle size={17} style={{ color: '#0BAF7A', flexShrink: 0, marginTop: 2 }} />
+                      <span>{pt}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                  <Link to="/register" className="tm-btn tm-btn-primary">
+                    <span>Start 14-Day Free Trial</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                  <Link to="/contact" className="tm-btn tm-btn-secondary">
+                    <Mail size={16} />
+                    <span>Email Us With Questions</span>
+                  </Link>
+                </div>
               </div>
-
-              <h3 style={{
-                fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-                fontWeight: 800,
-                color: '#172033',
-                lineHeight: 1.25,
-                marginBottom: 10
-              }}>
-                {currentMod.title}
-              </h3>
-
-              <p style={{
-                fontSize: '1.05rem',
-                color: '#062D22',
-                fontWeight: 600,
-                marginBottom: 20
-              }}>
-                {currentMod.tagline}
-              </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
-                {currentMod.points.map((pt, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#172033' }}>
-                    <CheckCircle size={17} style={{ color: '#0BAF7A', flexShrink: 0, marginTop: 2 }} />
-                    <span>{pt}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                <Link to="/register" className="tm-btn tm-btn-primary">
-                  <span>Start 14-Day Free Trial</span>
-                  <ArrowRight size={16} />
-                </Link>
-                <Link to="/contact" className="tm-btn tm-btn-secondary">
-                  <Mail size={16} />
-                  <span>Email Us With Questions</span>
-                </Link>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
         </PageContainer>
       </section>
 

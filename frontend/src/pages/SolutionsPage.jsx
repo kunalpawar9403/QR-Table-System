@@ -4,6 +4,7 @@ import {
   ArrowRight, 
   TrendingUp
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
@@ -159,9 +160,13 @@ export default function SolutionsPage() {
             {solutions.map((sol, idx) => {
               const isEven = idx % 2 === 1;
               return (
-                <div
+                <motion.div
                   key={sol.id}
                   id={sol.id}
+                  initial={{ opacity: 0, y: 35 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.55, ease: 'easeOut' }}
                   style={{
                     background: '#FFFFFF',
                     borderRadius: '24px',
@@ -254,21 +259,27 @@ export default function SolutionsPage() {
                     </div>
 
                     <div>
-                      <Link to="/register" className="tm-btn tm-btn-primary">
-                        <span>Deploy for {sol.badge.split('&')[0]}</span>
-                        <ArrowRight size={16} />
-                      </Link>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} style={{ display: 'inline-block' }}>
+                        <Link to="/register" className="tm-btn tm-btn-primary">
+                          <span>Deploy for {sol.badge.split('&')[0]}</span>
+                          <ArrowRight size={16} />
+                        </Link>
+                      </motion.div>
                     </div>
                   </div>
 
                   {/* Image Column */}
-                  <div style={{
-                    order: isEven ? 1 : 2,
-                    borderRadius: '16px',
-                    overflow: 'hidden',
-                    border: '1px solid #e2e8f0',
-                    boxShadow: '0 16px 36px rgba(0, 0, 0, 0.08)'
-                  }}>
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.25 }}
+                    style={{
+                      order: isEven ? 1 : 2,
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 16px 36px rgba(0, 0, 0, 0.08)'
+                    }}
+                  >
                     <img 
                       src={sol.image} 
                       alt={sol.title}
@@ -280,8 +291,8 @@ export default function SolutionsPage() {
                         objectFit: 'cover'
                       }}
                     />
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
               );
             })}
           </div>
