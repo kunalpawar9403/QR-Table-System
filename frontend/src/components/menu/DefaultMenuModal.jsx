@@ -148,73 +148,40 @@ export default function DefaultMenuModal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(6px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16
-      }}
+      className="default-menu-modal-backdrop"
       onClick={(e) => {
         if (e.target === e.currentTarget && !importing) onClose();
       }}
     >
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: 20,
-          width: '100%',
-          maxWidth: 960,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          border: '1px solid #e2e8f0',
-          overflow: 'hidden',
-          animation: 'scaleIn 0.2s ease-out'
-        }}
-      >
+      <div className="default-menu-modal-card">
         {/* Modal Header */}
-        <div
-          style={{
-            padding: '24px 28px 20px',
-            background: 'linear-gradient(135deg, #062D22 0%, #0d4a38 100%)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <div className="default-menu-header">
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div className="default-menu-title-wrap">
               <div
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
                   background: 'rgba(16, 185, 129, 0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#34d399'
+                  color: '#34d399',
+                  flexShrink: 0
                 }}
               >
-                <Sparkles size={20} />
+                <Sparkles size={18} />
               </div>
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, letterSpacing: '-0.02em' }}>
+              <h3 className="default-menu-title">
                 TableMint Default Menu Catalog
               </h3>
               <span
                 style={{
                   background: 'rgba(255, 255, 255, 0.15)',
-                  padding: '3px 10px',
+                  padding: '2px 8px',
                   borderRadius: 999,
-                  fontSize: '0.78rem',
+                  fontSize: '0.74rem',
                   fontWeight: 700,
                   color: '#a7f3d0'
                 }}
@@ -222,60 +189,36 @@ export default function DefaultMenuModal({
                 {catalogItems.length} Curated Dishes
               </span>
             </div>
-            <p style={{ margin: 0, fontSize: '0.88rem', color: '#cbd5e1', maxWidth: 640, lineHeight: 1.5 }}>
+            <p className="default-menu-desc">
               Kickstart your digital menu with TableMint's high-standard restaurant library. Complete with HD food
               photos, standardized categories, dish descriptions, and recommended prices.
             </p>
           </div>
 
           <button
+            className="default-menu-close-btn"
             onClick={onClose}
             disabled={importing}
-            style={{
-              background: 'rgba(255, 255, 255, 0.12)',
-              border: 'none',
-              borderRadius: 10,
-              width: 36,
-              height: 36,
-              color: '#ffffff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'background 0.15s'
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)')}
+            aria-label="Close default menu catalog"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Import Mode Switcher */}
-        <div
-          style={{
-            padding: '16px 28px',
-            background: '#f8fafc',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 16
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>
+        <div className="default-menu-mode-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>
               Import Strategy:
             </span>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <button
                 type="button"
                 onClick={() => setImportMode('merge')}
                 style={{
-                  padding: '6px 14px',
+                  padding: '5px 12px',
                   borderRadius: 8,
-                  fontSize: '0.84rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   border: '1.5px solid',
@@ -291,9 +234,9 @@ export default function DefaultMenuModal({
                 type="button"
                 onClick={() => setImportMode('replace')}
                 style={{
-                  padding: '6px 14px',
+                  padding: '5px 12px',
                   borderRadius: 8,
-                  fontSize: '0.84rem',
+                  fontSize: '0.8rem',
                   fontWeight: 600,
                   cursor: 'pointer',
                   border: '1.5px solid',
@@ -308,15 +251,15 @@ export default function DefaultMenuModal({
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#64748b' }}>
             {importMode === 'merge' ? (
               <>
-                <Info size={16} color="#059669" />
-                <span>Existing custom dishes are preserved. Duplicates will be safely skipped.</span>
+                <Info size={15} color="#059669" style={{ flexShrink: 0 }} />
+                <span>Existing custom dishes are preserved. Duplicates are safely skipped.</span>
               </>
             ) : (
               <>
-                <AlertTriangle size={16} color="#dc2626" />
+                <AlertTriangle size={15} color="#dc2626" style={{ flexShrink: 0 }} />
                 <span style={{ color: '#b91c1c', fontWeight: 600 }}>
                   Warning: Existing {existingMenu.length} dishes will be replaced with default catalog.
                 </span>
@@ -326,16 +269,8 @@ export default function DefaultMenuModal({
         </div>
 
         {/* Search & Category Filter Toolbar */}
-        <div
-          style={{
-            padding: '14px 28px',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 12
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+        <div className="default-menu-toolbar">
+          <div className="default-menu-toolbar-top">
             {/* Search Input */}
             <div
               style={{
@@ -344,12 +279,13 @@ export default function DefaultMenuModal({
                 gap: 8,
                 background: '#f1f5f9',
                 borderRadius: 10,
-                padding: '8px 14px',
+                padding: '8px 12px',
                 flex: 1,
-                maxWidth: 420
+                minWidth: 0,
+                boxSizing: 'border-box'
               }}
             >
-              <Search size={16} color="#64748b" />
+              <Search size={16} color="#64748b" style={{ flexShrink: 0 }} />
               <input
                 type="text"
                 placeholder="Search default dishes by name, category, or ingredients..."
@@ -360,7 +296,7 @@ export default function DefaultMenuModal({
                   background: 'transparent',
                   outline: 'none',
                   width: '100%',
-                  fontSize: '0.88rem',
+                  fontSize: '0.86rem',
                   color: '#0f172a'
                 }}
               />
@@ -376,7 +312,7 @@ export default function DefaultMenuModal({
             </div>
 
             {/* Selection Quick Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div className="default-menu-selection-actions" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
                 Selected: <strong style={{ color: '#0f172a' }}>{selectedIds.size}</strong> of {catalogItems.length}
               </span>
@@ -457,17 +393,7 @@ export default function DefaultMenuModal({
         </div>
 
         {/* Dishes Preview Scrollable Grid */}
-        <div
-          style={{
-            padding: '20px 28px',
-            overflowY: 'auto',
-            flex: 1,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
-            gap: 14,
-            background: '#fafafa'
-          }}
-        >
+        <div className="default-menu-dishes-grid">
           {loadingTemplate ? (
             <div style={{ gridColumn: '1 / -1', padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
               <RefreshCw className="animate-spin" size={32} style={{ margin: '0 auto 12px', color: '#059669' }} />
@@ -651,23 +577,14 @@ export default function DefaultMenuModal({
         </div>
 
         {/* Modal Footer */}
-        <div
-          style={{
-            padding: '16px 28px',
-            background: '#ffffff',
-            borderTop: '1px solid #e2e8f0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
+        <div className="default-menu-footer">
           <div style={{ fontSize: '0.86rem', color: '#64748b' }}>
             <span>Ready to import </span>
             <strong style={{ color: '#059669' }}>{selectedIds.size} dishes</strong>
             <span> into your menu</span>
           </div>
 
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div className="default-menu-footer-actions">
             <button
               type="button"
               onClick={onClose}

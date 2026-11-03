@@ -29,7 +29,7 @@ export default function PageHero({
 
           <h1 className="tm-page-hero-title" style={{ color: '#FFFFFF' }}>
             <span style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>
-              <TextEffect per="word" preset="fade-in-blur" delay={0.1}>
+              <TextEffect per="word" as="span" preset="fade-in-blur" delay={0.1}>
                 {title}
               </TextEffect>
             </span>{' '}

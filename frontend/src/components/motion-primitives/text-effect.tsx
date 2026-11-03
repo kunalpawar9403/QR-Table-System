@@ -1,5 +1,5 @@
 'use client';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 import {
   AnimatePresence,
   motion
@@ -265,7 +265,7 @@ export function TextEffect({
   };
 
   return (
-    <AnimatePresence mode='popLayout'>
+    <AnimatePresence>
       {trigger && (
         <MotionTag
           initial='hidden'

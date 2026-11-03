@@ -46,8 +46,8 @@ export default function ContactPage() {
         <PageContainer maxWidth="1040px">
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 40,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 32,
             alignItems: 'start'
           }}>
             {/* Left Column: Direct Email Details */}

@@ -137,14 +137,15 @@ export default function HowItWorksPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.5, delay: 0.05 }}
+                className="tm-how-step-card"
                 style={{
                   background: '#FFFFFF',
                   borderRadius: '24px',
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 8px 30px rgba(6, 45, 34, 0.05)',
-                  padding: 'clamp(28px, 4vw, 44px)',
+                  padding: 'clamp(20px, 4vw, 44px)',
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
                   gap: 40,
                   alignItems: 'center',
                   position: 'relative'
@@ -269,8 +270,8 @@ export default function HowItWorksPage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: 32,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 28,
             maxWidth: '940px',
             margin: '0 auto'
           }}>

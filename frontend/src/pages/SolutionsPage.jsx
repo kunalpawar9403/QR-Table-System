@@ -167,14 +167,15 @@ export default function SolutionsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-50px' }}
                   transition={{ duration: 0.55, ease: 'easeOut' }}
+                  className="tm-solution-module-card"
                   style={{
                     background: '#FFFFFF',
                     borderRadius: '24px',
                     border: '1px solid #e2e8f0',
                     boxShadow: '0 8px 30px rgba(6, 45, 34, 0.05)',
-                    padding: 'clamp(28px, 4vw, 48px)',
+                    padding: 'clamp(20px, 4vw, 48px)',
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
                     gap: 48,
                     alignItems: 'center'
                   }}
@@ -219,7 +220,7 @@ export default function SolutionsPage() {
                     {/* Features grid */}
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
                       gap: 16,
                       marginBottom: 24
                     }}>

@@ -203,8 +203,8 @@ export default function PricingPage() {
         <PageContainer>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
-            gap: 32,
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+            gap: 28,
             alignItems: 'stretch'
           }}>
             {plans.map((p, idx) => {

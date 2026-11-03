@@ -23,6 +23,7 @@ export default function EmptyMenuState({
 
   return (
     <div
+      className="empty-menu-state-wrapper"
       style={{
         background: '#ffffff',
         borderRadius: 20,
@@ -76,6 +77,7 @@ export default function EmptyMenuState({
 
       {/* Featured TableMint Default Starter Menu Banner Card */}
       <div
+        className="empty-menu-featured-banner"
         onClick={handleDefaultMenu}
         style={{
           maxWidth: 1040,
@@ -152,6 +154,7 @@ export default function EmptyMenuState({
 
         <button
           type="button"
+          className="empty-menu-featured-btn"
           onClick={(e) => {
             e.stopPropagation();
             if (handleDefaultMenu) handleDefaultMenu();
@@ -185,9 +188,10 @@ export default function EmptyMenuState({
 
       {/* 4 Additional Action Cards Grid */}
       <div
+        className="empty-menu-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 230px), 1fr))',
           gap: 16,
           maxWidth: 1040,
           margin: '0 auto 32px',

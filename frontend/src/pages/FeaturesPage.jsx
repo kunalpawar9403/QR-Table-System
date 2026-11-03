@@ -255,14 +255,15 @@ export default function FeaturesPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-60px' }}
                   transition={{ duration: 0.55, ease: 'easeOut' }}
+                  className="tm-feature-module-card"
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
                     gap: 48,
                     alignItems: 'center',
                     background: '#FFFFFF',
                     borderRadius: '24px',
-                    padding: 'clamp(28px, 4vw, 48px)',
+                    padding: 'clamp(20px, 4vw, 48px)',
                     border: '1px solid #e2e8f0',
                     boxShadow: '0 8px 30px rgba(6, 45, 34, 0.05)'
                   }}

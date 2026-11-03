@@ -5660,7 +5660,7 @@
     flex-direction: column !important;
     gap: 16px !important;
     width: 100% !important;
-    padding: 14px 16px 28px 16px !important;
+    padding: 14px 16px max(120px, calc(100px + env(safe-area-inset-bottom))) 16px !important;
     box-sizing: border-box !important;
   }
 
@@ -7375,6 +7375,267 @@
     max-width: 95mm !important;
     margin: 4mm auto !important;
     box-sizing: border-box !important;
+  }
+}
+
+/* =========================================================
+   DEFAULT MENU CATALOG MODAL & ONBOARDING RESPONSIVENESS
+   ========================================================= */
+.default-menu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.default-menu-modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 960px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  animation: scaleIn 0.2s ease-out;
+  box-sizing: border-box;
+}
+
+.default-menu-header {
+  padding: 22px 28px 18px;
+  background: linear-gradient(135deg, #062D22 0%, #0d4a38 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 16px;
+}
+
+.default-menu-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.default-menu-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.default-menu-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  max-width: 640px;
+  line-height: 1.5;
+}
+
+.default-menu-close-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.default-menu-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.default-menu-mode-bar {
+  padding: 14px 28px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.default-menu-toolbar {
+  padding: 14px 28px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.default-menu-toolbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.default-menu-dishes-grid {
+  padding: 20px 28px;
+  overflow-y: auto;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 14px;
+  background: #fafafa;
+}
+
+.default-menu-footer {
+  padding: 16px 28px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .default-menu-modal-backdrop {
+    padding: 10px !important;
+  }
+
+  .default-menu-modal-card {
+    max-height: 94vh !important;
+    border-radius: 16px !important;
+  }
+
+  .default-menu-header {
+    padding: 14px 14px 12px 14px !important;
+    gap: 8px !important;
+  }
+
+  .default-menu-title {
+    font-size: 1.05rem !important;
+  }
+
+  .default-menu-desc {
+    font-size: 0.78rem !important;
+    line-height: 1.35 !important;
+    max-width: 100% !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .default-menu-mode-bar {
+    padding: 10px 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .default-menu-toolbar {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+
+  .default-menu-toolbar-top {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .default-menu-selection-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .default-menu-dishes-grid {
+    padding: 12px 12px !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .default-menu-footer {
+    padding: 12px 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .default-menu-footer-actions {
+    display: flex !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .default-menu-footer-actions button {
+    flex: 1 !important;
+    justify-content: center !important;
+  }
+
+  /* Empty Menu State Mobile Polish */
+  .empty-menu-state-wrapper {
+    padding: 24px 14px !important;
+  }
+
+  .empty-menu-featured-banner {
+    padding: 18px 14px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+  }
+
+  .empty-menu-featured-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .empty-menu-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Onboarding Progress Banner Mobile Polish */
+  .onboarding-progress-banner {
+    padding: 14px 14px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .onboarding-header-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .onboarding-header-right {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .onboarding-progress-bar-wrap {
+    flex: 1 !important;
+    max-width: none !important;
+  }
+
+  .onboarding-checklist-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
   }
 }
 

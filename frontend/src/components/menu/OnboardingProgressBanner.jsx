@@ -63,18 +63,21 @@ export default function OnboardingProgressBanner({
   if (progressPercent === 100) return null;
 
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, #07241a 0%, #0d3829 100%)',
-      borderRadius: 16,
-      padding: collapsed ? '12px 20px' : '20px 24px',
-      color: '#ffffff',
-      marginBottom: 20,
-      boxShadow: '0 4px 16px rgba(7, 36, 26, 0.15)',
-      transition: 'all 0.2s ease'
-    }}>
+    <div 
+      className="onboarding-progress-banner"
+      style={{
+        background: 'linear-gradient(135deg, #07241a 0%, #0d3829 100%)',
+        borderRadius: 16,
+        padding: collapsed ? '12px 20px' : '20px 24px',
+        color: '#ffffff',
+        marginBottom: 20,
+        boxShadow: '0 4px 16px rgba(7, 36, 26, 0.15)',
+        transition: 'all 0.2s ease'
+      }}
+    >
       {/* Top Header Row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="onboarding-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14 }}>
+        <div className="onboarding-header-left" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
           <div style={{
             width: 32,
             height: 32,
@@ -83,31 +86,35 @@ export default function OnboardingProgressBanner({
             color: '#10b981',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            flexShrink: 0
           }}>
             <Sparkles size={16} />
           </div>
-          <div>
-            <h4 style={{ fontSize: '0.96rem', fontWeight: 700, margin: 0, color: '#ffffff' }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <h4 style={{ fontSize: '0.96rem', fontWeight: 700, margin: 0, color: '#ffffff', wordBreak: 'break-word' }}>
               Restaurant Setup Progress ({progressPercent}%)
             </h4>
             {!collapsed && (
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0', lineHeight: 1.4 }}>
                 {completedCount} of {steps.length} steps complete. Follow the checklist to launch your dining room.
               </p>
             )}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="onboarding-header-right" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
           {/* Progress Bar in Header */}
-          <div style={{
-            width: 120,
-            height: 8,
-            background: 'rgba(255, 255, 255, 0.15)',
-            borderRadius: 4,
-            overflow: 'hidden'
-          }}>
+          <div 
+            className="onboarding-progress-bar-wrap"
+            style={{
+              width: 120,
+              height: 8,
+              background: 'rgba(255, 255, 255, 0.15)',
+              borderRadius: 4,
+              overflow: 'hidden'
+            }}
+          >
             <div style={{
               width: `${progressPercent}%`,
               height: '100%',
@@ -138,14 +145,17 @@ export default function OnboardingProgressBanner({
 
       {/* Expanded Checklist Grid */}
       {!collapsed && (
-        <div style={{
-          marginTop: 16,
-          paddingTop: 16,
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: 10
-        }}>
+        <div 
+          className="onboarding-checklist-grid"
+          style={{
+            marginTop: 16,
+            paddingTop: 16,
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 10
+          }}
+        >
           {steps.map(step => (
             <div
               key={step.id}

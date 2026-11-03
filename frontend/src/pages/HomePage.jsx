@@ -270,7 +270,7 @@ export default function HomePage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
             gap: 28
           }}>
             {features.map((feat, idx) => (
@@ -448,7 +448,7 @@ export default function HomePage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
             gap: 24
           }}>
             {restaurantTypes.map((type, idx) => (
@@ -543,14 +543,17 @@ export default function HomePage() {
             </p>
 
             {/* Monthly / Yearly Switch */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              background: '#e2e8f0',
-              padding: 4,
-              borderRadius: '9999px',
-              marginTop: 24
-            }}>
+            <div 
+              className="tm-billing-switcher"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                background: '#e2e8f0',
+                padding: 4,
+                borderRadius: '9999px',
+                marginTop: 24
+              }}
+            >
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.95 }}
@@ -606,7 +609,7 @@ export default function HomePage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
             gap: 28,
             alignItems: 'stretch'
           }}>

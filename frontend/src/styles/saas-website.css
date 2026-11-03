@@ -1393,25 +1393,24 @@
 
 @media (max-width: 768px) {
   .tm-page-hero-wrapper {
-    padding: 0 0 24px 0 !important;
+    padding: 12px 12px 24px 12px !important;
   }
 
   .tm-page-hero {
-    border-radius: 0 0 28px 28px !important;
-    border-top: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    padding: 42px 18px 48px !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    padding: 34px 18px 40px !important;
   }
 
   .tm-device-banner-wrapper,
   .tm-cta-wrapper {
-    padding: 12px 14px 24px 14px !important;
+    padding: 12px 12px 24px 12px !important;
   }
 
   .tm-device-banner-card,
   .tm-cta-section {
     border-radius: 20px !important;
+    padding: 36px 18px 40px !important;
   }
 
   /* Mobile Accordion Footer */
@@ -1526,22 +1525,28 @@
 
 @media (max-width: 540px) {
 
+  .tm-page-hero-wrapper,
   .tm-device-banner-wrapper,
   .tm-cta-wrapper {
-    padding: 8px 10px 20px 10px !important;
+    padding: 10px 8px 20px 8px !important;
   }
 
+  .tm-page-hero,
   .tm-device-banner-card,
   .tm-cta-section {
     border-radius: 16px !important;
   }
 
+  .tm-page-hero {
+    padding: 28px 14px 34px !important;
+  }
+
   .tm-device-banner-card {
-    padding: 32px 16px 36px !important;
+    padding: 28px 14px 32px !important;
   }
 
   .tm-cta-section {
-    padding: 38px 16px 44px !important;
+    padding: 32px 14px 38px !important;
   }
 
   .tm-cta-actions {
@@ -1587,5 +1592,37 @@
     flex-shrink: 0 !important;
     padding: 9px 16px !important;
     font-size: 0.84rem !important;
+  }
+}
+
+/* =========================================================
+   UNIVERSAL MOBILE OVERLAP & OVERFLOW SAFEGUARDS
+   ========================================================= */
+@media (max-width: 768px) {
+  .tm-feature-module-card,
+  .tm-solution-module-card,
+  .tm-how-step-card,
+  .tm-demo-module-card {
+    grid-template-columns: 1fr !important;
+    padding: 22px 16px !important;
+    gap: 22px !important;
+    border-radius: 18px !important;
+  }
+
+  .tm-card {
+    padding: 22px 16px !important;
+    border-radius: 16px !important;
+  }
+
+  .tm-section-header {
+    margin-bottom: 28px !important;
+  }
+
+  .tm-section-title {
+    font-size: clamp(1.6rem, 5.2vw, 2.1rem) !important;
+  }
+
+  .tm-section-subtitle {
+    font-size: 0.94rem !important;
   }
 }
