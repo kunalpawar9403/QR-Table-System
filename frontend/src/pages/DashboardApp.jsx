@@ -597,6 +597,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
 
     const handleStatusChanged = (updated) => {
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+      setMobileSelectedOrder((prev) => (prev && (prev.id === updated.id || prev._id === updated._id) ? { ...prev, ...updated } : prev));
       authFetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
     };
 
@@ -1011,7 +1012,31 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   // Open Full Print Bill Modal
   const handlePrintBill = (order, paperSize = '58mm') => {
     if (!order) return;
-    setPrintBillOrder(order);
+    const normalizedOrder = {
+      ...order,
+      orderNumber: order.orderNumber || (order.id ? String(order.id).replace('ORD-', '') : '101'),
+      tableName: order.tableName || (order.tableId ? `Table ${order.tableId}` : (order.table || 'Table')),
+      items: Array.isArray(order.items) && order.items.length > 0
+        ? order.items.map(it => ({
+            ...it,
+            name: it.name || 'Dish',
+            quantity: Number(it.quantity) || 1,
+            price: Number(it.price) || 0
+          }))
+        : (Array.isArray(order.itemsList) && order.itemsList.length > 0
+            ? order.itemsList.map(it => ({
+                ...it,
+                name: it.name || 'Dish',
+                quantity: Number(it.quantity) || 1,
+                price: Number(it.price) || 0
+              }))
+            : [{ name: 'Dining Order', quantity: 1, price: Number(order.total || order.amount || 0) }]),
+      total: Number(order.total !== undefined ? order.total : (order.amount || 0)),
+      subtotal: Number(order.subtotal !== undefined ? order.subtotal : Math.round((Number(order.total || order.amount || 0)) / 1.05)),
+      tax: Number(order.tax !== undefined ? order.tax : Math.round((Number(order.total || order.amount || 0)) * 0.05)),
+      createdAt: order.createdAt || new Date().toISOString()
+    };
+    setPrintBillOrder(normalizedOrder);
     setThermalPaperSize(paperSize);
     addToast(`Thermal Receipt ready for print (${paperSize})`, 'info');
   };
@@ -1865,7 +1890,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           <span className={`mobile-status-tag ${isReady ? 'ready' : 'preparing'}`}>
                             {isReady ? 'READY' : 'PREPARING'}
                           </span>
-                          <span className="mobile-order-time">{order.time || (isReady ? 'Ready' : 'In Kitchen')}</span>
+                          <span className="mobile-order-time">{formatElapsed(order.createdAt)}</span>
                           <ChevronRight size={16} className="mobile-order-chevron" />
                         </div>
                       </div>
@@ -2162,112 +2187,160 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             </div>
 
             {/* Screen 4: Mobile Order Details Screen (Active when an order is selected on mobile) */}
-            {mobileSelectedOrder ? (
-              <div className="mobile-order-details-screen hide-on-desktop">
-                <div className="mobile-order-details-meta">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>{mobileSelectedOrder.table}</span>
-                    <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Placed {mobileSelectedOrder.time} ago</span>
-                  </div>
-                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
-                    Order {mobileSelectedOrder.code} • Dine-in Guest
-                  </div>
-                </div>
+            {mobileSelectedOrder ? (() => {
+              const orderItems = Array.isArray(mobileSelectedOrder.items) && mobileSelectedOrder.items.length > 0
+                ? mobileSelectedOrder.items
+                : (Array.isArray(mobileSelectedOrder.itemsList) && mobileSelectedOrder.itemsList.length > 0
+                    ? mobileSelectedOrder.itemsList
+                    : []);
 
-                {/* Items List */}
-                <div className="mobile-order-items-list">
-                  {(mobileSelectedOrder.itemsList || [
-                    { name: 'Paneer Tikka', quantity: 2, price: 220, image: '/images/paneer_tikka.jpg' },
-                    { name: 'Chicken Biryani', quantity: 1, price: 280, image: '/images/chicken_biryani.jpg' },
-                    { name: 'Masala Dosa', quantity: 1, price: 180, image: '/images/masala_dosa.jpg' }
-                  ]).map((it, idx) => (
-                    <div key={idx} className="mobile-order-item-row">
-                      <img
-                        src={it.image || getItemImage(it)}
-                        alt={it.name}
-                        className="mobile-order-item-thumb"
-                        onError={(e) => { e.target.src = getItemImage(it); }}
-                      />
-                      <div className="mobile-order-item-info">
-                        <div className="mobile-order-item-name">{it.name}</div>
-                        <div className="mobile-order-item-price">₹{it.price} each</div>
-                      </div>
-                      <div className="mobile-order-item-qty">x{it.quantity || 1}</div>
-                      <div className="mobile-order-item-total">₹{(it.price || 200) * (it.quantity || 1)}</div>
+              const itemsCalculatedSum = orderItems.reduce(
+                (sum, it) => sum + ((Number(it.price) || 0) * (Number(it.quantity) || 1)),
+                0
+              );
+
+              const totalAmt = Number(
+                mobileSelectedOrder.total !== undefined
+                  ? mobileSelectedOrder.total
+                  : (mobileSelectedOrder.amount !== undefined ? mobileSelectedOrder.amount : itemsCalculatedSum)
+              ) || 0;
+
+              const subtotalAmt = Number(
+                mobileSelectedOrder.subtotal !== undefined
+                  ? mobileSelectedOrder.subtotal
+                  : (itemsCalculatedSum > 0 ? itemsCalculatedSum : Math.round(totalAmt / 1.05))
+              ) || 0;
+
+              const taxAmt = Number(
+                mobileSelectedOrder.tax !== undefined
+                  ? mobileSelectedOrder.tax
+                  : Math.max(0, +(totalAmt - subtotalAmt).toFixed(2))
+              ) || 0;
+
+              const tableName = mobileSelectedOrder.tableName || (mobileSelectedOrder.tableId ? `Table ${mobileSelectedOrder.tableId}` : (mobileSelectedOrder.table || 'Table'));
+              const orderNum = mobileSelectedOrder.orderNumber || (mobileSelectedOrder.id ? String(mobileSelectedOrder.id).replace('ORD-', '') : '101');
+
+              return (
+                <div className="mobile-order-details-screen hide-on-desktop">
+                  <div className="mobile-order-details-meta">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>{tableName}</span>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>{formatElapsed(mobileSelectedOrder.createdAt)}</span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Order Notes */}
-                <div className="mobile-customer-notes-box">
-                  <div className="notes-label">Order Notes</div>
-                  <div className="notes-text">{mobileSelectedOrder.notes || 'None'}</div>
-                </div>
-
-                {/* Financial Summary */}
-                <div className="mobile-order-financials">
-                  <div className="financial-row">
-                    <span>Subtotal</span>
-                    <span>₹{Math.round(mobileSelectedOrder.amount / 1.05)}</span>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
+                      Order #{orderNum} • {mobileSelectedOrder.guestName || 'Dine-in Guest'}
+                    </div>
                   </div>
-                  <div className="financial-row">
-                    <span>GST (5%)</span>
-                    <span>₹{Math.round(mobileSelectedOrder.amount - (mobileSelectedOrder.amount / 1.05))}</span>
+
+                  {/* Items List */}
+                  <div className="mobile-order-items-list">
+                    {orderItems.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '24px 16px', color: '#64748b' }}>
+                        <p style={{ margin: 0, fontWeight: 600 }}>No items recorded for this order</p>
+                      </div>
+                    ) : (
+                      orderItems.map((it, idx) => {
+                        const itPrice = Number(it.price) || 0;
+                        const itQty = Number(it.quantity) || 1;
+                        const itTotal = itPrice * itQty;
+                        const itImg = it.image || getItemImage(it);
+
+                        return (
+                          <div key={idx} className="mobile-order-item-row">
+                            <img
+                              src={itImg}
+                              alt={it.name || 'Dish'}
+                              className="mobile-order-item-thumb"
+                              onError={(e) => { e.target.src = getItemImage(it); }}
+                            />
+                            <div className="mobile-order-item-info">
+                              <div className="mobile-order-item-name">{it.name || 'Dish'}</div>
+                              <div className="mobile-order-item-price">₹{itPrice} each</div>
+                              {it.notes && (
+                                <div style={{ fontSize: '0.72rem', color: '#059669', marginTop: 2 }}>
+                                  Note: {it.notes}
+                                </div>
+                              )}
+                            </div>
+                            <div className="mobile-order-item-qty">x{itQty}</div>
+                            <div className="mobile-order-item-total">₹{itTotal}</div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
-                  <div className="financial-row total">
-                    <span>Total Amount</span>
-                    <span>₹{mobileSelectedOrder.amount}</span>
+
+                  {/* Order Notes */}
+                  <div className="mobile-customer-notes-box">
+                    <div className="notes-label">Order Notes</div>
+                    <div className="notes-text">{mobileSelectedOrder.notes || 'None'}</div>
+                  </div>
+
+                  {/* Financial Summary */}
+                  <div className="mobile-order-financials">
+                    <div className="financial-row">
+                      <span>Subtotal</span>
+                      <span>₹{subtotalAmt}</span>
+                    </div>
+                    <div className="financial-row">
+                      <span>GST (5%)</span>
+                      <span>₹{taxAmt}</span>
+                    </div>
+                    <div className="financial-row total">
+                      <span>Total Amount</span>
+                      <span>₹{totalAmt}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mobile-order-actions-stack">
+                    <select
+                      className="mobile-status-select"
+                      value={mobileSelectedOrder.status}
+                      onChange={(e) => {
+                        const newStatus = e.target.value;
+                        handleOrderStatusUpdate(mobileSelectedOrder.id, newStatus);
+                        setMobileSelectedOrder(prev => ({ ...prev, status: newStatus }));
+                      }}
+                    >
+                      <option value="pending">Status: Pending</option>
+                      <option value="preparing">Status: Preparing</option>
+                      <option value="ready">Status: Ready</option>
+                      <option value="served">Status: Served</option>
+                      <option value="completed">Status: Completed</option>
+                      <option value="cancelled">Status: Cancelled</option>
+                    </select>
+
+                    <button
+                      type="button"
+                      className="mobile-print-bill-btn"
+                      onClick={() => {
+                        handlePrintBill({
+                          ...mobileSelectedOrder,
+                          tableName,
+                          orderNumber: orderNum,
+                          items: orderItems,
+                          total: totalAmt,
+                          subtotal: subtotalAmt,
+                          tax: taxAmt
+                        });
+                      }}
+                    >
+                      <Printer size={16} /> Print Bill Receipt
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-brand-outline"
+                      style={{ width: '100%', justifyContent: 'center' }}
+                      onClick={() => setMobileSelectedOrder(null)}
+                    >
+                      Back to All Orders
+                    </button>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="mobile-order-actions-stack">
-                  <select
-                    className="mobile-status-select"
-                    value={mobileSelectedOrder.status}
-                    onChange={(e) => {
-                      const newStatus = e.target.value;
-                      handleOrderStatusUpdate(mobileSelectedOrder.id, newStatus);
-                      setMobileSelectedOrder(prev => ({ ...prev, status: newStatus }));
-                    }}
-                  >
-                    <option value="pending">Status: Pending</option>
-                    <option value="preparing">Status: Preparing</option>
-                    <option value="ready">Status: Ready</option>
-                    <option value="served">Status: Served</option>
-                    <option value="completed">Status: Completed</option>
-                    <option value="cancelled">Status: Cancelled</option>
-                  </select>
-
-                  <button
-                    type="button"
-                    className="mobile-print-bill-btn"
-                    onClick={() => {
-                      handlePrintBill({
-                        id: mobileSelectedOrder.id,
-                        orderNumber: mobileSelectedOrder.orderNumber || mobileSelectedOrder.id.replace('ORD-', ''),
-                        tableName: mobileSelectedOrder.tableName,
-                        items: mobileSelectedOrder.items || [{ name: 'Dining Order', quantity: 1, price: mobileSelectedOrder.total }],
-                        total: mobileSelectedOrder.total,
-                        subtotal: mobileSelectedOrder.subtotal,
-                        tax: mobileSelectedOrder.tax
-                      });
-                    }}
-                  >
-                    <Printer size={16} /> Print Bill Receipt
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-brand-outline"
-                    style={{ width: '100%', justifyContent: 'center' }}
-                    onClick={() => setMobileSelectedOrder(null)}
-                  >
-                    Back to All Orders
-                  </button>
-                </div>
-              </div>
-            ) : (
+              );
+            })() : (
               <>
                 {/* Search Bar Pill matching Reference Screen 3 */}
                 <div className="mobile-search-pill-box hide-on-desktop">
