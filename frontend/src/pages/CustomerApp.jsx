@@ -39,6 +39,7 @@ import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { useToast } from '../components/Toast';
 import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
+import { formatApiUrl } from '../utils/apiConfig';
 import '../styles/customer.css';
 
 const ADDON_OPTIONS = [
@@ -161,7 +162,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
   // Load Restaurant & UPI Settings
   useEffect(() => {
     const q = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
-    fetch(`/api/settings${q}`)
+    fetch(formatApiUrl(`/api/settings${q}`))
       .then((r) => r.json())
       .then((data) => {
         if (data && (data.upiId || data.restaurantName)) setRestaurantSettings(data);
@@ -211,8 +212,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       setLoadingMenu(true);
       const q = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
       const [resMenu, resCats] = await Promise.all([
-        fetch(`/api/menu${q}`),
-        fetch(`/api/categories${q}`)
+        fetch(formatApiUrl(`/api/menu${q}`)),
+        fetch(formatApiUrl(`/api/categories${q}`))
       ]);
       if (resMenu.ok) {
         const data = await resMenu.json();
@@ -327,7 +328,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
     try {
       const restQ = restaurantParam ? `&restaurant=${encodeURIComponent(restaurantParam)}` : '';
-      const res = await fetch(`/api/tables/${tId}/verify-token?token=${encodeURIComponent(storedToken)}${restQ}`);
+      const res = await fetch(formatApiUrl(`/api/tables/${tId}/verify-token?token=${encodeURIComponent(storedToken)}${restQ}`));
       if (res.ok) {
         const data = await res.json();
         if (data && data.valid === false) {
@@ -381,7 +382,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     }
     try {
       const restQ = restaurantParam ? `&restaurant=${encodeURIComponent(restaurantParam)}` : '';
-      const res = await fetch(`/api/orders/table/${tId}?token=${encodeURIComponent(curToken)}${restQ}`);
+      const res = await fetch(formatApiUrl(`/api/orders/table/${tId}?token=${encodeURIComponent(curToken)}${restQ}`));
       if (res.status === 403) {
         setSessionExpired(true);
         setExpiredReason('Dining session has ended. Previous session token is expired.');
@@ -565,7 +566,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         total: grandTotal
       };
 
-      const res = await fetch('/api/orders', {
+      const res = await fetch(formatApiUrl('/api/orders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderPayload)
@@ -609,7 +610,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     if (!activeOrder) return;
     try {
       const restQ = restaurantParam ? `?restaurant=${encodeURIComponent(restaurantParam)}` : '';
-      const res = await fetch(`/api/orders/${activeOrder.id}/customer-pay${restQ}`, {
+      const res = await fetch(formatApiUrl(`/api/orders/${activeOrder.id}/customer-pay${restQ}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -650,7 +651,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
         type === 'tissue' ? 'Cutlery & Napkins' :
         type === 'bill' ? 'Request Bill' : type;
 
-      const res = await fetch('/api/service-call', {
+      const res = await fetch(formatApiUrl('/api/service-call'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -15,7 +15,12 @@ import {
   AlertCircle,
   KeyRound,
   ShieldCheck,
-  ChevronLeft
+  ChevronLeft,
+  Settings,
+  Wifi,
+  RefreshCw,
+  X,
+  Server
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -25,6 +30,7 @@ import {
   requestPasswordReset,
   resetPasswordWithCode
 } from '../utils/staffAuth';
+import { getApiBaseUrl, setApiBaseUrl } from '../utils/apiConfig';
 
 // Detect if running inside native Capacitor / APK or Standalone PWA
 export function isNativeAppEnvironment() {
@@ -71,6 +77,47 @@ export default function MobileAppEntry() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Server Connection Configuration
+  const [showServerModal, setShowServerModal] = useState(false);
+  const [currentServerUrl, setCurrentServerUrl] = useState(() => getApiBaseUrl() || 'http://192.168.1.4:3000');
+  const [serverUrlInput, setServerUrlInput] = useState(() => getApiBaseUrl() || 'http://192.168.1.4:3000');
+  const [testStatus, setTestStatus] = useState(null); // { type: 'testing'|'success'|'error', message: string }
+
+  const handleTestServerConnection = async (overrideUrl) => {
+    const target = (overrideUrl || serverUrlInput).trim().replace(/\/+$/, '');
+    if (!target) {
+      setTestStatus({ type: 'error', message: 'Please enter a valid server URL.' });
+      return;
+    }
+    setTestStatus({ type: 'testing', message: 'Connecting to server...' });
+    try {
+      const res = await fetch(`${target}/api/health`, { method: 'GET' });
+      if (res.ok) {
+        const data = await res.json();
+        setTestStatus({
+          type: 'success',
+          message: `Connected! ${data.service || 'TableMint'} • ${data.database || 'MongoDB'}`
+        });
+      } else {
+        setTestStatus({ type: 'error', message: `Server replied with status ${res.status}.` });
+      }
+    } catch {
+      setTestStatus({
+        type: 'error',
+        message: 'Could not reach server. Verify that server is running and device is on same Wi-Fi / network.'
+      });
+    }
+  };
+
+  const handleSaveServerUrl = () => {
+    const clean = serverUrlInput.trim().replace(/\/+$/, '');
+    setApiBaseUrl(clean);
+    setCurrentServerUrl(clean);
+    setShowServerModal(false);
+    setErrorMessage('');
+    setSuccessMessage(`Server connected: ${clean}`);
+  };
+
   // 1. Splash Screen Logic: Auto-advance after 2 seconds
   useEffect(() => {
     // If user is already authenticated with a valid token, open Dashboard immediately
@@ -116,10 +163,11 @@ export default function MobileAppEntry() {
           navigate('/dashboard', { replace: true });
         }, 400);
       } else {
-        setErrorMessage(res.error || 'Invalid credentials. Please verify your email and password.');
+        const errText = res.error || 'Invalid credentials. Please verify your email and password.';
+        setErrorMessage(errText);
       }
     } catch {
-      setErrorMessage('Network error while connecting to server. Please check your connection.');
+      setErrorMessage(`Network error connecting to server (${currentServerUrl}).`);
     } finally {
       setLoading(false);
     }
@@ -654,6 +702,30 @@ export default function MobileAppEntry() {
               </p>
             </div>
 
+            {/* Server Connection Pill */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+              <button
+                type="button"
+                onClick={() => { setShowServerModal(true); setTestStatus(null); }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(22, 201, 149, 0.25)',
+                  borderRadius: 999,
+                  padding: '5px 12px',
+                  color: '#94a3b8',
+                  fontSize: '0.76rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#16c995', boxShadow: '0 0 6px #16c995' }} />
+                <span>Backend: <strong style={{ color: '#e2e8f0' }}>{currentServerUrl.replace(/^https?:\/\//, '') || 'Auto'}</strong></span>
+                <Settings size={12} style={{ color: '#16c995', marginLeft: 2 }} />
+              </button>
+            </div>
+
             {/* Segmented Tab Switcher */}
             <div style={{
               display: 'flex',
@@ -704,7 +776,7 @@ export default function MobileAppEntry() {
             {errorMessage && (
               <div style={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: 10,
                 background: 'rgba(239, 68, 68, 0.15)',
                 border: '1px solid rgba(239, 68, 68, 0.35)',
@@ -714,8 +786,33 @@ export default function MobileAppEntry() {
                 fontSize: '0.84rem',
                 marginBottom: 16
               }}>
-                <AlertCircle size={18} style={{ flexShrink: 0, color: '#ef4444' }} />
-                <span>{errorMessage}</span>
+                <AlertCircle size={18} style={{ flexShrink: 0, color: '#ef4444', marginTop: 2 }} />
+                <div style={{ flex: 1 }}>
+                  <div>{errorMessage}</div>
+                  {(errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('server') || errorMessage.toLowerCase().includes('connecting')) && (
+                    <button
+                      type="button"
+                      onClick={() => { setShowServerModal(true); setTestStatus(null); }}
+                      style={{
+                        marginTop: 8,
+                        background: '#ef4444',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '6px 12px',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <Settings size={14} />
+                      <span>Configure Server Address</span>
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             {successMessage && (
@@ -1298,6 +1395,192 @@ export default function MobileAppEntry() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ========================================================================= */}
+      {/* 5. SERVER CONFIGURATION MODAL */}
+      {/* ========================================================================= */}
+      {showServerModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 20,
+          zIndex: 9999
+        }}>
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            style={{
+              background: '#072b20',
+              border: '1.5px solid rgba(22, 201, 149, 0.35)',
+              borderRadius: 24,
+              padding: '24px 20px',
+              maxWidth: 420,
+              width: '100%',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Server size={20} style={{ color: '#16c995' }} />
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#ffffff', fontWeight: 800 }}>
+                  Server Connection
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowServerModal(false)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+              Configure your TableMint backend server URL (Wi-Fi Local IP or Cloud Render URL):
+            </p>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: '#cbd5e1', marginBottom: 6 }}>
+                Backend API Server URL
+              </label>
+              <input
+                type="text"
+                value={serverUrlInput}
+                onChange={(e) => {
+                  setServerUrlInput(e.target.value);
+                  setTestStatus(null);
+                }}
+                placeholder="http://192.168.1.4:3000"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  color: '#ffffff',
+                  fontSize: '0.92rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            {/* Quick Presets */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = 'http://192.168.1.4:3000';
+                  setServerUrlInput(url);
+                  handleTestServerConnection(url);
+                }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  color: '#cbd5e1',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                📡 Wi-Fi (192.168.1.4:3000)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const url = 'https://tablemint-qr-pos.onrender.com';
+                  setServerUrlInput(url);
+                  handleTestServerConnection(url);
+                }}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: 8,
+                  padding: '6px 10px',
+                  color: '#cbd5e1',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                ☁️ Render Cloud
+              </button>
+            </div>
+
+            {/* Live Test Feedback */}
+            {testStatus && (
+              <div style={{
+                padding: '10px 12px',
+                borderRadius: 10,
+                fontSize: '0.8rem',
+                marginBottom: 16,
+                background: testStatus.type === 'success' ? 'rgba(22, 201, 149, 0.15)' :
+                            testStatus.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.08)',
+                color: testStatus.type === 'success' ? '#6ee7b7' :
+                       testStatus.type === 'error' ? '#fca5a5' : '#cbd5e1',
+                border: `1px solid ${testStatus.type === 'success' ? 'rgba(22, 201, 149, 0.3)' :
+                                     testStatus.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.15)'}`
+              }}>
+                {testStatus.message}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => handleTestServerConnection()}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: '0.88rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6
+                }}
+              >
+                <RefreshCw size={15} />
+                <span>Test</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveServerUrl}
+                style={{
+                  flex: 2,
+                  padding: '12px',
+                  background: '#16c995',
+                  color: '#041c14',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: '0.88rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6
+                }}
+              >
+                <CheckCircle2 size={16} />
+                <span>Save & Connect</span>
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { formatApiUrl } from './apiConfig';
+
 const STAFF_TOKEN_KEY = 'tablemint_staff_token';
 const USER_DATA_KEY = 'tablemint_auth_user';
 
@@ -42,7 +44,7 @@ export function logoutStaff() {
 
 export async function signInWithCredentials(email, password) {
   try {
-    const res = await fetch('/api/auth/signin', {
+    const res = await fetch(formatApiUrl('/api/auth/signin'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim(), password })
@@ -61,7 +63,7 @@ export async function signInWithCredentials(email, password) {
 
 export async function signUpWithCredentials({ name, email, password, restaurantName, role }) {
   try {
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch(formatApiUrl('/api/auth/signup'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -88,7 +90,7 @@ export async function checkStaffAuth() {
   const token = getStaffToken();
   if (!token) return false;
   try {
-    const res = await fetch('/api/auth/me', {
+    const res = await fetch(formatApiUrl('/api/auth/me'), {
       headers: { 'x-staff-token': token }
     });
     if (res.ok) {
@@ -116,7 +118,8 @@ export async function authFetch(url, options = {}) {
   if (currentUser && (currentUser.restaurantSlug || currentUser.restaurantName)) {
     headers['x-restaurant-slug'] = currentUser.restaurantSlug || currentUser.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
   }
-  const res = await fetch(url, { ...options, headers });
+  const fullUrl = formatApiUrl(url);
+  const res = await fetch(fullUrl, { ...options, headers });
   if (res.status === 401) {
     clearStaffToken();
     window.dispatchEvent(new CustomEvent('staff:unauthorized'));
@@ -162,7 +165,7 @@ export async function changeUserPassword({ currentPassword, newPassword }) {
 
 export async function requestPasswordReset(email) {
   try {
-    const res = await fetch('/api/auth/forgot-password', {
+    const res = await fetch(formatApiUrl('/api/auth/forgot-password'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim() })
@@ -179,7 +182,7 @@ export async function requestPasswordReset(email) {
 
 export async function resetPasswordWithCode({ email, code, newPassword }) {
   try {
-    const res = await fetch('/api/auth/reset-password', {
+    const res = await fetch(formatApiUrl('/api/auth/reset-password'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.trim(), code: code?.trim(), newPassword })

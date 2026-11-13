@@ -160,10 +160,10 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-const allowedOrigin = process.env.CORS_ORIGIN || '*';
+const allowedOrigin = process.env.CORS_ORIGIN;
 app.use(cors({
-  origin: allowedOrigin,
-  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
+  origin: allowedOrigin ? allowedOrigin : ((origin, callback) => callback(null, true)),
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
 
