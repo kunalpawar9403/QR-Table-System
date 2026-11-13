@@ -77,10 +77,10 @@ export default function MobileAppEntry() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Server Connection Configuration
+  // Server Connection Configuration (Defaults to live Render cloud server)
   const [showServerModal, setShowServerModal] = useState(false);
-  const [currentServerUrl, setCurrentServerUrl] = useState(() => getApiBaseUrl() || 'http://192.168.1.4:3000');
-  const [serverUrlInput, setServerUrlInput] = useState(() => getApiBaseUrl() || 'http://192.168.1.4:3000');
+  const [currentServerUrl, setCurrentServerUrl] = useState(() => getApiBaseUrl() || 'https://qr-table-system.onrender.com');
+  const [serverUrlInput, setServerUrlInput] = useState(() => getApiBaseUrl() || 'https://qr-table-system.onrender.com');
   const [testStatus, setTestStatus] = useState(null); // { type: 'testing'|'success'|'error', message: string }
 
   const handleTestServerConnection = async (overrideUrl) => {
@@ -1495,21 +1495,22 @@ export default function MobileAppEntry() {
               <button
                 type="button"
                 onClick={() => {
-                  const url = 'https://tablemint-qr-pos.onrender.com';
+                  const url = 'https://qr-table-system.onrender.com';
                   setServerUrlInput(url);
                   handleTestServerConnection(url);
                 }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  background: 'rgba(22, 201, 149, 0.15)',
+                  border: '1px solid rgba(22, 201, 149, 0.35)',
                   borderRadius: 8,
                   padding: '6px 10px',
-                  color: '#cbd5e1',
+                  color: '#6ee7b7',
                   fontSize: '0.75rem',
+                  fontWeight: 700,
                   cursor: 'pointer'
                 }}
               >
-                ☁️ Render Cloud
+                ☁️ Render Cloud (Live)
               </button>
             </div>
 

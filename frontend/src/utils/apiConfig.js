@@ -22,8 +22,8 @@ export function getApiBaseUrl() {
   }
 
   // 4. In Android APK:
-  // Default to the computer's LAN IP or cloud production server
-  return 'http://192.168.1.4:3000';
+  // Default to Live Render Production Cloud Server
+  return 'https://qr-table-system.onrender.com';
 }
 
 export function setApiBaseUrl(url) {
