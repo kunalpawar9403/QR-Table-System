@@ -53,3 +53,4 @@ jobs:
         with:
           name: TableMint-POS-debug-apk
           path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+
