@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TableMint POS</string>
+    <string name="title_activity_main">TableMint POS</string>
+    <string name="package_name">com.tablemint.pos</string>
+    <string name="custom_url_scheme">com.tablemint.pos</string>
+</resources>

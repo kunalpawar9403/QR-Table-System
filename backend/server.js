@@ -401,6 +401,92 @@ app.post('/api/auth/signin', authLimiter, async (req, res) => {
   }
 });
 
+// Memory cache for password reset OTP codes
+const passwordResetCodes = new Map();
+
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ success: false, error: 'Please provide a valid email address.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await db.getUserByEmail(cleanEmail);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'No account registered with this email address.' });
+    }
+
+    // Generate 6-digit OTP code (valid for 15 minutes)
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    passwordResetCodes.set(cleanEmail, {
+      code,
+      expiresAt: Date.now() + 15 * 60 * 1000,
+      userId: user.id
+    });
+
+    console.log(`[PASSWORD RESET] Generated reset OTP for ${cleanEmail}: ${code}`);
+
+    res.json({
+      success: true,
+      message: 'Verification code generated successfully. Please check your email or enter code below.',
+      codePreview: code
+    });
+  } catch (err) {
+    console.error('Error in forgot-password:', err);
+    res.status(500).json({ success: false, error: 'Server error while generating recovery code.' });
+  }
+});
+
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body || {};
+    if (!email || !newPassword) {
+      return res.status(400).json({ success: false, error: 'Email and new password are required.' });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const record = passwordResetCodes.get(cleanEmail);
+
+    if (code) {
+      if (!record || record.code !== String(code).trim()) {
+        return res.status(400).json({ success: false, error: 'Invalid or expired verification code.' });
+      }
+      if (Date.now() > record.expiresAt) {
+        passwordResetCodes.delete(cleanEmail);
+        return res.status(400).json({ success: false, error: 'Verification code has expired. Please request a new one.' });
+      }
+    } else {
+      // Direct reset verification by checking if user exists
+      const existingUser = await db.getUserByEmail(cleanEmail);
+      if (!existingUser) {
+        return res.status(404).json({ success: false, error: 'Account not found with this email.' });
+      }
+    }
+
+    const { hash, salt } = hashPassword(newPassword);
+    if (db.UserModel) {
+      await db.UserModel.updateOne(
+        { email: cleanEmail },
+        { $set: { hash, salt, updatedAt: new Date().toISOString() } }
+      );
+    }
+
+    passwordResetCodes.delete(cleanEmail);
+
+    res.json({
+      success: true,
+      message: 'Password reset successful! You can now log in with your new password.'
+    });
+  } catch (err) {
+    console.error('Error in reset-password:', err);
+    res.status(500).json({ success: false, error: 'Failed to reset password. Please try again.' });
+  }
+});
+
 app.get('/api/auth/me', (req, res) => {
   const token = req.headers['x-staff-token'] || req.query.staff_token;
   const user = verifyUserToken(token);

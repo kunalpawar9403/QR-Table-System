@@ -22,3 +22,10 @@ dist/
 # Local backups
 *_backup*/
 *.backup
+
+# Android / Gradle Build
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/android/build/
+*.apk
+frontend/android/local.properties

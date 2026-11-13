@@ -159,3 +159,37 @@ export async function changeUserPassword({ currentPassword, newPassword }) {
     return { success: false, error: 'Connection error while updating password.' };
   }
 }
+
+export async function requestPasswordReset(email) {
+  try {
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim() })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return { success: true, message: data.message, codePreview: data.codePreview };
+    }
+    return { success: false, error: data.error || 'Could not verify email for password reset.' };
+  } catch {
+    return { success: false, error: 'Connection error. Please try again.' };
+  }
+}
+
+export async function resetPasswordWithCode({ email, code, newPassword }) {
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), code: code?.trim(), newPassword })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      return { success: true, message: data.message };
+    }
+    return { success: false, error: data.error || 'Failed to reset password.' };
+  } catch {
+    return { success: false, error: 'Connection error. Please try again.' };
+  }
+}

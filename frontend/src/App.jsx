@@ -11,6 +11,7 @@ import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CustomerApp from './pages/CustomerApp';
+import MobileAppEntry, { isNativeAppEnvironment } from './pages/MobileAppEntry';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { ToastProvider } from './components/Toast';
 import { logoutStaff } from './utils/staffAuth';
@@ -160,6 +161,11 @@ function QueryParamInterceptor({ children }) {
     return <Navigate to="/stands" replace />;
   }
 
+  // If running in APK / Native App mode and user opens root '/', route to the Mobile App Experience!
+  if (location.pathname === '/' && isNativeAppEnvironment()) {
+    return <Navigate to="/app" replace />;
+  }
+
   return children;
 }
 
@@ -169,6 +175,9 @@ export default function App() {
       <BrowserRouter>
         <QueryParamInterceptor>
           <Routes>
+            {/* Dedicated Mobile APK App Entry (Splash -> Onboarding -> Auth -> Forgot Password) */}
+            <Route path="/app" element={<MobileAppEntry />} />
+
             {/* Public SaaS Marketing Website with shared PublicLayout (Navbar & Footer) */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<HomePage />} />
@@ -197,7 +206,7 @@ export default function App() {
                       <DashboardApp
                         onLockStaff={() => {
                           logoutStaff();
-                          window.location.href = '/';
+                          window.location.href = isNativeAppEnvironment() ? '/app' : '/';
                         }}
                         onOpenWebsite={() => {
                           window.location.href = '/';
