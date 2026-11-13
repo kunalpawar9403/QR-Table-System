@@ -2098,16 +2098,17 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {});
 });
 
-// SPA Fallback for all client-side React routes
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+// SPA Fallback for all client-side React routes (Compatible with Express 4 & Express 5)
+app.use((req, res, next) => {
+  if (req.method !== 'GET') return next();
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.path.startsWith('/images')) {
     return next();
   }
   const indexPath = path.join(distDir, 'index.html');
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);
   }
-  res.status(404).send('React Vite build not found. Please run npm run build.');
+  next();
 });
 
 async function startServer() {
