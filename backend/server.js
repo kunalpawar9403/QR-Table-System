@@ -2098,8 +2098,11 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {});
 });
 
-// SPA Fallback
-app.get(['/', '/dashboard', '/kitchen', '/admin', '/qr-stands', '/customer'], (req, res) => {
+// SPA Fallback for all client-side React routes
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+    return next();
+  }
   const indexPath = path.join(distDir, 'index.html');
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);

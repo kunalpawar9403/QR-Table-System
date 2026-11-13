@@ -44,3 +44,4 @@ export function formatApiUrl(endpoint) {
   if (!base) return cleanEndpoint;
   return `${base}${cleanEndpoint}`;
 }
+
