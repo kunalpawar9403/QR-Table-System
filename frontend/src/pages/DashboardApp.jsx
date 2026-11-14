@@ -63,6 +63,7 @@ import MenuOcrModal from '../components/menu/MenuOcrModal';
 import CustomerMenuPreviewModal from '../components/menu/CustomerMenuPreviewModal';
 import DefaultMenuModal from '../components/menu/DefaultMenuModal';
 import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanner';
+import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -1139,10 +1140,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     const curUser = getCurrentUser();
     const rSlug = curUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
     const restParam = rSlug !== 'tablemint' ? `&restaurant=${encodeURIComponent(rSlug)}` : '';
-    const qrUrl = `/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`;
-    const scanUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`
-      : '';
+    const qrUrl = formatApiUrl(`/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`);
+    const scanUrl = `${getCustomerWebBaseUrl()}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`;
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
@@ -3252,7 +3251,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       <div className="stand-corner bottom-left" />
                       <div className="stand-corner bottom-right" />
                       <img
-                        src={`/api/qrcode/${t.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`}
+                        src={formatApiUrl(`/api/qrcode/${t.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`)}
                         alt={`Table ${t.id} QR Code`}
                         className="stand-qr-image"
                         loading="eager"
@@ -6092,7 +6091,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             <div className="dash-modal-body" style={{ alignItems: 'center' }}>
               <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
                 <img
-                  src={`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`}
+                  src={formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`)}
                   alt={`Table ${viewQrTable.id} QR Code`}
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
@@ -6102,7 +6101,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>
                   Scan Target Link:
                 </div>
-                {typeof window !== 'undefined' ? `${window.location.origin}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}` : ''}
+                {`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`}
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: '100%' }}>
@@ -6116,7 +6115,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => window.open(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`, '_blank')}
+                  onClick={() => window.open(formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`), '_blank')}
                 >
                   <Download size={15} /> Download PNG
                 </button>
@@ -6126,7 +6125,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   onClick={() => {
                     const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
-                    window.open(`/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
+                    window.open(`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
                   }}
                 >
                   <ExternalLink size={15} /> Open Customer Menu Card (Live Test)
@@ -6231,7 +6230,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
 
           <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>
             <img
-              src={`/api/qrcode/${printingSingleTable.id}`}
+              src={formatApiUrl(`/api/qrcode/${printingSingleTable.id}`)}
               alt={`Table ${printingSingleTable.id} QR Code`}
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />

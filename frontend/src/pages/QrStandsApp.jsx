@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Printer, ArrowLeft, Sparkles, Wifi, Share2 } from 'lucide-react';
 import { authFetch, getCurrentUser } from '../utils/staffAuth';
+import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
 import '../styles/qr-stands.css';
 
 export default function QrStandsApp({ onBack }) {
@@ -47,10 +48,8 @@ export default function QrStandsApp({ onBack }) {
   };
 
   const handleShareOrDownloadStand = async (table) => {
-    const qrUrl = `/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`;
-    const scanUrl = typeof window !== 'undefined'
-      ? `${window.location.origin}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`
-      : '';
+    const qrUrl = formatApiUrl(`/api/qrcode/${table.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`);
+    const scanUrl = `${getCustomerWebBaseUrl()}/?table=${table.id}&token=${table.sessionToken || ''}${restParam}`;
 
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
@@ -159,7 +158,7 @@ export default function QrStandsApp({ onBack }) {
               <div className="stand-corner bottom-left" />
               <div className="stand-corner bottom-right" />
               <img
-                src={`/api/qrcode/${t.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`}
+                src={formatApiUrl(`/api/qrcode/${t.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`)}
                 alt={`Table ${t.id} QR`}
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
@@ -232,7 +231,7 @@ export default function QrStandsApp({ onBack }) {
 
           <div style={{ width: 170, height: 170, margin: '0 auto 8px', border: '2px solid #000', borderRadius: 12, padding: 8, background: '#fff' }}>
             <img
-              src={`/api/qrcode/${printingSingleTable.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`}
+              src={formatApiUrl(`/api/qrcode/${printingSingleTable.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`)}
               alt={`Table ${printingSingleTable.id} QR Code`}
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />

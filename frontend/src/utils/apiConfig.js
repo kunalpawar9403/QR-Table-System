@@ -45,3 +45,17 @@ export function formatApiUrl(endpoint) {
   return `${base}${cleanEndpoint}`;
 }
 
+export function getCustomerWebBaseUrl() {
+  if (typeof window === 'undefined') return 'https://qr-table-system.onrender.com';
+  const origin = window.location.origin;
+  if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('file:') || origin.startsWith('capacitor:')) {
+    const apiBase = getApiBaseUrl();
+    if (apiBase && !apiBase.includes('localhost') && !apiBase.includes('127.0.0.1')) {
+      return apiBase;
+    }
+    return 'https://qr-table-system.onrender.com';
+  }
+  return origin;
+}
+
+

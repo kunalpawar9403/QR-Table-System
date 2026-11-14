@@ -221,7 +221,7 @@ button {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 24px 16px;
+  padding: max(24px, calc(env(safe-area-inset-top, 0px) + 20px)) 16px max(24px, calc(env(safe-area-inset-bottom, 0px) + 20px));
   overflow-y: auto;
   box-sizing: border-box;
   animation: fadeIn 0.2s ease-out;
@@ -610,9 +610,7 @@ button {
 }
 
 .modal-close-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
+  position: relative;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #cbd5e1;
@@ -625,12 +623,20 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: 20;
+  flex-shrink: 0;
 }
 .modal-close-btn:hover {
   color: #ffffff;
   background: rgba(239, 68, 68, 0.25);
   border-color: rgba(239, 68, 68, 0.5);
   transform: scale(1.05);
+}
+
+.staff-modal-card > .modal-close-btn,
+.dash-modal-card > .modal-close-btn {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
 }
 
 /* Toast Container */

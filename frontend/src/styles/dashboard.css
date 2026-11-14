@@ -1498,15 +1498,24 @@
   border-radius: 20px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.1);
   animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
 .dash-modal-header {
   padding: 18px 22px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
   background: rgba(255, 255, 255, 0.02);
+  position: relative !important;
+}
+
+.dash-modal-header .modal-close-btn {
+  position: static !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
 }
 
 .dash-modal-header h3 {
