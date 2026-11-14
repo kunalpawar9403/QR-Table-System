@@ -321,8 +321,8 @@ export default function MobileAppEntry() {
       position: 'relative',
       overflowX: 'hidden',
       fontFamily: 'var(--font-body, system-ui, -apple-system, sans-serif)',
-      paddingTop: 'max(16px, calc(env(safe-area-inset-top, 0px) + 8px))',
-      paddingBottom: 'max(16px, calc(env(safe-area-inset-bottom, 0px) + 8px))',
+      paddingTop: '16px',
+      paddingBottom: '16px',
       boxSizing: 'border-box'
     }}>
       <AnimatePresence mode="wait">

@@ -16,6 +16,7 @@
         <item name="android:statusBarColor">#05241b</item>
         <item name="android:navigationBarColor">#ffffff</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 
 
@@ -26,5 +27,6 @@
         <item name="android:background">@drawable/splash</item>
         <item name="android:statusBarColor">#041C14</item>
         <item name="android:navigationBarColor">#041C14</item>
+        <item name="android:fitsSystemWindows">true</item>
     </style>
 </resources>
