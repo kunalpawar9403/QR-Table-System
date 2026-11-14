@@ -294,17 +294,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   const [modalQrDataUrl, setModalQrDataUrl] = useState('');
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
 
-  useEffect(() => {
-    if (!viewQrTable) {
-      setModalQrDataUrl('');
-      return;
-    }
-    const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
-    generateTableQrDataUrl(viewQrTable.id, viewQrTable.sessionToken, rSlug).then((url) => {
-      if (url) setModalQrDataUrl(url);
-    });
-  }, [viewQrTable, currentUser?.restaurantSlug, settingsForm?.restaurantSlug]);
-
   // Section Pagination States
   const [menuPage, setMenuPage] = useState(1);
   const [menuCategoryFilter, setMenuCategoryFilter] = useState('all');
@@ -314,11 +303,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   const standsPerPage = 6;
   const [standsFilter, setStandsFilter] = useState('all');
   const [isPrintingAllStands, setIsPrintingAllStands] = useState(false);
-
-  // Reset menu page when search or category filter changes
-  useEffect(() => {
-    setMenuPage(1);
-  }, [menuSearch, menuCategoryFilter]);
 
   // Form states
   const [tableForm, setTableForm] = useState({
@@ -345,10 +329,43 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   // Global Topbar Search
   const [globalSearch, setGlobalSearch] = useState('');
 
-  // Customers State (Image 1 Panel 8)
   // POS Billing State (Image 1 Panel 6)
   const [selectedBillingTableId, setSelectedBillingTableId] = useState(1);
   const [billingPaymentMethod, setBillingPaymentMethod] = useState('upi');
+
+  // Filter & Sub-Nav States
+  const [tableStatusFilter, setTableStatusFilter] = useState('all');
+  const [analyticsSubTab, setAnalyticsSubTab] = useState('Revenue');
+  const [analyticsTimeframe, setAnalyticsTimeframe] = useState('today');
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [settingsSubNav, setSettingsSubNav] = useState('details');
+  const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
+
+  // Mobile Profile Section States
+  const [mobileProfileSubView, setMobileProfileSubView] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordUpdating, setPasswordUpdating] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (!viewQrTable) {
+      setModalQrDataUrl('');
+      return;
+    }
+    const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+    generateTableQrDataUrl(viewQrTable.id, viewQrTable.sessionToken, rSlug).then((url) => {
+      if (url) setModalQrDataUrl(url);
+    });
+  }, [viewQrTable, currentUser?.restaurantSlug, settingsForm?.restaurantSlug]);
+
+  // Reset menu page when search or category filter changes
+  useEffect(() => {
+    setMenuPage(1);
+  }, [menuSearch, menuCategoryFilter]);
 
   // Live Helper Functions for Real Data & Cross-Panel Sync
   const getTableActiveOrders = (tblId) => {
@@ -394,14 +411,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     return `${diffDays}d ago`;
   };
 
-  // Missing Filter & Sub-Nav States
-  const [tableStatusFilter, setTableStatusFilter] = useState('all');
-  const [analyticsSubTab, setAnalyticsSubTab] = useState('Revenue');
-  const [analyticsTimeframe, setAnalyticsTimeframe] = useState('today');
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [settingsSubNav, setSettingsSubNav] = useState('details');
-  const [overviewOrderType, setOverviewOrderType] = useState('dine-in');
-
   const fetchAnalyticsReport = async (tf = analyticsTimeframe) => {
     try {
       const res = await authFetch(`/api/reports/analytics?timeframe=${tf}`);
@@ -419,16 +428,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
       fetchAnalyticsReport(analyticsTimeframe);
     }
   }, [activeTab, analyticsTimeframe]);
-
-  // Mobile Profile Section States
-  const [mobileProfileSubView, setMobileProfileSubView] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordUpdating, setPasswordUpdating] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
