@@ -30,18 +30,8 @@ import {
   requestPasswordReset,
   resetPasswordWithCode
 } from '../utils/staffAuth';
-import { getApiBaseUrl, setApiBaseUrl } from '../utils/apiConfig';
-
-// Detect if running inside native Capacitor / APK or Standalone PWA
-export function isNativeAppEnvironment() {
-  if (typeof window === 'undefined') return false;
-  const isCapacitor = Boolean(window.Capacitor?.isNativePlatform?.());
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-  const urlParam = new URLSearchParams(window.location.search).get('app') === '1' ||
-                   new URLSearchParams(window.location.search).get('apk') === '1' ||
-                   window.location.pathname.startsWith('/app');
-  return isCapacitor || isStandalone || urlParam;
-}
+import { getApiBaseUrl, setApiBaseUrl, isNativeAppEnvironment } from '../utils/apiConfig';
+export { isNativeAppEnvironment };
 
 export default function MobileAppEntry() {
   const navigate = useNavigate();

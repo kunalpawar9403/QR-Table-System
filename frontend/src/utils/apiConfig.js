@@ -1,4 +1,13 @@
-import { isNativeAppEnvironment } from '../pages/MobileAppEntry';
+// Detect if running inside native Capacitor / APK or Standalone PWA
+export function isNativeAppEnvironment() {
+  if (typeof window === 'undefined') return false;
+  const isCapacitor = Boolean(window.Capacitor?.isNativePlatform?.());
+  const isStandalone = typeof window.matchMedia === 'function' ? window.matchMedia('(display-mode: standalone)').matches : false;
+  const urlParam = new URLSearchParams(window.location.search).get('app') === '1' ||
+                   new URLSearchParams(window.location.search).get('apk') === '1' ||
+                   window.location.pathname.startsWith('/app');
+  return Boolean(isCapacitor || isStandalone || urlParam);
+}
 
 const SERVER_URL_STORAGE_KEY = 'tablemint_server_api_url';
 

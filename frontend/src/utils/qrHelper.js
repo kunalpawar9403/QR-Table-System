@@ -37,3 +37,4 @@ export function getTableScanUrl(tableId, sessionToken, restaurantSlug) {
   const baseUrl = getCustomerWebBaseUrl();
   return `${baseUrl}/?table=${tableId}&token=${sessionToken || ''}${restParam}`;
 }
+
