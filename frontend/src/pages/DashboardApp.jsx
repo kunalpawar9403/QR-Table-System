@@ -383,11 +383,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
 
   const formatElapsed = (dateStr) => {
     if (!dateStr) return 'Just now';
-    const diffMin = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-    if (diffMin < 1) return 'Just now';
+    const timestamp = new Date(dateStr).getTime();
+    if (isNaN(timestamp)) return typeof dateStr === 'string' ? dateStr : 'Just now';
+    const diffMin = Math.floor((Date.now() - timestamp) / 60000);
+    if (isNaN(diffMin) || diffMin < 1) return 'Just now';
     if (diffMin < 60) return `${diffMin}m ago`;
     const diffHours = Math.floor(diffMin / 60);
-    return `${diffHours}h ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}d ago`;
   };
 
   // Missing Filter & Sub-Nav States
@@ -2211,23 +2215,20 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 0
               );
 
-              const totalAmt = Number(
-                mobileSelectedOrder.total !== undefined
-                  ? mobileSelectedOrder.total
-                  : (mobileSelectedOrder.amount !== undefined ? mobileSelectedOrder.amount : itemsCalculatedSum)
-              ) || 0;
+              const rawTotal = (mobileSelectedOrder.total != null && !isNaN(Number(mobileSelectedOrder.total)))
+                ? Number(mobileSelectedOrder.total)
+                : ((mobileSelectedOrder.amount != null && !isNaN(Number(mobileSelectedOrder.amount)))
+                    ? Number(mobileSelectedOrder.amount)
+                    : itemsCalculatedSum);
+              const totalAmt = Number(rawTotal || itemsCalculatedSum || 0);
 
-              const subtotalAmt = Number(
-                mobileSelectedOrder.subtotal !== undefined
-                  ? mobileSelectedOrder.subtotal
-                  : (itemsCalculatedSum > 0 ? itemsCalculatedSum : Math.round(totalAmt / 1.05))
-              ) || 0;
+              const subtotalAmt = (mobileSelectedOrder.subtotal != null && !isNaN(Number(mobileSelectedOrder.subtotal)))
+                ? Number(mobileSelectedOrder.subtotal)
+                : (itemsCalculatedSum > 0 ? itemsCalculatedSum : (totalAmt > 0 ? Math.round(totalAmt / 1.05) : 0));
 
-              const taxAmt = Number(
-                mobileSelectedOrder.tax !== undefined
-                  ? mobileSelectedOrder.tax
-                  : Math.max(0, +(totalAmt - subtotalAmt).toFixed(2))
-              ) || 0;
+              const taxAmt = (mobileSelectedOrder.tax != null && !isNaN(Number(mobileSelectedOrder.tax)))
+                ? Number(mobileSelectedOrder.tax)
+                : Math.max(0, +(totalAmt - subtotalAmt).toFixed(2));
 
               const tableName = mobileSelectedOrder.tableName || (mobileSelectedOrder.tableId ? `Table ${mobileSelectedOrder.tableId}` : (mobileSelectedOrder.table || 'Table'));
               const orderNum = mobileSelectedOrder.orderNumber || (mobileSelectedOrder.id ? String(mobileSelectedOrder.id).replace('ORD-', '') : '101');
@@ -2237,7 +2238,9 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <div className="mobile-order-details-meta">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>{tableName}</span>
-                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>{formatElapsed(mobileSelectedOrder.createdAt)}</span>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        {formatElapsed(mobileSelectedOrder.createdAt || mobileSelectedOrder.updatedAt || mobileSelectedOrder.time)}
+                      </span>
                     </div>
                     <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
                       Order #{orderNum} • {mobileSelectedOrder.guestName || 'Dine-in Guest'}
