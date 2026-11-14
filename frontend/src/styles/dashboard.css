@@ -4068,12 +4068,14 @@
 
   .admin-mobile-top-bar {
     display: flex !important;
-    align-items: center;
+    align-items: flex-end !important;
     justify-content: space-between;
     background-color: #05241b !important;
     color: #ffffff !important;
-    padding-top: max(38px, calc(env(safe-area-inset-top, 0px) + 12px)) !important;
-    padding-bottom: 12px !important;
+    min-height: 104px !important;
+    height: auto !important;
+    padding-top: max(56px, calc(env(safe-area-inset-top, 0px) + 20px)) !important;
+    padding-bottom: 14px !important;
     padding-left: max(16px, env(safe-area-inset-left, 16px)) !important;
     padding-right: max(16px, env(safe-area-inset-right, 16px)) !important;
     position: sticky !important;
@@ -5682,15 +5684,15 @@
     width: 100% !important;
     max-width: 100vw !important;
     margin: 0 !important;
-    min-height: 58px;
-    height: auto;
+    min-height: 104px !important;
+    height: auto !important;
     background: radial-gradient(circle at 65% 50%, rgba(16, 185, 129, 0.22) 0%, transparent 65%), #05241b !important;
     color: #ffffff !important;
     display: flex !important;
-    align-items: center;
+    align-items: flex-end !important;
     justify-content: space-between;
-    padding-top: max(38px, calc(env(safe-area-inset-top, 0px) + 12px)) !important;
-    padding-bottom: 12px !important;
+    padding-top: max(56px, calc(env(safe-area-inset-top, 0px) + 20px)) !important;
+    padding-bottom: 14px !important;
     padding-left: max(16px, env(safe-area-inset-left, 16px)) !important;
     padding-right: max(16px, env(safe-area-inset-right, 16px)) !important;
     z-index: 1000;
