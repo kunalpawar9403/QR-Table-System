@@ -64,6 +64,7 @@ import CustomerMenuPreviewModal from '../components/menu/CustomerMenuPreviewModa
 import DefaultMenuModal from '../components/menu/DefaultMenuModal';
 import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanner';
 import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
+import { generateTableQrDataUrl, getTableScanUrl } from '../utils/qrHelper';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -290,7 +291,19 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   const [selectedMenuItems, setSelectedMenuItems] = useState([]);
   const [tableModalOpen, setTableModalOpen] = useState(false);
   const [viewQrTable, setViewQrTable] = useState(null);
+  const [modalQrDataUrl, setModalQrDataUrl] = useState('');
   const [printingSingleTable, setPrintingSingleTable] = useState(null);
+
+  useEffect(() => {
+    if (!viewQrTable) {
+      setModalQrDataUrl('');
+      return;
+    }
+    const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+    generateTableQrDataUrl(viewQrTable.id, viewQrTable.sessionToken, rSlug).then((url) => {
+      if (url) setModalQrDataUrl(url);
+    });
+  }, [viewQrTable, currentUser?.restaurantSlug, settingsForm?.restaurantSlug]);
 
   // Section Pagination States
   const [menuPage, setMenuPage] = useState(1);
@@ -3255,6 +3268,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         alt={`Table ${t.id} QR Code`}
                         className="stand-qr-image"
                         loading="eager"
+                        onError={(e) => {
+                          const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+                          generateTableQrDataUrl(t.id, t.sessionToken, rSlug).then((dataUrl) => {
+                            if (dataUrl) e.target.src = dataUrl;
+                          });
+                        }}
                       />
                     </div>
                     <div className="stand-scan-prompt">
@@ -6091,9 +6110,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             <div className="dash-modal-body" style={{ alignItems: 'center' }}>
               <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
                 <img
-                  src={formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`)}
+                  src={modalQrDataUrl || formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`)}
                   alt={`Table ${viewQrTable.id} QR Code`}
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  onError={(e) => {
+                    const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
+                    generateTableQrDataUrl(viewQrTable.id, viewQrTable.sessionToken, rSlug).then((url) => {
+                      if (url) e.target.src = url;
+                    });
+                  }}
                 />
               </div>
 
@@ -6115,7 +6140,14 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => window.open(formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`), '_blank')}
+                  onClick={() => {
+                    const downloadUrl = modalQrDataUrl || formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = `Table-${viewQrTable.id}-QR.png`;
+                    a.target = '_blank';
+                    a.click();
+                  }}
                 >
                   <Download size={15} /> Download PNG
                 </button>

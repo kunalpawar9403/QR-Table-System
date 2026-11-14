@@ -157,7 +157,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(helmet({
   contentSecurityPolicy: false,
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false
 }));
 
 const allowedOrigin = process.env.CORS_ORIGIN;
@@ -2015,6 +2016,8 @@ app.get('/api/qrcode/:tableId', async (req, res) => {
 
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(qrBuffer);
   } catch (err) {
     console.error('Failed to generate QR Code:', err);

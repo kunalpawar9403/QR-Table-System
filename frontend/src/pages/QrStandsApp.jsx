@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Printer, ArrowLeft, Sparkles, Wifi, Share2 } from 'lucide-react';
 import { authFetch, getCurrentUser } from '../utils/staffAuth';
 import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
+import { generateTableQrDataUrl } from '../utils/qrHelper';
 import '../styles/qr-stands.css';
 
 export default function QrStandsApp({ onBack }) {
@@ -161,6 +162,11 @@ export default function QrStandsApp({ onBack }) {
                 src={formatApiUrl(`/api/qrcode/${t.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`)}
                 alt={`Table ${t.id} QR`}
                 style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                onError={(e) => {
+                  generateTableQrDataUrl(t.id, t.sessionToken, rSlug).then((dataUrl) => {
+                    if (dataUrl) e.target.src = dataUrl;
+                  });
+                }}
               />
             </div>
 
@@ -234,6 +240,11 @@ export default function QrStandsApp({ onBack }) {
               src={formatApiUrl(`/api/qrcode/${printingSingleTable.id}${restParam ? `?restaurant=${encodeURIComponent(rSlug)}` : ''}`)}
               alt={`Table ${printingSingleTable.id} QR Code`}
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              onError={(e) => {
+                generateTableQrDataUrl(printingSingleTable.id, printingSingleTable.sessionToken, rSlug).then((dataUrl) => {
+                  if (dataUrl) e.target.src = dataUrl;
+                });
+              }}
             />
           </div>
           <div style={{ fontSize: '0.74rem', fontWeight: 700, marginBottom: 12 }}>
