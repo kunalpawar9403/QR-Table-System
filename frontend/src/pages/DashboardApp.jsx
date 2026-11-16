@@ -3900,17 +3900,26 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <p className="page-subtitle">Real-time performance metrics and business intelligence from MongoDB</p>
                 </div>
                 <div className="page-header-actions" style={{ flexWrap: 'wrap', gap: 10 }}>
-                  <select
-                    className="btn-brand-outline"
-                    style={{ padding: '8px 14px', fontSize: '0.84rem', background: '#f8fafc', fontWeight: 600, cursor: 'pointer' }}
-                    value={analyticsTimeframe}
-                    onChange={(e) => setAnalyticsTimeframe(e.target.value)}
-                  >
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="all">All Time</option>
-                  </select>
+                  <div className="reports-timeframe-selector-group">
+                    {[
+                      { key: 'today', label: 'Daily' },
+                      { key: '7days', label: '7 Days' },
+                      { key: 'month', label: 'Months' },
+                      { key: 'year', label: 'Years' }
+                    ].map(tf => (
+                      <button
+                        key={tf.key}
+                        type="button"
+                        className={`reports-timeframe-btn ${(analyticsTimeframe === tf.key || (tf.key === 'today' && analyticsTimeframe === 'daily') || (tf.key === '7days' && analyticsTimeframe === 'week') || (tf.key === 'month' && analyticsTimeframe === 'months') || (tf.key === 'year' && analyticsTimeframe === 'years')) ? 'active' : ''}`}
+                        onClick={() => {
+                          setAnalyticsTimeframe(tf.key);
+                          fetchAnalyticsReport(tf.key);
+                        }}
+                      >
+                        {tf.label}
+                      </button>
+                    ))}
+                  </div>
                   <div
                     className="btn-brand-outline"
                     style={{ padding: '8px 14px', fontSize: '0.84rem', cursor: 'default', display: 'flex', alignItems: 'center', gap: 8, background: '#ffffff' }}
@@ -3921,7 +3930,35 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 </div>
               </div>
 
-              {/* Screen 9: Mobile Filter Tabs */}
+              {/* Screen 9: Mobile Timeframe Selector Row (Daily, 7 Days, Months, Years) */}
+              <div className="mobile-reports-timeframe-row hide-on-desktop">
+                <div className="mobile-timeframe-pills">
+                  {[
+                    { key: 'today', label: 'Daily' },
+                    { key: '7days', label: '7 Days' },
+                    { key: 'month', label: 'Months' },
+                    { key: 'year', label: 'Years' }
+                  ].map(tf => (
+                    <button
+                      key={tf.key}
+                      type="button"
+                      className={`mobile-timeframe-pill ${(analyticsTimeframe === tf.key || (tf.key === 'today' && analyticsTimeframe === 'daily') || (tf.key === '7days' && analyticsTimeframe === 'week') || (tf.key === 'month' && analyticsTimeframe === 'months') || (tf.key === 'year' && analyticsTimeframe === 'years')) ? 'active' : ''}`}
+                      onClick={() => {
+                        setAnalyticsTimeframe(tf.key);
+                        fetchAnalyticsReport(tf.key);
+                      }}
+                    >
+                      {tf.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="mobile-timeframe-date-badge">
+                  <Calendar size={12} style={{ color: '#059669', flexShrink: 0 }} />
+                  <span>{analyticsData?.dateRangeLabel || currentDate}</span>
+                </div>
+              </div>
+
+              {/* Screen 9: Mobile Filter Tabs (Revenue, Orders, Items, Payment) */}
               <div className="admin-filter-pills-row hide-on-desktop">
                 {['Revenue', 'Orders', 'Items', 'Payment'].map((tab) => (
                   <button
@@ -3934,85 +3971,221 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 ))}
               </div>
 
-              {/* Screen 9: Mobile Total Revenue Card with Real SVG Chart */}
-              <div className="mobile-reports-chart-card hide-on-desktop">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Total Revenue</span>
-                  <span className="metric-badge green" style={{ fontSize: '0.72rem' }}>
-                    <TrendingUp size={11} /> {kpis.revenueGrowthPct >= 0 ? `+${kpis.revenueGrowthPct}%` : `${kpis.revenueGrowthPct}%`}
-                  </span>
-                </div>
-                <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', marginBottom: 16 }}>
-                  ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
-                </div>
+              {/* Screen 9: Mobile Sub-Tab Content */}
+              <div className="mobile-reports-content hide-on-desktop">
+                {/* 1. REVENUE SUBTAB */}
+                {analyticsSubTab === 'Revenue' && (
+                  <div className="mobile-subtab-pane">
+                    <div className="mobile-reports-kpi-grid">
+                      <div className="mobile-reports-kpi-card">
+                        <span className="mobile-kpi-label">Revenue</span>
+                        <div className="mobile-kpi-value">₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}</div>
+                        <span className="metric-badge green" style={{ fontSize: '0.66rem', marginTop: 3 }}>
+                          <TrendingUp size={10} /> {kpis.revenueGrowthPct >= 0 ? `+${kpis.revenueGrowthPct}%` : `${kpis.revenueGrowthPct}%`}
+                        </span>
+                      </div>
+                      <div className="mobile-reports-kpi-card">
+                        <span className="mobile-kpi-label">Avg Order</span>
+                        <div className="mobile-kpi-value">₹ {(kpis.avgOrderValue || 0).toLocaleString('en-IN')}</div>
+                        <span className="mobile-kpi-hint">Avg ticket</span>
+                      </div>
+                      <div className="mobile-reports-kpi-card">
+                        <span className="mobile-kpi-label">Tables</span>
+                        <div className="mobile-kpi-value">{kpis.totalCustomers || 0}</div>
+                        <span className="mobile-kpi-hint">Occupancy</span>
+                      </div>
+                    </div>
 
-                {/* Mobile Chart with Real Data Points */}
-                <div style={{ display: 'flex', gap: 8, height: 160 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, textAlign: 'right', paddingBottom: 18 }}>
-                    <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 1000)}K` : maxTrendRev}</span>
-                    <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 2000)}K` : Math.round(maxTrendRev / 2)}</span>
-                    <span>0</span>
+                    <div className="mobile-reports-chart-card">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Revenue Trend</span>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#10b981' }}>
+                          ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, height: 160 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '0.68rem', color: '#94a3b8', fontWeight: 700, textAlign: 'right', paddingBottom: 18 }}>
+                          <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 1000)}K` : maxTrendRev}</span>
+                          <span>{maxTrendRev >= 1000 ? `${Math.round(maxTrendRev / 2000)}K` : Math.round(maxTrendRev / 2)}</span>
+                          <span>0</span>
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <div style={{ flex: 1, position: 'relative' }}>
+                            <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
+                              <defs>
+                                <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                                </linearGradient>
+                              </defs>
+                              <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
+                              <line x1="0" y1="60" x2="320" y2="60" stroke="#f1f5f9" strokeWidth="1" />
+                              <line x1="0" y1="100" x2="320" y2="100" stroke="#f1f5f9" strokeWidth="1" />
+                              <path d={mAreaPath} fill="url(#mobileRevGrad)" />
+                              <path d={mLinePath} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+                              {mPoints.map((p, idx) => (
+                                <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 3.5 : 2} fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+                              ))}
+                            </svg>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: '#94a3b8', fontWeight: 700, paddingTop: 4 }}>
+                            {trend.map((t, idx) => (
+                              <span key={idx}>{t.label}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ flex: 1, position: 'relative' }}>
-                      <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
-                        <defs>
-                          <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                          </linearGradient>
-                        </defs>
-                        <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="0" y1="60" x2="320" y2="60" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="0" y1="100" x2="320" y2="100" stroke="#f1f5f9" strokeWidth="1" />
-                        <path d={mAreaPath} fill="url(#mobileRevGrad)" />
-                        <path d={mLinePath} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
-                        {mPoints.map((p, idx) => (
-                          <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 3.5 : 2} fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+                )}
+
+                {/* 2. ORDERS SUBTAB */}
+                {analyticsSubTab === 'Orders' && (
+                  <div className="mobile-subtab-pane">
+                    <div className="mobile-reports-kpi-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                      <div className="mobile-reports-kpi-card">
+                        <span className="mobile-kpi-label">Total Orders</span>
+                        <div className="mobile-kpi-value">{kpis.totalOrders || 0}</div>
+                        <span className="metric-badge amber" style={{ fontSize: '0.66rem', marginTop: 3 }}>
+                          <Clock size={10} /> {kpis.ordersGrowthPct >= 0 ? `+${kpis.ordersGrowthPct}%` : `${kpis.ordersGrowthPct}%`}
+                        </span>
+                      </div>
+                      <div className="mobile-reports-kpi-card">
+                        <span className="mobile-kpi-label">Completed & Settled</span>
+                        <div className="mobile-kpi-value" style={{ color: '#10b981' }}>
+                          {statusList.find(s => s.status.includes('Completed'))?.count || 0}
+                        </div>
+                        <span className="mobile-kpi-hint">
+                          {statusList.find(s => s.status.includes('Completed'))?.pct || '0%'} settled
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mobile-reports-chart-card">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a' }}>
+                          {analyticsTimeframe === 'today' ? 'Hourly Orders Volume' :
+                           analyticsTimeframe === '7days' ? 'Daily Orders (7 Days)' :
+                           analyticsTimeframe === 'month' ? 'Monthly Volume Intervals' :
+                           'Orders Volume by Month'}
+                        </span>
+                        <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700 }}>
+                          {kpis.totalOrders || 0} orders
+                        </span>
+                      </div>
+                      {hourlyList.every(h => h.count === 0) ? (
+                        <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748b', background: '#f8fafc', borderRadius: 10 }}>
+                          <p style={{ margin: 0, fontWeight: 700, fontSize: '0.86rem' }}>No orders placed in this period</p>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.74rem', color: '#94a3b8' }}>Order volume bars will reflect live orders</p>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 130, padding: '12px 0 8px', borderBottom: '1px solid #e2e8f0' }}>
+                          {hourlyList.map((h, idx) => (
+                            <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                              <span style={{ fontSize: '0.66rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
+                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 80)}px`, background: h.count > 0 ? '#10b981' : '#e2e8f0', borderRadius: '4px 4px 0 0' }} />
+                              <span style={{ fontSize: '0.6rem', color: '#64748b', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 40 }}>{h.hour}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mobile-top-selling-section">
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', marginBottom: 12 }}>
+                        Orders by Status
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {statusList.map((s) => (
+                          <div key={s.status} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                              <span style={{ fontWeight: 700, color: '#0f172a' }}>{s.status}</span>
+                              <span style={{ fontWeight: 800, color: '#475569' }}>{s.count} ({s.pct})</span>
+                            </div>
+                            <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                              <div style={{ width: s.pct, height: '100%', background: s.color, borderRadius: 9999, transition: 'width 0.3s ease' }} />
+                            </div>
+                          </div>
                         ))}
-                      </svg>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.66rem', color: '#94a3b8', fontWeight: 700, paddingTop: 4 }}>
-                      {trend.map((t, idx) => (
-                        <span key={idx}>{t.label}</span>
-                      ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                )}
 
-              {/* Screen 9: Mobile Top Selling Items Leaderboard */}
-              <div className="mobile-top-selling-section hide-on-desktop">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items</h4>
-                  <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
-                    View Menu ›
-                  </span>
-                </div>
-                {topItems.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '24px 16px', background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                    <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: '#475569' }}>No orders yet</p>
-                    <p style={{ margin: '4px 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>Confirmed dish orders will rank here</p>
-                  </div>
-                ) : (
-                  topItems.slice(0, 5).map((item) => (
-                    <div key={item.rank} className="mobile-top-selling-row">
-                      <div className="mobile-selling-rank">{item.rank}</div>
-                      <img
-                        src={item.image || '/images/paneer_butter_masala.jpg'}
-                        alt={item.name}
-                        className="mobile-selling-thumb"
-                        onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
-                      />
-                      <div className="mobile-selling-info">
-                        <div className="mobile-selling-name">{item.name}</div>
-                        <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>₹{item.sales.toLocaleString('en-IN')}</div>
+                {/* 3. ITEMS SUBTAB */}
+                {(analyticsSubTab === 'Popular Items' || analyticsSubTab === 'Items') && (
+                  <div className="mobile-subtab-pane">
+                    <div className="mobile-top-selling-section">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items Leaderboard</h4>
+                        <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                          View Menu ›
+                        </span>
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
-                        {item.count} orders
+                      {topItems.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '32px 16px', background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
+                          <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem', color: '#475569' }}>No orders yet</p>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.78rem', color: '#94a3b8' }}>Confirmed dish orders will rank here</p>
+                        </div>
+                      ) : (
+                        topItems.map((item) => (
+                          <div key={item.rank} className="mobile-top-selling-row">
+                            <div className="mobile-selling-rank">#{item.rank}</div>
+                            <img
+                              src={item.image || '/images/paneer_butter_masala.jpg'}
+                              alt={item.name}
+                              className="mobile-selling-thumb"
+                              onError={(e) => { e.target.src = '/images/paneer_butter_masala.jpg'; }}
+                            />
+                            <div className="mobile-selling-info">
+                              <div className="mobile-selling-name">{item.name}</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.category}</span>
+                                <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>₹{item.sales.toLocaleString('en-IN')}</span>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#07241a', fontWeight: 800 }}>
+                              {item.count} sold
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 4. PAYMENT SUBTAB */}
+                {(analyticsSubTab === 'Payment Methods' || analyticsSubTab === 'Payment') && (
+                  <div className="mobile-subtab-pane">
+                    <div className="mobile-reports-chart-card" style={{ marginBottom: 12 }}>
+                      <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700 }}>Total Collected Revenue</span>
+                      <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', margin: '4px 0 8px 0' }}>
+                        ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
+                      </div>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ecfdf5', color: '#065f46', padding: '4px 10px', borderRadius: 9999, fontSize: '0.72rem', fontWeight: 800 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} /> Direct Settlement Active
                       </div>
                     </div>
-                  ))
+
+                    <div className="mobile-top-selling-section">
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', marginBottom: 14 }}>
+                        Payment Channels
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                        {paymentList.map((pm) => (
+                          <div key={pm.method} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                              <span style={{ fontWeight: 700, color: '#0f172a' }}>{pm.method}</span>
+                              <span style={{ fontWeight: 800, color: '#0f172a' }}>{pm.amount} ({pm.pct})</span>
+                            </div>
+                            <div style={{ width: '100%', height: 8, background: '#f1f5f9', borderRadius: 9999, overflow: 'hidden' }}>
+                              <div style={{ width: pm.pct, height: '100%', background: pm.color, borderRadius: 9999, transition: 'width 0.3s ease' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -4096,7 +4269,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <div className="reports-two-col-grid">
                     <div className="admin-card-inner">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Revenue Trend ({analyticsTimeframe.toUpperCase()})</h3>
+                        <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
+                          Revenue Trend ({
+                            analyticsTimeframe === 'today' ? 'Daily' :
+                            analyticsTimeframe === '7days' ? 'Last 7 Days' :
+                            analyticsTimeframe === 'month' ? 'This Month' :
+                            analyticsTimeframe === 'year' ? 'This Year' :
+                            analyticsTimeframe.toUpperCase()
+                          })
+                        </h3>
                         <div style={{ background: '#07241a', color: '#10b981', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
                           ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                         </div>
@@ -4174,7 +4355,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 {analyticsSubTab === 'Orders' && (
                   <div className="reports-two-col-grid">
                     <div className="admin-card-inner">
-                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Hourly Orders Volume</h3>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>
+                        {analyticsTimeframe === 'today' ? 'Hourly Orders Volume' :
+                         analyticsTimeframe === '7days' ? 'Daily Orders Volume (Last 7 Days)' :
+                         analyticsTimeframe === 'month' ? 'Monthly Orders Volume by Interval' :
+                         'Monthly Orders Volume across Year'}
+                      </h3>
                       {hourlyList.every(h => h.count === 0) ? (
                         <div style={{ textAlign: 'center', padding: '60px 16px', color: '#64748b' }}>
                           <p style={{ margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#1e293b' }}>No orders placed during this timeframe</p>

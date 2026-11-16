@@ -5137,6 +5137,37 @@
 }
 
 /* Reports & Analytics */
+.reports-timeframe-selector-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.reports-timeframe-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.reports-timeframe-btn:hover {
+  color: #0f172a;
+}
+
+.reports-timeframe-btn.active {
+  background: #07241a;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .reports-tabs-row {
   display: flex;
   align-items: center;
@@ -6723,6 +6754,96 @@
   }
 
   /* Screen 9: Reports & Analytics Mobile View */
+  .mobile-reports-timeframe-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .mobile-timeframe-pills {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .mobile-timeframe-pill {
+    padding: 8px 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    background: #ffffff;
+    color: #475569;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-timeframe-pill.active {
+    background: #07241a !important;
+    color: #ffffff !important;
+    border-color: #07241a !important;
+    box-shadow: 0 2px 6px rgba(7, 36, 26, 0.2);
+  }
+
+  .mobile-timeframe-date-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #07241a;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .mobile-reports-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .mobile-reports-kpi-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  }
+
+  .mobile-kpi-label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-kpi-value {
+    font-size: 1.02rem;
+    font-weight: 900;
+    color: #07241a;
+    margin-top: 3px;
+  }
+
+  .mobile-kpi-hint {
+    font-size: 0.64rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
   .mobile-reports-chart-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;

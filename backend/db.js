@@ -1019,27 +1019,34 @@ async function initRestaurantData(restaurantName, restaurantSlug, options = {}) 
 async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'today') {
   const slug = slugifyRestaurant(restaurantSlug);
   const now = new Date();
+  const tf = (timeframe || 'today').toLowerCase().trim();
 
   let startDate;
   let prevStartDate;
   let prevEndDate;
   let dateRangeLabel = '';
 
-  if (timeframe === 'today') {
+  if (tf === 'today' || tf === 'daily') {
     startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     prevStartDate = new Date(startDate.getTime() - 24 * 60 * 60 * 1000);
     prevEndDate = new Date(startDate.getTime());
-    dateRangeLabel = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  } else if (timeframe === 'week') {
+    dateRangeLabel = `Today, ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  } else if (tf === '7days' || tf === 'week' || tf === '7dayes') {
     startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    startDate.setHours(0, 0, 0, 0);
     prevStartDate = new Date(startDate.getTime() - 7 * 24 * 60 * 60 * 1000);
     prevEndDate = new Date(startDate.getTime());
-    dateRangeLabel = `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-  } else if (timeframe === 'month') {
-    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    prevStartDate = new Date(startDate.getTime() - 30 * 24 * 60 * 60 * 1000);
-    prevEndDate = new Date(startDate.getTime());
-    dateRangeLabel = 'Last 30 Days';
+    dateRangeLabel = `Last 7 Days (${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} – ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`;
+  } else if (tf === 'month' || tf === 'months' || tf === 'monthly') {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    prevStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+    prevEndDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+    dateRangeLabel = `This Month (${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })})`;
+  } else if (tf === 'year' || tf === 'years' || tf === 'yearly') {
+    startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+    prevStartDate = new Date(now.getFullYear() - 1, 0, 1, 0, 0, 0, 0);
+    prevEndDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+    dateRangeLabel = `Year ${now.getFullYear()}`;
   } else {
     // all time
     startDate = new Date(0);
@@ -1053,7 +1060,7 @@ async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'tod
       restaurantSlug: slug,
       createdAt: { $gte: startDate.toISOString() }
     }).lean(),
-    timeframe !== 'all' ? OrderModel.find({
+    tf !== 'all' ? OrderModel.find({
       restaurantSlug: slug,
       createdAt: { $gte: prevStartDate.toISOString(), $lt: prevEndDate.toISOString() }
     }).lean() : Promise.resolve([]),
@@ -1068,20 +1075,22 @@ async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'tod
 
   // Calculate KPIs
   const nonCancelledOrders = (currentOrders || []).filter(o => o.status !== 'cancelled');
-  const paidOrders = (currentOrders || []).filter(o => o.paid === true);
+  const paidOrders = (currentOrders || []).filter(o => o.paid === true || o.status === 'completed' || o.paymentStatus === 'paid');
+  const revenueEligibleOrders = paidOrders.length > 0 ? paidOrders : nonCancelledOrders;
 
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const totalRevenue = revenueEligibleOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
   const totalOrders = (currentOrders || []).length;
-  const avgOrderValue = paidOrders.length > 0
-    ? Math.round(totalRevenue / paidOrders.length)
-    : (nonCancelledOrders.length > 0 ? Math.round(totalRevenue / nonCancelledOrders.length) : 0);
+  const avgOrderValue = revenueEligibleOrders.length > 0
+    ? Math.round(totalRevenue / revenueEligibleOrders.length)
+    : 0;
 
   const uniqueTables = new Set((currentOrders || []).map(o => o.tableId).filter(Boolean));
   const totalCustomers = uniqueTables.size || (totalOrders > 0 ? totalOrders : 0);
 
   // Growth calculations
-  const prevPaidOrders = (prevOrders || []).filter(o => o.paid === true);
-  const prevRevenue = prevPaidOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const prevPaidOrders = (prevOrders || []).filter(o => o.paid === true || o.status === 'completed' || o.paymentStatus === 'paid');
+  const prevRevenueOrders = prevPaidOrders.length > 0 ? prevPaidOrders : (prevOrders || []).filter(o => o.status !== 'cancelled');
+  const prevRevenue = prevRevenueOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
   const prevTotalOrders = (prevOrders || []).length;
 
   let revenueGrowthPct = 0;
@@ -1102,7 +1111,7 @@ async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'tod
   let trendBuckets = [];
   let hourlyBuckets = [];
 
-  if (timeframe === 'today') {
+  if (tf === 'today' || tf === 'daily') {
     const intervals = [
       { label: '6 AM', startHour: 0, endHour: 7 },
       { label: '9 AM', startHour: 8, endHour: 10 },
@@ -1113,7 +1122,7 @@ async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'tod
     ];
 
     trendBuckets = intervals.map(int => {
-      const bucketOrders = paidOrders.filter(o => {
+      const bucketOrders = revenueEligibleOrders.filter(o => {
         const d = new Date(o.createdAt);
         const h = d.getHours();
         return h >= int.startHour && h <= int.endHour;
@@ -1135,23 +1144,72 @@ async function getAnalyticsReport(restaurantSlug = 'tablemint', timeframe = 'tod
       const count = nonCancelledOrders.filter(o => new Date(o.createdAt).getHours() === hb.h).length;
       return { hour: hb.label, count };
     });
-  } else if (timeframe === 'week') {
+  } else if (tf === '7days' || tf === 'week' || tf === '7dayes') {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const dayStr = d.toISOString().split('T')[0];
-      const dayLabel = days[d.getDay()];
-      const dayPaid = paidOrders.filter(o => (o.createdAt || '').startsWith(dayStr));
-      const dayAll = nonCancelledOrders.filter(o => (o.createdAt || '').startsWith(dayStr));
-      const rev = dayPaid.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
-      trendBuckets.push({ label: dayLabel, revenue: rev, count: dayPaid.length });
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+      const dStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+      const dEnd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+      const dayLabel = `${days[d.getDay()]} ${d.getDate()}`;
+      const dayRevOrders = revenueEligibleOrders.filter(o => {
+        const t = new Date(o.createdAt).getTime();
+        return t >= dStart.getTime() && t <= dEnd.getTime();
+      });
+      const dayAll = nonCancelledOrders.filter(o => {
+        const t = new Date(o.createdAt).getTime();
+        return t >= dStart.getTime() && t <= dEnd.getTime();
+      });
+      const rev = dayRevOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      trendBuckets.push({ label: dayLabel, revenue: rev, count: dayRevOrders.length });
       hourlyBuckets.push({ hour: dayLabel, count: dayAll.length });
     }
+  } else if (tf === 'month' || tf === 'months' || tf === 'monthly') {
+    const intervals = [
+      { label: '1-6', startDay: 1, endDay: 6 },
+      { label: '7-12', startDay: 7, endDay: 12 },
+      { label: '13-18', startDay: 13, endDay: 18 },
+      { label: '19-24', startDay: 19, endDay: 24 },
+      { label: '25-End', startDay: 25, endDay: 31 }
+    ];
+    trendBuckets = intervals.map(int => {
+      const bOrders = revenueEligibleOrders.filter(o => {
+        const d = new Date(o.createdAt);
+        const day = d.getDate();
+        return day >= int.startDay && day <= int.endDay;
+      });
+      const rev = bOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      return { label: `Day ${int.label}`, revenue: rev, count: bOrders.length };
+    });
+    hourlyBuckets = intervals.map(int => {
+      const bAll = nonCancelledOrders.filter(o => {
+        const d = new Date(o.createdAt);
+        const day = d.getDate();
+        return day >= int.startDay && day <= int.endDay;
+      });
+      return { hour: `Day ${int.label}`, count: bAll.length };
+    });
+  } else if (tf === 'year' || tf === 'years' || tf === 'yearly') {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    trendBuckets = monthNames.map((mName, mIdx) => {
+      const mOrders = revenueEligibleOrders.filter(o => {
+        const d = new Date(o.createdAt);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === mIdx;
+      });
+      const rev = mOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+      return { label: mName, revenue: rev, count: mOrders.length };
+    });
+    hourlyBuckets = monthNames.map((mName, mIdx) => {
+      const mAll = nonCancelledOrders.filter(o => {
+        const d = new Date(o.createdAt);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === mIdx;
+      });
+      return { hour: mName, count: mAll.length };
+    });
   } else {
     for (let w = 4; w >= 1; w--) {
       const wStart = new Date(now.getTime() - w * 7 * 24 * 60 * 60 * 1000);
       const wEnd = new Date(now.getTime() - (w - 1) * 7 * 24 * 60 * 60 * 1000);
-      const wPaid = paidOrders.filter(o => {
+      const wPaid = revenueEligibleOrders.filter(o => {
         const t = new Date(o.createdAt).getTime();
         return t >= wStart.getTime() && t < wEnd.getTime();
       });
