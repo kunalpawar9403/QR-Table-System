@@ -29,6 +29,29 @@ export async function generateTableQrDataUrl(tableId, sessionToken, restaurantSl
 }
 
 /**
+ * Generates a high-quality data URL (data:image/png;base64,...) for any text/URL
+ * completely client-side with 0 network latency, 0 CORS issues, and 100% reliability.
+ */
+export async function generateQrDataUrl(text) {
+  if (!text) return null;
+  try {
+    const dataUrl = await QRCode.toDataURL(text, {
+      width: 400,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      },
+      errorCorrectionLevel: 'M'
+    });
+    return dataUrl;
+  } catch (err) {
+    console.error('Failed to generate QR data URL:', err);
+    return null;
+  }
+}
+
+/**
  * Returns the customer menu scan URL
  */
 export function getTableScanUrl(tableId, sessionToken, restaurantSlug) {

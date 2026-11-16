@@ -64,7 +64,7 @@ import CustomerMenuPreviewModal from '../components/menu/CustomerMenuPreviewModa
 import DefaultMenuModal from '../components/menu/DefaultMenuModal';
 import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanner';
 import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
-import { generateTableQrDataUrl, getTableScanUrl } from '../utils/qrHelper';
+import { generateTableQrDataUrl, getTableScanUrl, generateQrDataUrl } from '../utils/qrHelper';
 import '../styles/dashboard.css';
 
 /* =========================================================
@@ -3476,9 +3476,9 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                                 className="pos-bill-item-img"
                                 onError={(e) => { e.target.src = getItemImage(it); }}
                               />
-                              <div>
+                              <div className="pos-bill-item-text">
                                 <span className="pos-bill-item-name">{it.name}</span>
-                                {it.notes && <div style={{ fontSize: '0.72rem', color: '#ea580c' }}>Note: {it.notes}</div>}
+                                {it.notes && <div className="pos-bill-item-note">Note: {it.notes}</div>}
                               </div>
                             </div>
                             <span className="pos-bill-item-qty">x{it.quantity}</span>
@@ -3518,32 +3518,38 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       </div>
 
                       {/* UPI QR Payment Box */}
-                      {billingPaymentMethod.toLowerCase() === 'upi' && (
-                        <div className="pos-upi-section">
-                          <div className="pos-upi-qr-wrapper">
-                            <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=${encodeURIComponent(
-                                `upi://pay?pa=${settingsForm.upiId || 'tablemint@upi'}&pn=${encodeURIComponent(settingsForm.upiPayeeName || settingsForm.restaurantName || 'TableMint')}&am=${billTotal}&cu=INR&tn=${encodeURIComponent(`Bill Table ${selectedBillingTableId}`)}`
-                              )}`}
-                              alt="UPI QR Code"
-                              className="pos-upi-qr-image"
-                            />
-                          </div>
-                          <div className="pos-upi-meta-col">
-                            <div className="pos-upi-title">UPI Payment</div>
-                            <div className="pos-upi-subtitle">Scan to Pay Table Total</div>
-                            <div className="pos-upi-amount-display">₹ {billTotal}</div>
-                            <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600, marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>VPA: <strong style={{ color: '#0f172a' }}>{settingsForm.upiId || 'tablemint@upi'}</strong></span>
+                      {billingPaymentMethod.toLowerCase() === 'upi' && (() => {
+                        const upiUri = `upi://pay?pa=${settingsForm.upiId || 'tablemint@upi'}&pn=${encodeURIComponent(settingsForm.upiPayeeName || settingsForm.restaurantName || 'TableMint')}&am=${billTotal}&cu=INR&tn=${encodeURIComponent(`Bill Table ${selectedBillingTableId}`)}`;
+                        return (
+                          <div className="pos-upi-section">
+                            <div className="pos-upi-qr-wrapper">
+                              <img
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=${encodeURIComponent(upiUri)}`}
+                                alt="UPI QR Code"
+                                className="pos-upi-qr-image"
+                                onError={(e) => {
+                                  generateQrDataUrl(upiUri).then((dataUrl) => {
+                                    if (dataUrl) e.target.src = dataUrl;
+                                  });
+                                }}
+                              />
                             </div>
-                            <div className="pos-upi-app-logos">
-                              <span className="pos-upi-app gpay">G Pay</span>
-                              <span className="pos-upi-app phonepe">PhonePe</span>
-                              <span className="pos-upi-app paytm">Paytm</span>
+                            <div className="pos-upi-meta-col">
+                              <div className="pos-upi-title">UPI Payment</div>
+                              <div className="pos-upi-subtitle">Scan to Pay Table Total</div>
+                              <div className="pos-upi-amount-display">₹ {billTotal}</div>
+                              <div className="pos-upi-vpa-pill">
+                                <span>VPA: <strong style={{ color: '#0f172a' }}>{settingsForm.upiId || 'tablemint@upi'}</strong></span>
+                              </div>
+                              <div className="pos-upi-app-logos">
+                                <span className="pos-upi-app gpay">G Pay</span>
+                                <span className="pos-upi-app phonepe">PhonePe</span>
+                                <span className="pos-upi-app paytm">Paytm</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
 
                       {/* Full-width Settle & Print Bill Action Button */}
                       <button
@@ -6434,6 +6440,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 onClick={() => {
                   setActiveTab('billing');
                   setMobileMoreOpen(false);
+                  const activeT = tables.find(t => getTableActiveOrders(t.id).length > 0);
+                  if (activeT) setSelectedBillingTableId(activeT.id);
                 }}
               >
                 <div className="drawer-btn-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
