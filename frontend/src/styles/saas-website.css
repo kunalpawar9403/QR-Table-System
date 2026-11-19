@@ -667,9 +667,146 @@
   width: 100%;
 }
 
-.tm-hero-showcase-spacer {
-  min-height: 380px;
-  pointer-events: none;
+.tm-hero-showcase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tm-hero-image-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  padding: 10px;
+  border: 1px solid #BAE6FD;
+  box-shadow: 0 20px 40px -15px rgba(2, 132, 199, 0.16), 0 0 0 1px rgba(2, 132, 199, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tm-hero-image-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 50px -12px rgba(2, 132, 199, 0.22);
+}
+
+.tm-hero-showcase-img {
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+}
+
+.tm-hero-floating-tags {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.tm-hero-tag-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #0369A1;
+  white-space: nowrap;
+}
+
+.tm-hero-tag-item svg {
+  color: #0284C7;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   HERO 3-PILLAR CARDS (Matches Slipzen Screenshot 1)
+   ========================================================= */
+.tm-hero-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1280px;
+  margin: 24px auto 0;
+  width: 100%;
+}
+
+.tm-hero-pillar-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 24px 22px;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.tm-hero-pillar-card:hover {
+  transform: translateY(-3px);
+  border-color: #BAE6FD;
+  box-shadow: 0 10px 24px rgba(2, 132, 199, 0.12);
+}
+
+.tm-pillar-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #E0F2FE;
+  color: #0284C7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.tm-hero-pillar-card h4 {
+  font-size: 1.08rem;
+  font-weight: 750;
+  color: #0F172A;
+  margin: 0 0 8px 0;
+}
+
+.tm-hero-pillar-card p {
+  font-size: 0.88rem;
+  color: #64748B;
+  line-height: 1.55;
+  margin: 0 0 16px 0;
+  flex-grow: 1;
+}
+
+.tm-pillar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0284C7;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: gap 0.2s ease;
+}
+
+.tm-pillar-link:hover {
+  gap: 9px;
+  color: #0369A1;
+}
+
+@media (max-width: 900px) {
+  .tm-hero-pillars-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 @media (max-width: 960px) {
@@ -689,8 +826,13 @@
     min-height: auto;
   }
 
-  .tm-hero-showcase-spacer {
-    display: none;
+  .tm-hero-showcase {
+    margin-top: 24px;
+    width: 100%;
+  }
+
+  .tm-hero-image-card {
+    max-width: 100%;
   }
 }
 
@@ -1532,6 +1674,10 @@
     flex-direction: column !important;
     align-items: flex-start !important;
     gap: 10px !important;
+  }
+
+  .tm-hero-floating-tags {
+    grid-template-columns: 1fr !important;
   }
 
   .tm-billing-switcher {

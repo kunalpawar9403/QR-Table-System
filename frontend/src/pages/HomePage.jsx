@@ -15,7 +15,9 @@ import {
   Check, 
   ChevronRight,
   Play,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Printer,
+  Wifi
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TextEffect } from '../components/motion-primitives/text-effect';
@@ -128,15 +130,20 @@ export default function HomePage() {
 
                 {/* Main Headline */}
                 <h1 className="tm-hero-title">
-                  <TextEffect per="word" as="span" preset="fade-in-blur" delay={0.15}>
+                  <motion.span 
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                    style={{ display: 'block' }}
+                  >
                     The Smart Restaurant POS &
-                  </TextEffect>{' '}
+                  </motion.span>
                   <motion.span 
                     className="tm-hero-title-accent"
-                    initial={{ opacity: 0, filter: 'blur(8px)', y: 10 }}
-                    animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.45 }}
-                    style={{ display: 'inline-block' }}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.35 }}
+                    style={{ display: 'block' }}
                   >
                     Contactless Dining Platform
                   </motion.span>
@@ -202,10 +209,98 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Right Column: Transparent spacer allowing the background image's laptop POS, smartphone menu & QR stand to shine through */}
-              <div className="tm-hero-showcase-spacer" aria-hidden="true" />
+              {/* Right Column: High-End 3D Device Showcase with live features */}
+              <motion.div 
+                className="tm-hero-showcase"
+                initial={{ opacity: 0, x: 28, scale: 0.96 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
+              >
+                <div className="tm-hero-image-card">
+                  <img 
+                    src="/images/landing/hero_pos_devices.jpg" 
+                    alt="TableMint POS, Contactless QR Menu & Thermal Receipt Billing" 
+                    className="tm-hero-showcase-img"
+                    loading="eager"
+                  />
+                  
+                  {/* Floating Feature Tags below image (matches Slipzen Screenshot reference) */}
+                  <div className="tm-hero-floating-tags">
+                    <div className="tm-hero-tag-item">
+                      <Printer size={13} />
+                      <span>58mm & 80mm ESC/POS</span>
+                    </div>
+                    <div className="tm-hero-tag-item">
+                      <Wifi size={13} />
+                      <span>Bluetooth & Wi-Fi Sync</span>
+                    </div>
+                    <div className="tm-hero-tag-item">
+                      <Smartphone size={13} />
+                      <span>Android & iOS Tablet</span>
+                    </div>
+                    <div className="tm-hero-tag-item">
+                      <Zap size={13} />
+                      <span>Instant Order KDS</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
+        </div>
+
+        {/* 3 Core Highlight Pillars (Matching Slipzen Screenshot 1) */}
+        <div className="tm-hero-pillars-grid">
+          <motion.div 
+            className="tm-hero-pillar-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.35 }}
+          >
+            <div className="tm-pillar-icon-box">
+              <Receipt size={22} />
+            </div>
+            <h4>Token & KOT System</h4>
+            <p>Every bill generates an automatic sequential token number, so customers, waitstaff, and delivery partners stay synchronized.</p>
+            <Link to="/features" className="tm-pillar-link">
+              <span>Learn more</span>
+              <ArrowRight size={14} />
+            </Link>
+          </motion.div>
+
+          <motion.div 
+            className="tm-hero-pillar-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.45 }}
+          >
+            <div className="tm-pillar-icon-box">
+              <LayoutDashboard size={22} />
+            </div>
+            <h4>Visual Floor & Tables</h4>
+            <p>Real-time visual table occupancy. Instantly see vacant, seated, dining, and billed tables with 1-tap fast status shifts.</p>
+            <Link to="/features" className="tm-pillar-link">
+              <span>Learn more</span>
+              <ArrowRight size={14} />
+            </Link>
+          </motion.div>
+
+          <motion.div 
+            className="tm-hero-pillar-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.55 }}
+          >
+            <div className="tm-pillar-icon-box">
+              <Printer size={22} />
+            </div>
+            <h4>Express Point of Sale</h4>
+            <p>High-speed billing counter that punches orders in seconds, supports split tender (Cash/UPI/Card), and auto-prints 58/80mm receipts.</p>
+            <Link to="/features" className="tm-pillar-link">
+              <span>Learn more</span>
+              <ArrowRight size={14} />
+            </Link>
+          </motion.div>
         </div>
       </section>
 

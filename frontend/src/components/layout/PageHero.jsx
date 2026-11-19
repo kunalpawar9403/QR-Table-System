@@ -28,11 +28,14 @@ export default function PageHero({
           )}
 
           <h1 className="tm-page-hero-title" style={{ color: '#0F172A' }}>
-            <span style={{ color: '#0F172A', WebkitTextFillColor: '#0F172A' }}>
-              <TextEffect per="word" as="span" preset="fade-in-blur" delay={0.1}>
-                {title}
-              </TextEffect>
-            </span>{' '}
+            <motion.span 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.1 }}
+              style={{ color: '#0F172A', WebkitTextFillColor: '#0F172A', display: 'inline-block' }}
+            >
+              {title}
+            </motion.span>{' '}
             {titleAccent && (
               <motion.span 
                 initial={{ opacity: 0, filter: 'blur(8px)', y: 8 }}
