@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+*.zip
+*.apk
+local.properties
+.gradle/

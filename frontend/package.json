@@ -9,8 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "cap:sync": "cap sync android",
-    "cap:open": "cap open android",
-    "build:apk": "npm run build && cap sync android && cd android && export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home && ./gradlew assembleDebug"
+    "cap:open": "cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
