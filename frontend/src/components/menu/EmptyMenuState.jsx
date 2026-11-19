@@ -40,13 +40,13 @@ export default function EmptyMenuState({
           width: 72,
           height: 72,
           borderRadius: 20,
-          background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-          color: '#059669',
+          background: 'linear-gradient(135deg, #EFF6FF 0%, #d1fae5 100%)',
+          color: '#1D4ED8',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 20,
-          boxShadow: '0 8px 16px rgba(16, 185, 129, 0.15)'
+          boxShadow: '0 8px 16px rgba(37, 99, 235, 0.15)'
         }}
       >
         <UtensilsCrossed size={36} />
@@ -82,7 +82,7 @@ export default function EmptyMenuState({
         style={{
           maxWidth: 1040,
           margin: '0 auto 24px',
-          background: 'linear-gradient(135deg, #062D22 0%, #0d4a38 100%)',
+          background: 'linear-gradient(135deg, #0F172A 0%, #0d4a38 100%)',
           borderRadius: 18,
           padding: '24px 28px',
           cursor: 'pointer',
@@ -93,17 +93,17 @@ export default function EmptyMenuState({
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 20,
-          boxShadow: '0 12px 30px rgba(6, 45, 34, 0.18)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
+          boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
+          border: '1px solid rgba(37, 99, 235, 0.3)',
           transition: 'transform 0.2s ease, box-shadow 0.2s ease'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 16px 36px rgba(6, 45, 34, 0.25)';
+          e.currentTarget.style.boxShadow = '0 16px 36px rgba(15, 23, 42, 0.25)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'none';
-          e.currentTarget.style.boxShadow = '0 12px 30px rgba(6, 45, 34, 0.18)';
+          e.currentTarget.style.boxShadow = '0 12px 30px rgba(15, 23, 42, 0.18)';
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, maxWidth: 650 }}>
@@ -112,12 +112,12 @@ export default function EmptyMenuState({
               width: 56,
               height: 56,
               borderRadius: 14,
-              background: 'rgba(16, 185, 129, 0.2)',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
+              background: 'rgba(37, 99, 235, 0.2)',
+              border: '1px solid rgba(37, 99, 235, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#34d399',
+              color: '#60A5FA',
               flexShrink: 0
             }}
           >
@@ -127,8 +127,8 @@ export default function EmptyMenuState({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <span
                 style={{
-                  background: '#10b981',
-                  color: '#062d22',
+                  background: '#2563EB',
+                  color: '#0F172A',
                   fontSize: '0.72rem',
                   fontWeight: 800,
                   textTransform: 'uppercase',
@@ -139,7 +139,7 @@ export default function EmptyMenuState({
               >
                 Recommended for New Restaurants
               </span>
-              <span style={{ fontSize: '0.82rem', color: '#a7f3d0', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.82rem', color: '#BFDBFE', fontWeight: 600 }}>
                 1-Click Instant Setup
               </span>
             </div>
@@ -161,7 +161,7 @@ export default function EmptyMenuState({
           }}
           disabled={loadingDemo}
           style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
             color: '#ffffff',
             border: 'none',
             borderRadius: 12,
@@ -172,7 +172,7 @@ export default function EmptyMenuState({
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
+            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
             whiteSpace: 'nowrap'
           }}
         >
@@ -213,9 +213,9 @@ export default function EmptyMenuState({
             justifyContent: 'space-between'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#10b981';
+            e.currentTarget.style.borderColor = '#2563EB';
             e.currentTarget.style.transform = 'translateY(-3px)';
-            e.currentTarget.style.boxShadow = '0 10px 24px rgba(16, 185, 129, 0.1)';
+            e.currentTarget.style.boxShadow = '0 10px 24px rgba(37, 99, 235, 0.1)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
@@ -229,8 +229,8 @@ export default function EmptyMenuState({
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: '#ecfdf5',
-                color: '#059669',
+                background: '#EFF6FF',
+                color: '#1D4ED8',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -250,7 +250,7 @@ export default function EmptyMenuState({
             style={{
               fontSize: '0.85rem',
               fontWeight: 700,
-              color: '#059669',
+              color: '#1D4ED8',
               display: 'flex',
               alignItems: 'center',
               gap: 6
@@ -399,7 +399,7 @@ export default function EmptyMenuState({
             justifyContent: 'space-between'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#d97706';
+            e.currentTarget.style.borderColor = '#F59E0B';
             e.currentTarget.style.transform = 'translateY(-3px)';
             e.currentTarget.style.boxShadow = '0 10px 24px rgba(217, 119, 6, 0.1)';
           }}
@@ -416,7 +416,7 @@ export default function EmptyMenuState({
                 height: 44,
                 borderRadius: 12,
                 background: '#fffbeb',
-                color: '#d97706',
+                color: '#F59E0B',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -436,7 +436,7 @@ export default function EmptyMenuState({
             style={{
               fontSize: '0.85rem',
               fontWeight: 700,
-              color: '#d97706',
+              color: '#F59E0B',
               display: 'flex',
               alignItems: 'center',
               gap: 6

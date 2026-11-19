@@ -112,7 +112,7 @@ export default function PublicNavbar() {
                 <Link 
                   to="/dashboard" 
                   className="tm-btn-primary-nav"
-                  style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                  style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
                 >
                   <LayoutDashboard size={15} />
                   <span>Dashboard</span>
@@ -231,7 +231,7 @@ export default function PublicNavbar() {
                     handleLogout();
                   }}
                   className="tm-drawer-btn tm-drawer-btn-secondary"
-                  style={{ color: '#ef4444' }}
+                  style={{ color: '#DC2626' }}
                 >
                   Logout
                 </button>

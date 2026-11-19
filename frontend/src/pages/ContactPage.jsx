@@ -42,7 +42,7 @@ export default function ContactPage() {
       />
 
       {/* Main Content */}
-      <section style={{ padding: '70px 24px 90px', background: '#F4F7F6' }}>
+      <section style={{ padding: '70px 24px 90px', background: '#F8FAFC' }}>
         <PageContainer maxWidth="1040px">
           <div style={{
             display: 'grid',
@@ -63,8 +63,8 @@ export default function ContactPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: 'rgba(11, 175, 122, 0.1)',
-                  color: '#0BAF7A',
+                  background: 'rgba(37, 99, 235, 0.1)',
+                  color: '#2563EB',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -75,10 +75,10 @@ export default function ContactPage() {
                   <Mail size={14} />
                   <span>Email Only Support</span>
                 </span>
-                <h2 style={{ fontSize: '2rem', color: '#172033', fontWeight: 800, marginBottom: 12 }}>
+                <h2 style={{ fontSize: '2rem', color: '#0F172A', fontWeight: 800, marginBottom: 12 }}>
                   Email Our Team
                 </h2>
-                <p style={{ color: '#5e6d82', lineHeight: 1.6, fontSize: '0.98rem' }}>
+                <p style={{ color: '#64748B', lineHeight: 1.6, fontSize: '0.98rem' }}>
                   We keep our communication fast, documented, and organized through dedicated email support. Every enquiry is routed directly to a product specialist.
                 </p>
               </div>
@@ -90,8 +90,8 @@ export default function ContactPage() {
                 className="tm-card" 
                 style={{
                   background: '#FFFFFF',
-                  border: '2px solid #0BAF7A',
-                  boxShadow: '0 8px 30px rgba(11, 175, 122, 0.12)',
+                  border: '2px solid #2563EB',
+                  boxShadow: '0 8px 30px rgba(37, 99, 235, 0.12)',
                   padding: '32px'
                 }}
               >
@@ -100,7 +100,7 @@ export default function ContactPage() {
                   height: 52,
                   borderRadius: '12px',
                   background: '#e8f9f3',
-                  color: '#0BAF7A',
+                  color: '#2563EB',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -109,7 +109,7 @@ export default function ContactPage() {
                   <Mail size={26} />
                 </div>
 
-                <h3 style={{ fontSize: '1.25rem', color: '#172033', marginBottom: 6 }}>
+                <h3 style={{ fontSize: '1.25rem', color: '#0F172A', marginBottom: 6 }}>
                   Direct Support & Sales
                 </h3>
                 <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>
@@ -128,7 +128,7 @@ export default function ContactPage() {
                     style={{
                       fontSize: '1.2rem',
                       fontWeight: 800,
-                      color: '#0BAF7A',
+                      color: '#2563EB',
                       textDecoration: 'none',
                       fontFamily: 'var(--font-heading)'
                     }}
@@ -152,8 +152,8 @@ export default function ContactPage() {
               {/* Response Time & Security */}
               <div className="tm-card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <Clock size={20} style={{ color: '#0BAF7A' }} />
-                  <strong style={{ color: '#172033', fontSize: '0.95rem' }}>Response Time Guarantee</strong>
+                  <Clock size={20} style={{ color: '#2563EB' }} />
+                  <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>Response Time Guarantee</strong>
                 </div>
                 <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
                   Our hospitality support team actively monitors our inbox. You will receive a personalized response within <strong>2 to 4 business hours</strong>.
@@ -163,8 +163,8 @@ export default function ContactPage() {
               {/* Corporate Office Info */}
               <div className="tm-card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <MapPin size={20} style={{ color: '#0BAF7A' }} />
-                  <strong style={{ color: '#172033', fontSize: '0.95rem' }}>TableMint Headquarters</strong>
+                  <MapPin size={20} style={{ color: '#2563EB' }} />
+                  <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>TableMint Headquarters</strong>
                 </div>
                 <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
                   TableMint Technologies Pvt. Ltd.<br />
@@ -184,10 +184,10 @@ export default function ContactPage() {
               style={{ padding: 'clamp(28px, 4vw, 44px)', borderRadius: '24px' }}
             >
               <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: '1.5rem', color: '#172033', fontWeight: 800, marginBottom: 8 }}>
+                <h3 style={{ fontSize: '1.5rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
                   Send an Email Message
                 </h3>
-                <p style={{ color: '#5e6d82', fontSize: '0.92rem' }}>
+                <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
                   Fill out the form below to email us your enquiry or question.
                 </p>
               </div>
@@ -199,7 +199,7 @@ export default function ContactPage() {
                     height: 60,
                     borderRadius: '50%',
                     background: '#e8f9f3',
-                    color: '#0BAF7A',
+                    color: '#2563EB',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -207,10 +207,10 @@ export default function ContactPage() {
                   }}>
                     <CheckCircle size={32} />
                   </div>
-                  <h4 style={{ fontSize: '1.4rem', color: '#172033', marginBottom: 10 }}>
+                  <h4 style={{ fontSize: '1.4rem', color: '#0F172A', marginBottom: 10 }}>
                     Message Ready!
                   </h4>
-                  <p style={{ color: '#5e6d82', lineHeight: 1.6, maxWidth: '420px', margin: '0 auto 24px', fontSize: '0.94rem' }}>
+                  <p style={{ color: '#64748B', lineHeight: 1.6, maxWidth: '420px', margin: '0 auto 24px', fontSize: '0.94rem' }}>
                     Thank you, <strong>{formData.name}</strong>. We received your note. Click the button below to also launch your email client directly if needed:
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -240,7 +240,7 @@ export default function ContactPage() {
               ) : (
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                       Your Name *
                     </label>
                     <input
@@ -262,7 +262,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                       Your Email Address *
                     </label>
                     <input
@@ -284,7 +284,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                       Subject *
                     </label>
                     <input
@@ -306,7 +306,7 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                       Your Message *
                     </label>
                     <textarea

@@ -97,7 +97,7 @@ export default function KitchenKdsApp() {
         <div className="kds-brand">
           <ChefHat size={30} style={{ color: 'var(--primary)' }} />
           <div>
-            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Table<span style={{ color: '#00e676' }}>Mint</span> Kitchen Station</h2>
+            <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Table<span style={{ color: '#3B82F6' }}>Mint</span> Kitchen Station</h2>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               Live Kitchen Display System (KDS)
             </span>
@@ -157,7 +157,7 @@ export default function KitchenKdsApp() {
                     <div
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
-                        borderLeft: '3px solid #ef4444',
+                        borderLeft: '3px solid #DC2626',
                         padding: '6px 10px',
                         borderRadius: 4,
                         fontSize: '0.85rem',
@@ -182,7 +182,7 @@ export default function KitchenKdsApp() {
                   ) : (
                     <button
                       className="btn-kds-action"
-                      style={{ background: '#10b981', color: '#000' }}
+                      style={{ background: '#2563EB', color: '#000' }}
                       onClick={() => updateTicketStatus(ticket.id, 'ready')}
                     >
                       <Check size={16} /> Ready For Pickup

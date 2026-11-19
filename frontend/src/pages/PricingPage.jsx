@@ -156,7 +156,7 @@ export default function PricingPage() {
               fontWeight: 600,
               cursor: 'pointer',
               background: billingCycle === 'monthly' ? '#FFFFFF' : 'transparent',
-              color: billingCycle === 'monthly' ? '#062D22' : '#cbd5e1',
+              color: billingCycle === 'monthly' ? '#0F172A' : '#cbd5e1',
               boxShadow: billingCycle === 'monthly' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
               transition: 'all 0.2s ease'
             }}
@@ -175,7 +175,7 @@ export default function PricingPage() {
               fontWeight: 600,
               cursor: 'pointer',
               background: billingCycle === 'yearly' ? '#FFFFFF' : 'transparent',
-              color: billingCycle === 'yearly' ? '#062D22' : '#cbd5e1',
+              color: billingCycle === 'yearly' ? '#0F172A' : '#cbd5e1',
               boxShadow: billingCycle === 'yearly' ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
               transition: 'all 0.2s ease',
               display: 'flex',
@@ -185,7 +185,7 @@ export default function PricingPage() {
           >
             <span>Annual Billing</span>
             <span style={{
-              background: '#10b981',
+              background: '#2563EB',
               color: '#FFFFFF',
               fontSize: '0.72rem',
               fontWeight: 700,
@@ -199,7 +199,7 @@ export default function PricingPage() {
       </PageHero>
 
       {/* Pricing Cards */}
-      <section style={{ padding: '80px 24px 60px', background: '#F4F7F6' }}>
+      <section style={{ padding: '80px 24px 60px', background: '#F8FAFC' }}>
         <PageContainer>
           <div style={{
             display: 'grid',
@@ -222,9 +222,9 @@ export default function PricingPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     position: 'relative',
-                    borderColor: p.highlight ? '#0BAF7A' : '#e2e8f0',
+                    borderColor: p.highlight ? '#2563EB' : '#e2e8f0',
                     borderWidth: p.highlight ? 2 : 1,
-                    boxShadow: p.highlight ? '0 16px 40px rgba(11, 175, 122, 0.18)' : 'var(--shadow-card)',
+                    boxShadow: p.highlight ? '0 16px 40px rgba(37, 99, 235, 0.18)' : 'var(--shadow-card)',
                     background: '#FFFFFF'
                   }}
                 >
@@ -234,7 +234,7 @@ export default function PricingPage() {
                       top: -13,
                       left: '50%',
                       transform: 'translateX(-50%)',
-                      background: '#0BAF7A',
+                      background: '#2563EB',
                       color: '#FFFFFF',
                       fontSize: '0.75rem',
                       fontWeight: 700,
@@ -242,17 +242,17 @@ export default function PricingPage() {
                       padding: '4px 16px',
                       borderRadius: '9999px',
                       letterSpacing: '0.04em',
-                      boxShadow: '0 4px 10px rgba(11, 175, 122, 0.35)'
+                      boxShadow: '0 4px 10px rgba(37, 99, 235, 0.35)'
                     }}>
                       {p.badge}
                     </span>
                   )}
 
                   <div style={{ marginBottom: 20 }}>
-                    <h3 style={{ fontSize: '1.5rem', color: '#172033', marginBottom: 8 }}>
+                    <h3 style={{ fontSize: '1.5rem', color: '#0F172A', marginBottom: 8 }}>
                       {p.name}
                     </h3>
-                    <p style={{ fontSize: '0.9rem', color: '#5e6d82', minHeight: '44px' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#64748B', minHeight: '44px' }}>
                       {p.tagline}
                     </p>
                   </div>
@@ -262,7 +262,7 @@ export default function PricingPage() {
                       <span style={{
                         fontSize: '3rem',
                         fontWeight: 800,
-                        color: p.highlight ? '#0BAF7A' : '#062D22',
+                        color: p.highlight ? '#2563EB' : '#0F172A',
                         fontFamily: 'var(--font-heading)',
                         lineHeight: 1
                       }}>
@@ -271,7 +271,7 @@ export default function PricingPage() {
                       <span style={{ color: '#64748b', fontSize: '0.95rem' }}> / month</span>
                     </div>
                     {billingCycle === 'yearly' && (
-                      <span style={{ display: 'block', fontSize: '0.8rem', color: '#0BAF7A', fontWeight: 600, marginTop: 6 }}>
+                      <span style={{ display: 'block', fontSize: '0.8rem', color: '#2563EB', fontWeight: 600, marginTop: 6 }}>
                         Billed annually (₹{(price * 12).toLocaleString()}/year)
                       </span>
                     )}
@@ -280,8 +280,8 @@ export default function PricingPage() {
                   {/* Features List */}
                   <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 13, flex: 1 }}>
                     {p.features.map((f, fIdx) => (
-                      <li key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.92rem', color: '#172033' }}>
-                        <Check size={16} style={{ color: '#0BAF7A', flexShrink: 0, marginTop: 2 }} />
+                      <li key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
+                        <Check size={16} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
                         <span>{f}</span>
                       </li>
                     ))}
@@ -326,14 +326,14 @@ export default function PricingPage() {
           }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '700px' }}>
               <thead>
-                <tr style={{ background: '#062D22', color: '#FFFFFF' }}>
+                <tr style={{ background: '#0F172A', color: '#FFFFFF' }}>
                   <th style={{ padding: '18px 24px', fontSize: '0.95rem', fontWeight: 700, width: '40%' }}>
                     Feature / Capability
                   </th>
                   <th style={{ padding: '18px 20px', fontSize: '0.95rem', fontWeight: 700, width: '20%', textAlign: 'center' }}>
                     Starter
                   </th>
-                  <th style={{ padding: '18px 20px', fontSize: '0.95rem', fontWeight: 700, width: '20%', textAlign: 'center', background: '#0BAF7A' }}>
+                  <th style={{ padding: '18px 20px', fontSize: '0.95rem', fontWeight: 700, width: '20%', textAlign: 'center', background: '#2563EB' }}>
                     Standard
                   </th>
                   <th style={{ padding: '18px 20px', fontSize: '0.95rem', fontWeight: 700, width: '20%', textAlign: 'center' }}>
@@ -346,22 +346,22 @@ export default function PricingPage() {
                   const isAlt = idx % 2 === 1;
                   return (
                     <tr key={idx} style={{ background: isAlt ? '#F8FAFC' : '#FFFFFF', borderBottom: '1px solid #edf2f7' }}>
-                      <td style={{ padding: '15px 24px', fontSize: '0.92rem', color: '#172033', fontWeight: 500 }}>
+                      <td style={{ padding: '15px 24px', fontSize: '0.92rem', color: '#0F172A', fontWeight: 500 }}>
                         {row.feature}
                       </td>
-                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#5e6d82' }}>
+                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#64748B' }}>
                         {typeof row.starter === 'boolean' ? (
-                          row.starter ? <Check size={18} style={{ color: '#0BAF7A', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
+                          row.starter ? <Check size={18} style={{ color: '#2563EB', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
                         ) : row.starter}
                       </td>
-                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#062D22', fontWeight: 600, background: isAlt ? 'rgba(11, 175, 122, 0.05)' : 'rgba(11, 175, 122, 0.02)' }}>
+                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#0F172A', fontWeight: 600, background: isAlt ? 'rgba(37, 99, 235, 0.05)' : 'rgba(37, 99, 235, 0.02)' }}>
                         {typeof row.standard === 'boolean' ? (
-                          row.standard ? <Check size={18} style={{ color: '#0BAF7A', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
+                          row.standard ? <Check size={18} style={{ color: '#2563EB', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
                         ) : row.standard}
                       </td>
-                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#5e6d82' }}>
+                      <td style={{ padding: '15px 20px', textAlign: 'center', fontSize: '0.88rem', color: '#64748B' }}>
                         {typeof row.premium === 'boolean' ? (
-                          row.premium ? <Check size={18} style={{ color: '#0BAF7A', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
+                          row.premium ? <Check size={18} style={{ color: '#2563EB', margin: '0 auto' }} /> : <Minus size={18} style={{ color: '#94a3b8', margin: '0 auto' }} />
                         ) : row.premium}
                       </td>
                     </tr>
@@ -374,7 +374,7 @@ export default function PricingPage() {
       </section>
 
       {/* Pricing FAQs */}
-      <section style={{ padding: '80px 24px', background: '#F4F7F6' }}>
+      <section style={{ padding: '80px 24px', background: '#F8FAFC' }}>
         <PageContainer maxWidth="880px">
           <div className="tm-section-header">
             <span className="tm-section-badge">
@@ -422,10 +422,10 @@ export default function PricingPage() {
                       textAlign: 'left'
                     }}
                   >
-                    <span style={{ fontSize: '1.05rem', fontWeight: 700, color: '#172033' }}>
+                    <span style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0F172A' }}>
                       {faq.q}
                     </span>
-                    {isOpen ? <ChevronUp size={20} style={{ color: '#0BAF7A' }} /> : <ChevronDown size={20} style={{ color: '#94a3b8' }} />}
+                    {isOpen ? <ChevronUp size={20} style={{ color: '#2563EB' }} /> : <ChevronDown size={20} style={{ color: '#94a3b8' }} />}
                   </button>
                   <AnimatePresence initial={false}>
                     {isOpen && (
@@ -436,7 +436,7 @@ export default function PricingPage() {
                         transition={{ duration: 0.25, ease: 'easeInOut' }}
                         style={{ overflow: 'hidden' }}
                       >
-                        <div style={{ padding: '0 24px 20px', color: '#5e6d82', fontSize: '0.95rem', lineHeight: 1.65 }}>
+                        <div style={{ padding: '0 24px 20px', color: '#64748B', fontSize: '0.95rem', lineHeight: 1.65 }}>
                           {faq.a}
                         </div>
                       </motion.div>

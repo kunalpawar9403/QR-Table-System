@@ -204,7 +204,7 @@ export default function MenuOcrModal({
                   gap: 10,
                   alignItems: 'flex-start'
                 }}>
-                  <AlertCircle size={18} style={{ color: '#d97706', flexShrink: 0, marginTop: 2 }} />
+                  <AlertCircle size={18} style={{ color: '#F59E0B', flexShrink: 0, marginTop: 2 }} />
                   <div style={{ fontSize: '0.82rem', color: '#92400e' }}>
                     <strong>OCR Key Notice:</strong> {extractedData.message}
                     <br />
@@ -284,8 +284,8 @@ export default function MenuOcrModal({
                             fontWeight: 700,
                             padding: '3px 8px',
                             borderRadius: 12,
-                            background: item.confidence === 'high' ? '#ecfdf5' : '#fffbeb',
-                            color: item.confidence === 'high' ? '#059669' : '#d97706'
+                            background: item.confidence === 'high' ? '#EFF6FF' : '#fffbeb',
+                            color: item.confidence === 'high' ? '#1D4ED8' : '#F59E0B'
                           }}>
                             {item.confidence || 'high'}
                           </span>
@@ -297,7 +297,7 @@ export default function MenuOcrModal({
                             className="btn-row-dots"
                             title="Remove Item"
                           >
-                            <Trash2 size={13} style={{ color: '#ef4444' }} />
+                            <Trash2 size={13} style={{ color: '#DC2626' }} />
                           </button>
                         </td>
                       </tr>

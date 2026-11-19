@@ -31,15 +31,15 @@ export default function ProtectedRoute({ children }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#07241a',
-        color: '#10b981',
+        background: '#2563EB',
+        color: '#2563EB',
         gap: 16
       }}>
         <div style={{
           width: 44,
           height: 44,
-          border: '3px solid rgba(16, 185, 129, 0.2)',
-          borderTopColor: '#10b981',
+          border: '3px solid rgba(37, 99, 235, 0.2)',
+          borderTopColor: '#2563EB',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite'
         }} />

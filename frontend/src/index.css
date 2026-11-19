@@ -7,52 +7,52 @@
   --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
 
-  /* Color Palette - TableMint Reference Image Theme */
-  --tm-forest: #07241a;       /* Deep Forest Green (Sidebar, Mobile Header, Primary Buttons) */
-  --tm-forest-dark: #041711;
-  --tm-forest-light: #0d3829;
+  /* Color Palette - Vibrant Blue Theme */
+  --tm-forest: #2563EB;       /* Primary Blue */
+  --tm-forest-dark: #0F172A;  /* Dark Surface / Header */
+  --tm-forest-light: #1D4ED8; /* Primary Hover */
   
-  --tm-emerald: #10b981;      /* Emerald Mint (Highlights, Badges, Login Button) */
-  --tm-emerald-hover: #059669;
-  --tm-emerald-soft: #ecfdf5; /* Pastel Green for Available tables */
-  --tm-emerald-border: #a7f3d0;
+  --tm-emerald: #2563EB;      /* Primary Blue Accent */
+  --tm-emerald-hover: #1D4ED8;
+  --tm-emerald-soft: #EFF6FF; /* Soft Blue tint */
+  --tm-emerald-border: #BFDBFE;
 
-  --bg-page: #f4f6f8;         /* Clean Light Off-White Page Background */
-  --bg-darker: #f4f6f8;
-  --bg-dark: #f8fafc;
-  --bg-card: #ffffff;         /* Pure Crisp White Cards */
-  --bg-card-hover: #f8fafc;
-  --bg-glass-input: #ffffff;
+  --bg-page: #F8FAFC;         /* Page Background */
+  --bg-darker: #F1F5F9;
+  --bg-dark: #F8FAFC;
+  --bg-card: #FFFFFF;         /* Card Background */
+  --bg-card-hover: #F8FAFC;
+  --bg-glass-input: #FFFFFF;
 
-  --border-subtle: #e2e8f0;
-  --border-light: #f1f5f9;
-  --border-focus: #10b981;
-  --border-highlight: rgba(16, 185, 129, 0.35);
+  --border-subtle: #E2E8F0;   /* Border */
+  --border-light: #F1F5F9;
+  --border-focus: #2563EB;
+  --border-highlight: rgba(37, 99, 235, 0.35);
 
   /* Primary Button / Brand Accent */
-  --primary: #07241a;
-  --primary-hover: #0d3829;
-  --primary-neon: #10b981;
-  --primary-glow: rgba(16, 185, 129, 0.25);
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-neon: #3B82F6;
+  --primary-glow: rgba(37, 99, 235, 0.25);
 
-  --accent-mint: #10b981;
-  --accent-mint-glow: rgba(16, 185, 129, 0.2);
-  --accent-emerald: #059669;
-  --accent-emerald-glow: rgba(5, 150, 105, 0.2);
-  --accent-rose: #ef4444;
+  --accent-mint: #2563EB;
+  --accent-mint-glow: rgba(37, 99, 235, 0.2);
+  --accent-emerald: #1D4ED8;
+  --accent-emerald-glow: rgba(29, 78, 216, 0.2);
+  --accent-rose: #DC2626;     /* Error */
   --accent-sky: #0284c7;
   --accent-purple: #9333ea;
-  --accent-amber: #d97706;
+  --accent-amber: #F59E0B;    /* Warning */
 
   /* Typography Colors */
-  --text-main: #0f172a;       /* Deep Charcoal for Light Cards */
-  --text-muted: #64748b;      /* Slate Gray for Secondary Text */
-  --text-dim: #94a3b8;        /* Light Gray for Placeholders / Subtle Icons */
-  --text-white: #ffffff;      /* White for Forest Green Surfaces */
+  --text-main: #0F172A;       /* Dark Text */
+  --text-muted: #64748B;      /* Secondary Text */
+  --text-dim: #94A3B8;        /* Light Gray for Placeholders / Subtle Icons */
+  --text-white: #FFFFFF;      /* White for Dark / Blue Surfaces */
 
   --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04);
   --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.2);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.25);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -72,12 +72,12 @@ html {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #f4f6f8;
+  background-color: #F8FAFC;
 }
 
 body {
   font-family: var(--font-main);
-  background-color: #f4f6f8;
+  background-color: #F8FAFC;
   color: #0f172a;
   min-height: 100vh;
   width: 100%;
@@ -97,7 +97,7 @@ a, a:link, a:visited {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #f4f6f8;
+  background-color: #F8FAFC;
 }
 
 /* Invisible Scrollbars - Full scrolling functionality without showing scrollbars */
@@ -145,21 +145,21 @@ button {
 }
 
 .btn-primary {
-  background: #07241a;
+  background: #2563EB;
   color: #ffffff;
   font-weight: 700;
   padding: 10px 20px;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 14px rgba(7, 36, 26, 0.2);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 .btn-primary:hover {
-  background: #0d3829;
+  background: #1D4ED8;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(7, 36, 26, 0.3);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -231,12 +231,12 @@ button {
   width: 100%;
   max-width: 440px;
   background: #081511;
-  border: 1px solid rgba(16, 185, 129, 0.28);
+  border: 1px solid rgba(37, 99, 235, 0.28);
   border-radius: 20px;
   padding: 24px 24px 20px;
   text-align: center;
   position: relative;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(37, 99, 235, 0.15);
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   margin: auto;
@@ -248,14 +248,14 @@ button {
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(16, 185, 129, 0.4) transparent;
+  scrollbar-color: rgba(37, 99, 235, 0.4) transparent;
 }
 
 .auth-modal-expanded::-webkit-scrollbar {
   width: 5px;
 }
 .auth-modal-expanded::-webkit-scrollbar-thumb {
-  background: rgba(16, 185, 129, 0.4);
+  background: rgba(37, 99, 235, 0.4);
   border-radius: 9999px;
 }
 
@@ -283,8 +283,8 @@ button {
 .staff-lock-icon-badge {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(16, 185, 129, 0.05));
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(37, 99, 235, 0.05));
+  border: 1px solid rgba(37, 99, 235, 0.3);
   color: var(--primary-neon);
   border-radius: 18px;
   display: flex;
@@ -335,9 +335,9 @@ button {
 }
 
 .auth-tab-btn.active {
-  background: linear-gradient(135deg, #00e676, #10b981);
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
   color: #000000;
-  box-shadow: 0 2px 10px rgba(0, 230, 118, 0.35);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.35);
   font-weight: 800;
 }
 
@@ -360,9 +360,9 @@ button {
 }
 
 .auth-alert-box.success {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #34d399;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  color: #60A5FA;
 }
 
 /* Auth Form Elements */
@@ -400,8 +400,8 @@ button {
 }
 
 .auth-input-field:focus {
-  border-color: #00e676;
-  box-shadow: 0 0 14px rgba(0, 230, 118, 0.25);
+  border-color: #3B82F6;
+  box-shadow: 0 0 14px rgba(37, 99, 235, 0.25);
   outline: none;
   background: rgba(11, 17, 32, 0.95);
 }
@@ -429,9 +429,9 @@ button {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: rgba(0, 230, 118, 0.08);
-  border: 1px dashed rgba(0, 230, 118, 0.35);
-  color: #00e676;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px dashed rgba(37, 99, 235, 0.35);
+  color: #3B82F6;
   border-radius: 10px;
   padding: 8px 12px;
   font-size: 0.78rem;
@@ -442,8 +442,8 @@ button {
 }
 
 .auth-demo-pill-btn:hover {
-  background: rgba(0, 230, 118, 0.15);
-  border-color: #00e676;
+  background: rgba(37, 99, 235, 0.15);
+  border-color: #3B82F6;
 }
 
 .auth-submit-btn {
@@ -471,7 +471,7 @@ button {
 .auth-link-btn {
   background: none;
   border: none;
-  color: #00e676;
+  color: #3B82F6;
   font-weight: 700;
   cursor: pointer;
   font-size: inherit;
@@ -481,7 +481,7 @@ button {
 }
 
 .auth-link-btn:hover {
-  color: #34d399;
+  color: #60A5FA;
 }
 
 /* Role Selector */
@@ -517,9 +517,9 @@ button {
 }
 
 .auth-role-pill.active {
-  background: rgba(0, 230, 118, 0.15);
-  border-color: #00e676;
-  color: #00e676;
+  background: rgba(37, 99, 235, 0.15);
+  border-color: #3B82F6;
+  color: #3B82F6;
   font-weight: 800;
 }
 
@@ -754,9 +754,9 @@ button {
   border: 1px solid rgba(148, 163, 184, 0.2);
 }
 .status-pill.occupied {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(37, 99, 235, 0.15);
+  color: #60A5FA;
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 .status-pill.calling {
   background: rgba(245, 158, 11, 0.2);
@@ -782,9 +782,9 @@ button {
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
 .status-pill.ready {
-  background: rgba(16, 185, 129, 0.18);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(37, 99, 235, 0.18);
+  color: #60A5FA;
+  border: 1px solid rgba(37, 99, 235, 0.3);
 }
 .status-pill.served {
   background: rgba(168, 85, 247, 0.18);
@@ -817,21 +817,21 @@ button {
   background: #22c55e;
 }
 .diet-badge.non-veg {
-  border: 2px solid #ef4444;
+  border: 2px solid #DC2626;
 }
 .diet-badge.non-veg::after {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #ef4444;
+  background: #DC2626;
 }
 
 /* Spice Level Chili Indicators */
 .spice-meter {
   display: inline-flex;
   gap: 2px;
-  color: #ef4444;
+  color: #DC2626;
 }
 
 /* =========================================================
@@ -859,8 +859,8 @@ button {
   width: 100vw;
   height: 100vh;
   z-index: 99999;
-  background-color: #07241a;
-  background-image: radial-gradient(circle at 50% 30%, #0d3829 0%, #07241a 70%);
+  background-color: #2563EB;
+  background-image: radial-gradient(circle at 50% 30%, #1D4ED8 0%, #2563EB 70%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -900,7 +900,7 @@ button {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(16, 185, 129, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.4));
 }
 
 .auth-brand-heading {
@@ -913,12 +913,12 @@ button {
 }
 
 .brand-mint-highlight {
-  color: #10b981;
+  color: #2563EB;
 }
 
 .auth-brand-subheading {
   font-size: 0.82rem;
-  color: #a7f3d0;
+  color: #BFDBFE;
   text-align: center;
   margin: 0 0 16px;
   line-height: 1.35;
@@ -951,8 +951,8 @@ button {
 }
 
 .auth-white-input-field:focus {
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 .auth-eye-btn {
@@ -986,7 +986,7 @@ button {
 }
 
 .auth-remember-label input {
-  accent-color: #10b981;
+  accent-color: #2563EB;
   width: 15px;
   height: 15px;
 }
@@ -994,14 +994,14 @@ button {
 .auth-forgot-link {
   background: none;
   border: none;
-  color: #34d399;
+  color: #60A5FA;
   font-size: 0.8rem;
   cursor: pointer;
 }
 
 .btn-auth-green-pill {
   width: 100%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #ffffff;
   border: none;
   border-radius: 9999px;
@@ -1009,7 +1009,7 @@ button {
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
   transition: transform 0.15s;
 }
 
@@ -1085,7 +1085,7 @@ button {
 .auth-green-action-link {
   background: none;
   border: none;
-  color: #34d399;
+  color: #60A5FA;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -1140,8 +1140,8 @@ button {
   left: 0;
   right: 0;
   height: 80px;
-  background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(16, 185, 129, 0.05));
-  border-bottom: 1px solid rgba(0, 230, 118, 0.15);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(37, 99, 235, 0.05));
+  border-bottom: 1px solid rgba(37, 99, 235, 0.15);
 }
 
 .profile-avatar-large {
@@ -1149,14 +1149,14 @@ button {
   width: 86px;
   height: 86px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00e676, #059669);
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
   color: #060913;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
   font-weight: 900;
-  box-shadow: 0 0 25px rgba(0, 230, 118, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 25px rgba(37, 99, 235, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.4);
   border: 4px solid #0b1120;
   margin-top: 36px;
   margin-bottom: 14px;
@@ -1170,9 +1170,9 @@ button {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #00e676;
+  background: #3B82F6;
   border: 2px solid #0b1120;
-  box-shadow: 0 0 8px #00e676;
+  box-shadow: 0 0 8px #3B82F6;
 }
 
 .profile-hero-name {
@@ -1298,7 +1298,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #DC2626, #dc2626);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-md);

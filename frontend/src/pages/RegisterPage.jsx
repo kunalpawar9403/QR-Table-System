@@ -97,13 +97,13 @@ export default function RegisterPage() {
     <div style={{
       minHeight: '100vh',
       display: 'flex',
-      background: '#F4F7F6',
+      background: '#F8FAFC',
       fontFamily: 'var(--font-body)'
     }}>
       {/* Left Column: Visual Benefits (Hidden on mobile) */}
       <div style={{
         flex: 1,
-        background: 'radial-gradient(circle at 30% 20%, #0d4434 0%, #062D22 65%, #031812 100%)',
+        background: 'radial-gradient(circle at 30% 20%, #1D4ED8 0%, #0F172A 65%, #0F172A 100%)',
         color: '#FFFFFF',
         padding: '60px',
         display: 'flex',
@@ -119,7 +119,7 @@ export default function RegisterPage() {
           left: '-120px',
           width: '550px',
           height: '550px',
-          background: 'radial-gradient(circle, rgba(22, 201, 149, 0.22) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 70%)',
           pointerEvents: 'none'
         }} />
 
@@ -132,7 +132,7 @@ export default function RegisterPage() {
             onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
           />
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)' }}>
-            Table<span style={{ color: '#16C995' }}>Mint</span>
+            Table<span style={{ color: '#2563EB' }}>Mint</span>
           </div>
         </Link>
 
@@ -142,8 +142,8 @@ export default function RegisterPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(22, 201, 149, 0.15)',
-            color: '#16C995',
+            background: 'rgba(37, 99, 235, 0.15)',
+            color: '#2563EB',
             fontSize: '0.8rem',
             fontWeight: 700,
             textTransform: 'uppercase',
@@ -172,7 +172,7 @@ export default function RegisterPage() {
               "Live Kitchen Display System (KDS) included"
             ].map((text, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0', fontSize: '0.92rem' }}>
-                <CheckCircle size={16} style={{ color: '#16C995', flexShrink: 0 }} />
+                <CheckCircle size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
                 <span>{text}</span>
               </div>
             ))}
@@ -181,7 +181,7 @@ export default function RegisterPage() {
 
         {/* Bottom Security */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.86rem', position: 'relative', zIndex: 1 }}>
-          <ShieldCheck size={16} style={{ color: '#10b981' }} />
+          <ShieldCheck size={16} style={{ color: '#2563EB' }} />
           <span>Complete Data Isolation & Enterprise Encryption</span>
         </div>
       </div>
@@ -205,16 +205,16 @@ export default function RegisterPage() {
             background: '#FFFFFF',
             borderRadius: '24px',
             padding: 'clamp(28px, 4vw, 44px)',
-            boxShadow: '0 10px 35px rgba(6, 45, 34, 0.06)',
+            boxShadow: '0 10px 35px rgba(15, 23, 42, 0.06)',
             border: '1px solid #e2e8f0'
           }}
         >
           {/* Header */}
           <div style={{ marginBottom: 24, textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.8rem', color: '#172033', fontWeight: 800, marginBottom: 8 }}>
+            <h1 style={{ fontSize: '1.8rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
               Create Your Restaurant Account
             </h1>
-            <p style={{ color: '#5e6d82', fontSize: '0.92rem' }}>
+            <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
               Start your 14-day free trial. No credit card needed.
             </p>
           </div>
@@ -236,17 +236,17 @@ export default function RegisterPage() {
                     padding: '8px 6px',
                     borderRadius: '10px',
                     border: '1px solid',
-                    borderColor: selectedPlan === opt.id ? '#0BAF7A' : '#e2e8f0',
+                    borderColor: selectedPlan === opt.id ? '#2563EB' : '#e2e8f0',
                     background: selectedPlan === opt.id ? '#e8f9f3' : '#F8FAFC',
                     cursor: 'pointer',
                     textAlign: 'center',
                     transition: 'all 0.18s ease'
                   }}
                 >
-                  <strong style={{ display: 'block', fontSize: '0.85rem', color: selectedPlan === opt.id ? '#062D22' : '#172033' }}>
+                  <strong style={{ display: 'block', fontSize: '0.85rem', color: selectedPlan === opt.id ? '#0F172A' : '#0F172A' }}>
                     {opt.name}
                   </strong>
-                  <span style={{ fontSize: '0.74rem', color: selectedPlan === opt.id ? '#0BAF7A' : '#64748b', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.74rem', color: selectedPlan === opt.id ? '#2563EB' : '#64748b', fontWeight: 600 }}>
                     {opt.price}
                   </span>
                 </motion.button>
@@ -276,7 +276,7 @@ export default function RegisterPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                 Restaurant / Venue Name *
               </label>
               <div style={{ position: 'relative' }}>
@@ -296,14 +296,14 @@ export default function RegisterPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                 Owner / Manager Full Name *
               </label>
               <div style={{ position: 'relative' }}>
@@ -323,14 +323,14 @@ export default function RegisterPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                 Email Address *
               </label>
               <div style={{ position: 'relative' }}>
@@ -350,14 +350,14 @@ export default function RegisterPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
               </div>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                 Password * (min 6 characters)
               </label>
               <div style={{ position: 'relative' }}>
@@ -377,7 +377,7 @@ export default function RegisterPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
                 <button
@@ -421,9 +421,9 @@ export default function RegisterPage() {
 
           {/* Switch to Login */}
           <div style={{ textAlign: 'center', marginTop: 22, paddingTop: 18, borderTop: '1px solid #edf2f7' }}>
-            <p style={{ fontSize: '0.9rem', color: '#5e6d82' }}>
+            <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
               Already have an account?{' '}
-              <Link to="/login" style={{ color: '#0BAF7A', fontWeight: 700 }}>
+              <Link to="/login" style={{ color: '#2563EB', fontWeight: 700 }}>
                 Sign In
               </Link>
             </p>

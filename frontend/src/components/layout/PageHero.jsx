@@ -39,8 +39,8 @@ export default function PageHero({
                 animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 style={{ 
-                  color: '#16C995', 
-                  background: 'linear-gradient(135deg, #FFFFFF 30%, #16C995 100%)', 
+                  color: '#2563EB', 
+                  background: 'linear-gradient(135deg, #FFFFFF 30%, #2563EB 100%)', 
                   WebkitBackgroundClip: 'text', 
                   WebkitTextFillColor: 'transparent',
                   display: 'inline-block'

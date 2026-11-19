@@ -66,12 +66,12 @@ export default function OnboardingProgressBanner({
     <div 
       className="onboarding-progress-banner"
       style={{
-        background: 'linear-gradient(135deg, #07241a 0%, #0d3829 100%)',
+        background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
         borderRadius: 16,
         padding: collapsed ? '12px 20px' : '20px 24px',
         color: '#ffffff',
         marginBottom: 20,
-        boxShadow: '0 4px 16px rgba(7, 36, 26, 0.15)',
+        boxShadow: '0 4px 16px rgba(37, 99, 235, 0.15)',
         transition: 'all 0.2s ease'
       }}
     >
@@ -82,8 +82,8 @@ export default function OnboardingProgressBanner({
             width: 32,
             height: 32,
             borderRadius: 8,
-            background: 'rgba(16, 185, 129, 0.2)',
-            color: '#10b981',
+            background: 'rgba(37, 99, 235, 0.2)',
+            color: '#2563EB',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -118,7 +118,7 @@ export default function OnboardingProgressBanner({
             <div style={{
               width: `${progressPercent}%`,
               height: '100%',
-              background: '#10b981',
+              background: '#2563EB',
               borderRadius: 4,
               transition: 'width 0.4s ease'
             }} />
@@ -166,30 +166,30 @@ export default function OnboardingProgressBanner({
                 gap: 8,
                 padding: '6px 10px',
                 borderRadius: 8,
-                background: step.isCompleted ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                background: step.isCompleted ? 'rgba(37, 99, 235, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                 cursor: 'pointer',
                 transition: 'background 0.15s ease'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = step.isCompleted
-                  ? 'rgba(16, 185, 129, 0.18)'
+                  ? 'rgba(37, 99, 235, 0.18)'
                   : 'rgba(255, 255, 255, 0.1)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = step.isCompleted
-                  ? 'rgba(16, 185, 129, 0.1)'
+                  ? 'rgba(37, 99, 235, 0.1)'
                   : 'rgba(255, 255, 255, 0.05)';
               }}
             >
               {step.isCompleted ? (
-                <CheckCircle2 size={16} style={{ color: '#10b981', flexShrink: 0 }} />
+                <CheckCircle2 size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
               ) : (
                 <Circle size={16} style={{ color: '#64748b', flexShrink: 0 }} />
               )}
               <span style={{
                 fontSize: '0.8rem',
                 fontWeight: 600,
-                color: step.isCompleted ? '#a7f3d0' : '#cbd5e1',
+                color: step.isCompleted ? '#BFDBFE' : '#cbd5e1',
                 textDecoration: step.isCompleted ? 'line-through' : 'none'
               }}>
                 {step.label}

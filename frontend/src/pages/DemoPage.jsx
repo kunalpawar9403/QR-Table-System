@@ -155,7 +155,7 @@ export default function DemoPage() {
         id="demo-video-section"
         style={{
           padding: '80px 24px 70px',
-          background: 'linear-gradient(180deg, #062D22 0%, #08382b 60%, #F4F7F6 100%)',
+          background: 'linear-gradient(180deg, #0F172A 0%, #08382b 60%, #F8FAFC 100%)',
           color: '#FFFFFF'
         }}
       >
@@ -167,9 +167,9 @@ export default function DemoPage() {
               gap: 8,
               padding: '6px 14px',
               borderRadius: '9999px',
-              background: 'rgba(22, 201, 149, 0.15)',
-              border: '1px solid rgba(22, 201, 149, 0.35)',
-              color: '#16C995',
+              background: 'rgba(37, 99, 235, 0.15)',
+              border: '1px solid rgba(37, 99, 235, 0.35)',
+              color: '#2563EB',
               fontSize: '0.8rem',
               fontWeight: 700,
               textTransform: 'uppercase',
@@ -229,10 +229,10 @@ export default function DemoPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  color: '#16C995',
+                  color: '#2563EB',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  background: 'rgba(22, 201, 149, 0.15)',
+                  background: 'rgba(37, 99, 235, 0.15)',
                   padding: '6px 12px',
                   borderRadius: '6px'
                 }}>
@@ -250,11 +250,11 @@ export default function DemoPage() {
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             style={{
-              background: '#041711',
+              background: '#0F172A',
               borderRadius: '20px',
               overflow: 'hidden',
-              border: '2px solid rgba(22, 201, 149, 0.35)',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(11, 175, 122, 0.25)',
+              border: '2px solid rgba(37, 99, 235, 0.35)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(37, 99, 235, 0.25)',
               position: 'relative'
             }}
           >
@@ -268,7 +268,7 @@ export default function DemoPage() {
                 width: '100%',
                 maxHeight: '620px',
                 display: 'block',
-                background: '#041711'
+                background: '#0F172A'
               }}
             >
               <source src={videoSrc} type="video/mp4" />
@@ -280,7 +280,7 @@ export default function DemoPage() {
             textAlign: 'center',
             marginTop: 18,
             fontSize: '0.84rem',
-            color: '#8a9ba8'
+            color: '#64748B'
           }}>
             Tip: You can upload your own custom video recording using the "Upload / Change Video" button, or place it at <code>frontend/public/videos/demo.mp4</code>.
           </div>
@@ -290,7 +290,7 @@ export default function DemoPage() {
       {/* =========================================================
           MODULE SCREENSHOT TOUR
           ========================================================= */}
-      <section style={{ padding: '80px 24px 90px', background: '#F4F7F6' }}>
+      <section style={{ padding: '80px 24px 90px', background: '#F8FAFC' }}>
         <PageContainer>
           <div className="tm-section-header">
             <span className="tm-section-badge">
@@ -331,9 +331,9 @@ export default function DemoPage() {
                   fontSize: '0.92rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: activeTourTab === m.id ? '#062D22' : '#FFFFFF',
-                  color: activeTourTab === m.id ? '#16C995' : '#5e6d82',
-                  boxShadow: activeTourTab === m.id ? '0 4px 15px rgba(6, 45, 34, 0.2)' : '0 2px 6px rgba(0,0,0,0.04)',
+                  background: activeTourTab === m.id ? '#0F172A' : '#FFFFFF',
+                  color: activeTourTab === m.id ? '#2563EB' : '#64748B',
+                  boxShadow: activeTourTab === m.id ? '0 4px 15px rgba(15, 23, 42, 0.2)' : '0 2px 6px rgba(0,0,0,0.04)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -356,7 +356,7 @@ export default function DemoPage() {
                 background: '#FFFFFF',
                 borderRadius: '24px',
                 border: '1px solid #e2e8f0',
-                boxShadow: '0 12px 40px rgba(6, 45, 34, 0.08)',
+                boxShadow: '0 12px 40px rgba(15, 23, 42, 0.08)',
                 padding: 'clamp(20px, 4vw, 48px)',
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
@@ -373,7 +373,7 @@ export default function DemoPage() {
                   overflow: 'hidden',
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 16px 36px rgba(0, 0, 0, 0.1)',
-                  background: '#041711',
+                  background: '#0F172A',
                   position: 'relative'
                 }}
               >
@@ -381,13 +381,13 @@ export default function DemoPage() {
                   position: 'absolute',
                   top: 14,
                   left: 14,
-                  background: 'rgba(6, 45, 34, 0.9)',
-                  color: '#16C995',
+                  background: 'rgba(15, 23, 42, 0.9)',
+                  color: '#2563EB',
                   fontSize: '0.75rem',
                   fontWeight: 700,
                   padding: '4px 12px',
                   borderRadius: '9999px',
-                  border: '1px solid rgba(22, 201, 149, 0.3)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
                   zIndex: 2
                 }}>
                   Live System Screen
@@ -411,8 +411,8 @@ export default function DemoPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: 'rgba(11, 175, 122, 0.1)',
-                  color: '#0BAF7A',
+                  background: 'rgba(37, 99, 235, 0.1)',
+                  color: '#2563EB',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -426,7 +426,7 @@ export default function DemoPage() {
                 <h3 style={{
                   fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
                   fontWeight: 800,
-                  color: '#172033',
+                  color: '#0F172A',
                   lineHeight: 1.25,
                   marginBottom: 10
                 }}>
@@ -435,7 +435,7 @@ export default function DemoPage() {
 
                 <p style={{
                   fontSize: '1.05rem',
-                  color: '#062D22',
+                  color: '#0F172A',
                   fontWeight: 600,
                   marginBottom: 20
                 }}>
@@ -444,8 +444,8 @@ export default function DemoPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
                   {currentMod.points.map((pt, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#172033' }}>
-                      <CheckCircle size={17} style={{ color: '#0BAF7A', flexShrink: 0, marginTop: 2 }} />
+                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#0F172A' }}>
+                      <CheckCircle size={17} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
                       <span>{pt}</span>
                     </div>
                   ))}

@@ -183,9 +183,9 @@ export default function CategoryManagementModal({
                       fontWeight: 600,
                       padding: '6px 12px',
                       borderRadius: 20,
-                      border: isAdded ? '1px solid #cbd5e1' : '1px solid #10b981',
-                      background: isAdded ? '#f1f5f9' : '#ecfdf5',
-                      color: isAdded ? '#94a3b8' : '#059669',
+                      border: isAdded ? '1px solid #cbd5e1' : '1px solid #2563EB',
+                      background: isAdded ? '#f1f5f9' : '#EFF6FF',
+                      color: isAdded ? '#94a3b8' : '#1D4ED8',
                       cursor: isAdded ? 'default' : 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -307,7 +307,7 @@ export default function CategoryManagementModal({
                         </div>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                          <Tag size={16} style={{ color: '#10b981' }} />
+                          <Tag size={16} style={{ color: '#2563EB' }} />
                           <div>
                             <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>
                               {cat.name}
@@ -361,7 +361,7 @@ export default function CategoryManagementModal({
                             className="btn-row-dots"
                             title="Delete Category"
                           >
-                            <Trash2 size={15} style={{ color: '#ef4444' }} />
+                            <Trash2 size={15} style={{ color: '#DC2626' }} />
                           </button>
                         </div>
                       )}

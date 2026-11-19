@@ -66,7 +66,7 @@ export default function CustomerMenuPreviewModal({
           borderBottom: '1px solid #334155'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Smartphone size={18} style={{ color: '#10b981' }} />
+            <Smartphone size={18} style={{ color: '#2563EB' }} />
             <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>
               Live Customer QR Preview
             </span>
@@ -76,7 +76,7 @@ export default function CustomerMenuPreviewModal({
               href={fullQrUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ fontSize: '0.78rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
+              style={{ fontSize: '0.78rem', color: '#2563EB', display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
               title="Open full screen in new tab"
             >
               Open Live <ExternalLink size={12} />
@@ -94,25 +94,25 @@ export default function CustomerMenuPreviewModal({
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          background: '#f4f6f8',
+          background: '#F8FAFC',
           display: 'flex',
           flexDirection: 'column'
         }}>
           {/* Mock Phone Status & Header */}
           <div style={{
-            background: '#07241a',
+            background: '#2563EB',
             padding: '14px 16px 16px',
             color: '#ffffff'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#a7f3d0' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#BFDBFE' }}>
                 9:41 AM
               </span>
               <span style={{
                 fontSize: '0.75rem',
                 fontWeight: 700,
-                background: 'rgba(16, 185, 129, 0.2)',
-                color: '#10b981',
+                background: 'rgba(37, 99, 235, 0.2)',
+                color: '#2563EB',
                 padding: '2px 8px',
                 borderRadius: 12
               }}>
@@ -173,7 +173,7 @@ export default function CustomerMenuPreviewModal({
                 fontSize: '0.78rem',
                 fontWeight: 700,
                 border: 'none',
-                background: selectedCat === 'all' ? '#07241a' : '#f1f5f9',
+                background: selectedCat === 'all' ? '#2563EB' : '#f1f5f9',
                 color: selectedCat === 'all' ? '#ffffff' : '#64748b',
                 whiteSpace: 'nowrap',
                 cursor: 'pointer'
@@ -192,7 +192,7 @@ export default function CustomerMenuPreviewModal({
                   fontSize: '0.78rem',
                   fontWeight: 700,
                   border: 'none',
-                  background: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#07241a' : '#f1f5f9',
+                  background: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#2563EB' : '#f1f5f9',
                   color: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#ffffff' : '#64748b',
                   whiteSpace: 'nowrap',
                   cursor: 'pointer'
@@ -266,9 +266,9 @@ export default function CustomerMenuPreviewModal({
                     style={{
                       padding: '5px 12px',
                       borderRadius: 14,
-                      border: '1px solid #10b981',
-                      background: '#ecfdf5',
-                      color: '#059669',
+                      border: '1px solid #2563EB',
+                      background: '#EFF6FF',
+                      color: '#1D4ED8',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       cursor: 'pointer',

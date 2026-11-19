@@ -276,8 +276,8 @@ export default function MobileAppEntry() {
       badge: 'TABLE QR ORDERING',
       title: 'Contactless Smart Dining',
       desc: 'Guests scan dynamic table QR stands, browse high-res digital menus, and place instant food orders in seconds.',
-      icon: <QrCode size={56} style={{ color: '#16c995' }} />,
-      color: '#16c995'
+      icon: <QrCode size={56} style={{ color: '#2563EB' }} />,
+      color: '#2563EB'
     },
     {
       badge: 'KITCHEN DISPLAY (KDS)',
@@ -353,7 +353,7 @@ export default function MobileAppEntry() {
               width: 320,
               height: 320,
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(22, 201, 149, 0.22) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 70%)',
               filter: 'blur(30px)',
               pointerEvents: 'none'
             }} />
@@ -368,8 +368,8 @@ export default function MobileAppEntry() {
                 height: 110,
                 borderRadius: '28px',
                 background: 'linear-gradient(145deg, #0f4d3a, #06261d)',
-                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45), 0 0 35px rgba(22, 201, 149, 0.35)',
-                border: '1.5px solid rgba(22, 201, 149, 0.4)',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45), 0 0 35px rgba(37, 99, 235, 0.35)',
+                border: '1.5px solid rgba(37, 99, 235, 0.4)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -400,7 +400,7 @@ export default function MobileAppEntry() {
                 color: '#ffffff',
                 margin: 0
               }}>
-                Table<span style={{ color: '#16c995' }}>Mint</span>
+                Table<span style={{ color: '#2563EB' }}>Mint</span>
               </h1>
               <p style={{
                 color: '#94a3b8',
@@ -426,8 +426,8 @@ export default function MobileAppEntry() {
                 width: 36,
                 height: 36,
                 borderRadius: '50%',
-                border: '3px solid rgba(22, 201, 149, 0.2)',
-                borderTopColor: '#16c995',
+                border: '3px solid rgba(37, 99, 235, 0.2)',
+                borderTopColor: '#2563EB',
                 animation: 'spin 0.8s linear infinite'
               }} />
               <span style={{ fontSize: '0.78rem', color: '#64748b', letterSpacing: '0.5px' }}>
@@ -474,7 +474,7 @@ export default function MobileAppEntry() {
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
                 <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#ffffff' }}>
-                  Table<span style={{ color: '#16c995' }}>Mint</span>
+                  Table<span style={{ color: '#2563EB' }}>Mint</span>
                 </span>
               </div>
               <button
@@ -582,7 +582,7 @@ export default function MobileAppEntry() {
                       width: onboardingStep === i ? 24 : 8,
                       height: 8,
                       borderRadius: 4,
-                      background: onboardingStep === i ? '#16c995' : 'rgba(255, 255, 255, 0.18)',
+                      background: onboardingStep === i ? '#2563EB' : 'rgba(255, 255, 255, 0.18)',
                       border: 'none',
                       transition: 'all 0.25s ease',
                       cursor: 'pointer',
@@ -600,7 +600,7 @@ export default function MobileAppEntry() {
                   style={{
                     width: '100%',
                     padding: '16px',
-                    background: '#16c995',
+                    background: '#2563EB',
                     color: '#041c14',
                     border: 'none',
                     borderRadius: '16px',
@@ -611,7 +611,7 @@ export default function MobileAppEntry() {
                     justifyContent: 'center',
                     gap: 8,
                     cursor: 'pointer',
-                    boxShadow: '0 8px 24px rgba(22, 201, 149, 0.3)'
+                    boxShadow: '0 8px 24px rgba(37, 99, 235, 0.3)'
                   }}
                 >
                   <span>Continue</span>
@@ -624,7 +624,7 @@ export default function MobileAppEntry() {
                   style={{
                     width: '100%',
                     padding: '16px',
-                    background: 'linear-gradient(135deg, #16c995, #0ea375)',
+                    background: 'linear-gradient(135deg, #2563EB, #0ea375)',
                     color: '#041c14',
                     border: 'none',
                     borderRadius: '16px',
@@ -635,7 +635,7 @@ export default function MobileAppEntry() {
                     justifyContent: 'center',
                     gap: 8,
                     cursor: 'pointer',
-                    boxShadow: '0 8px 24px rgba(22, 201, 149, 0.4)'
+                    boxShadow: '0 8px 24px rgba(37, 99, 235, 0.4)'
                   }}
                 >
                   <span>Get Started</span>
@@ -673,8 +673,8 @@ export default function MobileAppEntry() {
                 width: 52,
                 height: 52,
                 borderRadius: '16px',
-                background: 'linear-gradient(145deg, #0d4434, #041f17)',
-                border: '1px solid rgba(22, 201, 149, 0.4)',
+                background: 'linear-gradient(145deg, #1D4ED8, #041f17)',
+                border: '1px solid rgba(37, 99, 235, 0.4)',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -688,7 +688,7 @@ export default function MobileAppEntry() {
                 />
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 4px 0', color: '#ffffff' }}>
-                Table<span style={{ color: '#16c995' }}>Mint</span> POS
+                Table<span style={{ color: '#2563EB' }}>Mint</span> POS
               </h2>
               <p style={{ fontSize: '0.86rem', color: '#94a3b8', margin: 0 }}>
                 {authMode === 'signin' ? 'Sign in to access your restaurant POS' : 'Create your restaurant workspace'}
@@ -702,7 +702,7 @@ export default function MobileAppEntry() {
                 onClick={() => { setShowServerModal(true); setTestStatus(null); }}
                 style={{
                   background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(22, 201, 149, 0.25)',
+                  border: '1px solid rgba(37, 99, 235, 0.25)',
                   borderRadius: 999,
                   padding: '5px 12px',
                   color: '#94a3b8',
@@ -713,9 +713,9 @@ export default function MobileAppEntry() {
                   cursor: 'pointer'
                 }}
               >
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#16c995', boxShadow: '0 0 6px #16c995' }} />
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#2563EB', boxShadow: '0 0 6px #2563EB' }} />
                 <span>Backend: <strong style={{ color: '#e2e8f0' }}>{currentServerUrl.replace(/^https?:\/\//, '') || 'Auto'}</strong></span>
-                <Settings size={12} style={{ color: '#16c995', marginLeft: 2 }} />
+                <Settings size={12} style={{ color: '#2563EB', marginLeft: 2 }} />
               </button>
             </div>
 
@@ -735,7 +735,7 @@ export default function MobileAppEntry() {
                   padding: '10px 0',
                   borderRadius: '10px',
                   border: 'none',
-                  background: authMode === 'signin' ? '#16c995' : 'transparent',
+                  background: authMode === 'signin' ? '#2563EB' : 'transparent',
                   color: authMode === 'signin' ? '#041c14' : '#cbd5e1',
                   fontWeight: 700,
                   fontSize: '0.9rem',
@@ -753,7 +753,7 @@ export default function MobileAppEntry() {
                   padding: '10px 0',
                   borderRadius: '10px',
                   border: 'none',
-                  background: authMode === 'signup' ? '#16c995' : 'transparent',
+                  background: authMode === 'signup' ? '#2563EB' : 'transparent',
                   color: authMode === 'signup' ? '#041c14' : '#cbd5e1',
                   fontWeight: 700,
                   fontSize: '0.9rem',
@@ -779,7 +779,7 @@ export default function MobileAppEntry() {
                 fontSize: '0.84rem',
                 marginBottom: 16
               }}>
-                <AlertCircle size={18} style={{ flexShrink: 0, color: '#ef4444', marginTop: 2 }} />
+                <AlertCircle size={18} style={{ flexShrink: 0, color: '#DC2626', marginTop: 2 }} />
                 <div style={{ flex: 1 }}>
                   <div>{errorMessage}</div>
                   {(errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('server') || errorMessage.toLowerCase().includes('connecting')) && (
@@ -788,7 +788,7 @@ export default function MobileAppEntry() {
                       onClick={() => { setShowServerModal(true); setTestStatus(null); }}
                       style={{
                         marginTop: 8,
-                        background: '#ef4444',
+                        background: '#DC2626',
                         color: '#ffffff',
                         border: 'none',
                         borderRadius: '8px',
@@ -813,15 +813,15 @@ export default function MobileAppEntry() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                background: 'rgba(22, 201, 149, 0.15)',
-                border: '1px solid rgba(22, 201, 149, 0.35)',
-                color: '#6ee7b7',
+                background: 'rgba(37, 99, 235, 0.15)',
+                border: '1px solid rgba(37, 99, 235, 0.35)',
+                color: '#93C5FD',
                 padding: '12px 14px',
                 borderRadius: '12px',
                 fontSize: '0.84rem',
                 marginBottom: 16
               }}>
-                <CheckCircle2 size={18} style={{ flexShrink: 0, color: '#16c995' }} />
+                <CheckCircle2 size={18} style={{ flexShrink: 0, color: '#2563EB' }} />
                 <span>{successMessage}</span>
               </div>
             )}
@@ -831,7 +831,7 @@ export default function MobileAppEntry() {
               background: '#072b20',
               borderRadius: '20px',
               padding: '24px 20px',
-              border: '1px solid rgba(22, 201, 149, 0.2)',
+              border: '1px solid rgba(37, 99, 235, 0.2)',
               boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)'
             }}>
               {authMode === 'signin' ? (
@@ -880,7 +880,7 @@ export default function MobileAppEntry() {
                         style={{
                           background: 'none',
                           border: 'none',
-                          color: '#16c995',
+                          color: '#2563EB',
                           fontSize: '0.82rem',
                           fontWeight: 600,
                           cursor: 'pointer',
@@ -936,7 +936,7 @@ export default function MobileAppEntry() {
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: '#16c995',
+                      background: '#2563EB',
                       color: '#041c14',
                       border: 'none',
                       borderRadius: '14px',
@@ -948,7 +948,7 @@ export default function MobileAppEntry() {
                       justifyContent: 'center',
                       gap: 8,
                       marginTop: 8,
-                      boxShadow: '0 6px 20px rgba(22, 201, 149, 0.35)'
+                      boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)'
                     }}
                   >
                     {loading ? 'Signing in...' : 'Sign In to Dashboard'}
@@ -1089,7 +1089,7 @@ export default function MobileAppEntry() {
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: '#16c995',
+                      background: '#2563EB',
                       color: '#041c14',
                       border: 'none',
                       borderRadius: '14px',
@@ -1101,7 +1101,7 @@ export default function MobileAppEntry() {
                       justifyContent: 'center',
                       gap: 8,
                       marginTop: 6,
-                      boxShadow: '0 6px 20px rgba(22, 201, 149, 0.35)'
+                      boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)'
                     }}
                   >
                     {loading ? 'Creating...' : 'Create Restaurant Account'}
@@ -1121,7 +1121,7 @@ export default function MobileAppEntry() {
               color: '#64748b',
               fontSize: '0.78rem'
             }}>
-              <ShieldCheck size={16} style={{ color: '#16c995' }} />
+              <ShieldCheck size={16} style={{ color: '#2563EB' }} />
               <span>256-Bit SSL Encrypted Multi-Tenant POS</span>
             </div>
           </motion.div>
@@ -1180,8 +1180,8 @@ export default function MobileAppEntry() {
                 width: 48,
                 height: 48,
                 borderRadius: '14px',
-                background: 'rgba(22, 201, 149, 0.15)',
-                color: '#16c995',
+                background: 'rgba(37, 99, 235, 0.15)',
+                color: '#2563EB',
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -1213,7 +1213,7 @@ export default function MobileAppEntry() {
                 fontSize: '0.84rem',
                 marginBottom: 16
               }}>
-                <AlertCircle size={18} style={{ flexShrink: 0, color: '#ef4444' }} />
+                <AlertCircle size={18} style={{ flexShrink: 0, color: '#DC2626' }} />
                 <span>{errorMessage}</span>
               </div>
             )}
@@ -1222,15 +1222,15 @@ export default function MobileAppEntry() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                background: 'rgba(22, 201, 149, 0.15)',
-                border: '1px solid rgba(22, 201, 149, 0.35)',
-                color: '#6ee7b7',
+                background: 'rgba(37, 99, 235, 0.15)',
+                border: '1px solid rgba(37, 99, 235, 0.35)',
+                color: '#93C5FD',
                 padding: '12px 14px',
                 borderRadius: '12px',
                 fontSize: '0.84rem',
                 marginBottom: 16
               }}>
-                <CheckCircle2 size={18} style={{ flexShrink: 0, color: '#16c995' }} />
+                <CheckCircle2 size={18} style={{ flexShrink: 0, color: '#2563EB' }} />
                 <span>{successMessage}</span>
               </div>
             )}
@@ -1240,7 +1240,7 @@ export default function MobileAppEntry() {
               background: '#072b20',
               borderRadius: '20px',
               padding: '24px 20px',
-              border: '1px solid rgba(22, 201, 149, 0.2)',
+              border: '1px solid rgba(37, 99, 235, 0.2)',
               boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)'
             }}>
               {forgotStep === 1 ? (
@@ -1279,7 +1279,7 @@ export default function MobileAppEntry() {
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: '#16c995',
+                      background: '#2563EB',
                       color: '#041c14',
                       border: 'none',
                       borderRadius: '14px',
@@ -1291,7 +1291,7 @@ export default function MobileAppEntry() {
                       justifyContent: 'center',
                       gap: 8,
                       marginTop: 8,
-                      boxShadow: '0 6px 20px rgba(22, 201, 149, 0.35)'
+                      boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)'
                     }}
                   >
                     {loading ? 'Verifying...' : 'Send Recovery Code'}
@@ -1364,7 +1364,7 @@ export default function MobileAppEntry() {
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: '#16c995',
+                      background: '#2563EB',
                       color: '#041c14',
                       border: 'none',
                       borderRadius: '14px',
@@ -1376,7 +1376,7 @@ export default function MobileAppEntry() {
                       justifyContent: 'center',
                       gap: 8,
                       marginTop: 8,
-                      boxShadow: '0 6px 20px rgba(22, 201, 149, 0.35)'
+                      boxShadow: '0 6px 20px rgba(37, 99, 235, 0.35)'
                     }}
                   >
                     {loading ? 'Updating Password...' : 'Save New Password & Sign In'}
@@ -1410,7 +1410,7 @@ export default function MobileAppEntry() {
             exit={{ scale: 0.9, opacity: 0 }}
             style={{
               background: '#072b20',
-              border: '1.5px solid rgba(22, 201, 149, 0.35)',
+              border: '1.5px solid rgba(37, 99, 235, 0.35)',
               borderRadius: 24,
               padding: '24px 20px',
               maxWidth: 420,
@@ -1420,7 +1420,7 @@ export default function MobileAppEntry() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Server size={20} style={{ color: '#16c995' }} />
+                <Server size={20} style={{ color: '#2563EB' }} />
                 <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#ffffff', fontWeight: 800 }}>
                   Server Connection
                 </h3>
@@ -1493,11 +1493,11 @@ export default function MobileAppEntry() {
                   handleTestServerConnection(url);
                 }}
                 style={{
-                  background: 'rgba(22, 201, 149, 0.15)',
-                  border: '1px solid rgba(22, 201, 149, 0.35)',
+                  background: 'rgba(37, 99, 235, 0.15)',
+                  border: '1px solid rgba(37, 99, 235, 0.35)',
                   borderRadius: 8,
                   padding: '6px 10px',
-                  color: '#6ee7b7',
+                  color: '#93C5FD',
                   fontSize: '0.75rem',
                   fontWeight: 700,
                   cursor: 'pointer'
@@ -1514,11 +1514,11 @@ export default function MobileAppEntry() {
                 borderRadius: 10,
                 fontSize: '0.8rem',
                 marginBottom: 16,
-                background: testStatus.type === 'success' ? 'rgba(22, 201, 149, 0.15)' :
+                background: testStatus.type === 'success' ? 'rgba(37, 99, 235, 0.15)' :
                             testStatus.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.08)',
-                color: testStatus.type === 'success' ? '#6ee7b7' :
+                color: testStatus.type === 'success' ? '#93C5FD' :
                        testStatus.type === 'error' ? '#fca5a5' : '#cbd5e1',
-                border: `1px solid ${testStatus.type === 'success' ? 'rgba(22, 201, 149, 0.3)' :
+                border: `1px solid ${testStatus.type === 'success' ? 'rgba(37, 99, 235, 0.3)' :
                                      testStatus.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255, 255, 255, 0.15)'}`
               }}>
                 {testStatus.message}
@@ -1555,7 +1555,7 @@ export default function MobileAppEntry() {
                 style={{
                   flex: 2,
                   padding: '12px',
-                  background: '#16c995',
+                  background: '#2563EB',
                   color: '#041c14',
                   border: 'none',
                   borderRadius: 12,

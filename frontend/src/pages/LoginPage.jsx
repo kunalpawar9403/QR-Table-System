@@ -64,13 +64,13 @@ export default function LoginPage() {
     <div style={{
       minHeight: '100vh',
       display: 'flex',
-      background: '#F4F7F6',
+      background: '#F8FAFC',
       fontFamily: 'var(--font-body)'
     }}>
       {/* Left Column: Visual Branding (Hidden on mobile) */}
       <div style={{
         flex: 1,
-        background: 'radial-gradient(circle at 30% 20%, #0d4434 0%, #062D22 65%, #031812 100%)',
+        background: 'radial-gradient(circle at 30% 20%, #1D4ED8 0%, #0F172A 65%, #0F172A 100%)',
         color: '#FFFFFF',
         padding: '60px',
         display: 'flex',
@@ -86,7 +86,7 @@ export default function LoginPage() {
           left: '-100px',
           width: '500px',
           height: '500px',
-          background: 'radial-gradient(circle, rgba(22, 201, 149, 0.25) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)',
           pointerEvents: 'none'
         }} />
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
             onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
           />
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)' }}>
-            Table<span style={{ color: '#16C995' }}>Mint</span>
+            Table<span style={{ color: '#2563EB' }}>Mint</span>
           </div>
         </Link>
 
@@ -109,8 +109,8 @@ export default function LoginPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(22, 201, 149, 0.15)',
-            color: '#16C995',
+            background: 'rgba(37, 99, 235, 0.15)',
+            color: '#2563EB',
             fontSize: '0.8rem',
             fontWeight: 700,
             textTransform: 'uppercase',
@@ -137,7 +137,7 @@ export default function LoginPage() {
               'Works on iPad, Android, Windows, Mac, and mobile browsers'
             ].map((text, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0', fontSize: '0.92rem' }}>
-                <CheckCircle size={16} style={{ color: '#16C995', flexShrink: 0 }} />
+                <CheckCircle size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
                 <span>{text}</span>
               </div>
             ))}
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
         {/* Bottom Trust */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.86rem', position: 'relative', zIndex: 1 }}>
-          <ShieldCheck size={16} style={{ color: '#10b981' }} />
+          <ShieldCheck size={16} style={{ color: '#2563EB' }} />
           <span>PCI-DSS & ISO 27001 Certified Security Standard</span>
         </div>
       </div>
@@ -170,16 +170,16 @@ export default function LoginPage() {
             background: '#FFFFFF',
             borderRadius: '24px',
             padding: 'clamp(28px, 4vw, 44px)',
-            boxShadow: '0 10px 35px rgba(6, 45, 34, 0.06)',
+            boxShadow: '0 10px 35px rgba(15, 23, 42, 0.06)',
             border: '1px solid #e2e8f0'
           }}
         >
           {/* Form Header */}
           <div style={{ marginBottom: 28, textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.8rem', color: '#172033', fontWeight: 800, marginBottom: 8 }}>
+            <h1 style={{ fontSize: '1.8rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
               Welcome Back
             </h1>
-            <p style={{ color: '#5e6d82', fontSize: '0.92rem' }}>
+            <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
               Sign in to access your TableMint restaurant dashboard.
             </p>
           </div>
@@ -206,7 +206,7 @@ export default function LoginPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#172033', marginBottom: 6 }}>
+              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
                 Email Address
               </label>
               <div style={{ position: 'relative' }}>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     boxSizing: 'border-box',
                     transition: 'border-color 0.18s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
               </div>
@@ -235,7 +235,7 @@ export default function LoginPage() {
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#172033' }}>
+                <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0F172A' }}>
                   Password
                 </label>
               </div>
@@ -256,7 +256,7 @@ export default function LoginPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#0BAF7A'}
+                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
                 <button
@@ -300,9 +300,9 @@ export default function LoginPage() {
 
           {/* Switch to Register */}
           <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 20, borderTop: '1px solid #edf2f7' }}>
-            <p style={{ fontSize: '0.9rem', color: '#5e6d82' }}>
+            <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
               Don't have a TableMint account yet?{' '}
-              <Link to="/register" style={{ color: '#0BAF7A', fontWeight: 700 }}>
+              <Link to="/register" style={{ color: '#2563EB', fontWeight: 700 }}>
                 Start 14-Day Free Trial
               </Link>
             </p>

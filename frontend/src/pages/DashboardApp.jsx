@@ -1436,7 +1436,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               />
               <defs>
                 <linearGradient id="headerLeafGrad" x1="20" y1="70" x2="145" y2="10" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#10b981" stopOpacity="0.55" />
+                  <stop stopColor="#2563EB" stopOpacity="0.55" />
                   <stop offset="1" stopColor="#047857" stopOpacity="0.1" />
                 </linearGradient>
               </defs>
@@ -1670,7 +1670,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 window.open(`/?table=1&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
               }}
               title="Open Customer Menu Card (Table 1)"
-              style={{ color: '#10b981' }}
+              style={{ color: '#2563EB' }}
             >
               <ExternalLink size={16} />
             </button>
@@ -1780,7 +1780,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               {/* Card 1: Revenue */}
               <div className="metric-card sales">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box" style={{ background: '#ecfdf5', color: '#059669' }}>₹</div>
+                  <div className="metric-icon-box" style={{ background: '#EFF6FF', color: '#1D4ED8' }}>₹</div>
                   <span className="metric-badge green">
                     <TrendingUp size={11} /> +12%
                   </span>
@@ -1792,15 +1792,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   </div>
                 </div>
                 <svg className="metric-card-wave wave-green" viewBox="0 0 160 36" fill="none" preserveAspectRatio="none">
-                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#10b981" fillOpacity="0.14"/>
-                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#10b981" fillOpacity="0.25"/>
+                  <path d="M0 20C40 22 55 6 95 10C130 14 142 26 160 18V36H0V20Z" fill="#2563EB" fillOpacity="0.14"/>
+                  <path d="M0 24C35 26 60 14 100 16C130 18 145 28 160 24V36H0V24Z" fill="#2563EB" fillOpacity="0.25"/>
                 </svg>
               </div>
 
               {/* Card 2: Total Orders */}
               <div className="metric-card orders">
                 <div className="metric-card-header">
-                  <div className="metric-icon-box" style={{ background: '#fffbeb', color: '#d97706' }}>
+                  <div className="metric-icon-box" style={{ background: '#fffbeb', color: '#F59E0B' }}>
                     <Receipt size={17} />
                   </div>
                   <span className="metric-badge amber">
@@ -2137,7 +2137,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             fontSize: '0.72rem',
                             fontWeight: 700,
                             borderRadius: 6,
-                            border: '1px solid #d97706',
+                            border: '1px solid #F59E0B',
                             background: '#fffbeb',
                             color: '#b45309',
                             cursor: 'pointer',
@@ -2271,7 +2271,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               <div className="mobile-order-item-name">{it.name || 'Dish'}</div>
                               <div className="mobile-order-item-price">₹{itPrice} each</div>
                               {it.notes && (
-                                <div style={{ fontSize: '0.72rem', color: '#059669', marginTop: 2 }}>
+                                <div style={{ fontSize: '0.72rem', color: '#1D4ED8', marginTop: 2 }}>
                                   Note: {it.notes}
                                 </div>
                               )}
@@ -2415,7 +2415,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         </div>
                         <div className="mobile-order-card-row">
                           <span className="mobile-order-price">₹ {ord.total}</span>
-                          <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>
+                          <span style={{ fontSize: '0.78rem', color: '#1D4ED8', fontWeight: 700 }}>
                             View Details ›
                           </span>
                         </div>
@@ -2538,7 +2538,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>
                         #{ticket.orderNumber || ticket.id.replace('ORD-', '')}
                       </span>
-                      <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#059669', fontWeight: 700 }}>
+                      <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#1D4ED8', fontWeight: 700 }}>
                         {formatElapsed(ticket.createdAt)}
                       </span>
                     </div>
@@ -2575,7 +2575,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         Mark as Served
                       </button>
                     ) : (
-                      <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                      <div style={{ textAlign: 'center', color: '#2563EB', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
                         ✓ Order Served
                       </div>
                     )}
@@ -2663,7 +2663,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <div key={ticket.id} className="kds-order-card">
                     <div className="kds-card-top">
                       <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
-                      <span className="kds-order-timer" style={{ color: '#059669' }}>{formatElapsed(ticket.createdAt)}</span>
+                      <span className="kds-order-timer" style={{ color: '#1D4ED8' }}>{formatElapsed(ticket.createdAt)}</span>
                     </div>
                     <div className="kds-order-table">{ticket.tableName}</div>
                     <div className="kds-order-items">
@@ -2703,7 +2703,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         <div key={idx}>{it.quantity} x {it.name}</div>
                       ))}
                     </div>
-                    <div style={{ textAlign: 'center', color: '#10b981', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                    <div style={{ textAlign: 'center', color: '#2563EB', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
                       ✓ Served to Table
                     </div>
                   </div>
@@ -2741,15 +2741,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <button
                   className="btn-brand-outline"
                   style={{
-                    background: '#ecfdf5',
-                    borderColor: '#10b981',
+                    background: '#EFF6FF',
+                    borderColor: '#2563EB',
                     color: '#065f46',
                     fontWeight: 700
                   }}
                   onClick={() => setDefaultMenuModalOpen(true)}
                   title="Explore and import TableMint default starter menu catalog"
                 >
-                  <Sparkles size={15} style={{ color: '#059669' }} /> TableMint Default Menu
+                  <Sparkles size={15} style={{ color: '#1D4ED8' }} /> TableMint Default Menu
                 </button>
                 <button
                   className="btn-brand-outline"
@@ -2897,8 +2897,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    background: '#ecfdf5',
-                    border: '1px solid #a7f3d0',
+                    background: '#EFF6FF',
+                    border: '1px solid #BFDBFE',
                     borderRadius: 12,
                     padding: '10px 16px',
                     margin: '12px 0',
@@ -3111,7 +3111,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               <td>
                                 <div style={{ fontWeight: 700, color: '#0f172a' }}>{dish.name}</div>
                                 {dish.variants && dish.variants.length > 0 && (
-                                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 600 }}>
+                                  <div style={{ fontSize: '0.72rem', color: '#1D4ED8', fontWeight: 600 }}>
                                     {dish.variants.length} size variants ({dish.variants.map(v => v.name).join(', ')})
                                   </div>
                                 )}
@@ -3124,7 +3124,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               </td>
                               <td>
                                 <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
-                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#059669' : '#dc2626' }}>
+                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#1D4ED8' : '#dc2626' }}>
                                   {dish.isVeg ? 'Veg' : 'Non-Veg'}
                                 </span>
                               </td>
@@ -3144,7 +3144,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                                     fontWeight: 700,
                                     padding: '3px 8px',
                                     borderRadius: 6,
-                                    background: isDraft ? '#fef3c7' : '#ecfdf5',
+                                    background: isDraft ? '#fef3c7' : '#EFF6FF',
                                     color: isDraft ? '#92400e' : '#065f46'
                                   }}>
                                     {isDraft ? 'Draft' : 'Live'}
@@ -3176,7 +3176,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                                     title="Delete Item"
                                     onClick={() => handleDeleteMenuItem(dish.id)}
                                   >
-                                    <Trash2 size={14} style={{ color: '#ef4444' }} />
+                                    <Trash2 size={14} style={{ color: '#DC2626' }} />
                                   </button>
                                 </div>
                               </td>
@@ -3592,7 +3592,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Recent Bills</h4>
                     <span
-                      style={{ fontSize: '0.78rem', fontWeight: 700, color: '#10b981', cursor: 'pointer' }}
+                      style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2563EB', cursor: 'pointer' }}
                       onClick={() => setActiveTab('orders')}
                     >
                       View All
@@ -3624,8 +3624,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               <span style={{
                                 fontSize: '0.72rem',
                                 fontWeight: 700,
-                                color: '#059669',
-                                background: '#ecfdf5',
+                                color: '#1D4ED8',
+                                background: '#EFF6FF',
                                 padding: '2px 8px',
                                 borderRadius: 9999
                               }}>
@@ -3784,7 +3784,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           <span>TOTAL</span>
                           <span>₹ {previewOrder.total}</span>
                         </div>
-                        <div className="thermal-line" style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 700, marginTop: 3 }}>
+                        <div className="thermal-line" style={{ fontSize: '0.68rem', color: '#1D4ED8', fontWeight: 700, marginTop: 3 }}>
                           <span>Status</span>
                           <span>PAID ({previewOrder.paymentMethod || 'UPI'})</span>
                         </div>
@@ -3878,12 +3878,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
           const hourlyList = analyticsData?.hourlyVolume || [];
           const maxHourlyCount = Math.max(...hourlyList.map(h => Number(h.count) || 0), 4);
           const statusList = analyticsData?.statusBreakdown || [
-            { status: 'Completed & Settled', count: orders.filter(o => o.paid).length, pct: '0%', color: '#10b981' },
+            { status: 'Completed & Settled', count: orders.filter(o => o.paid).length, pct: '0%', color: '#2563EB' },
             { status: 'In Kitchen / Active', count: orders.filter(o => !o.paid && o.status !== 'cancelled').length, pct: '0%', color: '#0284c7' },
-            { status: 'Cancelled', count: orders.filter(o => o.status === 'cancelled').length, pct: '0%', color: '#ef4444' }
+            { status: 'Cancelled', count: orders.filter(o => o.status === 'cancelled').length, pct: '0%', color: '#DC2626' }
           ];
           const paymentList = analyticsData?.paymentBreakdown || [
-            { method: 'UPI (QR Pay, GPay, PhonePe)', amount: '₹ 0', pct: '0%', color: '#10b981' },
+            { method: 'UPI (QR Pay, GPay, PhonePe)', amount: '₹ 0', pct: '0%', color: '#2563EB' },
             { method: 'Credit / Debit Cards', amount: '₹ 0', pct: '0%', color: '#0284c7' },
             { method: 'Cash on Counter', amount: '₹ 0', pct: '0%', color: '#f59e0b' }
           ];
@@ -3924,7 +3924,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     className="btn-brand-outline"
                     style={{ padding: '8px 14px', fontSize: '0.84rem', cursor: 'default', display: 'flex', alignItems: 'center', gap: 8, background: '#ffffff' }}
                   >
-                    <Calendar size={14} style={{ color: '#059669' }} />
+                    <Calendar size={14} style={{ color: '#1D4ED8' }} />
                     <span style={{ fontWeight: 600 }}>{analyticsData?.dateRangeLabel || currentDate}</span>
                   </div>
                 </div>
@@ -3953,7 +3953,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   ))}
                 </div>
                 <div className="mobile-timeframe-date-badge">
-                  <Calendar size={12} style={{ color: '#059669', flexShrink: 0 }} />
+                  <Calendar size={12} style={{ color: '#1D4ED8', flexShrink: 0 }} />
                   <span>{analyticsData?.dateRangeLabel || currentDate}</span>
                 </div>
               </div>
@@ -3999,7 +3999,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     <div className="mobile-reports-chart-card">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                         <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#64748b' }}>Revenue Trend</span>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#10b981' }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#2563EB' }}>
                           ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -4014,17 +4014,17 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             <svg width="100%" height="100%" viewBox="0 0 320 120" preserveAspectRatio="none">
                               <defs>
                                 <linearGradient id="mobileRevGrad" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                                  <stop offset="0%" stopColor="#2563EB" stopOpacity="0.4" />
+                                  <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
                                 </linearGradient>
                               </defs>
                               <line x1="0" y1="20" x2="320" y2="20" stroke="#f1f5f9" strokeWidth="1" />
                               <line x1="0" y1="60" x2="320" y2="60" stroke="#f1f5f9" strokeWidth="1" />
                               <line x1="0" y1="100" x2="320" y2="100" stroke="#f1f5f9" strokeWidth="1" />
                               <path d={mAreaPath} fill="url(#mobileRevGrad)" />
-                              <path d={mLinePath} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" />
+                              <path d={mLinePath} fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" />
                               {mPoints.map((p, idx) => (
-                                <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 3.5 : 2} fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+                                <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 3.5 : 2} fill="#2563EB" stroke="#ffffff" strokeWidth="1.5" />
                               ))}
                             </svg>
                           </div>
@@ -4052,7 +4052,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       </div>
                       <div className="mobile-reports-kpi-card">
                         <span className="mobile-kpi-label">Completed & Settled</span>
-                        <div className="mobile-kpi-value" style={{ color: '#10b981' }}>
+                        <div className="mobile-kpi-value" style={{ color: '#2563EB' }}>
                           {statusList.find(s => s.status.includes('Completed'))?.count || 0}
                         </div>
                         <span className="mobile-kpi-hint">
@@ -4083,7 +4083,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           {hourlyList.map((h, idx) => (
                             <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                               <span style={{ fontSize: '0.66rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
-                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 80)}px`, background: h.count > 0 ? '#10b981' : '#e2e8f0', borderRadius: '4px 4px 0 0' }} />
+                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 80)}px`, background: h.count > 0 ? '#2563EB' : '#e2e8f0', borderRadius: '4px 4px 0 0' }} />
                               <span style={{ fontSize: '0.6rem', color: '#64748b', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 40 }}>{h.hour}</span>
                             </div>
                           ))}
@@ -4118,7 +4118,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     <div className="mobile-top-selling-section">
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                         <h4 style={{ fontSize: '0.96rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>Top Selling Items Leaderboard</h4>
-                        <span style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                        <span style={{ fontSize: '0.74rem', color: '#2563EB', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
                           View Menu ›
                         </span>
                       </div>
@@ -4141,10 +4141,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               <div className="mobile-selling-name">{item.name}</div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
                                 <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.category}</span>
-                                <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>₹{item.sales.toLocaleString('en-IN')}</span>
+                                <span style={{ fontSize: '0.72rem', color: '#1D4ED8', fontWeight: 700 }}>₹{item.sales.toLocaleString('en-IN')}</span>
                               </div>
                             </div>
-                            <div style={{ fontSize: '0.78rem', color: '#07241a', fontWeight: 800 }}>
+                            <div style={{ fontSize: '0.78rem', color: '#2563EB', fontWeight: 800 }}>
                               {item.count} sold
                             </div>
                           </div>
@@ -4159,11 +4159,11 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <div className="mobile-subtab-pane">
                     <div className="mobile-reports-chart-card" style={{ marginBottom: 12 }}>
                       <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 700 }}>Total Collected Revenue</span>
-                      <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#07241a', margin: '4px 0 8px 0' }}>
+                      <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#2563EB', margin: '4px 0 8px 0' }}>
                         ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                       </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#ecfdf5', color: '#065f46', padding: '4px 10px', borderRadius: 9999, fontSize: '0.72rem', fontWeight: 800 }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} /> Direct Settlement Active
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EFF6FF', color: '#065f46', padding: '4px 10px', borderRadius: 9999, fontSize: '0.72rem', fontWeight: 800 }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563EB' }} /> Direct Settlement Active
                       </div>
                     </div>
 
@@ -4278,7 +4278,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             analyticsTimeframe.toUpperCase()
                           })
                         </h3>
-                        <div style={{ background: '#07241a', color: '#10b981', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
+                        <div style={{ background: '#2563EB', color: '#2563EB', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
                           ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                         </div>
                       </div>
@@ -4288,8 +4288,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none">
                           <defs>
                             <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                              <stop offset="0%" stopColor="#2563EB" stopOpacity="0.35" />
+                              <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
                             </linearGradient>
                           </defs>
                           <line x1="0" y1="40" x2="500" y2="40" stroke="#f1f5f9" strokeWidth="1" />
@@ -4297,9 +4297,9 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           <line x1="0" y1="140" x2="500" y2="140" stroke="#f1f5f9" strokeWidth="1" />
                           <line x1="0" y1="190" x2="500" y2="190" stroke="#f1f5f9" strokeWidth="1" />
                           <path d={dAreaPath} fill="url(#revenueGrad)" />
-                          <path d={dLinePath} fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" />
+                          <path d={dLinePath} fill="none" stroke="#2563EB" strokeWidth="3.5" strokeLinecap="round" />
                           {dPoints.map((p, idx) => (
-                            <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 5 : 3} fill="#10b981" stroke="#ffffff" strokeWidth="2" />
+                            <circle key={idx} cx={p.x} cy={p.y} r={Number(p.revenue) > 0 ? 5 : 3} fill="#2563EB" stroke="#ffffff" strokeWidth="2" />
                           ))}
                         </svg>
                       </div>
@@ -4316,7 +4316,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, color: '#0f172a' }}>
                           Top Selling Items
                         </h3>
-                        <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
+                        <span style={{ fontSize: '0.78rem', color: '#1D4ED8', fontWeight: 700, cursor: 'pointer' }} onClick={() => setActiveTab('menu')}>
                           Manage Menu ›
                         </span>
                       </div>
@@ -4340,7 +4340,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                                 />
                                 <div>
                                   <div className="top-selling-name">{it.name}</div>
-                                  <div style={{ fontSize: '0.74rem', color: '#059669', fontWeight: 600 }}>₹{it.sales.toLocaleString('en-IN')}</div>
+                                  <div style={{ fontSize: '0.74rem', color: '#1D4ED8', fontWeight: 600 }}>₹{it.sales.toLocaleString('en-IN')}</div>
                                 </div>
                               </div>
                               <span className="top-selling-orders">{it.count} orders</span>
@@ -4371,7 +4371,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           {hourlyList.map((h) => (
                             <div key={h.hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                               <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#0f172a' }}>{h.count}</span>
-                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 140)}px`, background: h.count > 0 ? '#10b981' : '#e2e8f0', borderRadius: '6px 6px 0 0' }} />
+                              <div style={{ width: '100%', height: `${Math.max(6, (h.count / maxHourlyCount) * 140)}px`, background: h.count > 0 ? '#2563EB' : '#e2e8f0', borderRadius: '6px 6px 0 0' }} />
                               <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{h.hour}</span>
                             </div>
                           ))}
@@ -4424,7 +4424,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               <td style={{ fontWeight: 700, color: '#0f172a' }}>{row.name}</td>
                               <td style={{ color: '#64748b' }}>{row.category}</td>
                               <td style={{ fontWeight: 700 }}>₹ {row.price}</td>
-                              <td style={{ fontWeight: 700, color: '#10b981' }}>{row.count} orders</td>
+                              <td style={{ fontWeight: 700, color: '#2563EB' }}>{row.count} orders</td>
                               <td style={{ fontWeight: 800, color: '#0f172a' }}>₹ {row.sales.toLocaleString('en-IN')}</td>
                             </tr>
                           ))}
@@ -4457,12 +4457,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <div style={{ padding: 16, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
                           <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 600 }}>Total Revenue Collected ({analyticsTimeframe.toUpperCase()})</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#07241a', marginTop: 4 }}>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#2563EB', marginTop: 4 }}>
                             ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                           </div>
                         </div>
-                        <div style={{ padding: 16, background: '#ecfdf5', borderRadius: 12, border: '1px solid #a7f3d0' }}>
-                          <div style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 700 }}>Settlement Status</div>
+                        <div style={{ padding: 16, background: '#EFF6FF', borderRadius: 12, border: '1px solid #BFDBFE' }}>
+                          <div style={{ fontSize: '0.8rem', color: '#1D4ED8', fontWeight: 700 }}>Settlement Status</div>
                           <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#065f46', marginTop: 4 }}>
                             Direct UPI / Cash Settlement Active
                           </div>
@@ -4486,7 +4486,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         </p>
                       </div>
                       <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
-                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#10b981', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
+                        <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#2563EB', background: '#EFF6FF', padding: '3px 8px', borderRadius: 9999 }}>
                           {peak.dinnerRush.title}
                         </span>
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '10px 0 6px', color: '#0f172a' }}>{peak.dinnerRush.hours}</h4>
@@ -4761,7 +4761,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                           <div className="settings-form-field">
                             <label className="settings-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <span>UPI ID / VPA Handle *</span>
-                              <label style={{ fontSize: '0.74rem', color: '#059669', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+                              <label style={{ fontSize: '0.74rem', color: '#1D4ED8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
                                 <Upload size={12} /> Upload File / QR
                                 <input
                                   type="file"
@@ -4880,8 +4880,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: 6,
-                            background: '#ecfdf5',
-                            color: '#059669',
+                            background: '#EFF6FF',
+                            color: '#1D4ED8',
                             fontSize: '0.74rem',
                             fontWeight: 800,
                             padding: '4px 10px',
@@ -4916,7 +4916,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             alignItems: 'center',
                             gap: 6,
                             fontSize: '0.8rem',
-                            color: '#059669',
+                            color: '#1D4ED8',
                             fontWeight: 700,
                             background: '#ffffff',
                             padding: '4px 10px',
@@ -5219,15 +5219,15 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 16 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div>
-                          <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#059669', background: '#ecfdf5', padding: '3px 8px', borderRadius: 9999 }}>
+                          <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1D4ED8', background: '#EFF6FF', padding: '3px 8px', borderRadius: 9999 }}>
                             CURRENT PLAN
                           </span>
                           <h4 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f172a', margin: '8px 0 2px' }}>TableMint Restaurant Pro</h4>
                           <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Unlimited QR Tables • Full POS & Kitchen Display • 24/7 Priority Support</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#07241a' }}>₹ 1,999 / mo</div>
-                          <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700 }}>Active (Annual Subscription)</div>
+                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#2563EB' }}>₹ 1,999 / mo</div>
+                          <div style={{ fontSize: '0.75rem', color: '#2563EB', fontWeight: 700 }}>Active (Annual Subscription)</div>
                         </div>
                       </div>
                     </div>
@@ -5252,7 +5252,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               <div className="page-header-actions">
                 <button
                   className="btn-brand-primary"
-                  style={{ background: '#ef4444' }}
+                  style={{ background: '#DC2626' }}
                   onClick={handleLogout}
                 >
                   <Lock size={15} /> Lock Terminal Now
@@ -5271,7 +5271,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   Full privileges: Order creation, table management, live reports, menu catalog editing, and financial exports.
                 </p>
                 <div style={{ fontSize: '0.75rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <ShieldCheck size={14} style={{ color: '#00e676' }} /> Verified with Email & Password
+                  <ShieldCheck size={14} style={{ color: '#3B82F6' }} /> Verified with Email & Password
                 </div>
               </div>
 
@@ -5309,7 +5309,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             {/* Authentication Policy Information */}
             <div className="settings-card" style={{ maxWidth: 580, marginTop: 10 }}>
               <div className="settings-card-title">
-                <ShieldCheck size={18} style={{ color: '#00e676' }} />
+                <ShieldCheck size={18} style={{ color: '#3B82F6' }} />
                 <span>Account Credentials & Password Authentication</span>
               </div>
               <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, margin: 0 }}>
@@ -5367,7 +5367,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               <div className="integration-card">
                 <div>
                   <div className="integration-top">
-                    <div className="integration-icon-wrap" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                    <div className="integration-icon-wrap" style={{ background: 'rgba(37, 99, 235, 0.15)', color: '#2563EB' }}>
                       <Wifi size={22} />
                     </div>
                     <span className="integration-status-pill online">
@@ -5730,7 +5730,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       <h3 className="mobile-more-user-name">{profileName || currentUser?.name || 'Admin Manager'}</h3>
                       <p className="mobile-more-user-role">{profileRestaurant || 'Restaurant Owner'}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#10b981', fontWeight: 700, fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#2563EB', fontWeight: 700, fontSize: '0.8rem' }}>
                       <span>Edit</span>
                       <ChevronRight size={16} />
                     </div>
@@ -5743,7 +5743,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       onClick={() => setMobileProfileSubView(true)}
                     >
                       <div className="mobile-more-nav-left">
-                        <User size={18} className="mobile-more-nav-icon" style={{ color: '#10b981' }} />
+                        <User size={18} className="mobile-more-nav-icon" style={{ color: '#2563EB' }} />
                         <span style={{ color: '#0f172a', fontWeight: 800 }}>My Profile & Account</span>
                       </div>
                       <ChevronRight size={18} className="mobile-more-chevron" />
@@ -5785,8 +5785,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       onClick={handleLogout}
                     >
                       <div className="mobile-more-nav-left">
-                        <LogOut size={18} className="mobile-more-nav-icon" style={{ color: '#ef4444' }} />
-                        <span style={{ color: '#ef4444', fontWeight: 700 }}>Logout</span>
+                        <LogOut size={18} className="mobile-more-nav-icon" style={{ color: '#DC2626' }} />
+                        <span style={{ color: '#DC2626', fontWeight: 700 }}>Logout</span>
                       </div>
                       <ChevronRight size={18} className="mobile-more-chevron" />
                     </button>
@@ -5806,7 +5806,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <button
                     type="button"
                     className="btn-brand-primary"
-                    style={{ background: '#ef4444' }}
+                    style={{ background: '#DC2626' }}
                     onClick={handleLogout}
                     title="Sign out and return to Login & Sign Up screen"
                   >
@@ -5822,7 +5822,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   width: 76,
                   height: 76,
                   borderRadius: '50%',
-                  background: '#07241a',
+                  background: '#2563EB',
                   color: '#ffffff',
                   fontSize: '1.5rem',
                   fontWeight: 800,
@@ -5831,7 +5831,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   justifyContent: 'center',
                   position: 'relative',
                   marginBottom: 14,
-                  boxShadow: '0 4px 12px rgba(7, 36, 26, 0.15)'
+                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)'
                 }}>
                   {currentUser?.name
                     ? currentUser.name
@@ -5849,7 +5849,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     width: 14,
                     height: 14,
                     borderRadius: '50%',
-                    background: '#10b981',
+                    background: '#2563EB',
                     border: '2px solid #ffffff'
                   }} title="Active Session" />
                 </div>
@@ -5866,9 +5866,9 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     borderRadius: 20,
                     fontSize: '0.75rem',
                     fontWeight: 700,
-                    background: '#ecfdf5',
+                    background: '#EFF6FF',
                     color: '#065f46',
-                    border: '1px solid #a7f3d0'
+                    border: '1px solid #BFDBFE'
                   }}>
                     <ShieldCheck size={13} />
                     {currentUser?.role === 'admin' ? 'Admin / Owner' : 'Floor Staff'}
@@ -5893,13 +5893,13 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <div style={{ width: '100%', borderTop: '1px solid #f1f5f9', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
                     <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <ShieldCheck size={14} color="#10b981" /> Security Standard
+                      <ShieldCheck size={14} color="#2563EB" /> Security Standard
                     </span>
                     <span style={{ fontWeight: 700, color: '#0f172a' }}>PBKDF2 SHA-512</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
                     <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Lock size={14} color="#07241a" /> Login Method
+                      <Lock size={14} color="#2563EB" /> Login Method
                     </span>
                     <span style={{ fontWeight: 700, color: '#0f172a' }}>Email & Password</span>
                   </div>
@@ -5917,7 +5917,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 {/* Edit Profile Details Form */}
                 <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <User size={18} style={{ color: '#07241a' }} /> Personal & Restaurant Profile
+                    <User size={18} style={{ color: '#2563EB' }} /> Personal & Restaurant Profile
                   </h4>
                   <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: 18 }}>
                     Update your display name and dining brand name across POS tickets and receipts.
@@ -6249,7 +6249,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <span>TOTAL AMOUNT:</span>
                 <span>₹{printBillOrder.total}</span>
               </div>
-              <div className="receipt-total-row" style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 700 }}>
+              <div className="receipt-total-row" style={{ fontSize: '0.74rem', color: '#2563EB', fontWeight: 700 }}>
                 <span>Payment Status:</span>
                 <span>PAID ({printBillOrder.paymentMethod || 'UPI / COUNTER'})</span>
               </div>
@@ -6348,7 +6348,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <button
                   type="button"
                   className="btn-primary"
-                  style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   onClick={() => {
                     const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
                     window.open(`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');
@@ -6587,7 +6587,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   <img
                     src={currentUser.avatar}
                     alt="Profile"
-                    style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #10b981' }}
+                    style={{ width: 42, height: 42, borderRadius: '50%', objectFit: 'cover', border: '2px solid #2563EB' }}
                   />
                 ) : (
                   <div
@@ -6595,14 +6595,14 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       width: 42,
                       height: 42,
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #07241a 0%, #059669 100%)',
+                      background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                       color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 800,
                       fontSize: '0.92rem',
-                      border: '2px solid #10b981',
+                      border: '2px solid #2563EB',
                       flexShrink: 0
                     }}
                   >
@@ -6611,7 +6611,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 )}
                 <div>
                   <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.02rem' }}>{profileName || currentUser?.name || 'Admin Manager'}</div>
-                  <div style={{ fontSize: '0.74rem', color: '#10b981', fontWeight: 600 }}>Restaurant Owner</div>
+                  <div style={{ fontSize: '0.74rem', color: '#2563EB', fontWeight: 600 }}>Restaurant Owner</div>
                 </div>
               </div>
               <button className="modal-close-btn" onClick={() => setMobileMoreOpen(false)}>
@@ -6630,7 +6630,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   if (activeT) setSelectedBillingTableId(activeT.id);
                 }}
               >
-                <div className="drawer-btn-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                <div className="drawer-btn-icon" style={{ background: 'rgba(37, 99, 235, 0.15)', color: '#2563EB' }}>
                   <CreditCard size={20} />
                 </div>
                 <div>
@@ -6720,7 +6720,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   setMobileMoreOpen(false);
                   handleLogout();
                 }}
-                style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+                style={{ color: '#DC2626', borderColor: 'rgba(239, 68, 68, 0.3)' }}
               >
                 <LogOut size={16} /> Logout Station
               </button>

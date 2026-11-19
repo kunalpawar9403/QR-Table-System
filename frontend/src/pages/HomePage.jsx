@@ -220,10 +220,10 @@ export default function HomePage() {
         <PageContainer>
           <div className="tm-stats-grid">
             {[
-              { num: '3.5x', color: '#062D22', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
-              { num: '28%', color: '#0BAF7A', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
-              { num: '0%', color: '#062D22', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
-              { num: '₹0', color: '#0BAF7A', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
+              { num: '3.5x', color: '#0F172A', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
+              { num: '28%', color: '#2563EB', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
+              { num: '0%', color: '#0F172A', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
+              { num: '₹0', color: '#2563EB', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
             ].map((stat, idx) => (
               <motion.div 
                 key={idx}
@@ -247,7 +247,7 @@ export default function HomePage() {
       {/* =========================================================
           FEATURES HIGHLIGHT SECTION (8 Pillars)
           ========================================================= */}
-      <section className="tm-section-spacious" style={{ background: '#F4F7F6' }}>
+      <section className="tm-section-spacious" style={{ background: '#F8FAFC' }}>
         <PageContainer>
           <motion.div 
             className="tm-section-header"
@@ -287,10 +287,10 @@ export default function HomePage() {
                 <div className="tm-icon-box">
                   {feat.icon}
                 </div>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: 10, color: '#172033' }}>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: 10, color: '#0F172A' }}>
                   {feat.title}
                 </h3>
-                <p style={{ fontSize: '0.94rem', color: '#5e6d82', marginBottom: 20, flex: 1 }}>
+                <p style={{ fontSize: '0.94rem', color: '#64748B', marginBottom: 20, flex: 1 }}>
                   {feat.desc}
                 </p>
                 <Link 
@@ -299,7 +299,7 @@ export default function HomePage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    color: '#0BAF7A',
+                    color: '#2563EB',
                     fontWeight: 600,
                     fontSize: '0.88rem',
                     textDecoration: 'none'
@@ -340,9 +340,9 @@ export default function HomePage() {
                   gap: 8,
                   padding: '6px 14px',
                   borderRadius: '9999px',
-                  background: 'rgba(22, 201, 149, 0.12)',
-                  border: '1px solid rgba(22, 201, 149, 0.3)',
-                  color: '#16C995',
+                  background: 'rgba(37, 99, 235, 0.12)',
+                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  color: '#2563EB',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -377,11 +377,11 @@ export default function HomePage() {
                         width: 20,
                         height: 20,
                         borderRadius: '50%',
-                        background: 'rgba(22, 201, 149, 0.2)',
+                        background: 'rgba(37, 99, 235, 0.2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#16C995',
+                        color: '#2563EB',
                         flexShrink: 0
                       }}>
                         <Check size={13} strokeWidth={3} />
@@ -457,7 +457,7 @@ export default function HomePage() {
                 style={{
                   borderRadius: '16px',
                   overflow: 'hidden',
-                  background: '#F4F7F6',
+                  background: '#F8FAFC',
                   border: '1px solid #e2e8f0',
                   display: 'flex',
                   flexDirection: 'column'
@@ -478,24 +478,24 @@ export default function HomePage() {
                     position: 'absolute',
                     top: 12,
                     right: 12,
-                    background: 'rgba(6, 45, 34, 0.85)',
+                    background: 'rgba(15, 23, 42, 0.85)',
                     backdropFilter: 'blur(8px)',
-                    color: '#16C995',
+                    color: '#2563EB',
                     fontSize: '0.72rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     padding: '4px 10px',
                     borderRadius: '9999px',
-                    border: '1px solid rgba(22, 201, 149, 0.3)'
+                    border: '1px solid rgba(37, 99, 235, 0.3)'
                   }}>
                     {type.tag}
                   </span>
                 </div>
                 <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: 10, color: '#172033' }}>
+                  <h3 style={{ fontSize: '1.2rem', marginBottom: 10, color: '#0F172A' }}>
                     {type.title}
                   </h3>
-                  <p style={{ fontSize: '0.92rem', color: '#5e6d82', marginBottom: 18, flex: 1 }}>
+                  <p style={{ fontSize: '0.92rem', color: '#64748B', marginBottom: 18, flex: 1 }}>
                     {type.desc}
                   </p>
                   <Link 
@@ -504,7 +504,7 @@ export default function HomePage() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      color: '#0BAF7A',
+                      color: '#2563EB',
                       fontWeight: 600,
                       fontSize: '0.88rem'
                     }}
@@ -522,7 +522,7 @@ export default function HomePage() {
       {/* =========================================================
           PRICING PREVIEW
           ========================================================= */}
-      <section className="tm-section-spacious" style={{ background: '#F4F7F6' }}>
+      <section className="tm-section-spacious" style={{ background: '#F8FAFC' }}>
         <PageContainer>
           <motion.div 
             className="tm-section-header"
@@ -566,7 +566,7 @@ export default function HomePage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: billingCycle === 'monthly' ? '#FFFFFF' : 'transparent',
-                  color: billingCycle === 'monthly' ? '#172033' : '#64748b',
+                  color: billingCycle === 'monthly' ? '#0F172A' : '#64748b',
                   boxShadow: billingCycle === 'monthly' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
                   transition: 'all 0.2s ease'
                 }}
@@ -585,7 +585,7 @@ export default function HomePage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: billingCycle === 'yearly' ? '#FFFFFF' : 'transparent',
-                  color: billingCycle === 'yearly' ? '#172033' : '#64748b',
+                  color: billingCycle === 'yearly' ? '#0F172A' : '#64748b',
                   boxShadow: billingCycle === 'yearly' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
                   transition: 'all 0.2s ease',
                   display: 'flex',
@@ -595,7 +595,7 @@ export default function HomePage() {
               >
                 <span>Yearly Billing</span>
                 <span style={{
-                  background: '#0BAF7A',
+                  background: '#2563EB',
                   color: '#FFFFFF',
                   fontSize: '0.7rem',
                   padding: '2px 6px',
@@ -624,19 +624,19 @@ export default function HomePage() {
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
               <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Starter</h3>
-              <p style={{ fontSize: '0.9rem', color: '#5e6d82', marginBottom: 20 }}>
+              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
                 Ideal for small cafes, takeaway counters, and food trucks.
               </p>
               <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#062D22', fontFamily: 'var(--font-heading)' }}>
+                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', fontFamily: 'var(--font-heading)' }}>
                   ₹{billingCycle === 'yearly' ? '799' : '999'}
                 </span>
                 <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
               </div>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
                 {["Up to 10 Dining Tables", "1 POS Terminal Cashier", "Contactless QR Menus", "Basic Sales Reports", "Email Support"].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#172033' }}>
-                    <Check size={16} style={{ color: '#0BAF7A', flexShrink: 0 }} />
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
+                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -653,8 +653,8 @@ export default function HomePage() {
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                borderColor: '#0BAF7A',
-                boxShadow: '0 12px 30px rgba(11, 175, 122, 0.15)',
+                borderColor: '#2563EB',
+                boxShadow: '0 12px 30px rgba(37, 99, 235, 0.15)',
                 borderWidth: 2
               }}
               initial={{ opacity: 0, y: 24 }}
@@ -668,7 +668,7 @@ export default function HomePage() {
                 top: -12,
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: '#0BAF7A',
+                background: '#2563EB',
                 color: '#FFFFFF',
                 padding: '4px 14px',
                 borderRadius: '9999px',
@@ -680,11 +680,11 @@ export default function HomePage() {
                 Most Popular
               </span>
               <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Standard</h3>
-              <p style={{ fontSize: '0.9rem', color: '#5e6d82', marginBottom: 20 }}>
+              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
                 Perfect for busy casual dining, bistros, and full-service restaurants.
               </p>
               <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0BAF7A', fontFamily: 'var(--font-heading)' }}>
+                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#2563EB', fontFamily: 'var(--font-heading)' }}>
                   ₹{billingCycle === 'yearly' ? '1,599' : '1,999'}
                 </span>
                 <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
@@ -698,8 +698,8 @@ export default function HomePage() {
                   "Daily & Weekly GST Reports",
                   "Priority WhatsApp Support"
                 ].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#172033' }}>
-                    <Check size={16} style={{ color: '#0BAF7A', flexShrink: 0 }} />
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
+                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -720,11 +720,11 @@ export default function HomePage() {
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
             >
               <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Premium</h3>
-              <p style={{ fontSize: '0.9rem', color: '#5e6d82', marginBottom: 20 }}>
+              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
                 For high-volume multi-floor restaurants, bars, and multi-outlet chains.
               </p>
               <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#062D22', fontFamily: 'var(--font-heading)' }}>
+                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', fontFamily: 'var(--font-heading)' }}>
                   ₹{billingCycle === 'yearly' ? '3,199' : '3,999'}
                 </span>
                 <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
@@ -738,8 +738,8 @@ export default function HomePage() {
                   "Dedicated Account Manager",
                   "24/7 Phone & On-Site Assistance"
                 ].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#172033' }}>
-                    <Check size={16} style={{ color: '#0BAF7A', flexShrink: 0 }} />
+                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
+                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -751,7 +751,7 @@ export default function HomePage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Link to="/pricing" style={{ color: '#0BAF7A', fontWeight: 600, fontSize: '0.95rem' }}>
+            <Link to="/pricing" style={{ color: '#2563EB', fontWeight: 600, fontSize: '0.95rem' }}>
               Compare all features and specifications in our complete pricing table →
             </Link>
           </div>

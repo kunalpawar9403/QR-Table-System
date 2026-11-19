@@ -217,21 +217,21 @@ export default function FeaturesPage() {
                   borderRadius: '9999px',
                   fontSize: '0.86rem',
                   fontWeight: 600,
-                  color: '#172033',
-                  background: '#F4F7F6',
+                  color: '#0F172A',
+                  background: '#F8FAFC',
                   border: '1px solid #e2e8f0',
                   textDecoration: 'none',
                   transition: 'all 0.18s ease'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background = '#e8f9f3';
-                  e.currentTarget.style.borderColor = '#0BAF7A';
-                  e.currentTarget.style.color = '#062D22';
+                  e.currentTarget.style.borderColor = '#2563EB';
+                  e.currentTarget.style.color = '#0F172A';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#F4F7F6';
+                  e.currentTarget.style.background = '#F8FAFC';
                   e.currentTarget.style.borderColor = '#e2e8f0';
-                  e.currentTarget.style.color = '#172033';
+                  e.currentTarget.style.color = '#0F172A';
                 }}
               >
                 <span>{item.title.split('&')[0].trim()}</span>
@@ -242,7 +242,7 @@ export default function FeaturesPage() {
       </section>
 
       {/* Detailed Feature Modules */}
-      <section style={{ padding: '80px 24px', background: '#F4F7F6' }}>
+      <section style={{ padding: '80px 24px', background: '#F8FAFC' }}>
         <PageContainer>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 90 }}>
             {featureModules.map((mod, idx) => {
@@ -265,7 +265,7 @@ export default function FeaturesPage() {
                     borderRadius: '24px',
                     padding: 'clamp(20px, 4vw, 48px)',
                     border: '1px solid #e2e8f0',
-                    boxShadow: '0 8px 30px rgba(6, 45, 34, 0.05)'
+                    boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05)'
                   }}
                 >
                   {/* Left / Right Content Order */}
@@ -276,8 +276,8 @@ export default function FeaturesPage() {
                       gap: 8,
                       padding: '5px 12px',
                       borderRadius: '9999px',
-                      background: 'rgba(11, 175, 122, 0.1)',
-                      color: '#0BAF7A',
+                      background: 'rgba(37, 99, 235, 0.1)',
+                      color: '#2563EB',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -291,7 +291,7 @@ export default function FeaturesPage() {
                     <h2 style={{
                       fontSize: 'clamp(1.7rem, 3vw, 2.3rem)',
                       fontWeight: 800,
-                      color: '#172033',
+                      color: '#0F172A',
                       lineHeight: 1.25,
                       marginBottom: 14
                     }}>
@@ -301,7 +301,7 @@ export default function FeaturesPage() {
                     <p style={{
                       fontSize: '1.05rem',
                       fontWeight: 600,
-                      color: '#062D22',
+                      color: '#0F172A',
                       marginBottom: 14
                     }}>
                       {mod.headline}
@@ -309,7 +309,7 @@ export default function FeaturesPage() {
 
                     <p style={{
                       fontSize: '0.96rem',
-                      color: '#5e6d82',
+                      color: '#64748B',
                       lineHeight: 1.65,
                       marginBottom: 24
                     }}>
@@ -318,8 +318,8 @@ export default function FeaturesPage() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
                       {mod.benefits.map((b, bIdx) => (
-                        <div key={bIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.92rem', color: '#172033' }}>
-                          <CheckCircle size={17} style={{ color: '#0BAF7A', flexShrink: 0, marginTop: 2 }} />
+                        <div key={bIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
+                          <CheckCircle size={17} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
                           <span>{b}</span>
                         </div>
                       ))}
@@ -351,7 +351,7 @@ export default function FeaturesPage() {
                       overflow: 'hidden',
                       border: '1px solid #e2e8f0',
                       boxShadow: '0 16px 36px rgba(0, 0, 0, 0.08)',
-                      background: '#041711'
+                      background: '#0F172A'
                     }}
                   >
                     <span style={{
@@ -359,14 +359,14 @@ export default function FeaturesPage() {
                       top: 14,
                       right: 14,
                       zIndex: 2,
-                      background: 'rgba(6, 45, 34, 0.88)',
+                      background: 'rgba(15, 23, 42, 0.88)',
                       backdropFilter: 'blur(8px)',
-                      color: '#16C995',
+                      color: '#2563EB',
                       fontSize: '0.74rem',
                       fontWeight: 700,
                       padding: '4px 10px',
                       borderRadius: '9999px',
-                      border: '1px solid rgba(22, 201, 149, 0.3)'
+                      border: '1px solid rgba(37, 99, 235, 0.3)'
                     }}>
                       {mod.badgeText}
                     </span>

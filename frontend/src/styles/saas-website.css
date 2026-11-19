@@ -2,28 +2,28 @@
    TABLEMINT SAAS MARKETING WEBSITE STYLES
    Inspired by Stripe, Square & Shopify
    Palette:
-   - Deep Green:    #062D22
-   - Primary Green: #0BAF7A
-   - Mint:          #16C995
-   - Background:    #F4F7F6
+   - Deep Green:    #0F172A
+   - Primary Green: #2563EB
+   - Mint:          #2563EB
+   - Background:    #F8FAFC
    - White:         #FFFFFF
-   - Text:          #172033
+   - Text:          #0F172A
    ========================================================= */
 
 :root {
-  --tm-deep-green: #062D22;
-  --tm-deep-green-dark: #031812;
-  --tm-deep-green-light: #0d4434;
-  --tm-primary-green: #0BAF7A;
-  --tm-primary-green-hover: #099769;
-  --tm-mint: #16C995;
-  --tm-mint-soft: #eafaf4;
-  --tm-mint-glow: rgba(22, 201, 149, 0.25);
-  --tm-bg: #F4F7F6;
+  --tm-deep-green: #0F172A;
+  --tm-deep-green-dark: #0F172A;
+  --tm-deep-green-light: #1D4ED8;
+  --tm-primary-green: #2563EB;
+  --tm-primary-green-hover: #1D4ED8;
+  --tm-mint: #2563EB;
+  --tm-mint-soft: #EFF6FF;
+  --tm-mint-glow: rgba(37, 99, 235, 0.25);
+  --tm-bg: #F8FAFC;
   --tm-white: #FFFFFF;
-  --tm-text: #172033;
-  --tm-text-muted: #5e6d82;
-  --tm-text-subtle: #8a9ba8;
+  --tm-text: #0F172A;
+  --tm-text-muted: #64748B;
+  --tm-text-subtle: #64748B;
   --tm-border: #e2e8f0;
   --tm-border-light: #edf2f7;
 
@@ -31,10 +31,10 @@
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 
   --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
-  --shadow-card: 0 4px 20px -2px rgba(6, 45, 34, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 20px 35px -5px rgba(6, 45, 34, 0.12), 0 8px 16px -3px rgba(0, 0, 0, 0.06);
-  --shadow-elevated: 0 25px 50px -12px rgba(6, 45, 34, 0.25);
-  --shadow-glow: 0 0 35px rgba(11, 175, 122, 0.3);
+  --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 20px 35px -5px rgba(15, 23, 42, 0.12), 0 8px 16px -3px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+  --shadow-glow: 0 0 35px rgba(37, 99, 235, 0.3);
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -87,7 +87,7 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(6, 45, 34, 0.94);
+  background: rgba(15, 23, 42, 0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -123,7 +123,7 @@
   height: 36px;
   border-radius: 9px;
   object-fit: cover;
-  box-shadow: 0 4px 12px rgba(11, 175, 122, 0.35);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 .tm-brand-name {
@@ -139,9 +139,9 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: rgba(22, 201, 149, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   color: var(--tm-mint);
-  border: 1px solid rgba(22, 201, 149, 0.35);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   padding: 2px 7px;
   border-radius: var(--radius-full);
   margin-left: 4px;
@@ -185,9 +185,9 @@
 .tm-nav-item.active,
 .tm-nav-item.active:link,
 .tm-nav-item.active:visited {
-  color: #10b981 !important;
+  color: #2563EB !important;
   font-weight: 700;
-  background: rgba(16, 185, 129, 0.18);
+  background: rgba(37, 99, 235, 0.18);
   opacity: 1;
 }
 
@@ -199,7 +199,7 @@
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
-  background: #10b981;
+  background: #2563EB;
   border-radius: 2px;
 }
 
@@ -242,10 +242,10 @@
   color: #ffffff !important;
   padding: 9px 20px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
   transition: all 0.2s ease;
   text-decoration: none;
   display: inline-flex;
@@ -254,8 +254,8 @@
 }
 
 .tm-btn-primary-nav:hover {
-  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.55);
+  background: linear-gradient(135deg, #60A5FA 0%, #2563EB 100%);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
   transform: translateY(-1px);
   color: #ffffff !important;
 }
@@ -345,9 +345,9 @@
 }
 
 .tm-drawer-close-btn:hover {
-  background: rgba(22, 201, 149, 0.16);
-  border-color: #16C995;
-  color: #16C995;
+  background: rgba(37, 99, 235, 0.16);
+  border-color: #2563EB;
+  color: #2563EB;
   transform: rotate(90deg);
 }
 
@@ -390,8 +390,8 @@
 
 .tm-mobile-nav-link.active {
   color: #FFFFFF;
-  background: rgba(22, 201, 149, 0.18);
-  border: 1px solid rgba(22, 201, 149, 0.35);
+  background: rgba(37, 99, 235, 0.18);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   font-weight: 600;
 }
 
@@ -403,7 +403,7 @@
 .tm-mobile-nav-link:hover .tm-drawer-link-arrow,
 .tm-mobile-nav-link.active .tm-drawer-link-arrow {
   opacity: 1;
-  color: #16C995;
+  color: #2563EB;
   transform: translateX(3px);
 }
 
@@ -433,7 +433,7 @@
 
 .tm-drawer-btn-secondary {
   background: #FFFFFF;
-  color: #062D22 !important;
+  color: #0F172A !important;
   font-weight: 700;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
@@ -444,14 +444,14 @@
 }
 
 .tm-drawer-btn-primary {
-  background: linear-gradient(135deg, #0BAF7A 0%, #089366 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #FFFFFF !important;
   font-weight: 700;
-  box-shadow: 0 6px 20px rgba(11, 175, 122, 0.45);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
 }
 
 .tm-drawer-btn-primary:hover {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   transform: translateY(-1px);
 }
 
@@ -502,9 +502,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(22, 201, 149, 0.14);
-  color: #16C995;
-  border: 1px solid rgba(22, 201, 149, 0.32);
+  background: rgba(37, 99, 235, 0.14);
+  color: #2563EB;
+  border: 1px solid rgba(37, 99, 235, 0.32);
   padding: 5px 13px;
   border-radius: 9999px;
   font-size: 0.78rem;
@@ -517,7 +517,7 @@
 }
 
 .tm-hero-badge svg {
-  color: #16C995;
+  color: #2563EB;
   flex-shrink: 0;
 }
 
@@ -532,8 +532,8 @@
 }
 
 .tm-hero-title-accent {
-  color: #16C995;
-  background: linear-gradient(135deg, #16C995 0%, #34d399 100%);
+  color: #2563EB;
+  background: linear-gradient(135deg, #2563EB 0%, #60A5FA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline;
@@ -562,13 +562,13 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #0BAF7A 0%, #089366 100%);
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
   color: #FFFFFF !important;
   padding: 11px 24px;
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.92rem;
-  box-shadow: 0 8px 22px rgba(11, 175, 122, 0.45);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.45);
   text-decoration: none;
   transition: all 0.2s ease;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -576,8 +576,8 @@
 
 .tm-btn-hero-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(11, 175, 122, 0.6);
-  background: linear-gradient(135deg, #0ec287 0%, #089366 100%);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.6);
+  background: linear-gradient(135deg, #0ec287 0%, #1D4ED8 100%);
 }
 
 .tm-btn-hero-secondary {
@@ -585,7 +585,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(6, 45, 34, 0.75);
+  background: rgba(15, 23, 42, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.28);
   color: #FFFFFF !important;
   padding: 11px 20px;
@@ -600,7 +600,7 @@
 
 .tm-btn-hero-secondary:hover {
   transform: translateY(-2px);
-  background: rgba(6, 45, 34, 0.95);
+  background: rgba(15, 23, 42, 0.95);
   border-color: rgba(255, 255, 255, 0.45);
 }
 
@@ -621,7 +621,7 @@
 }
 
 .tm-hero-trust-item svg {
-  color: #16C995;
+  color: #2563EB;
   flex-shrink: 0;
 }
 
@@ -643,7 +643,7 @@
   display: flex;
   align-items: center;
   border-radius: 24px;
-  background-color: #062D22;
+  background-color: #0F172A;
   background-image:
     linear-gradient(90deg,
       rgba(4, 25, 19, 0.97) 0%,
@@ -657,7 +657,7 @@
   color: #FFFFFF;
   padding: 46px 50px;
   overflow: hidden;
-  box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .tm-hero-home-grid {
@@ -739,11 +739,11 @@
   position: relative;
   width: 100%;
   border-radius: 24px;
-  background-color: #062D22;
+  background-color: #0F172A;
   background-image:
     linear-gradient(135deg,
       rgba(4, 25, 19, 0.95) 0%,
-      rgba(6, 45, 34, 0.90) 50%,
+      rgba(15, 23, 42, 0.90) 50%,
       rgba(3, 24, 18, 0.96) 100%),
     url('/images/landing/tablemint_hero_bg.jpg');
   background-position: center bottom;
@@ -753,7 +753,7 @@
   padding: 60px 32px 68px;
   overflow: hidden;
   text-align: center;
-  box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .tm-page-hero::before {
@@ -764,7 +764,7 @@
   transform: translateX(-50%);
   width: 800px;
   height: 380px;
-  background: radial-gradient(ellipse at center, rgba(22, 201, 149, 0.18) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.18) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -781,8 +781,8 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: var(--radius-full);
-  background: rgba(22, 201, 149, 0.12);
-  border: 1px solid rgba(22, 201, 149, 0.3);
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   color: var(--tm-mint);
   font-size: 0.82rem;
   font-weight: 600;
@@ -843,11 +843,11 @@
   position: relative;
   width: 100%;
   border-radius: 24px;
-  background-color: #062D22;
+  background-color: #0F172A;
   background-image:
     linear-gradient(135deg,
       rgba(4, 25, 19, 0.97) 0%,
-      rgba(6, 45, 34, 0.92) 50%,
+      rgba(15, 23, 42, 0.92) 50%,
       rgba(3, 24, 18, 0.96) 100%),
     url('/images/landing/tablemint_hero_bg.jpg');
   background-position: center right;
@@ -856,7 +856,7 @@
   color: #FFFFFF;
   padding: 64px 44px;
   overflow: hidden;
-  box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* =========================================================
@@ -874,11 +874,11 @@
   position: relative;
   width: 100%;
   border-radius: 24px;
-  background-color: #062D22;
+  background-color: #0F172A;
   background-image:
     linear-gradient(135deg,
       rgba(4, 25, 19, 0.94) 0%,
-      rgba(6, 45, 34, 0.88) 50%,
+      rgba(15, 23, 42, 0.88) 50%,
       rgba(3, 24, 18, 0.95) 100%),
     url('/images/landing/cta_restaurant_bg.jpg');
   background-position: center center;
@@ -887,7 +887,7 @@
   color: #FFFFFF !important;
   padding: 68px 32px 76px;
   overflow: hidden;
-  box-shadow: 0 25px 60px -12px rgba(6, 45, 34, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.1);
   border-top: none;
 }
 
@@ -903,9 +903,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(22, 201, 149, 0.15);
+  background: rgba(37, 99, 235, 0.15);
   color: var(--tm-mint) !important;
-  border: 1px solid rgba(22, 201, 149, 0.35);
+  border: 1px solid rgba(37, 99, 235, 0.35);
   padding: 6px 14px;
   border-radius: var(--radius-full);
   font-size: 0.8rem;
@@ -969,7 +969,7 @@
    PUBLIC FOOTER
    ========================================================= */
 .tm-saas-footer {
-  background: #041711;
+  background: #0F172A;
   color: #94a3b8;
   padding: 70px 24px 30px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -993,7 +993,7 @@
 
 .tm-footer-desc {
   font-size: 0.9rem;
-  color: #8a9ba8;
+  color: #64748B;
   line-height: 1.6;
   max-width: 320px;
 }
@@ -1003,8 +1003,8 @@
   align-items: center;
   gap: 8px;
   padding: 5px 12px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(37, 99, 235, 0.1);
+  border: 1px solid rgba(37, 99, 235, 0.2);
   border-radius: var(--radius-full);
   color: var(--tm-mint);
   font-size: 0.78rem;
@@ -1133,12 +1133,12 @@
 .tm-btn-primary {
   background: linear-gradient(135deg, var(--tm-primary-green) 0%, #0d9668 100%);
   color: var(--tm-white);
-  box-shadow: 0 4px 16px rgba(11, 175, 122, 0.35);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
 }
 
 .tm-btn-primary:hover {
   background: linear-gradient(135deg, #0dc78c 0%, var(--tm-primary-green) 100%);
-  box-shadow: 0 8px 25px rgba(11, 175, 122, 0.45);
+  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.45);
   transform: translateY(-2px);
 }
 
@@ -1313,7 +1313,7 @@
 
 .tm-stat-title {
   font-weight: 600;
-  color: #172033;
+  color: #0F172A;
   margin-top: 4px;
   font-size: 1rem;
 }
@@ -1464,7 +1464,7 @@
 
   .tm-footer-chevron {
     display: block !important;
-    color: #10b981 !important;
+    color: #2563EB !important;
     transition: transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
   }
@@ -1496,7 +1496,7 @@
   }
 
   .tm-footer-links a:hover {
-    color: #10b981 !important;
+    color: #2563EB !important;
   }
 
   .tm-footer-bottom {

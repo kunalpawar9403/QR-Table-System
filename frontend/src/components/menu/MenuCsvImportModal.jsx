@@ -232,7 +232,7 @@ export default function MenuCsvImportModal({
               gap: 12
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <FileSpreadsheet size={28} style={{ color: '#059669' }} />
+                <FileSpreadsheet size={28} style={{ color: '#1D4ED8' }} />
                 <div>
                   <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#065f46', margin: 0 }}>
                     Download Official TableMint Menu Template
@@ -316,8 +316,8 @@ export default function MenuCsvImportModal({
             }}>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <CheckCircle2 size={16} style={{ color: '#059669' }} />
-                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#059669' }}>
+                  <CheckCircle2 size={16} style={{ color: '#1D4ED8' }} />
+                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1D4ED8' }}>
                     {previewResult.validCount} Valid Items
                   </span>
                 </div>
@@ -366,7 +366,7 @@ export default function MenuCsvImportModal({
                           style={{
                             height: 32,
                             fontSize: '0.82rem',
-                            borderColor: row.errors.some(e => e.includes('name')) ? '#ef4444' : '#e2e8f0'
+                            borderColor: row.errors.some(e => e.includes('name')) ? '#DC2626' : '#e2e8f0'
                           }}
                         />
                       </td>
@@ -388,7 +388,7 @@ export default function MenuCsvImportModal({
                           style={{
                             height: 32,
                             fontSize: '0.82rem',
-                            borderColor: row.errors.some(e => e.includes('Price')) ? '#ef4444' : '#e2e8f0'
+                            borderColor: row.errors.some(e => e.includes('Price')) ? '#DC2626' : '#e2e8f0'
                           }}
                         />
                       </td>
@@ -405,7 +405,7 @@ export default function MenuCsvImportModal({
                       </td>
                       <td>
                         {row.isValid ? (
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1D4ED8', display: 'flex', alignItems: 'center', gap: 4 }}>
                             <CheckCircle2 size={13} /> Ready
                           </span>
                         ) : (
@@ -421,7 +421,7 @@ export default function MenuCsvImportModal({
                           className="btn-row-dots"
                           title="Remove row from import"
                         >
-                          <Trash2 size={13} style={{ color: '#ef4444' }} />
+                          <Trash2 size={13} style={{ color: '#DC2626' }} />
                         </button>
                       </td>
                     </tr>

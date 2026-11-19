@@ -209,7 +209,7 @@ export default function MenuItemModal({
           {/* Item Name */}
           <div className="dash-form-group" style={{ marginBottom: 14 }}>
             <label className="dash-form-label">
-              Item Name <span style={{ color: '#ef4444' }}>*</span>
+              Item Name <span style={{ color: '#DC2626' }}>*</span>
             </label>
             <input
               type="text"
@@ -229,7 +229,7 @@ export default function MenuItemModal({
                 <button
                   type="button"
                   onClick={() => setShowCustomCategory(!showCustomCategory)}
-                  style={{ background: 'none', border: 'none', color: '#10b981', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {showCustomCategory ? 'Pick Existing' : '+ New Category'}
                 </button>
@@ -283,9 +283,9 @@ export default function MenuItemModal({
               <label className="dash-form-label">Dietary Type</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[
-                  { id: 'veg', label: 'Veg', color: '#059669', bg: '#ecfdf5' },
+                  { id: 'veg', label: 'Veg', color: '#1D4ED8', bg: '#EFF6FF' },
                   { id: 'non-veg', label: 'Non-Veg', color: '#dc2626', bg: '#fef2f2' },
-                  { id: 'egg', label: 'Egg', color: '#d97706', bg: '#fffbeb' }
+                  { id: 'egg', label: 'Egg', color: '#F59E0B', bg: '#fffbeb' }
                 ].map((type) => (
                   <button
                     key={type.id}
@@ -391,7 +391,7 @@ export default function MenuItemModal({
                   }}>
                     <span style={{ fontWeight: 600, color: '#0f172a' }}>{v.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontWeight: 700, color: '#059669' }}>₹{v.price}</span>
+                      <span style={{ fontWeight: 700, color: '#1D4ED8' }}>₹{v.price}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(i)}
@@ -399,7 +399,7 @@ export default function MenuItemModal({
                         style={{ padding: 2 }}
                         title="Remove Variant"
                       >
-                        <Trash2 size={13} style={{ color: '#ef4444' }} />
+                        <Trash2 size={13} style={{ color: '#DC2626' }} />
                       </button>
                     </div>
                   </div>
@@ -467,7 +467,7 @@ export default function MenuItemModal({
                   }}>
                     <span style={{ fontWeight: 600, color: '#0f172a' }}>{a.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontWeight: 700, color: '#059669' }}>+₹{a.price}</span>
+                      <span style={{ fontWeight: 700, color: '#1D4ED8' }}>+₹{a.price}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAddon(i)}
@@ -475,7 +475,7 @@ export default function MenuItemModal({
                         style={{ padding: 2 }}
                         title="Remove Addon"
                       >
-                        <Trash2 size={13} style={{ color: '#ef4444' }} />
+                        <Trash2 size={13} style={{ color: '#DC2626' }} />
                       </button>
                     </div>
                   </div>
@@ -549,7 +549,7 @@ export default function MenuItemModal({
                 disabled={submitting}
                 onClick={(e) => handleSubmit(e, true, false)}
                 className="btn-brand-outline"
-                style={{ padding: '8px 14px', fontSize: '0.85rem', color: '#059669', borderColor: '#10b981' }}
+                style={{ padding: '8px 14px', fontSize: '0.85rem', color: '#1D4ED8', borderColor: '#2563EB' }}
               >
                 Save & Add Another
               </button>

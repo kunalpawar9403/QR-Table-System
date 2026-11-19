@@ -154,7 +154,7 @@ export default function SolutionsPage() {
       />
 
       {/* Solutions Detail Sections */}
-      <section style={{ padding: '80px 24px', background: '#F4F7F6' }}>
+      <section style={{ padding: '80px 24px', background: '#F8FAFC' }}>
         <PageContainer>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 90 }}>
             {solutions.map((sol, idx) => {
@@ -172,7 +172,7 @@ export default function SolutionsPage() {
                     background: '#FFFFFF',
                     borderRadius: '24px',
                     border: '1px solid #e2e8f0',
-                    boxShadow: '0 8px 30px rgba(6, 45, 34, 0.05)',
+                    boxShadow: '0 8px 30px rgba(15, 23, 42, 0.05)',
                     padding: 'clamp(20px, 4vw, 48px)',
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
@@ -186,8 +186,8 @@ export default function SolutionsPage() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      background: 'rgba(11, 175, 122, 0.1)',
-                      color: '#0BAF7A',
+                      background: 'rgba(37, 99, 235, 0.1)',
+                      color: '#2563EB',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -201,7 +201,7 @@ export default function SolutionsPage() {
                     <h2 style={{
                       fontSize: 'clamp(1.7rem, 3vw, 2.3rem)',
                       fontWeight: 800,
-                      color: '#172033',
+                      color: '#0F172A',
                       lineHeight: 1.25,
                       marginBottom: 12
                     }}>
@@ -210,7 +210,7 @@ export default function SolutionsPage() {
 
                     <p style={{
                       fontSize: '1rem',
-                      color: '#5e6d82',
+                      color: '#64748B',
                       lineHeight: 1.6,
                       marginBottom: 24
                     }}>
@@ -231,7 +231,7 @@ export default function SolutionsPage() {
                           borderRadius: '12px',
                           border: '1px solid #edf2f7'
                         }}>
-                          <h4 style={{ fontSize: '0.96rem', color: '#172033', marginBottom: 6, fontWeight: 700 }}>
+                          <h4 style={{ fontSize: '0.96rem', color: '#0F172A', marginBottom: 6, fontWeight: 700 }}>
                             {f.title}
                           </h4>
                           <p style={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
@@ -247,15 +247,15 @@ export default function SolutionsPage() {
                       alignItems: 'center',
                       gap: 10,
                       background: '#e8f9f3',
-                      border: '1px solid #a7f3d0',
+                      border: '1px solid #BFDBFE',
                       padding: '10px 18px',
                       borderRadius: '10px',
                       fontSize: '0.88rem',
-                      color: '#062D22',
+                      color: '#0F172A',
                       fontWeight: 600,
                       marginBottom: 24
                     }}>
-                      <TrendingUp size={18} style={{ color: '#0BAF7A', flexShrink: 0 }} />
+                      <TrendingUp size={18} style={{ color: '#2563EB', flexShrink: 0 }} />
                       <span><strong>Proven Impact:</strong> {sol.roi}</span>
                     </div>
 
