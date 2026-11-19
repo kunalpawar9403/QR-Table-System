@@ -22,12 +22,12 @@
 }
 
 /* =========================================================
-   LEFT SIDEBAR - DEEP FOREST GREEN MATCHING REFERENCE IMAGE 1
+   LEFT SIDEBAR - SLEEK DARK SLATE #0F172A WITH VIBRANT BLUE HIGHLIGHTS
    ========================================================= */
 .dash-sidebar {
   width: 250px;
-  background-color: #2563EB;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: #0F172A;
+  border-right: 1px solid #1E293B;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -81,7 +81,7 @@
 }
 
 .brand-mint-text {
-  color: #2563EB;
+  color: #60A5FA;
 }
 
 .sidebar-brand-text h2 {
@@ -464,7 +464,7 @@
   height: 38px;
   border-radius: 50%;
   background: linear-gradient(135deg, #3B82F6, #2563EB);
-  color: #000000;
+  color: #ffffff;
   font-weight: 900;
   font-size: 0.85rem;
   display: flex;
@@ -898,7 +898,7 @@
 
 .btn-clear-table {
   background: linear-gradient(135deg, #3B82F6, #2563EB);
-  color: #000000;
+  color: #ffffff;
   padding: 8px 0;
   border-radius: 10px;
   font-size: 0.8rem;
@@ -1061,7 +1061,7 @@
 
 .filter-pill-btn.active {
   background: linear-gradient(135deg, #3B82F6, #2563EB);
-  color: #000000;
+  color: #ffffff;
   border-color: #3B82F6;
   font-weight: 800;
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
@@ -1848,9 +1848,9 @@
     align-items: center !important;
     justify-content: space-between !important;
     border-radius: 14px !important;
-    background: #2563EB !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.35) !important;
+    background: #0F172A !important;
+    border: 1px solid #1E293B !important;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.4) !important;
     overflow: visible !important;
     color: #ffffff !important;
   }
@@ -1878,9 +1878,9 @@
     flex-shrink: 0;
   }
   .mobile-sidebar-toggle-btn:active {
-    background: rgba(37, 99, 235, 0.25);
-    color: #2563EB;
-    border-color: rgba(37, 99, 235, 0.4);
+    background: rgba(37, 99, 235, 0.3);
+    color: #FFFFFF;
+    border-color: #2563EB;
   }
 
   .command-logo-badge {

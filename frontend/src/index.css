@@ -7,52 +7,77 @@
   --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
 
-  /* Color Palette - Vibrant Blue Theme */
-  --tm-forest: #2563EB;       /* Primary Blue */
-  --tm-forest-dark: #0F172A;  /* Dark Surface / Header */
-  --tm-forest-light: #1D4ED8; /* Primary Hover */
-  
-  --tm-emerald: #2563EB;      /* Primary Blue Accent */
-  --tm-emerald-hover: #1D4ED8;
-  --tm-emerald-soft: #EFF6FF; /* Soft Blue tint */
-  --tm-emerald-border: #BFDBFE;
+  /* =========================================================
+     PROPER THEME COLOR SYSTEM
+     ========================================================= */
+  --color-primary-blue:    #2563EB; /* Primary Action & Active Highlights */
+  --color-primary-hover:   #1D4ED8; /* Hover & Pressed States */
+  --color-dark-text:       #0F172A; /* Primary Headings, Dark Surfaces, Sidebar */
+  --color-secondary-text:  #64748B; /* Subtitles, Metadata, Subtle Text */
+  --color-page-bg:         #F8FAFC; /* Page Canvas Background */
+  --color-card-bg:         #FFFFFF; /* Pure White Content Cards & Panels */
+  --color-border:          #E2E8F0; /* Clean Structural Borders */
+  --color-success:         #16A34A; /* Veg Badges, Available/Ready Status */
+  --color-warning:         #F59E0B; /* Billed/Pending Orders, Alerts */
+  --color-error:           #DC2626; /* Non-Veg Badges, Cancelled, Errors */
 
-  --bg-page: #F8FAFC;         /* Page Background */
-  --bg-darker: #F1F5F9;
-  --bg-dark: #F8FAFC;
-  --bg-card: #FFFFFF;         /* Card Background */
-  --bg-card-hover: #F8FAFC;
-  --bg-glass-input: #FFFFFF;
+  /* High-Contrast Tints & Accents (Prevents Color Overlaps) */
+  --color-primary-soft:    #EFF6FF; /* Soft Blue for Active Badges/Backgrounds */
+  --color-primary-border:  #BFDBFE; /* Subtle Blue Border */
+  --color-success-soft:    #DCFCE7; /* Soft Green for Success Badges */
+  --color-success-border:  #86EFAC;
+  --color-warning-soft:    #FEF3C7; /* Soft Amber for Billed Badges */
+  --color-warning-border:  #FDE68A;
+  --color-error-soft:      #FEE2E2; /* Soft Red for Cancelled Badges */
+  --color-error-border:    #FECACA;
 
-  --border-subtle: #E2E8F0;   /* Border */
-  --border-light: #F1F5F9;
-  --border-focus: #2563EB;
-  --border-highlight: rgba(37, 99, 235, 0.35);
+  /* Semantic UI Tokens */
+  --primary:               var(--color-primary-blue);
+  --primary-hover:         var(--color-primary-hover);
+  --primary-neon:          #3B82F6;
+  --primary-glow:          rgba(37, 99, 235, 0.25);
 
-  /* Primary Button / Brand Accent */
-  --primary: #2563EB;
-  --primary-hover: #1D4ED8;
-  --primary-neon: #3B82F6;
-  --primary-glow: rgba(37, 99, 235, 0.25);
+  --bg-page:               var(--color-page-bg);
+  --bg-darker:             #F1F5F9;
+  --bg-dark:               var(--color-dark-text);
+  --bg-card:               var(--color-card-bg);
+  --bg-card-hover:         var(--color-page-bg);
+  --bg-glass-input:        var(--color-card-bg);
 
-  --accent-mint: #2563EB;
-  --accent-mint-glow: rgba(37, 99, 235, 0.2);
-  --accent-emerald: #1D4ED8;
-  --accent-emerald-glow: rgba(29, 78, 216, 0.2);
-  --accent-rose: #DC2626;     /* Error */
-  --accent-sky: #0284c7;
-  --accent-purple: #9333ea;
-  --accent-amber: #F59E0B;    /* Warning */
+  --border-subtle:         var(--color-border);
+  --border-light:          #F1F5F9;
+  --border-focus:          var(--color-primary-blue);
+  --border-highlight:      rgba(37, 99, 235, 0.35);
 
-  /* Typography Colors */
-  --text-main: #0F172A;       /* Dark Text */
-  --text-muted: #64748B;      /* Secondary Text */
-  --text-dim: #94A3B8;        /* Light Gray for Placeholders / Subtle Icons */
-  --text-white: #FFFFFF;      /* White for Dark / Blue Surfaces */
+  --text-main:             var(--color-dark-text);
+  --text-muted:            var(--color-secondary-text);
+  --text-dim:              #94A3B8;
+  --text-white:            #FFFFFF;
 
-  --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 2px 10px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.25);
+  --accent-rose:           var(--color-error);
+  --accent-sky:            #0284c7;
+  --accent-purple:         #9333ea;
+  --accent-amber:          var(--color-warning);
+
+  /* Legacy Mapping for Perfect Compatibility */
+  --tm-forest:             var(--color-dark-text);
+  --tm-forest-dark:        #020617;
+  --tm-forest-light:       #1E293B;
+  --tm-emerald:            var(--color-primary-blue);
+  --tm-emerald-hover:      var(--color-primary-hover);
+  --tm-emerald-soft:       var(--color-primary-soft);
+  --tm-emerald-border:     var(--color-primary-border);
+  --tm-deep-green:         var(--color-dark-text);
+  --tm-primary-green:      var(--color-primary-blue);
+  --tm-mint:               var(--color-primary-blue);
+  --accent-mint:           var(--color-primary-blue);
+  --accent-mint-glow:      rgba(37, 99, 235, 0.2);
+  --accent-emerald:        var(--color-primary-hover);
+  --accent-emerald-glow:   rgba(29, 78, 216, 0.2);
+
+  --shadow-glass:          0 4px 20px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-card:           0 2px 10px rgba(0, 0, 0, 0.04);
+  --shadow-glow:           0 0 20px rgba(37, 99, 235, 0.25);
 
   --radius-sm: 8px;
   --radius-md: 12px;

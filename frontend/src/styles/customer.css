@@ -4,29 +4,38 @@
    ========================================================= */
 
 :root {
-  --tm-dark-bg: #0F172A;
-  --tm-dark-card: #1E293B;
-  --tm-white-bg: #f8fafc;
-  --tm-card-white: #ffffff;
-  --tm-primary: #2563EB;
-  --tm-primary-hover: #1D4ED8;
-  --tm-primary-light: #EFF6FF;
-  --tm-primary-dark: #1E40AF;
-  --tm-emerald: #1D4ED8;
-  --tm-forest: #2563EB;
-  --tm-text-main: #0f172a;
-  --tm-text-muted: #64748b;
-  --tm-border: #e2e8f0;
-  --tm-border-light: #f1f5f9;
-  --tm-veg-green: #16a34a;
-  --tm-nonveg-red: #dc2626;
-  --tm-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --tm-shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
-  --tm-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12);
-  --tm-radius-sm: 8px;
-  --tm-radius-md: 14px;
-  --tm-radius-lg: 20px;
-  --tm-radius-full: 9999px;
+  --color-primary-blue:    #2563EB;
+  --color-primary-hover:   #1D4ED8;
+  --color-dark-text:       #0F172A;
+  --color-secondary-text:  #64748B;
+  --color-page-bg:         #F8FAFC;
+  --color-card-bg:         #FFFFFF;
+  --color-border:          #E2E8F0;
+  --color-success:         #16A34A;
+  --color-warning:         #F59E0B;
+  --color-error:           #DC2626;
+
+  --tm-dark-bg:            #0F172A;
+  --tm-dark-card:          #1E293B;
+  --tm-white-bg:           #F8FAFC;
+  --tm-card-white:         #FFFFFF;
+  --tm-primary:            #2563EB;
+  --tm-primary-hover:      #1D4ED8;
+  --tm-primary-light:      #EFF6FF;
+  --tm-primary-dark:       #1E40AF;
+  --tm-text-main:          #0F172A;
+  --tm-text-muted:         #64748B;
+  --tm-border:             #E2E8F0;
+  --tm-border-light:       #F1F5F9;
+  --tm-veg-green:          #16A34A;
+  --tm-nonveg-red:         #DC2626;
+  --tm-shadow-sm:          0 1px 3px rgba(0, 0, 0, 0.05);
+  --tm-shadow-md:          0 4px 14px rgba(0, 0, 0, 0.08);
+  --tm-shadow-lg:          0 10px 25px rgba(0, 0, 0, 0.12);
+  --tm-radius-sm:          8px;
+  --tm-radius-md:          14px;
+  --tm-radius-lg:          20px;
+  --tm-radius-full:        9999px;
 }
 
 /* Overall Wrapper */
@@ -212,7 +221,7 @@
   justify-content: center;
   gap: 8px;
   background: #2563EB;
-  color: #032e22;
+  color: #ffffff;
   border: none;
   font-size: 1.05rem;
   font-weight: 700;

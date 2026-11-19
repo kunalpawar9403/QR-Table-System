@@ -11,21 +11,32 @@
    ========================================================= */
 
 :root {
-  --tm-deep-green: #0F172A;
-  --tm-deep-green-dark: #0F172A;
-  --tm-deep-green-light: #1D4ED8;
-  --tm-primary-green: #2563EB;
-  --tm-primary-green-hover: #1D4ED8;
-  --tm-mint: #2563EB;
-  --tm-mint-soft: #EFF6FF;
-  --tm-mint-glow: rgba(37, 99, 235, 0.25);
-  --tm-bg: #F8FAFC;
-  --tm-white: #FFFFFF;
-  --tm-text: #0F172A;
-  --tm-text-muted: #64748B;
-  --tm-text-subtle: #64748B;
-  --tm-border: #e2e8f0;
-  --tm-border-light: #edf2f7;
+  --color-primary-blue:    #2563EB;
+  --color-primary-hover:   #1D4ED8;
+  --color-dark-text:       #0F172A;
+  --color-secondary-text:  #64748B;
+  --color-page-bg:         #F8FAFC;
+  --color-card-bg:         #FFFFFF;
+  --color-border:          #E2E8F0;
+  --color-success:         #16A34A;
+  --color-warning:         #F59E0B;
+  --color-error:           #DC2626;
+
+  --tm-deep-green:         #0F172A;
+  --tm-deep-green-dark:    #020617;
+  --tm-deep-green-light:   #1E293B;
+  --tm-primary-green:      #2563EB;
+  --tm-primary-green-hover:#1D4ED8;
+  --tm-mint:               #2563EB;
+  --tm-mint-soft:          #EFF6FF;
+  --tm-mint-glow:          rgba(37, 99, 235, 0.25);
+  --tm-bg:                 #F8FAFC;
+  --tm-white:              #FFFFFF;
+  --tm-text:               #0F172A;
+  --tm-text-muted:         #64748B;
+  --tm-text-subtle:        #94A3B8;
+  --tm-border:             #E2E8F0;
+  --tm-border-light:       #F1F5F9;
 
   --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
