@@ -70,7 +70,7 @@ export default function LoginPage() {
       {/* Left Column: Visual Branding (Hidden on mobile) */}
       <div style={{
         flex: 1,
-        background: 'radial-gradient(circle at 30% 20%, #1D4ED8 0%, #0F172A 65%, #0F172A 100%)',
+        background: 'radial-gradient(circle at 30% 20%, #0369A1 0%, #0F172A 65%, #0F172A 100%)',
         color: '#FFFFFF',
         padding: '60px',
         display: 'flex',
@@ -86,7 +86,7 @@ export default function LoginPage() {
           left: '-100px',
           width: '500px',
           height: '500px',
-          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, transparent 70%)',
           pointerEvents: 'none'
         }} />
 
@@ -99,7 +99,7 @@ export default function LoginPage() {
             onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
           />
           <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)' }}>
-            Table<span style={{ color: '#2563EB' }}>Mint</span>
+            Table<span style={{ color: '#0284C7' }}>Mint</span>
           </div>
         </Link>
 
@@ -109,8 +109,8 @@ export default function LoginPage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(37, 99, 235, 0.15)',
-            color: '#2563EB',
+            background: 'rgba(2, 132, 199, 0.15)',
+            color: '#0284C7',
             fontSize: '0.8rem',
             fontWeight: 700,
             textTransform: 'uppercase',
@@ -137,7 +137,7 @@ export default function LoginPage() {
               'Works on iPad, Android, Windows, Mac, and mobile browsers'
             ].map((text, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0', fontSize: '0.92rem' }}>
-                <CheckCircle size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+                <CheckCircle size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
                 <span>{text}</span>
               </div>
             ))}
@@ -146,7 +146,7 @@ export default function LoginPage() {
 
         {/* Bottom Trust */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.86rem', position: 'relative', zIndex: 1 }}>
-          <ShieldCheck size={16} style={{ color: '#2563EB' }} />
+          <ShieldCheck size={16} style={{ color: '#0284C7' }} />
           <span>PCI-DSS & ISO 27001 Certified Security Standard</span>
         </div>
       </div>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                     boxSizing: 'border-box',
                     transition: 'border-color 0.18s ease'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
+                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
               </div>
@@ -256,7 +256,7 @@ export default function LoginPage() {
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#2563EB'}
+                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
                   onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
                 />
                 <button
@@ -302,7 +302,7 @@ export default function LoginPage() {
           <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 20, borderTop: '1px solid #edf2f7' }}>
             <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
               Don't have a TableMint account yet?{' '}
-              <Link to="/register" style={{ color: '#2563EB', fontWeight: 700 }}>
+              <Link to="/register" style={{ color: '#0284C7', fontWeight: 700 }}>
                 Start 14-Day Free Trial
               </Link>
             </p>

@@ -284,8 +284,8 @@ export default function MenuOcrModal({
                             fontWeight: 700,
                             padding: '3px 8px',
                             borderRadius: 12,
-                            background: item.confidence === 'high' ? '#EFF6FF' : '#fffbeb',
-                            color: item.confidence === 'high' ? '#1D4ED8' : '#F59E0B'
+                            background: item.confidence === 'high' ? '#E0F2FE' : '#fffbeb',
+                            color: item.confidence === 'high' ? '#0369A1' : '#F59E0B'
                           }}>
                             {item.confidence || 'high'}
                           </span>

@@ -40,13 +40,13 @@ export default function EmptyMenuState({
           width: 72,
           height: 72,
           borderRadius: 20,
-          background: 'linear-gradient(135deg, #EFF6FF 0%, #d1fae5 100%)',
-          color: '#1D4ED8',
+          background: 'linear-gradient(135deg, #E0F2FE 0%, #BAE6FD 100%)',
+          color: '#0369A1',
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           marginBottom: 20,
-          boxShadow: '0 8px 16px rgba(37, 99, 235, 0.15)'
+          boxShadow: '0 8px 16px rgba(2, 132, 199, 0.15)'
         }}
       >
         <UtensilsCrossed size={36} />
@@ -94,7 +94,7 @@ export default function EmptyMenuState({
           justifyContent: 'space-between',
           gap: 20,
           boxShadow: '0 12px 30px rgba(15, 23, 42, 0.18)',
-          border: '1px solid rgba(37, 99, 235, 0.3)',
+          border: '1px solid rgba(2, 132, 199, 0.3)',
           transition: 'transform 0.2s ease, box-shadow 0.2s ease'
         }}
         onMouseEnter={(e) => {
@@ -112,12 +112,12 @@ export default function EmptyMenuState({
               width: 56,
               height: 56,
               borderRadius: 14,
-              background: 'rgba(37, 99, 235, 0.2)',
-              border: '1px solid rgba(37, 99, 235, 0.4)',
+              background: 'rgba(2, 132, 199, 0.2)',
+              border: '1px solid rgba(2, 132, 199, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#60A5FA',
+              color: '#7DD3FC',
               flexShrink: 0
             }}
           >
@@ -127,7 +127,7 @@ export default function EmptyMenuState({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
               <span
                 style={{
-                  background: '#2563EB',
+                  background: '#0284C7',
                   color: '#0F172A',
                   fontSize: '0.72rem',
                   fontWeight: 800,
@@ -139,7 +139,7 @@ export default function EmptyMenuState({
               >
                 Recommended for New Restaurants
               </span>
-              <span style={{ fontSize: '0.82rem', color: '#BFDBFE', fontWeight: 600 }}>
+              <span style={{ fontSize: '0.82rem', color: '#BAE6FD', fontWeight: 600 }}>
                 1-Click Instant Setup
               </span>
             </div>
@@ -161,7 +161,7 @@ export default function EmptyMenuState({
           }}
           disabled={loadingDemo}
           style={{
-            background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
+            background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
             color: '#ffffff',
             border: 'none',
             borderRadius: 12,
@@ -172,7 +172,7 @@ export default function EmptyMenuState({
             display: 'flex',
             alignItems: 'center',
             gap: 8,
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+            boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
             whiteSpace: 'nowrap'
           }}
         >
@@ -213,9 +213,9 @@ export default function EmptyMenuState({
             justifyContent: 'space-between'
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#2563EB';
+            e.currentTarget.style.borderColor = '#0284C7';
             e.currentTarget.style.transform = 'translateY(-3px)';
-            e.currentTarget.style.boxShadow = '0 10px 24px rgba(37, 99, 235, 0.1)';
+            e.currentTarget.style.boxShadow = '0 10px 24px rgba(2, 132, 199, 0.1)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = '#e2e8f0';
@@ -229,8 +229,8 @@ export default function EmptyMenuState({
                 width: 44,
                 height: 44,
                 borderRadius: 12,
-                background: '#EFF6FF',
-                color: '#1D4ED8',
+                background: '#E0F2FE',
+                color: '#0369A1',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -250,7 +250,7 @@ export default function EmptyMenuState({
             style={{
               fontSize: '0.85rem',
               fontWeight: 700,
-              color: '#1D4ED8',
+              color: '#0369A1',
               display: 'flex',
               alignItems: 'center',
               gap: 6

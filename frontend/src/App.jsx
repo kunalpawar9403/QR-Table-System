@@ -44,7 +44,7 @@ class ErrorBoundary extends React.Component {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 16,
-          background: '#2563EB',
+          background: '#0284C7',
           color: '#ffffff',
           padding: 24,
           textAlign: 'center'
@@ -73,7 +73,7 @@ class ErrorBoundary extends React.Component {
               onClick={() => { window.location.reload(); }}
               style={{
                 padding: '10px 20px',
-                background: '#2563EB',
+                background: '#0284C7',
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 8,
@@ -116,16 +116,16 @@ function ViewLoadingSpinner() {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 16,
-        background: '#2563EB',
-        color: '#2563EB'
+        background: '#0284C7',
+        color: '#0284C7'
       }}
     >
       <div
         style={{
           width: 44,
           height: 44,
-          border: '3px solid rgba(37, 99, 235, 0.2)',
-          borderTopColor: '#2563EB',
+          border: '3px solid rgba(2, 132, 199, 0.2)',
+          borderTopColor: '#0284C7',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite'
         }}

@@ -844,7 +844,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             <div className="menu-header-row">
               <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
                 <TableMintLogoIcon size={24} />
-                <span className="header-brand-title">Table<span style={{ color: '#60A5FA' }}>Mint</span></span>
+                <span className="header-brand-title">Table<span style={{ color: '#7DD3FC' }}>Mint</span></span>
               </div>
               <div className="header-table-pill">
                 <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
@@ -872,11 +872,11 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           {/* Categories Horizontal Carousel (Dynamic Multi-Tenant Categories) */}
           <div className="categories-carousel-row">
             {[
-              { id: 'all', label: 'All', bg: '#EFF6FF', color: '#1D4ED8' },
+              { id: 'all', label: 'All', bg: '#E0F2FE', color: '#0369A1' },
               ...(serverCategories.length > 0
                 ? serverCategories.map((c, i) => {
-                    const colors = ['#ea580c', '#F59E0B', '#1D4ED8', '#0284c7', '#9333ea', '#e11d48'];
-                    const bgs = ['#fff7ed', '#fef3c7', '#EFF6FF', '#f0f9ff', '#faf5ff', '#ffe4e6'];
+                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea', '#e11d48'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff', '#ffe4e6'];
                     return {
                       id: c.name.toLowerCase(),
                       label: c.name,
@@ -885,8 +885,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     };
                   })
                 : [...new Set(menu.map(m => m.category || 'General'))].map((c, i) => {
-                    const colors = ['#ea580c', '#F59E0B', '#1D4ED8', '#0284c7', '#9333ea'];
-                    const bgs = ['#fff7ed', '#fef3c7', '#EFF6FF', '#f0f9ff', '#faf5ff'];
+                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff'];
                     return {
                       id: c.toLowerCase(),
                       label: c.charAt(0).toUpperCase() + c.slice(1),
@@ -907,7 +907,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     setCategory(cat.id);
                   }}
                 >
-                  <div className="category-icon-box" style={{ background: isActive ? '#2563EB' : cat.bg }}>
+                  <div className="category-icon-box" style={{ background: isActive ? '#0284C7' : cat.bg }}>
                     {cat.id === 'all' ? <LayoutGrid size={22} color={iconColor} /> :
                      cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
                      cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
@@ -1271,8 +1271,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     return {
                       title: 'Food is Ready!',
                       subtitle: `Your order is ready and is being served to Table ${tableId} right now.`,
-                      badgeBg: '#EFF6FF',
-                      badgeColor: '#1D4ED8',
+                      badgeBg: '#E0F2FE',
+                      badgeColor: '#0369A1',
                       icon: <Sparkles size={38} />
                     };
                   case 'served':
@@ -1280,8 +1280,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     return {
                       title: 'Order Served!',
                       subtitle: `Delivered to Table ${tableId}. Bon appétit! Enjoy your meal.`,
-                      badgeBg: '#EFF6FF',
-                      badgeColor: '#1D4ED8',
+                      badgeBg: '#E0F2FE',
+                      badgeColor: '#0369A1',
                       icon: <CheckCircle2 size={38} />
                     };
                   case 'pending':
@@ -1289,8 +1289,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     return {
                       title: 'Order Placed!',
                       subtitle: `Sent straight to the kitchen for Table ${tableId}.`,
-                      badgeBg: '#EFF6FF',
-                      badgeColor: '#1D4ED8',
+                      badgeBg: '#E0F2FE',
+                      badgeColor: '#0369A1',
                       icon: <ChefHat size={38} />
                     };
                 }
@@ -1385,7 +1385,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
                   {/* Estimated Time Badge */}
                   <div className="estimated-time-card">
-                    <Clock size={16} style={{ color: '#2563EB' }} />
+                    <Clock size={16} style={{ color: '#0284C7' }} />
                     <span>Status: <strong style={{ color: '#0f172a' }}>{status === 'served' || status === 'completed' ? 'Delivered' : (status === 'ready' ? 'Serving at table' : 'In Progress (10 – 15 mins)')}</strong></span>
                   </div>
 
@@ -1406,8 +1406,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                         textTransform: 'uppercase',
                         padding: '3px 9px',
                         borderRadius: 9999,
-                        background: status === 'served' || status === 'ready' ? '#EFF6FF' : '#eff6ff',
-                        color: status === 'served' || status === 'ready' ? '#1D4ED8' : '#0284c7'
+                        background: status === 'served' || status === 'ready' ? '#E0F2FE' : '#E0F2FE',
+                        color: status === 'served' || status === 'ready' ? '#0369A1' : '#0284c7'
                       }}>
                         {status}
                       </span>
@@ -1430,7 +1430,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
                     <div className="tracking-order-total-row">
                       <span>Total Bill</span>
-                      <span style={{ color: '#2563EB' }}>₹{activeOrder.total}</span>
+                      <span style={{ color: '#0284C7' }}>₹{activeOrder.total}</span>
                     </div>
                   </div>
 
@@ -1743,7 +1743,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
               </div>
             </div>
           </div>
-          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#2563EB', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0284C7', display: 'flex', alignItems: 'center', gap: 4 }}>
             Track <ArrowRight size={14} />
           </span>
         </div>
@@ -1791,7 +1791,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           <div className="nav-icon-badge-wrap">
             <ClipboardList size={19} />
             {activeOrder && ['pending', 'preparing', 'ready'].includes(activeOrder.status) && (
-              <span className="nav-count-dot" style={{ background: '#2563EB', width: 8, height: 8 }} />
+              <span className="nav-count-dot" style={{ background: '#0284C7', width: 8, height: 8 }} />
             )}
           </div>
           <span>Orders</span>

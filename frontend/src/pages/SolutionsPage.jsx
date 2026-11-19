@@ -186,8 +186,8 @@ export default function SolutionsPage() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      background: 'rgba(37, 99, 235, 0.1)',
-                      color: '#2563EB',
+                      background: 'rgba(2, 132, 199, 0.1)',
+                      color: '#0284C7',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -246,8 +246,8 @@ export default function SolutionsPage() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 10,
-                      background: '#e8f9f3',
-                      border: '1px solid #BFDBFE',
+                      background: '#E0F2FE',
+                      border: '1px solid #BAE6FD',
                       padding: '10px 18px',
                       borderRadius: '10px',
                       fontSize: '0.88rem',
@@ -255,7 +255,7 @@ export default function SolutionsPage() {
                       fontWeight: 600,
                       marginBottom: 24
                     }}>
-                      <TrendingUp size={18} style={{ color: '#2563EB', flexShrink: 0 }} />
+                      <TrendingUp size={18} style={{ color: '#0284C7', flexShrink: 0 }} />
                       <span><strong>Proven Impact:</strong> {sol.roi}</span>
                     </div>
 

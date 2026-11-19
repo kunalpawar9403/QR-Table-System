@@ -141,7 +141,7 @@ export default function PublicFooter() {
           © {currentYear} TableMint Technologies Pvt. Ltd. All rights reserved.
         </div>
         <div className="tm-footer-compliance-badge">
-          <ShieldCheck size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+          <ShieldCheck size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
           <span>PCI-DSS & ISO 27001 Compliant Architecture</span>
         </div>
         <div className="tm-footer-legal-links">

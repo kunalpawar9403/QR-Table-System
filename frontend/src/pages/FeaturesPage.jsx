@@ -224,8 +224,8 @@ export default function FeaturesPage() {
                   transition: 'all 0.18s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#e8f9f3';
-                  e.currentTarget.style.borderColor = '#2563EB';
+                  e.currentTarget.style.background = '#E0F2FE';
+                  e.currentTarget.style.borderColor = '#0284C7';
                   e.currentTarget.style.color = '#0F172A';
                 }}
                 onMouseLeave={(e) => {
@@ -276,8 +276,8 @@ export default function FeaturesPage() {
                       gap: 8,
                       padding: '5px 12px',
                       borderRadius: '9999px',
-                      background: 'rgba(37, 99, 235, 0.1)',
-                      color: '#2563EB',
+                      background: 'rgba(2, 132, 199, 0.1)',
+                      color: '#0284C7',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       textTransform: 'uppercase',
@@ -319,7 +319,7 @@ export default function FeaturesPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 28 }}>
                       {mod.benefits.map((b, bIdx) => (
                         <div key={bIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                          <CheckCircle size={17} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
+                          <CheckCircle size={17} style={{ color: '#0284C7', flexShrink: 0, marginTop: 2 }} />
                           <span>{b}</span>
                         </div>
                       ))}
@@ -361,12 +361,12 @@ export default function FeaturesPage() {
                       zIndex: 2,
                       background: 'rgba(15, 23, 42, 0.88)',
                       backdropFilter: 'blur(8px)',
-                      color: '#2563EB',
+                      color: '#0284C7',
                       fontSize: '0.74rem',
                       fontWeight: 700,
                       padding: '4px 10px',
                       borderRadius: '9999px',
-                      border: '1px solid rgba(37, 99, 235, 0.3)'
+                      border: '1px solid rgba(2, 132, 199, 0.3)'
                     }}>
                       {mod.badgeText}
                     </span>

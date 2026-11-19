@@ -229,7 +229,7 @@ export default function MenuItemModal({
                 <button
                   type="button"
                   onClick={() => setShowCustomCategory(!showCustomCategory)}
-                  style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'none', border: 'none', color: '#0284C7', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {showCustomCategory ? 'Pick Existing' : '+ New Category'}
                 </button>
@@ -283,7 +283,7 @@ export default function MenuItemModal({
               <label className="dash-form-label">Dietary Type</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[
-                  { id: 'veg', label: 'Veg', color: '#1D4ED8', bg: '#EFF6FF' },
+                  { id: 'veg', label: 'Veg', color: '#0369A1', bg: '#E0F2FE' },
                   { id: 'non-veg', label: 'Non-Veg', color: '#dc2626', bg: '#fef2f2' },
                   { id: 'egg', label: 'Egg', color: '#F59E0B', bg: '#fffbeb' }
                 ].map((type) => (
@@ -391,7 +391,7 @@ export default function MenuItemModal({
                   }}>
                     <span style={{ fontWeight: 600, color: '#0f172a' }}>{v.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontWeight: 700, color: '#1D4ED8' }}>₹{v.price}</span>
+                      <span style={{ fontWeight: 700, color: '#0369A1' }}>₹{v.price}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(i)}
@@ -467,7 +467,7 @@ export default function MenuItemModal({
                   }}>
                     <span style={{ fontWeight: 600, color: '#0f172a' }}>{a.name}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span style={{ fontWeight: 700, color: '#1D4ED8' }}>+₹{a.price}</span>
+                      <span style={{ fontWeight: 700, color: '#0369A1' }}>+₹{a.price}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAddon(i)}
@@ -549,7 +549,7 @@ export default function MenuItemModal({
                 disabled={submitting}
                 onClick={(e) => handleSubmit(e, true, false)}
                 className="btn-brand-outline"
-                style={{ padding: '8px 14px', fontSize: '0.85rem', color: '#1D4ED8', borderColor: '#2563EB' }}
+                style={{ padding: '8px 14px', fontSize: '0.85rem', color: '#0369A1', borderColor: '#0284C7' }}
               >
                 Save & Add Another
               </button>

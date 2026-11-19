@@ -27,8 +27,8 @@ export default function PageHero({
             </motion.div>
           )}
 
-          <h1 className="tm-page-hero-title" style={{ color: '#FFFFFF' }}>
-            <span style={{ color: '#FFFFFF', WebkitTextFillColor: '#FFFFFF' }}>
+          <h1 className="tm-page-hero-title" style={{ color: '#0F172A' }}>
+            <span style={{ color: '#0F172A', WebkitTextFillColor: '#0F172A' }}>
               <TextEffect per="word" as="span" preset="fade-in-blur" delay={0.1}>
                 {title}
               </TextEffect>
@@ -39,8 +39,8 @@ export default function PageHero({
                 animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
                 style={{ 
-                  color: '#2563EB', 
-                  background: 'linear-gradient(135deg, #FFFFFF 30%, #2563EB 100%)', 
+                  color: '#0284C7', 
+                  background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', 
                   WebkitBackgroundClip: 'text', 
                   WebkitTextFillColor: 'transparent',
                   display: 'inline-block'

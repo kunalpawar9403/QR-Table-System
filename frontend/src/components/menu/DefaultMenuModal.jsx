@@ -163,11 +163,11 @@ export default function DefaultMenuModal({
                   width: 32,
                   height: 32,
                   borderRadius: 8,
-                  background: 'rgba(37, 99, 235, 0.2)',
+                  background: 'rgba(2, 132, 199, 0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#60A5FA',
+                  color: '#7DD3FC',
                   flexShrink: 0
                 }}
               >
@@ -183,7 +183,7 @@ export default function DefaultMenuModal({
                   borderRadius: 999,
                   fontSize: '0.74rem',
                   fontWeight: 700,
-                  color: '#BFDBFE'
+                  color: '#BAE6FD'
                 }}
               >
                 {catalogItems.length} Curated Dishes
@@ -222,8 +222,8 @@ export default function DefaultMenuModal({
                   fontWeight: 600,
                   cursor: 'pointer',
                   border: '1.5px solid',
-                  borderColor: importMode === 'merge' ? '#1D4ED8' : '#cbd5e1',
-                  background: importMode === 'merge' ? '#EFF6FF' : '#ffffff',
+                  borderColor: importMode === 'merge' ? '#0369A1' : '#cbd5e1',
+                  background: importMode === 'merge' ? '#E0F2FE' : '#ffffff',
                   color: importMode === 'merge' ? '#065f46' : '#475569',
                   transition: 'all 0.15s'
                 }}
@@ -254,7 +254,7 @@ export default function DefaultMenuModal({
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#64748b' }}>
             {importMode === 'merge' ? (
               <>
-                <Info size={15} color="#1D4ED8" style={{ flexShrink: 0 }} />
+                <Info size={15} color="#0369A1" style={{ flexShrink: 0 }} />
                 <span>Existing custom dishes are preserved. Duplicates are safely skipped.</span>
               </>
             ) : (
@@ -355,8 +355,8 @@ export default function DefaultMenuModal({
                 fontSize: '0.8rem',
                 fontWeight: 600,
                 border: '1px solid',
-                borderColor: activeCategory === 'all' ? '#1D4ED8' : '#e2e8f0',
-                background: activeCategory === 'all' ? '#1D4ED8' : '#ffffff',
+                borderColor: activeCategory === 'all' ? '#0369A1' : '#e2e8f0',
+                background: activeCategory === 'all' ? '#0369A1' : '#ffffff',
                 color: activeCategory === 'all' ? '#ffffff' : '#64748b',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap'
@@ -378,8 +378,8 @@ export default function DefaultMenuModal({
                     fontSize: '0.8rem',
                     fontWeight: 600,
                     border: '1px solid',
-                    borderColor: activeCategory === cat ? '#1D4ED8' : '#e2e8f0',
-                    background: activeCategory === cat ? '#1D4ED8' : '#ffffff',
+                    borderColor: activeCategory === cat ? '#0369A1' : '#e2e8f0',
+                    background: activeCategory === cat ? '#0369A1' : '#ffffff',
                     color: activeCategory === cat ? '#ffffff' : '#64748b',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap'
@@ -396,7 +396,7 @@ export default function DefaultMenuModal({
         <div className="default-menu-dishes-grid">
           {loadingTemplate ? (
             <div style={{ gridColumn: '1 / -1', padding: '60px 0', textAlign: 'center', color: '#64748b' }}>
-              <RefreshCw className="animate-spin" size={32} style={{ margin: '0 auto 12px', color: '#1D4ED8' }} />
+              <RefreshCw className="animate-spin" size={32} style={{ margin: '0 auto 12px', color: '#0369A1' }} />
               <p style={{ fontWeight: 600 }}>Loading TableMint starter catalog...</p>
             </div>
           ) : filteredItems.length === 0 ? (
@@ -417,7 +417,7 @@ export default function DefaultMenuModal({
                   style={{
                     background: isSelected ? '#ffffff' : '#f8fafc',
                     border: '1.5px solid',
-                    borderColor: isSelected ? '#2563EB' : '#e2e8f0',
+                    borderColor: isSelected ? '#0284C7' : '#e2e8f0',
                     borderRadius: 14,
                     padding: 12,
                     cursor: 'pointer',
@@ -425,7 +425,7 @@ export default function DefaultMenuModal({
                     gap: 12,
                     alignItems: 'center',
                     transition: 'all 0.15s ease',
-                    boxShadow: isSelected ? '0 4px 12px rgba(37, 99, 235, 0.1)' : 'none',
+                    boxShadow: isSelected ? '0 4px 12px rgba(2, 132, 199, 0.1)' : 'none',
                     opacity: isSelected ? 1 : 0.65
                   }}
                 >
@@ -438,7 +438,7 @@ export default function DefaultMenuModal({
                     style={{
                       width: 18,
                       height: 18,
-                      accentColor: '#1D4ED8',
+                      accentColor: '#0369A1',
                       cursor: 'pointer'
                     }}
                   />
@@ -522,7 +522,7 @@ export default function DefaultMenuModal({
                       >
                         {item.name}
                       </h4>
-                      <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#1D4ED8', flexShrink: 0 }}>
+                      <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0369A1', flexShrink: 0 }}>
                         ₹{item.price}
                       </span>
                     </div>
@@ -580,7 +580,7 @@ export default function DefaultMenuModal({
         <div className="default-menu-footer">
           <div style={{ fontSize: '0.86rem', color: '#64748b' }}>
             <span>Ready to import </span>
-            <strong style={{ color: '#1D4ED8' }}>{selectedIds.size} dishes</strong>
+            <strong style={{ color: '#0369A1' }}>{selectedIds.size} dishes</strong>
             <span> into your menu</span>
           </div>
 
@@ -611,7 +611,7 @@ export default function DefaultMenuModal({
                 padding: '10px 24px',
                 borderRadius: 10,
                 border: 'none',
-                background: 'linear-gradient(135deg, #1D4ED8 0%, #047857 100%)',
+                background: 'linear-gradient(135deg, #0369A1 0%, #047857 100%)',
                 color: '#ffffff',
                 fontSize: '0.9rem',
                 fontWeight: 700,
@@ -620,7 +620,7 @@ export default function DefaultMenuModal({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                boxShadow: '0 4px 12px rgba(29, 78, 216, 0.25)'
+                boxShadow: '0 4px 12px rgba(3, 105, 161, 0.25)'
               }}
             >
               {importing ? (

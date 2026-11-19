@@ -221,9 +221,9 @@ export default function HomePage() {
           <div className="tm-stats-grid">
             {[
               { num: '3.5x', color: '#0F172A', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
-              { num: '28%', color: '#2563EB', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
+              { num: '28%', color: '#0284C7', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
               { num: '0%', color: '#0F172A', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
-              { num: '₹0', color: '#2563EB', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
+              { num: '₹0', color: '#0284C7', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
             ].map((stat, idx) => (
               <motion.div 
                 key={idx}
@@ -299,7 +299,7 @@ export default function HomePage() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
-                    color: '#2563EB',
+                    color: '#0284C7',
                     fontWeight: 600,
                     fontSize: '0.88rem',
                     textDecoration: 'none'
@@ -340,9 +340,9 @@ export default function HomePage() {
                   gap: 8,
                   padding: '6px 14px',
                   borderRadius: '9999px',
-                  background: 'rgba(37, 99, 235, 0.12)',
-                  border: '1px solid rgba(37, 99, 235, 0.3)',
-                  color: '#2563EB',
+                  background: 'rgba(2, 132, 199, 0.12)',
+                  border: '1px solid rgba(2, 132, 199, 0.3)',
+                  color: '#0284C7',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -377,11 +377,11 @@ export default function HomePage() {
                         width: 20,
                         height: 20,
                         borderRadius: '50%',
-                        background: 'rgba(37, 99, 235, 0.2)',
+                        background: 'rgba(2, 132, 199, 0.2)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#2563EB',
+                        color: '#0284C7',
                         flexShrink: 0
                       }}>
                         <Check size={13} strokeWidth={3} />
@@ -480,13 +480,13 @@ export default function HomePage() {
                     right: 12,
                     background: 'rgba(15, 23, 42, 0.85)',
                     backdropFilter: 'blur(8px)',
-                    color: '#2563EB',
+                    color: '#0284C7',
                     fontSize: '0.72rem',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     padding: '4px 10px',
                     borderRadius: '9999px',
-                    border: '1px solid rgba(37, 99, 235, 0.3)'
+                    border: '1px solid rgba(2, 132, 199, 0.3)'
                   }}>
                     {type.tag}
                   </span>
@@ -504,7 +504,7 @@ export default function HomePage() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      color: '#2563EB',
+                      color: '#0284C7',
                       fontWeight: 600,
                       fontSize: '0.88rem'
                     }}
@@ -595,7 +595,7 @@ export default function HomePage() {
               >
                 <span>Yearly Billing</span>
                 <span style={{
-                  background: '#2563EB',
+                  background: '#0284C7',
                   color: '#FFFFFF',
                   fontSize: '0.7rem',
                   padding: '2px 6px',
@@ -636,7 +636,7 @@ export default function HomePage() {
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
                 {["Up to 10 Dining Tables", "1 POS Terminal Cashier", "Contactless QR Menus", "Basic Sales Reports", "Email Support"].map((item, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -653,8 +653,8 @@ export default function HomePage() {
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                borderColor: '#2563EB',
-                boxShadow: '0 12px 30px rgba(37, 99, 235, 0.15)',
+                borderColor: '#0284C7',
+                boxShadow: '0 12px 30px rgba(2, 132, 199, 0.15)',
                 borderWidth: 2
               }}
               initial={{ opacity: 0, y: 24 }}
@@ -668,7 +668,7 @@ export default function HomePage() {
                 top: -12,
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: '#2563EB',
+                background: '#0284C7',
                 color: '#FFFFFF',
                 padding: '4px 14px',
                 borderRadius: '9999px',
@@ -684,7 +684,7 @@ export default function HomePage() {
                 Perfect for busy casual dining, bistros, and full-service restaurants.
               </p>
               <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#2563EB', fontFamily: 'var(--font-heading)' }}>
+                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0284C7', fontFamily: 'var(--font-heading)' }}>
                   ₹{billingCycle === 'yearly' ? '1,599' : '1,999'}
                 </span>
                 <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
@@ -699,7 +699,7 @@ export default function HomePage() {
                   "Priority WhatsApp Support"
                 ].map((item, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -739,7 +739,7 @@ export default function HomePage() {
                   "24/7 Phone & On-Site Assistance"
                 ].map((item, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -751,7 +751,7 @@ export default function HomePage() {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Link to="/pricing" style={{ color: '#2563EB', fontWeight: 600, fontSize: '0.95rem' }}>
+            <Link to="/pricing" style={{ color: '#0284C7', fontWeight: 600, fontSize: '0.95rem' }}>
               Compare all features and specifications in our complete pricing table →
             </Link>
           </div>

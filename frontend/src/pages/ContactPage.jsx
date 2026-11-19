@@ -63,8 +63,8 @@ export default function ContactPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: 'rgba(37, 99, 235, 0.1)',
-                  color: '#2563EB',
+                  background: 'rgba(2, 132, 199, 0.1)',
+                  color: '#0284C7',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -90,8 +90,8 @@ export default function ContactPage() {
                 className="tm-card" 
                 style={{
                   background: '#FFFFFF',
-                  border: '2px solid #2563EB',
-                  boxShadow: '0 8px 30px rgba(37, 99, 235, 0.12)',
+                  border: '2px solid #0284C7',
+                  boxShadow: '0 8px 30px rgba(2, 132, 199, 0.12)',
                   padding: '32px'
                 }}
               >
@@ -99,8 +99,8 @@ export default function ContactPage() {
                   width: 52,
                   height: 52,
                   borderRadius: '12px',
-                  background: '#e8f9f3',
-                  color: '#2563EB',
+                  background: '#E0F2FE',
+                  color: '#0284C7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -128,7 +128,7 @@ export default function ContactPage() {
                     style={{
                       fontSize: '1.2rem',
                       fontWeight: 800,
-                      color: '#2563EB',
+                      color: '#0284C7',
                       textDecoration: 'none',
                       fontFamily: 'var(--font-heading)'
                     }}
@@ -152,7 +152,7 @@ export default function ContactPage() {
               {/* Response Time & Security */}
               <div className="tm-card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <Clock size={20} style={{ color: '#2563EB' }} />
+                  <Clock size={20} style={{ color: '#0284C7' }} />
                   <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>Response Time Guarantee</strong>
                 </div>
                 <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
@@ -163,7 +163,7 @@ export default function ContactPage() {
               {/* Corporate Office Info */}
               <div className="tm-card" style={{ padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <MapPin size={20} style={{ color: '#2563EB' }} />
+                  <MapPin size={20} style={{ color: '#0284C7' }} />
                   <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>TableMint Headquarters</strong>
                 </div>
                 <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
@@ -198,8 +198,8 @@ export default function ContactPage() {
                     width: 60,
                     height: 60,
                     borderRadius: '50%',
-                    background: '#e8f9f3',
-                    color: '#2563EB',
+                    background: '#E0F2FE',
+                    color: '#0284C7',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

@@ -145,9 +145,9 @@ export default function QrStandsApp({ onBack }) {
 
             <div className="stand-brand-header">
               <div className="stand-crest-badge">
-                <Sparkles size={12} style={{ color: '#3B82F6' }} />
+                <Sparkles size={12} style={{ color: '#38BDF8' }} />
                 <span>LUXURY DINING</span>
-                <Sparkles size={12} style={{ color: '#3B82F6' }} />
+                <Sparkles size={12} style={{ color: '#38BDF8' }} />
               </div>
               <h2 className="stand-brand-title">TableMint</h2>
               <div className="stand-tagline">Smart Restaurant & POS</div>

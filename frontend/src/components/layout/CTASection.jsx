@@ -24,11 +24,11 @@ export default function CTASection({
             <span>Transform Your Restaurant Today</span>
           </div>
 
-          <h2 className="tm-cta-title" style={{ color: '#FFFFFF' }}>
+          <h2 className="tm-cta-title" style={{ color: '#0F172A' }}>
             {title}
           </h2>
 
-          <p className="tm-cta-subtitle" style={{ color: '#cbd5e1' }}>
+          <p className="tm-cta-subtitle" style={{ color: '#475569' }}>
             {subtitle}
           </p>
 
@@ -40,7 +40,7 @@ export default function CTASection({
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/demo" className="tm-btn tm-btn-outline-white tm-btn-lg">
+              <Link to="/demo" className="tm-btn tm-btn-secondary tm-btn-lg">
                 <span>{secondaryText}</span>
               </Link>
             </motion.div>

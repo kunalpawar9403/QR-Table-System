@@ -112,7 +112,7 @@ export default function PublicNavbar() {
                 <Link 
                   to="/dashboard" 
                   className="tm-btn-primary-nav"
-                  style={{ background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)' }}
+                  style={{ background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' }}
                 >
                   <LayoutDashboard size={15} />
                   <span>Dashboard</span>

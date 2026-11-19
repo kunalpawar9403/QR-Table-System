@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * TableMint crisp vector leaf logo for mobile header & brand badges.
- * Uses high-contrast emerald (#2563EB), bright mint (#60A5FA), and pure white (#ffffff)
+ * Uses high-contrast emerald (#0284C7), bright mint (#7DD3FC), and pure white (#ffffff)
  * without external defs/filters to guarantee 100% razor-sharp visibility on all mobile displays.
  */
 export function TableMintLogoIcon({ size = 22, className = '' }) {
@@ -20,8 +20,8 @@ export function TableMintLogoIcon({ size = 22, className = '' }) {
       {/* Leaf blade background */}
       <path
         d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"
-        fill="#2563EB"
-        stroke="#60A5FA"
+        fill="#0284C7"
+        stroke="#7DD3FC"
         strokeWidth="1.6"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -29,7 +29,7 @@ export function TableMintLogoIcon({ size = 22, className = '' }) {
       {/* Leaf inner highlight */}
       <path
         d="M11 18A5 5 0 0 1 10.2 8C14 7.2 15.5 6.8 17 5c.8 1.5 1.5 3 1.5 6 0 4-3.5 7-7.5 7Z"
-        fill="#93C5FD"
+        fill="#BAE6FD"
         opacity="0.35"
       />
       {/* Central stem in bright white */}
@@ -69,8 +69,8 @@ export function TableMintSplashLogo({ size = 68, className = '' }) {
       {/* Leaf */}
       <path
         d="M40 46A14 14 0 0 1 37.6 18.2C49 16 52 14.96 56 10c2 4 4 8.36 4 16 0 11-9.56 20-20 20Z"
-        fill="#2563EB"
-        stroke="#60A5FA"
+        fill="#0284C7"
+        stroke="#7DD3FC"
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -78,7 +78,7 @@ export function TableMintSplashLogo({ size = 68, className = '' }) {
       {/* Leaf inner highlight */}
       <path
         d="M40 42A10 10 0 0 1 38.2 22C46 20.5 49 19.5 52 16c1.5 3 3 6 3 12 0 8-7 14-15 14Z"
-        fill="#93C5FD"
+        fill="#BAE6FD"
         opacity="0.35"
       />
       {/* Stem */}

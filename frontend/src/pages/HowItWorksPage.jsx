@@ -158,11 +158,11 @@ export default function HowItWorksPage() {
                       fontFamily: 'var(--font-heading)',
                       fontSize: '1.4rem',
                       fontWeight: 800,
-                      color: '#2563EB',
-                      background: 'rgba(37, 99, 235, 0.1)',
+                      color: '#0284C7',
+                      background: 'rgba(2, 132, 199, 0.1)',
                       padding: '4px 14px',
                       borderRadius: '9999px',
-                      border: '1px solid rgba(37, 99, 235, 0.25)'
+                      border: '1px solid rgba(2, 132, 199, 0.25)'
                     }}>
                       Step {step.num}
                     </span>
@@ -209,7 +209,7 @@ export default function HowItWorksPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {step.details.map((d, dIdx) => (
                       <div key={dIdx} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.9rem', color: '#0F172A' }}>
-                        <CheckCircle size={16} style={{ color: '#2563EB', flexShrink: 0 }} />
+                        <CheckCircle size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
                         <span>{d}</span>
                       </div>
                     ))}
@@ -283,8 +283,8 @@ export default function HowItWorksPage() {
               transition={{ duration: 0.5 }}
               whileHover={{ y: -6, transition: { duration: 0.2 } }}
               style={{
-                background: 'rgba(37, 99, 235, 0.04)',
-                border: '2px solid #2563EB',
+                background: 'rgba(2, 132, 199, 0.04)',
+                border: '2px solid #0284C7',
                 borderRadius: '20px',
                 padding: '36px',
                 position: 'relative'
@@ -294,7 +294,7 @@ export default function HowItWorksPage() {
                 position: 'absolute',
                 top: -12,
                 left: 32,
-                background: '#2563EB',
+                background: '#0284C7',
                 color: '#FFFFFF',
                 fontSize: '0.75rem',
                 fontWeight: 700,
@@ -317,7 +317,7 @@ export default function HowItWorksPage() {
                   "Transparent SaaS pricing from ₹999/month"
                 ].map((item, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <CheckCircle size={17} style={{ color: '#2563EB', flexShrink: 0 }} />
+                    <CheckCircle size={17} style={{ color: '#0284C7', flexShrink: 0 }} />
                     <span>{item}</span>
                   </li>
                 ))}

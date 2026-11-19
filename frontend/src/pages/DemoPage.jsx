@@ -167,9 +167,9 @@ export default function DemoPage() {
               gap: 8,
               padding: '6px 14px',
               borderRadius: '9999px',
-              background: 'rgba(37, 99, 235, 0.15)',
-              border: '1px solid rgba(37, 99, 235, 0.35)',
-              color: '#2563EB',
+              background: 'rgba(2, 132, 199, 0.15)',
+              border: '1px solid rgba(2, 132, 199, 0.35)',
+              color: '#0284C7',
               fontSize: '0.8rem',
               fontWeight: 700,
               textTransform: 'uppercase',
@@ -229,10 +229,10 @@ export default function DemoPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  color: '#2563EB',
+                  color: '#0284C7',
                   fontSize: '0.85rem',
                   fontWeight: 600,
-                  background: 'rgba(37, 99, 235, 0.15)',
+                  background: 'rgba(2, 132, 199, 0.15)',
                   padding: '6px 12px',
                   borderRadius: '6px'
                 }}>
@@ -253,8 +253,8 @@ export default function DemoPage() {
               background: '#0F172A',
               borderRadius: '20px',
               overflow: 'hidden',
-              border: '2px solid rgba(37, 99, 235, 0.35)',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(37, 99, 235, 0.25)',
+              border: '2px solid rgba(2, 132, 199, 0.35)',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(2, 132, 199, 0.25)',
               position: 'relative'
             }}
           >
@@ -332,7 +332,7 @@ export default function DemoPage() {
                   fontWeight: 600,
                   cursor: 'pointer',
                   background: activeTourTab === m.id ? '#0F172A' : '#FFFFFF',
-                  color: activeTourTab === m.id ? '#2563EB' : '#64748B',
+                  color: activeTourTab === m.id ? '#0284C7' : '#64748B',
                   boxShadow: activeTourTab === m.id ? '0 4px 15px rgba(15, 23, 42, 0.2)' : '0 2px 6px rgba(0,0,0,0.04)',
                   transition: 'all 0.2s ease'
                 }}
@@ -382,12 +382,12 @@ export default function DemoPage() {
                   top: 14,
                   left: 14,
                   background: 'rgba(15, 23, 42, 0.9)',
-                  color: '#2563EB',
+                  color: '#0284C7',
                   fontSize: '0.75rem',
                   fontWeight: 700,
                   padding: '4px 12px',
                   borderRadius: '9999px',
-                  border: '1px solid rgba(37, 99, 235, 0.3)',
+                  border: '1px solid rgba(2, 132, 199, 0.3)',
                   zIndex: 2
                 }}>
                   Live System Screen
@@ -411,8 +411,8 @@ export default function DemoPage() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: 6,
-                  background: 'rgba(37, 99, 235, 0.1)',
-                  color: '#2563EB',
+                  background: 'rgba(2, 132, 199, 0.1)',
+                  color: '#0284C7',
                   fontSize: '0.8rem',
                   fontWeight: 700,
                   textTransform: 'uppercase',
@@ -445,7 +445,7 @@ export default function DemoPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
                   {currentMod.points.map((pt, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#0F172A' }}>
-                      <CheckCircle size={17} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
+                      <CheckCircle size={17} style={{ color: '#0284C7', flexShrink: 0, marginTop: 2 }} />
                       <span>{pt}</span>
                     </div>
                   ))}

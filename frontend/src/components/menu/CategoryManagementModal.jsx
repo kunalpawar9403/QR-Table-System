@@ -183,9 +183,9 @@ export default function CategoryManagementModal({
                       fontWeight: 600,
                       padding: '6px 12px',
                       borderRadius: 20,
-                      border: isAdded ? '1px solid #cbd5e1' : '1px solid #2563EB',
-                      background: isAdded ? '#f1f5f9' : '#EFF6FF',
-                      color: isAdded ? '#94a3b8' : '#1D4ED8',
+                      border: isAdded ? '1px solid #cbd5e1' : '1px solid #0284C7',
+                      background: isAdded ? '#f1f5f9' : '#E0F2FE',
+                      color: isAdded ? '#94a3b8' : '#0369A1',
                       cursor: isAdded ? 'default' : 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -307,7 +307,7 @@ export default function CategoryManagementModal({
                         </div>
                       ) : (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
-                          <Tag size={16} style={{ color: '#2563EB' }} />
+                          <Tag size={16} style={{ color: '#0284C7' }} />
                           <div>
                             <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>
                               {cat.name}

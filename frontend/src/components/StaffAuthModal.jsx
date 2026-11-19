@@ -367,8 +367,8 @@ export default function StaffAuthModal({
 
             {selectedPlan && (
               <div style={{
-                background: 'rgba(37, 99, 235, 0.12)',
-                border: '1px solid #2563EB',
+                background: 'rgba(2, 132, 199, 0.12)',
+                border: '1px solid #0284C7',
                 borderRadius: 10,
                 padding: '8px 12px',
                 display: 'flex',
@@ -379,7 +379,7 @@ export default function StaffAuthModal({
                 fontWeight: 700
               }}>
                 <span>Plan: TableMint {selectedPlan.toUpperCase()}</span>
-                <span style={{ color: '#2563EB', background: '#0F172A', padding: '2px 8px', borderRadius: 9999 }}>7-Day Free Trial</span>
+                <span style={{ color: '#0284C7', background: '#0F172A', padding: '2px 8px', borderRadius: 9999 }}>7-Day Free Trial</span>
               </div>
             )}
 
@@ -399,9 +399,9 @@ export default function StaffAuthModal({
                     style={{
                       padding: '6px 4px',
                       borderRadius: 8,
-                      border: signUpType === t.id ? '1.5px solid #2563EB' : '1px solid #e2e8f0',
-                      background: signUpType === t.id ? '#EFF6FF' : '#ffffff',
-                      color: signUpType === t.id ? '#1D4ED8' : '#64748b',
+                      border: signUpType === t.id ? '1.5px solid #0284C7' : '1px solid #e2e8f0',
+                      background: signUpType === t.id ? '#E0F2FE' : '#ffffff',
+                      color: signUpType === t.id ? '#0369A1' : '#64748b',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       cursor: 'pointer'
