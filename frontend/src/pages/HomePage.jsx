@@ -16,8 +16,14 @@ import {
   ChevronRight,
   Play,
   UtensilsCrossed,
+  Utensils,
   Printer,
-  Wifi
+  Wifi,
+  Tablet,
+  Coffee,
+  ShoppingCart,
+  Hotel,
+  Wine
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TextEffect } from '../components/motion-primitives/text-effect';
@@ -115,7 +121,7 @@ export default function HomePage() {
         <div className="tm-hero-home">
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
-              {/* Left Column: Clean Typography & Quick Actions */}
+              {/* Left Column: Clean Typography & Quick Actions (Matches exact reference) */}
               <div className="tm-hero-text-col">
                 {/* Badge */}
                 <motion.div 
@@ -124,11 +130,11 @@ export default function HomePage() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ duration: 0.45, ease: 'easeOut' }}
                 >
-                  <Sparkles size={14} />
-                  <span>Modern Restaurant Management</span>
+                  <Utensils size={14} />
+                  <span>MODERN RESTAURANT MANAGEMENT</span>
                 </motion.div>
 
-                {/* Main Headline - Perfectly balanced on 2 lines */}
+                {/* Main Headline - Exactly matching target reference image */}
                 <h1 className="tm-hero-title">
                   <motion.span 
                     className="tm-hero-title-line"
@@ -136,15 +142,26 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.1 }}
                   >
-                    The Smart Restaurant POS
+                    The Smart
+                  </motion.span>
+                  <motion.span 
+                    className="tm-hero-title-line"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, delay: 0.2 }}
+                  >
+                    Restaurant POS
                   </motion.span>
                   <motion.span 
                     className="tm-hero-title-accent"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, delay: 0.25 }}
+                    transition={{ duration: 0.45, delay: 0.3 }}
                   >
                     &amp; Contactless Dining
+                    <svg className="tm-hero-title-swoosh" viewBox="0 0 160 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3 10C45 2 115 2 157 9" stroke="#0284C7" strokeWidth="3.2" strokeLinecap="round" />
+                    </svg>
                   </motion.span>
                 </h1>
 
@@ -155,7 +172,8 @@ export default function HomePage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: 0.35 }}
                 >
-                  Empower your floor with intelligent table management, contactless QR ordering, express POS billing, and real-time kitchen display.
+                  Empower your floor with intelligent table management, contactless<br className="tm-hide-mobile" />
+                  QR ordering, express POS billing, and real-time kitchen display.
                 </motion.p>
 
                 {/* CTA Buttons */}
@@ -180,7 +198,7 @@ export default function HomePage() {
                       to="/demo"
                       className="tm-btn-hero-secondary"
                     >
-                      <Play size={15} fill="#0284C7" color="#0284C7" />
+                      <Play size={14} fill="#0284C7" color="#0284C7" />
                       <span>Watch Video Demo</span>
                     </Link>
                   </motion.div>
@@ -208,13 +226,14 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Right Column: High-End 3D Device Showcase */}
+              {/* Right Column: High-End 3D Device Showcase with Card Features & Venue Tabs */}
               <motion.div 
                 className="tm-hero-showcase"
                 initial={{ opacity: 0, x: 28, scale: 0.96 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
               >
+                {/* Main Showcase Card with embedded 4 feature items */}
                 <div className="tm-hero-image-card">
                   <img 
                     src="/images/landing/hero_pos_devices.jpg" 
@@ -222,6 +241,65 @@ export default function HomePage() {
                     className="tm-hero-showcase-img"
                     loading="eager"
                   />
+
+                  {/* 4 Feature Items Strip Inside Card (Matches Reference Image) */}
+                  <div className="tm-hero-card-features">
+                    <div className="tm-card-feat-item">
+                      <Printer size={18} className="tm-card-feat-icon" />
+                      <div className="tm-card-feat-text">
+                        <span className="tm-feat-title">58mm &amp; 80mm</span>
+                        <span className="tm-feat-sub">ESC/POS</span>
+                      </div>
+                    </div>
+                    <div className="tm-card-feat-divider" />
+                    <div className="tm-card-feat-item">
+                      <Wifi size={18} className="tm-card-feat-icon" />
+                      <div className="tm-card-feat-text">
+                        <span className="tm-feat-title">Bluetooth &amp;</span>
+                        <span className="tm-feat-sub">Wi-Fi Sync</span>
+                      </div>
+                    </div>
+                    <div className="tm-card-feat-divider" />
+                    <div className="tm-card-feat-item">
+                      <Tablet size={18} className="tm-card-feat-icon" />
+                      <div className="tm-card-feat-text">
+                        <span className="tm-feat-title">Android &amp;</span>
+                        <span className="tm-feat-sub">iOS Tablet</span>
+                      </div>
+                    </div>
+                    <div className="tm-card-feat-divider" />
+                    <div className="tm-card-feat-item">
+                      <Zap size={18} className="tm-card-feat-icon" />
+                      <div className="tm-card-feat-text">
+                        <span className="tm-feat-title">Instant</span>
+                        <span className="tm-feat-sub">Order KDS</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4 Venue Tabs under the Device Mockup (Matches Reference Image) */}
+                <div className="tm-hero-venue-tabs">
+                  <div className="tm-venue-tab">
+                    <Coffee size={20} className="tm-venue-icon" />
+                    <span className="tm-venue-tab-title">Tea, Cafe &amp; QSR</span>
+                    <span className="tm-venue-tab-sub">58mm Bluetooth printer</span>
+                  </div>
+                  <div className="tm-venue-tab">
+                    <ShoppingCart size={20} className="tm-venue-icon" />
+                    <span className="tm-venue-tab-title">Kirana &amp; Retail</span>
+                    <span className="tm-venue-tab-sub">80mm counter printer</span>
+                  </div>
+                  <div className="tm-venue-tab active">
+                    <Hotel size={20} className="tm-venue-icon" />
+                    <span className="tm-venue-tab-title">Hotel &amp; Restaurant</span>
+                    <span className="tm-venue-tab-sub">80mm kitchen printer</span>
+                  </div>
+                  <div className="tm-venue-tab">
+                    <Wine size={20} className="tm-venue-icon" />
+                    <span className="tm-venue-tab-title">Bar &amp; Dine-In</span>
+                    <span className="tm-venue-tab-sub">A4 &amp; thermal printer</span>
+                  </div>
                 </div>
               </motion.div>
             </div>
