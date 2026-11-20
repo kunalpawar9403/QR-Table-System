@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tablemint-qr-pos
+    runtime: node
+    plan: free
+    buildCommand: npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install
+    startCommand: node backend/server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: STAFF_PIN
+        sync: false
+      - key: STAFF_SECRET
+        generateValue: true
