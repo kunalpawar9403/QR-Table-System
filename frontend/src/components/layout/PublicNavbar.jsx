@@ -70,7 +70,6 @@ export default function PublicNavbar() {
     { label: 'How It Works', to: '/how-it-works' },
     { label: 'Solutions', to: '/solutions' },
     { label: 'Pricing', to: '/pricing' },
-    { label: 'Demo', to: '/demo' },
     { label: 'Contact', to: '/contact' }
   ];
 

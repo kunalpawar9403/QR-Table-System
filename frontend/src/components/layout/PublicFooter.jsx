@@ -57,7 +57,6 @@ export default function PublicFooter() {
               <li><Link to="/features">All Features</Link></li>
               <li><Link to="/how-it-works">How It Works</Link></li>
               <li><Link to="/pricing">Pricing Plans</Link></li>
-              <li><Link to="/demo">Live Interactive Demo</Link></li>
               <li><Link to="/solutions">Industry Solutions</Link></li>
             </ul>
           </div>
@@ -121,7 +120,6 @@ export default function PublicFooter() {
           </button>
           <div className={`tm-footer-links-wrapper ${openSections.company ? 'open' : ''}`}>
             <ul className="tm-footer-links">
-              <li><Link to="/demo">Watch Video Demo</Link></li>
               <li><Link to="/contact">Email Support</Link></li>
               <li><Link to="/login">Partner Sign In</Link></li>
               <li><Link to="/register">Create Account</Link></li>

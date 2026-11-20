@@ -180,8 +180,8 @@ export default function FeaturesPage() {
               <span>Start Free 14-Day Trial</span>
               <ArrowRight size={18} />
             </Link>
-            <Link to="/demo" className="tm-btn tm-btn-outline-white tm-btn-lg">
-              <span>Watch Live Demo</span>
+            <Link to="/pricing" className="tm-btn tm-btn-outline-white tm-btn-lg">
+              <span>View Pricing Plans</span>
             </Link>
           </>
         }
@@ -327,8 +327,8 @@ export default function FeaturesPage() {
 
                     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                       <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                        <Link to="/demo" className="tm-btn tm-btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
-                          <span>See {mod.category} Demo</span>
+                        <Link to="/register" className="tm-btn tm-btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
+                          <span>Get Started with {mod.category}</span>
                           <ArrowRight size={14} />
                         </Link>
                       </motion.div>

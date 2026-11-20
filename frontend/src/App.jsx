@@ -186,7 +186,7 @@ export default function App() {
               <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/solutions" element={<SolutionsPage />} />
               <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/demo" element={<DemoPage />} />
+              <Route path="/demo" element={<Navigate to="/" replace />} />
               <Route path="/contact" element={<ContactPage />} />
             </Route>
 

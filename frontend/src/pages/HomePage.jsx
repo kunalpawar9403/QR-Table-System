@@ -191,11 +191,11 @@ export default function HomePage() {
 
                   <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <Link
-                      to="/demo"
+                      to="/features"
                       className="tm-btn-hero-secondary"
                     >
-                      <Play size={14} fill="#0284C7" color="#0284C7" />
-                      <span>Watch Video Demo</span>
+                      <span>Explore Features</span>
+                      <ArrowRight size={15} />
                     </Link>
                   </motion.div>
                 </motion.div>
@@ -515,8 +515,8 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <Link to="/demo" className="tm-btn tm-btn-primary">
-                  <span>See Multi-Device Live Demo</span>
+                <Link to="/features" className="tm-btn tm-btn-primary">
+                  <span>Explore Supported Features</span>
                   <ArrowRight size={16} />
                 </Link>
               </motion.div>

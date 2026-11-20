@@ -7,7 +7,8 @@ export default function CTASection({
   title = "Ready to elevate your restaurant operations?",
   subtitle = "Experience modern cloud POS engineered for high speed. Set up your digital floor and menu in 5 minutes with our 14-day free trial.",
   primaryText = "Start 14-Day Free Trial",
-  secondaryText = "Watch Video Demo"
+  secondaryText = "Explore All Features",
+  secondaryTo = "/features"
 }) {
   return (
     <div className="tm-cta-wrapper">
@@ -40,7 +41,7 @@ export default function CTASection({
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/demo" className="tm-btn tm-btn-secondary tm-btn-lg">
+              <Link to={secondaryTo} className="tm-btn tm-btn-secondary tm-btn-lg">
                 <span>{secondaryText}</span>
               </Link>
             </motion.div>
