@@ -2246,13 +2246,36 @@
   background: #0284C7;
 }
 
+.tm-auth-mobile-brand {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .tm-auth-modal-card {
     grid-template-columns: 1fr;
     border-radius: 20px;
+    max-height: none;
+    height: auto;
   }
   .tm-auth-side-panel {
     display: none;
+  }
+  .tm-auth-mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    text-decoration: none;
+  }
+  .tm-auth-mobile-brand .name {
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: #0F172A;
+  }
+  .tm-auth-mobile-brand .accent {
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: #0284C7;
   }
   .tm-auth-form-panel {
     padding: 32px 24px;

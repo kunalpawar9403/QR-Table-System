@@ -796,11 +796,11 @@ export default function MobileAppEntry() {
 
             {/* Form Container Card */}
             <div style={{
-              background: '#072b20',
+              background: 'linear-gradient(165deg, #111C44 0%, #0F172A 100%)',
               borderRadius: '20px',
               padding: '24px 20px',
-              border: '1px solid rgba(2, 132, 199, 0.2)',
-              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)'
+              border: '1px solid rgba(2, 132, 199, 0.3)',
+              boxShadow: '0 16px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(2, 132, 199, 0.12)'
             }}>
               {authMode === 'signin' ? (
                 /* ==================== SIGN IN FORM ==================== */
@@ -1205,11 +1205,11 @@ export default function MobileAppEntry() {
 
             {/* Recovery Card */}
             <div style={{
-              background: '#072b20',
+              background: 'linear-gradient(165deg, #111C44 0%, #0F172A 100%)',
               borderRadius: '20px',
               padding: '24px 20px',
-              border: '1px solid rgba(2, 132, 199, 0.2)',
-              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.4)'
+              border: '1px solid rgba(2, 132, 199, 0.3)',
+              boxShadow: '0 16px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(2, 132, 199, 0.12)'
             }}>
               {forgotStep === 1 ? (
                 /* Step 1: Send recovery code */
@@ -1377,13 +1377,13 @@ export default function MobileAppEntry() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             style={{
-              background: '#072b20',
+              background: 'linear-gradient(165deg, #111C44 0%, #0F172A 100%)',
               border: '1.5px solid rgba(2, 132, 199, 0.35)',
               borderRadius: 24,
               padding: '24px 20px',
               maxWidth: 420,
               width: '100%',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)'
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(2, 132, 199, 0.15)'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>

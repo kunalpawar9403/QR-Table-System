@@ -145,6 +145,15 @@ export default function LoginPage() {
             <X size={18} />
           </Link>
 
+          {/* Mobile Brand Logo Header (Visible on mobile when side panel is hidden) */}
+          <div className="tm-auth-mobile-brand">
+            <TableMintBrandBadge size={38} />
+            <div className="tm-auth-brand-text">
+              <span className="name">Table</span>
+              <span className="accent">Mint</span>
+            </div>
+          </div>
+
           <div className="tm-auth-form-header">
             <span className="tm-auth-form-step-tag">WELCOME BACK</span>
             <h2 className="tm-auth-form-title">
