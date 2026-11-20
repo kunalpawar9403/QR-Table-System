@@ -512,12 +512,12 @@
   background: #FFFFFF;
   color: #0284C7;
   border: 1px solid #BAE6FD;
-  padding: 6px 15px;
+  padding: 7px 16px;
   border-radius: 9999px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
 }
@@ -527,14 +527,32 @@
   flex-shrink: 0;
 }
 
+.tm-hero-text-col {
+  text-align: left;
+  max-width: 660px;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
 .tm-hero-title {
-  font-size: clamp(2.1rem, 3.4vw, 3rem);
+  font-family: var(--font-heading);
+  font-size: clamp(2.35rem, 3.8vw, 3.35rem);
   font-weight: 850;
-  line-height: 1.16;
-  letter-spacing: -0.03em;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
   color: #0F172A;
-  margin: 0 0 20px 0;
-  text-wrap: balance;
+  margin: 0 0 22px 0;
+}
+
+.tm-hero-title-line {
+  display: block;
+}
+
+@media (min-width: 960px) {
+  .tm-hero-title-line {
+    white-space: nowrap;
+  }
 }
 
 .tm-hero-title-accent {
@@ -542,16 +560,17 @@
   background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
+  display: block;
+  margin-top: 4px;
 }
 
 .tm-hero-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   color: #475569;
   line-height: 1.65;
   margin: 0 0 28px 0;
-  max-width: 540px;
-  font-weight: 400;
+  max-width: 580px;
+  font-weight: 450;
 }
 
 .tm-hero-actions {
@@ -659,8 +678,8 @@
 
 .tm-hero-home-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 56px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 52px;
   align-items: center;
   width: 100%;
 }
@@ -678,12 +697,11 @@
   position: relative;
   width: 100%;
   max-width: 580px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(12px);
-  padding: 16px;
+  border-radius: 28px;
+  background: #FFFFFF;
+  padding: 14px;
   border: 1px solid #BAE6FD;
-  box-shadow: 0 20px 45px -12px rgba(2, 132, 199, 0.14), 0 0 0 1px rgba(2, 132, 199, 0.05);
+  box-shadow: 0 20px 45px -12px rgba(2, 132, 199, 0.16), 0 0 0 1px rgba(2, 132, 199, 0.05);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -695,9 +713,9 @@
 .tm-hero-showcase-img {
   width: 100%;
   height: auto;
-  max-height: 390px;
+  max-height: 440px;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 20px;
   display: block;
 }
 
@@ -709,78 +727,17 @@
   background: #FFFFFF;
   border: 1px solid #BAE6FD;
   border-radius: 9999px;
-  padding: 7px 15px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #475569;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.06);
+  padding: 8px 18px;
+  font-size: 0.84rem;
+  font-weight: 550;
+  color: #334155;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.05);
   white-space: nowrap;
 }
 
 .tm-hero-pill-badge svg {
   color: #0284C7;
   flex-shrink: 0;
-}
-
-/* 4-Tab Venue Mini-Cards under device card (Matching Slipzen screenshot) */
-.tm-hero-venue-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-top: 14px;
-  width: 100%;
-  max-width: 580px;
-}
-
-.tm-venue-tab {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 12px;
-  padding: 10px 10px 12px 10px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tm-venue-tab:hover {
-  border-color: #BAE6FD;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(2, 132, 199, 0.08);
-}
-
-.tm-venue-tab.active {
-  border-color: #BAE6FD;
-  background: #FFFFFF;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
-}
-
-.tm-venue-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: #0284C7;
-  border-radius: 0 0 12px 12px;
-}
-
-.tm-venue-tab-title {
-  font-size: 0.76rem;
-  font-weight: 750;
-  color: #0F172A;
-  margin-bottom: 2px;
-  line-height: 1.25;
-}
-
-.tm-venue-tab-sub {
-  font-size: 0.67rem;
-  color: #64748B;
-  line-height: 1.3;
 }
 
 /* =========================================================
@@ -1729,9 +1686,8 @@
     gap: 10px !important;
   }
 
-  .tm-hero-floating-tags,
-  .tm-hero-venue-tabs {
-    grid-template-columns: repeat(2, 1fr) !important;
+  .tm-hero-text-col {
+    max-width: 100% !important;
   }
 
   .tm-billing-switcher {

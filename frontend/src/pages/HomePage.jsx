@@ -115,8 +115,8 @@ export default function HomePage() {
         <div className="tm-hero-home">
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
-              {/* Left Column: Vertically centered to match other section banners */}
-              <div style={{ textAlign: 'left', maxWidth: '580px' }}>
+              {/* Left Column: Clean Typography & Quick Actions */}
+              <div className="tm-hero-text-col">
                 {/* Badge */}
                 <motion.div 
                   className="tm-hero-badge"
@@ -131,10 +131,10 @@ export default function HomePage() {
                 {/* Main Headline - Perfectly balanced on 2 lines */}
                 <h1 className="tm-hero-title">
                   <motion.span 
+                    className="tm-hero-title-line"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.1 }}
-                    style={{ display: 'block' }}
                   >
                     The Smart Restaurant POS
                   </motion.span>
@@ -143,7 +143,6 @@ export default function HomePage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.25 }}
-                    style={{ display: 'block' }}
                   >
                     &amp; Contactless Dining
                   </motion.span>
@@ -209,7 +208,7 @@ export default function HomePage() {
                 </motion.div>
               </div>
 
-              {/* Right Column: High-End 3D Device Showcase with live features */}
+              {/* Right Column: High-End 3D Device Showcase */}
               <motion.div 
                 className="tm-hero-showcase"
                 initial={{ opacity: 0, x: 28, scale: 0.96 }}
@@ -223,46 +222,6 @@ export default function HomePage() {
                     className="tm-hero-showcase-img"
                     loading="eager"
                   />
-                  
-                  {/* Floating Feature Tags below image */}
-                  <div className="tm-hero-floating-tags">
-                    <div className="tm-hero-tag-item">
-                      <Printer size={13} />
-                      <span>58mm & 80mm ESC/POS</span>
-                    </div>
-                    <div className="tm-hero-tag-item">
-                      <Wifi size={13} />
-                      <span>Bluetooth & Wi-Fi Sync</span>
-                    </div>
-                    <div className="tm-hero-tag-item">
-                      <Smartphone size={13} />
-                      <span>Android & iOS Tablet</span>
-                    </div>
-                    <div className="tm-hero-tag-item">
-                      <Zap size={13} />
-                      <span>Instant Order KDS</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4 Venue Tabs under the Device Mockup (Matches Slipzen reference) */}
-                <div className="tm-hero-venue-tabs">
-                  <div className="tm-venue-tab">
-                    <span className="tm-venue-tab-title">Tea, Cafe &amp; QSR</span>
-                    <span className="tm-venue-tab-sub">58mm Bluetooth printer</span>
-                  </div>
-                  <div className="tm-venue-tab">
-                    <span className="tm-venue-tab-title">Kirana &amp; Retail</span>
-                    <span className="tm-venue-tab-sub">80mm counter printer</span>
-                  </div>
-                  <div className="tm-venue-tab active">
-                    <span className="tm-venue-tab-title">Hotel &amp; Restaurant</span>
-                    <span className="tm-venue-tab-sub">80mm kitchen printer</span>
-                  </div>
-                  <div className="tm-venue-tab">
-                    <span className="tm-venue-tab-title">Bar &amp; Dine-In</span>
-                    <span className="tm-venue-tab-sub">A4 &amp; thermal printer</span>
-                  </div>
                 </div>
               </motion.div>
             </div>
