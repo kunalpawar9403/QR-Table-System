@@ -187,23 +187,23 @@ export default function HomePage() {
                   </motion.div>
                 </motion.div>
 
-                {/* Trust Checkmarks */}
+                {/* Trust Checkmarks - Slipzen White Pill Badges */}
                 <motion.div 
                   className="tm-hero-trust-row"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 0.65 }}
                 >
-                  <div className="tm-hero-trust-item">
-                    <CheckCircle size={15} />
+                  <div className="tm-hero-pill-badge">
+                    <ShieldCheck size={14} />
                     <span>No credit card required</span>
                   </div>
-                  <div className="tm-hero-trust-item">
-                    <CheckCircle size={15} />
+                  <div className="tm-hero-pill-badge">
+                    <Zap size={14} />
                     <span>Setup in 5 minutes</span>
                   </div>
-                  <div className="tm-hero-trust-item">
-                    <CheckCircle size={15} />
+                  <div className="tm-hero-pill-badge">
+                    <Smartphone size={14} />
                     <span>Works on all devices</span>
                   </div>
                 </motion.div>
@@ -224,7 +224,7 @@ export default function HomePage() {
                     loading="eager"
                   />
                   
-                  {/* Floating Feature Tags below image (matches Slipzen Screenshot reference) */}
+                  {/* Floating Feature Tags below image */}
                   <div className="tm-hero-floating-tags">
                     <div className="tm-hero-tag-item">
                       <Printer size={13} />
@@ -242,6 +242,26 @@ export default function HomePage() {
                       <Zap size={13} />
                       <span>Instant Order KDS</span>
                     </div>
+                  </div>
+                </div>
+
+                {/* 4 Venue Tabs under the Device Mockup (Matches Slipzen reference) */}
+                <div className="tm-hero-venue-tabs">
+                  <div className="tm-venue-tab">
+                    <span className="tm-venue-tab-title">Tea, Cafe &amp; QSR</span>
+                    <span className="tm-venue-tab-sub">58mm Bluetooth printer</span>
+                  </div>
+                  <div className="tm-venue-tab">
+                    <span className="tm-venue-tab-title">Kirana &amp; Retail</span>
+                    <span className="tm-venue-tab-sub">80mm counter printer</span>
+                  </div>
+                  <div className="tm-venue-tab active">
+                    <span className="tm-venue-tab-title">Hotel &amp; Restaurant</span>
+                    <span className="tm-venue-tab-sub">80mm kitchen printer</span>
+                  </div>
+                  <div className="tm-venue-tab">
+                    <span className="tm-venue-tab-title">Bar &amp; Dine-In</span>
+                    <span className="tm-venue-tab-sub">A4 &amp; thermal printer</span>
                   </div>
                 </div>
               </motion.div>
