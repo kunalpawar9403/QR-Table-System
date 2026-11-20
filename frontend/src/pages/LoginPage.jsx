@@ -6,9 +6,11 @@ import {
   ArrowRight, 
   Eye, 
   EyeOff, 
-  Sparkles, 
   ShieldCheck, 
-  CheckCircle,
+  Check,
+  Monitor,
+  Tablet,
+  Smartphone,
   AlertCircle
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -44,10 +46,7 @@ export default function LoginPage() {
     try {
       const res = await signInWithCredentials(email, password);
       if (res.success) {
-        // Dispatch authentication event for any global listeners
         window.dispatchEvent(new CustomEvent('staff:authenticated', { detail: res.user }));
-        
-        // Check if redirect search param exists
         const params = new URLSearchParams(location.search);
         const redirectPath = params.get('redirect') || '/dashboard';
         navigate(redirectPath, { replace: true });
@@ -62,255 +61,172 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      background: '#F8FAFC',
-      fontFamily: 'var(--font-body)'
-    }}>
-      {/* Left Column: Visual Branding (Hidden on mobile) */}
-      <div style={{
-        flex: 1,
-        background: 'radial-gradient(circle at 30% 20%, #0369A1 0%, #0F172A 65%, #0F172A 100%)',
-        color: '#FFFFFF',
-        padding: '60px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden'
-      }} className="tm-auth-hero-col">
-        {/* Ambient glow */}
-        <div style={{
-          position: 'absolute',
-          top: '-100px',
-          left: '-100px',
-          width: '500px',
-          height: '500px',
-          background: 'radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Top Brand */}
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, textDecoration: 'none', position: 'relative', zIndex: 1 }}>
-          <TableMintBrandBadge size={42} />
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
-            Table<span style={{ color: '#38BDF8' }}>Mint</span>
-          </div>
-        </Link>
-
-        {/* Middle Feature Highlight */}
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '480px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'rgba(2, 132, 199, 0.15)',
-            color: '#0284C7',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            padding: '5px 14px',
-            borderRadius: '9999px',
-            marginBottom: 20
-          }}>
-            <Sparkles size={14} />
-            <span>Next-Gen Restaurant POS</span>
-          </div>
-
-          <h2 style={{ fontSize: '2.4rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: 16 }}>
-            Run your entire restaurant from a single intelligent screen.
-          </h2>
-
-          <p style={{ color: '#cbd5e1', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: 32 }}>
-            Real-time table occupancy, 3-second GST billing, live kitchen display routing, and seamless UPI QR payments.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {[
-              'Instant WebSocket synchronization between terminals',
-              'Isolated, clean multi-tenant database for every restaurant',
-              'Works on iPad, Android, Windows, Mac, and mobile browsers'
-            ].map((text, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0', fontSize: '0.92rem' }}>
-                <CheckCircle size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-                <span>{text}</span>
+    <div className="tm-auth-page-wrapper">
+      <motion.div 
+        className="tm-auth-modal-card"
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+      >
+        {/* Left Side: Benefits & Brand Showcase */}
+        <div className="tm-auth-side-panel">
+          <div>
+            <Link to="/" className="tm-auth-brand-row">
+              <TableMintBrandBadge size={40} />
+              <div className="tm-auth-brand-text">
+                <span className="name">Table</span>
+                <span className="accent">Mint</span>
               </div>
-            ))}
+            </Link>
+
+            <div className="tm-auth-tag-line">
+              MODERN RESTAURANT MANAGEMENT
+            </div>
+
+            <h1 className="tm-auth-side-title">
+              Run Your Restaurant<br />
+              Operations<br />
+              <span className="highlight">Effortlessly.</span>
+            </h1>
+
+            <p className="tm-auth-side-desc">
+              Table management, QR ordering, POS billing, KDS and more — all in one platform.
+            </p>
+
+            <div className="tm-auth-checklist-box">
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Real-time table &amp; order management</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Faster billing with POS &amp; GST invoicing</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Works on web, tablet, and mobile</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="tm-auth-side-footer">
+            <div className="tm-auth-footer-badge">
+              <ShieldCheck size={15} />
+              <span>Secure &amp; Reliable</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginLeft: 'auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Monitor size={14} />
+                <span>Web</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Tablet size={14} />
+                <span>Tablet</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Smartphone size={14} />
+                <span>Mobile</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Trust */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.86rem', position: 'relative', zIndex: 1 }}>
-          <ShieldCheck size={16} style={{ color: '#0284C7' }} />
-          <span>PCI-DSS & ISO 27001 Certified Security Standard</span>
-        </div>
-      </div>
-
-      {/* Right Column: Sign In Form */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '40px 24px'
-      }}>
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.96, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-          style={{
-            width: '100%',
-            maxWidth: '440px',
-            background: '#FFFFFF',
-            borderRadius: '24px',
-            padding: 'clamp(28px, 4vw, 44px)',
-            boxShadow: '0 10px 35px rgba(15, 23, 42, 0.06)',
-            border: '1px solid #e2e8f0'
-          }}
-        >
-          {/* Form Header */}
-          <div style={{ marginBottom: 28, textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.8rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
-              Welcome Back
-            </h1>
-            <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
-              Sign in to access your TableMint restaurant dashboard.
+        {/* Right Side: Sign In Form */}
+        <div className="tm-auth-form-panel">
+          <div className="tm-auth-form-header">
+            <span className="tm-auth-form-step-tag">WELCOME BACK</span>
+            <h2 className="tm-auth-form-title">
+              Sign in to <span className="accent">TableMint</span>
+            </h2>
+            <p className="tm-auth-form-sub">
+              Access your restaurant dashboard and manage your operations.
             </p>
           </div>
 
-          {/* Error Alert */}
           {errorMessage && (
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              color: '#DC2626',
               padding: '12px 14px',
-              borderRadius: '10px',
+              borderRadius: '12px',
               fontSize: '0.88rem',
-              marginBottom: 20
+              marginBottom: 18
             }}>
-              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <AlertCircle size={17} style={{ flexShrink: 0 }} />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                Email Address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <form onSubmit={handleSubmit}>
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Email Address</label>
+              <div className="tm-auth-input-wrapper">
+                <Mail size={17} className="tm-auth-input-icon" />
                 <input
                   type="email"
                   required
-                  placeholder="admin@yourrestaurant.com"
+                  placeholder="admin@yourestaurant.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px 12px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    boxSizing: 'border-box',
-                    transition: 'border-color 0.18s ease'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
                 />
               </div>
             </div>
 
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#0F172A' }}>
-                  Password
-                </label>
-              </div>
-              <div style={{ position: 'relative' }}>
-                <Lock size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Password</label>
+              <div className="tm-auth-input-wrapper">
+                <Lock size={17} className="tm-auth-input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 42px 12px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
+                  style={{ paddingRight: '42px' }}
                 />
                 <button
                   type="button"
+                  className="tm-auth-eye-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: 14,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: 0
-                  }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
+              </div>
+              <div style={{ textAlign: 'right', marginTop: 6 }}>
+                <Link to="/contact" style={{ color: '#0284C7', fontSize: '0.82rem', fontWeight: 650, textDecoration: 'none' }}>
+                  Forgot password?
+                </Link>
               </div>
             </div>
 
-            <motion.button
+            <button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="tm-btn tm-btn-primary tm-btn-lg"
-              style={{ width: '100%', marginTop: 8 }}
+              className="tm-auth-btn-primary"
             >
-              {loading ? (
-                <span>Signing in...</span>
-              ) : (
-                <>
-                  <span>Sign In to Dashboard</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </motion.button>
+              <span>{loading ? 'Signing in...' : 'Sign In to Dashboard'}</span>
+              <ArrowRight size={16} />
+            </button>
           </form>
 
-          {/* Switch to Register */}
-          <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 20, borderTop: '1px solid #edf2f7' }}>
-            <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
-              Don't have a TableMint account yet?{' '}
-              <Link to="/register" style={{ color: '#0284C7', fontWeight: 700 }}>
-                Start 14-Day Free Trial
-              </Link>
-            </p>
+          <div className="tm-auth-footer-link">
+            Don't have a TableMint account yet? <Link to="/register">Create an account</Link>
           </div>
-        </motion.div>
-
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <Link to="/" style={{ color: '#64748b', fontSize: '0.86rem', textDecoration: 'none' }}>
-            ← Back to TableMint Home
-          </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

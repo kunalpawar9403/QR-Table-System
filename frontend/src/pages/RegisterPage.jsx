@@ -6,12 +6,12 @@ import {
   Mail, 
   Lock, 
   ArrowRight, 
-  CheckCircle, 
+  Check, 
   ShieldCheck, 
   Eye, 
   EyeOff,
   AlertCircle,
-  Zap
+  X
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { signUpWithCredentials, getStaffToken } from '../utils/staffAuth';
@@ -73,10 +73,7 @@ export default function RegisterPage() {
       });
 
       if (res.success) {
-        // Dispatches auth event to update App state
         window.dispatchEvent(new CustomEvent('staff:authenticated', { detail: res.user }));
-        
-        // Instant redirect directly into the live POS Dashboard!
         navigate('/dashboard', { replace: true });
       } else {
         setErrorMessage(res.error || 'Failed to create your restaurant account.');
@@ -89,349 +86,236 @@ export default function RegisterPage() {
   };
 
   const planOptions = [
-    { id: 'starter', name: 'Starter', price: '₹999/mo', desc: 'Up to 10 tables' },
-    { id: 'standard', name: 'Standard', price: '₹1,999/mo', desc: 'Up to 30 tables (Popular)' },
-    { id: 'premium', name: 'Premium', price: '₹3,999/mo', desc: 'Unlimited tables' }
+    { id: 'starter', name: 'Starter', price: '₹999/mo' },
+    { id: 'standard', name: 'Standard', price: '₹1,999/mo' },
+    { id: 'premium', name: 'Premium', price: '₹3,999/mo' }
   ];
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      background: '#F8FAFC',
-      fontFamily: 'var(--font-body)'
-    }}>
-      {/* Left Column: Visual Benefits (Hidden on mobile) */}
-      <div style={{
-        flex: 1,
-        background: 'radial-gradient(circle at 30% 20%, #0369A1 0%, #0F172A 65%, #0F172A 100%)',
-        color: '#FFFFFF',
-        padding: '60px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden'
-      }} className="tm-auth-hero-col">
-        {/* Glow */}
-        <div style={{
-          position: 'absolute',
-          top: '-120px',
-          left: '-120px',
-          width: '550px',
-          height: '550px',
-          background: 'radial-gradient(circle, rgba(2, 132, 199, 0.22) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }} />
-
-        {/* Brand */}
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, textDecoration: 'none', position: 'relative', zIndex: 1 }}>
-          <TableMintBrandBadge size={42} />
-          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
-            Table<span style={{ color: '#38BDF8' }}>Mint</span>
-          </div>
-        </Link>
-
-        {/* Feature Copy */}
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '500px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'rgba(2, 132, 199, 0.15)',
-            color: '#0284C7',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            padding: '5px 14px',
-            borderRadius: '9999px',
-            marginBottom: 20
-          }}>
-            <Zap size={14} />
-            <span>14-Day Full-Access Free Trial</span>
-          </div>
-
-          <h2 style={{ fontSize: '2.3rem', fontWeight: 800, lineHeight: 1.2, color: '#FFFFFF', marginBottom: 16 }}>
-            Set up your custom restaurant workspace in 60 seconds.
-          </h2>
-
-          <p style={{ color: '#cbd5e1', fontSize: '1.02rem', lineHeight: 1.6, marginBottom: 28 }}>
-            Upon registration, TableMint provisions a clean, isolated database for your venue with fresh vacant tables, dynamic QR codes, and default categories.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[
-              "Zero setup fees and no credit card required",
-              "Pre-loaded with fresh tables and starter menu",
-              "Connect unlimited waiter iPads, tablets, and phones",
-              "Automated GST invoicing with printable thermal bills",
-              "Live Kitchen Display System (KDS) included"
-            ].map((text, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#e2e8f0', fontSize: '0.92rem' }}>
-                <CheckCircle size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-                <span>{text}</span>
+    <div className="tm-auth-page-wrapper">
+      <motion.div 
+        className="tm-auth-modal-card"
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.45, ease: 'easeOut' }}
+      >
+        {/* Left Side: Setup In 60 Seconds Benefits Panel */}
+        <div className="tm-auth-side-panel">
+          <div>
+            <Link to="/" className="tm-auth-brand-row">
+              <TableMintBrandBadge size={40} />
+              <div className="tm-auth-brand-text">
+                <span className="name">Table</span>
+                <span className="accent">Mint</span>
               </div>
-            ))}
+            </Link>
+
+            <div className="tm-auth-tag-line">
+              MODERN RESTAURANT MANAGEMENT
+            </div>
+
+            <h1 className="tm-auth-side-title">
+              Set up your restaurant<br />
+              workspace in<br />
+              <span className="highlight">60 seconds.</span>
+            </h1>
+
+            <p className="tm-auth-side-desc">
+              Upon registration, TableMint provides a clean, isolated database for your venue with fresh tables, dynamic QR codes, and default categories.
+            </p>
+
+            <div className="tm-auth-checklist-box">
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Zero setup fees and no credit card required</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Pre-loaded with fresh tables and starter menu</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Connect unlimited waiter iPads, tablets, and phones</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Automated GST invoicing with printable bills</span>
+              </div>
+              <div className="tm-auth-check-item">
+                <div className="tm-auth-check-icon">
+                  <Check size={13} strokeWidth={3} />
+                </div>
+                <span>Live Kitchen Display System (KDS) included</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="tm-auth-side-footer">
+            <div className="tm-auth-footer-badge">
+              <ShieldCheck size={16} />
+              <span>Complete Data Isolation &amp; Enterprise Encryption</span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Security */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#94a3b8', fontSize: '0.86rem', position: 'relative', zIndex: 1 }}>
-          <ShieldCheck size={16} style={{ color: '#0284C7' }} />
-          <span>Complete Data Isolation & Enterprise Encryption</span>
-        </div>
-      </div>
+        {/* Right Side: Account Registration Form */}
+        <div className="tm-auth-form-panel">
+          {/* Close Button linking back to Home */}
+          <Link to="/" className="tm-auth-close-btn" aria-label="Close">
+            <X size={18} />
+          </Link>
 
-      {/* Right Column: Registration Form */}
-      <div style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '40px 24px'
-      }}>
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.96, y: 15 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-          style={{
-            width: '100%',
-            maxWidth: '480px',
-            background: '#FFFFFF',
-            borderRadius: '24px',
-            padding: 'clamp(28px, 4vw, 44px)',
-            boxShadow: '0 10px 35px rgba(15, 23, 42, 0.06)',
-            border: '1px solid #e2e8f0'
-          }}
-        >
-          {/* Header */}
-          <div style={{ marginBottom: 24, textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.8rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
+          {/* 3 Step Progress Bars */}
+          <div className="tm-auth-progress-bars">
+            <div className="tm-auth-progress-bar active" />
+            <div className="tm-auth-progress-bar" />
+            <div className="tm-auth-progress-bar" />
+          </div>
+
+          <div className="tm-auth-form-header">
+            <span className="tm-auth-form-step-tag">STEP 1 OF 3 • CREATE ACCOUNT</span>
+            <h2 className="tm-auth-form-title">
               Create Your Restaurant Account
-            </h1>
-            <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
+            </h2>
+            <p className="tm-auth-form-sub">
               Start your 14-day free trial. No credit card needed.
             </p>
           </div>
 
-          {/* Plan Selector Pills */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: 8 }}>
-              Selected Plan
+          {/* Plan Selector */}
+          <div style={{ marginBottom: 16 }}>
+            <label className="tm-auth-label" style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>
+              SELECTED PLAN
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              {planOptions.map((opt) => (
-                <motion.button
-                  key={opt.id}
-                  type="button"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setSelectedPlan(opt.id)}
-                  style={{
-                    padding: '8px 6px',
-                    borderRadius: '10px',
-                    border: '1px solid',
-                    borderColor: selectedPlan === opt.id ? '#0284C7' : '#e2e8f0',
-                    background: selectedPlan === opt.id ? '#E0F2FE' : '#F8FAFC',
-                    cursor: 'pointer',
-                    textAlign: 'center',
-                    transition: 'all 0.18s ease'
-                  }}
-                >
-                  <strong style={{ display: 'block', fontSize: '0.85rem', color: selectedPlan === opt.id ? '#0F172A' : '#0F172A' }}>
-                    {opt.name}
-                  </strong>
-                  <span style={{ fontSize: '0.74rem', color: selectedPlan === opt.id ? '#0284C7' : '#64748b', fontWeight: 600 }}>
-                    {opt.price}
-                  </span>
-                </motion.button>
-              ))}
+            <div className="tm-auth-plan-grid">
+              {planOptions.map((plan) => {
+                const isActive = selectedPlan === plan.id;
+                return (
+                  <button
+                    key={plan.id}
+                    type="button"
+                    onClick={() => setSelectedPlan(plan.id)}
+                    className={`tm-auth-plan-btn ${isActive ? 'active' : ''}`}
+                  >
+                    <span className="tm-auth-plan-name">{plan.name}</span>
+                    <span className="tm-auth-plan-price">{plan.price}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Error Alert */}
           {errorMessage && (
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: 10,
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
+              background: '#FEF2F2',
+              border: '1px solid #FECACA',
+              color: '#DC2626',
               padding: '12px 14px',
-              borderRadius: '10px',
+              borderRadius: '12px',
               fontSize: '0.88rem',
-              marginBottom: 20
+              marginBottom: 18
             }}>
-              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <AlertCircle size={17} style={{ flexShrink: 0 }} />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                Restaurant / Venue Name *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Building2 size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <form onSubmit={handleSubmit}>
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Restaurant / Venue Name *</label>
+              <div className="tm-auth-input-wrapper">
+                <Building2 size={17} className="tm-auth-input-icon" />
                 <input
                   type="text"
                   required
                   placeholder="e.g. Copper Chimney Bistro"
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px 11px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.94rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                Owner / Manager Full Name *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <User size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Owner / Manager Full Name *</label>
+              <div className="tm-auth-input-wrapper">
+                <User size={17} className="tm-auth-input-icon" />
                 <input
                   type="text"
                   required
                   placeholder="e.g. Rohan Verma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px 11px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.94rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                Email Address *
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Email Address *</label>
+              <div className="tm-auth-input-wrapper">
+                <Mail size={17} className="tm-auth-input-icon" />
                 <input
                   type="email"
                   required
                   placeholder="rohan@copperchimney.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px 11px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.94rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
                 />
               </div>
             </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                Password * (min 6 characters)
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <div className="tm-auth-field">
+              <label className="tm-auth-label">Password * (min 6 characters)</label>
+              <div className="tm-auth-input-wrapper">
+                <Lock size={17} className="tm-auth-input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="Create a secure password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '11px 42px 11px 42px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.94rem',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#0284C7'}
-                  onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
+                  className="tm-auth-input"
+                  style={{ paddingRight: '42px' }}
                 />
                 <button
                   type="button"
+                  className="tm-auth-eye-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: 14,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: 0
-                  }}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
-            <motion.button
+            <button
               type="submit"
               disabled={loading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="tm-btn tm-btn-primary tm-btn-lg"
-              style={{ width: '100%', marginTop: 8 }}
+              className="tm-auth-btn-primary"
             >
-              {loading ? (
-                <span>Provisioning Restaurant Workspace...</span>
-              ) : (
-                <>
-                  <span>Create Account & Launch POS</span>
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </motion.button>
+              <span>{loading ? 'Setting up workspace...' : 'Create Account & Launch POS'}</span>
+              <ArrowRight size={16} />
+            </button>
           </form>
 
-          {/* Switch to Login */}
-          <div style={{ textAlign: 'center', marginTop: 22, paddingTop: 18, borderTop: '1px solid #edf2f7' }}>
-            <p style={{ fontSize: '0.9rem', color: '#64748B' }}>
-              Already have an account?{' '}
-              <Link to="/login" style={{ color: '#0284C7', fontWeight: 700 }}>
-                Sign In
-              </Link>
-            </p>
+          <div className="tm-auth-footer-link">
+            Already have an account? <Link to="/login">Sign In</Link>
           </div>
-        </motion.div>
-
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <Link to="/" style={{ color: '#64748b', fontSize: '0.86rem', textDecoration: 'none' }}>
-            ← Back to TableMint Home
-          </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
