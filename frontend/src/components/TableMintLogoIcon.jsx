@@ -2,78 +2,32 @@ import React from 'react';
 
 /**
  * TableMint Brand Badge - Primary emblem matching the Slipzen Sky Blue theme.
- * Renders a crisp rounded-squircle badge with a vibrant Sky Blue gradient (#0284C7 to #0369A1),
- * subtle inner border glow (#7DD3FC), and a stylized white dining plate & fresh mint leaf emblem.
+ * Displays the high-end 3D AI-generated squircle app icon badge with glossy glass reflections
+ * and vibrant Sky Blue gradient (#0284C7 to #0369A1).
  */
 export function TableMintBrandBadge({ size = 36, className = '', style = {} }) {
-  const radius = Math.round(size * 0.26);
+  const radius = Math.round(size * 0.22);
 
   return (
-    <svg
+    <img
+      src="/images/tablemint_icon.png"
+      alt="TableMint"
       width={size}
       height={size}
-      viewBox="0 0 36 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
       className={className}
       style={{
         display: 'inline-block',
         verticalAlign: 'middle',
         flexShrink: 0,
+        width: `${size}px`,
+        height: `${size}px`,
         borderRadius: `${radius}px`,
         boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)',
+        objectFit: 'cover',
         ...style
       }}
-      aria-label="TableMint Emblem"
-    >
-      <defs>
-        <linearGradient id="tmBadgeGrad" x1="2" y1="2" x2="34" y2="34" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#0284C7" />
-          <stop offset="100%" stopColor="#0369A1" />
-        </linearGradient>
-        <linearGradient id="tmLeafInnerGrad" x1="12" y1="8" x2="26" y2="24" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="100%" stopColor="#E0F2FE" />
-        </linearGradient>
-      </defs>
-
-      {/* Squircle Badge Background */}
-      <rect
-        x="1"
-        y="1"
-        width="34"
-        height="34"
-        rx="9"
-        fill="url(#tmBadgeGrad)"
-        stroke="#7DD3FC"
-        strokeWidth="1.2"
-        strokeOpacity="0.6"
-      />
-
-      {/* Fresh Mint Leaf (Dynamic diagonal up-right) */}
-      <path
-        d="M17 28C13 28 9.5 25.2 9.5 20.8C9.5 14.5 15.5 10 24.5 7.5C26 12 26.5 18 23 22.5C20.5 25.8 19 28 17 28Z"
-        fill="url(#tmLeafInnerGrad)"
-      />
-
-      {/* Leaf Inner Translucent Facet */}
-      <path
-        d="M17 26C14.2 26 11.5 23.8 11.5 20.5C11.5 15.8 16 12.2 22.8 10C24 13.5 24.2 18 21.5 21.5C19.5 24.2 18.2 26 17 26Z"
-        fill="#BAE6FD"
-        opacity="0.45"
-      />
-
-      {/* Dynamic Curved Stem & Dining Swish in pure white */}
-      <path
-        d="M7 27C11.5 26.5 15 22.5 17.5 18C19.5 14.5 21 11 23.5 8.5"
-        stroke="#0284C7"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-
-      {/* Fresh Mint Sprout Accent Dot */}
-      <circle cx="25.5" cy="8.5" r="1.5" fill="#FFFFFF" />
-    </svg>
+      loading="eager"
+    />
   );
 }
 
