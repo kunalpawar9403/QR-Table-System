@@ -4248,20 +4248,22 @@
   /* Mobile Promo Hero Banner Slider */
   .mobile-promo-hero-banner {
     width: 100%;
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.12);
+    box-shadow: 0 4px 16px rgba(11, 19, 43, 0.16);
+    border: 1px solid rgba(2, 132, 199, 0.2);
     position: relative;
     background: #0B132B;
     cursor: pointer;
     user-select: none;
     touch-action: pan-y;
+    margin-bottom: 14px;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .mobile-promo-hero-banner:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.14);
+    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.18);
   }
 
   .promo-slider-track {
@@ -4285,44 +4287,48 @@
     aspect-ratio: 16 / 9;
     display: block;
     object-fit: cover;
-    border-radius: 20px;
+    border-radius: 16px;
     pointer-events: none;
   }
 
-  /* Slider Pagination Dots (Clean Minimalist Dots matching TableMint Mobile UI) */
+  /* Slider Pagination Dots (Bottom-Right Floating Glass Capsule) */
   .promo-slider-dots-pill {
     position: absolute;
-    bottom: 14px;
-    left: 22px;
+    bottom: 9px;
+    right: 12px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 2px 0;
-    background: transparent;
+    gap: 4px;
+    padding: 3px 6px;
+    background: rgba(11, 19, 43, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 999px;
     z-index: 8;
   }
 
   .promo-slider-dot {
-    width: 7px;
-    height: 7px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: rgba(2, 132, 199, 0.24);
+    background: rgba(255, 255, 255, 0.4);
     border: none;
     padding: 0;
     cursor: pointer;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .promo-slider-dot:hover {
-    background: rgba(2, 132, 199, 0.45);
+    background: rgba(255, 255, 255, 0.75);
   }
 
   .promo-slider-dot.active {
-    width: 24px;
-    height: 7px;
+    width: 16px;
+    height: 5px;
     border-radius: 4px;
-    background: #0284C7;
-    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.2);
+    background: #38BDF8;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
   }
 
   /* Slider Prev/Next Navigation Controls (Hidden on mobile touch screens, desktop hover only) */

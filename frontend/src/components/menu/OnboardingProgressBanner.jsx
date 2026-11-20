@@ -82,8 +82,8 @@ export default function OnboardingProgressBanner({
             width: 32,
             height: 32,
             borderRadius: 8,
-            background: 'rgba(2, 132, 199, 0.2)',
-            color: '#0284C7',
+            background: 'rgba(255, 255, 255, 0.2)',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -96,7 +96,7 @@ export default function OnboardingProgressBanner({
               Restaurant Setup Progress ({progressPercent}%)
             </h4>
             {!collapsed && (
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.85)', margin: '2px 0 0', lineHeight: 1.4 }}>
                 {completedCount} of {steps.length} steps complete. Follow the checklist to launch your dining room.
               </p>
             )}

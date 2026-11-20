@@ -5,34 +5,34 @@ import { TableMintBrandBadge } from './TableMintLogoIcon';
 export const PROMO_BANNERS = [
   {
     id: 1,
-    badge: 'SMART CONTACTLESS DINING',
+    badge: 'SMART QR ORDERING',
     title: 'Instant QR Table Ordering',
-    subtitle: 'Guests scan tabletop QR stands to browse menu and order directly. Tickets sync straight to POS & KDS.',
+    subtitle: 'Guests scan tabletop QR stands to browse menu and order directly. Tickets sync to POS & KDS.',
     tabTarget: 'orders',
-    ctaText: 'View Live Orders',
-    icon: <QrCode size={32} style={{ color: '#ffffff' }} />,
+    ctaText: 'View Orders',
+    icon: <QrCode size={22} style={{ color: '#ffffff' }} />,
     bgGradient: 'linear-gradient(135deg, #0284C7 0%, #0369A1 50%, #0B132B 100%)',
     accentColor: '#38BDF8'
   },
   {
     id: 2,
     badge: 'KITCHEN AUTOMATION',
-    title: 'Real-Time Kitchen Display (KDS)',
+    title: 'Real-Time Kitchen Display',
     subtitle: 'Instant ticket routing, live dish countdowns, and chime alerts keep kitchen staff moving fast.',
     tabTarget: 'kitchen',
-    ctaText: 'Open Kitchen Station',
-    icon: <ChefHat size={32} style={{ color: '#ffffff' }} />,
+    ctaText: 'Open KDS',
+    icon: <ChefHat size={22} style={{ color: '#ffffff' }} />,
     bgGradient: 'linear-gradient(135deg, #0369A1 0%, #0284C7 55%, #0B132B 100%)',
     accentColor: '#7DD3FC'
   },
   {
     id: 3,
-    badge: 'REVENUE & SETTLEMENT',
-    title: 'Smart Analytics & Instant Billing',
+    badge: 'DYNAMIC SETTLEMENT',
+    title: 'Smart Analytics & Billing',
     subtitle: 'Dynamic UPI QR billing, automatic GST calculations, and real-time revenue velocity reports.',
     tabTarget: 'reports',
-    ctaText: 'Explore Sales Reports',
-    icon: <TrendingUp size={32} style={{ color: '#ffffff' }} />,
+    ctaText: 'Sales Reports',
+    icon: <TrendingUp size={22} style={{ color: '#ffffff' }} />,
     bgGradient: 'linear-gradient(135deg, #0B132B 0%, #1E3A8A 50%, #0284C7 100%)',
     accentColor: '#BAE6FD'
   }
@@ -44,13 +44,13 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
-  // Auto-scroll every 4 seconds
+  // Auto-scroll every 4.5 seconds
   useEffect(() => {
     if (isPaused) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % PROMO_BANNERS.length);
-    }, 4000);
+    }, 4500);
 
     return () => clearInterval(interval);
   }, [isPaused]);
@@ -83,9 +83,9 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
   const handleTouchEnd = () => {
     if (touchEndX.current !== 0) {
       const diff = touchStartX.current - touchEndX.current;
-      if (diff > 40) {
+      if (diff > 35) {
         setCurrentIndex((prev) => (prev + 1) % PROMO_BANNERS.length);
-      } else if (diff < -40) {
+      } else if (diff < -35) {
         setCurrentIndex((prev) => (prev - 1 + PROMO_BANNERS.length) % PROMO_BANNERS.length);
       }
     }
@@ -129,11 +129,11 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
             aria-label={`${idx + 1} of ${PROMO_BANNERS.length}`}
             style={{
               background: banner.bgGradient,
-              borderRadius: 20,
-              padding: '24px 28px',
+              borderRadius: 16,
+              padding: '14px 16px',
               color: '#ffffff',
               boxSizing: 'border-box',
-              minHeight: 160,
+              minHeight: 126,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -145,63 +145,70 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
             {/* Background ambient decorative shapes */}
             <div style={{
               position: 'absolute',
-              right: -20,
-              top: -30,
-              width: 180,
-              height: 180,
+              right: -15,
+              top: -20,
+              width: 120,
+              height: 120,
               borderRadius: '50%',
               background: 'radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%)',
               pointerEvents: 'none'
             }} />
             <div style={{
               position: 'absolute',
-              right: 80,
-              bottom: -40,
-              width: 140,
-              height: 140,
+              right: 60,
+              bottom: -25,
+              width: 100,
+              height: 100,
               borderRadius: '50%',
               background: 'radial-gradient(circle, rgba(2, 132, 199, 0.3) 0%, transparent 70%)',
               pointerEvents: 'none'
             }} />
 
             {/* Left Content Column */}
-            <div style={{ position: 'relative', zIndex: 2, maxWidth: '68%' }}>
+            <div style={{ position: 'relative', zIndex: 2, maxWidth: '75%', minWidth: 0 }}>
               <div style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 5,
                 background: 'rgba(255, 255, 255, 0.16)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                padding: '4px 10px',
+                padding: '2px 8px',
                 borderRadius: 9999,
-                fontSize: '0.68rem',
+                fontSize: '0.62rem',
                 fontWeight: 800,
-                letterSpacing: '0.06em',
+                letterSpacing: '0.04em',
                 color: banner.accentColor,
-                marginBottom: 10
+                marginBottom: 4
               }}>
-                <Sparkles size={11} />
+                <Sparkles size={10} />
                 <span>{banner.badge}</span>
               </div>
 
               <h3 style={{
-                margin: '0 0 6px 0',
-                fontSize: '1.25rem',
+                margin: '0 0 3px 0',
+                fontSize: '1.02rem',
                 fontWeight: 800,
                 color: '#ffffff',
-                lineHeight: 1.25,
-                letterSpacing: '-0.015em'
+                lineHeight: 1.2,
+                letterSpacing: '-0.01em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}>
                 {banner.title}
               </h3>
 
               <p style={{
-                margin: '0 0 14px 0',
-                fontSize: '0.82rem',
-                color: 'rgba(255, 255, 255, 0.85)',
-                lineHeight: 1.45,
-                maxWidth: 480
+                margin: '0 0 8px 0',
+                fontSize: '0.74rem',
+                color: 'rgba(255, 255, 255, 0.88)',
+                lineHeight: 1.35,
+                maxWidth: 360,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
               }}>
                 {banner.subtitle}
               </p>
@@ -211,21 +218,21 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 6,
+                  gap: 5,
                   background: '#ffffff',
                   color: '#0284C7',
                   border: 'none',
-                  borderRadius: 10,
-                  padding: '7px 14px',
-                  fontSize: '0.78rem',
+                  borderRadius: 8,
+                  padding: '5px 11px',
+                  fontSize: '0.72rem',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.14)',
                   transition: 'transform 0.15s ease'
                 }}
               >
                 <span>{banner.ctaText}</span>
-                <ArrowRight size={13} />
+                <ArrowRight size={12} />
               </button>
             </div>
 
@@ -237,25 +244,26 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0
+              flexShrink: 0,
+              paddingLeft: 10
             }}>
               <div style={{
-                width: 68,
-                height: 68,
-                borderRadius: 20,
-                background: 'rgba(255, 255, 255, 0.12)',
-                border: '1.5px solid rgba(255, 255, 255, 0.25)',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+                width: 46,
+                height: 46,
+                borderRadius: 14,
+                background: 'rgba(255, 255, 255, 0.14)',
+                border: '1px solid rgba(255, 255, 255, 0.28)',
+                boxShadow: '0 6px 18px rgba(0, 0, 0, 0.2)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
-                marginBottom: 6
+                marginBottom: 4
               }}>
                 {banner.icon}
               </div>
-              <TableMintBrandBadge size={22} style={{ opacity: 0.9 }} />
+              <TableMintBrandBadge size={16} style={{ opacity: 0.95 }} />
             </div>
           </div>
         ))}
@@ -281,7 +289,7 @@ export default function TableMintBannerSlider({ onSelectTab, className = '' }) {
         <ChevronRight size={16} />
       </button>
 
-      {/* Pagination Pill Dots */}
+      {/* Pagination Pill Dots (Bottom-Right Glass Container so it never overlaps the left CTA button) */}
       <div className="promo-slider-dots-pill">
         {PROMO_BANNERS.map((b, idx) => (
           <button
