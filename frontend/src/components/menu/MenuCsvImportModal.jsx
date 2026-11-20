@@ -234,10 +234,10 @@ export default function MenuCsvImportModal({
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <FileSpreadsheet size={28} style={{ color: '#0369A1' }} />
                 <div>
-                  <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#065f46', margin: 0 }}>
+                  <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0284C7', margin: 0 }}>
                     Download Official TableMint Menu Template
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#047857', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: '0.78rem', color: '#0369A1', margin: '2px 0 0' }}>
                     Formatted with standard headers: Category, Item Name, Price, Description, Food Type
                   </p>
                 </div>

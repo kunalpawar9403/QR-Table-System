@@ -224,7 +224,7 @@ export default function DefaultMenuModal({
                   border: '1.5px solid',
                   borderColor: importMode === 'merge' ? '#0369A1' : '#cbd5e1',
                   background: importMode === 'merge' ? '#E0F2FE' : '#ffffff',
-                  color: importMode === 'merge' ? '#065f46' : '#475569',
+                  color: importMode === 'merge' ? '#0284C7' : '#475569',
                   transition: 'all 0.15s'
                 }}
               >

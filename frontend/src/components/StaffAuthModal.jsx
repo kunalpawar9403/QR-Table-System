@@ -375,7 +375,7 @@ export default function StaffAuthModal({
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 fontSize: '0.82rem',
-                color: '#065f46',
+                color: '#0284C7',
                 fontWeight: 700
               }}>
                 <span>Plan: TableMint {selectedPlan.toUpperCase()}</span>

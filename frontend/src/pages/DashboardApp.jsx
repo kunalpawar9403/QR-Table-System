@@ -2739,7 +2739,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   style={{
                     background: '#E0F2FE',
                     borderColor: '#0284C7',
-                    color: '#065f46',
+                    color: '#0284C7',
                     fontWeight: 700
                   }}
                   onClick={() => setDefaultMenuModalOpen(true)}
@@ -2901,7 +2901,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     gap: 12,
                     flexWrap: 'wrap'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#065f46', fontSize: '0.88rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, color: '#0284C7', fontSize: '0.88rem' }}>
                       <CheckCircle size={16} />
                       <span>{selectedMenuItems.length} items selected</span>
                     </div>
@@ -3141,7 +3141,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                                     padding: '3px 8px',
                                     borderRadius: 6,
                                     background: isDraft ? '#fef3c7' : '#E0F2FE',
-                                    color: isDraft ? '#92400e' : '#065f46'
+                                    color: isDraft ? '#92400e' : '#0284C7'
                                   }}>
                                     {isDraft ? 'Draft' : 'Live'}
                                   </span>
@@ -4158,7 +4158,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       <div style={{ fontSize: '1.65rem', fontWeight: 900, color: '#0284C7', margin: '4px 0 8px 0' }}>
                         ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                       </div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E0F2FE', color: '#065f46', padding: '4px 10px', borderRadius: 9999, fontSize: '0.72rem', fontWeight: 800 }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#E0F2FE', color: '#0369A1', padding: '4px 10px', borderRadius: 9999, fontSize: '0.72rem', fontWeight: 800 }}>
                         <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0284C7' }} /> Direct Settlement Active
                       </div>
                     </div>
@@ -4459,7 +4459,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         </div>
                         <div style={{ padding: 16, background: '#E0F2FE', borderRadius: 12, border: '1px solid #BAE6FD' }}>
                           <div style={{ fontSize: '0.8rem', color: '#0369A1', fontWeight: 700 }}>Settlement Status</div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#065f46', marginTop: 4 }}>
+                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0284C7', marginTop: 4 }}>
                             Direct UPI / Cash Settlement Active
                           </div>
                         </div>
@@ -5863,7 +5863,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     fontSize: '0.75rem',
                     fontWeight: 700,
                     background: '#E0F2FE',
-                    color: '#065f46',
+                    color: '#0284C7',
                     border: '1px solid #BAE6FD'
                   }}>
                     <ShieldCheck size={13} />
