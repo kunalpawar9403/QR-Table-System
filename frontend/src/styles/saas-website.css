@@ -773,65 +773,6 @@
   background: #E2E8F0;
 }
 
-/* 4 Venue Tabs under the Device Mockup (Matching Reference Image) */
-.tm-hero-venue-tabs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-top: 14px;
-  width: 100%;
-  max-width: 580px;
-}
-
-.tm-venue-tab {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
-  padding: 12px 6px 14px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tm-venue-tab:hover {
-  border-color: #BAE6FD;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.08);
-}
-
-.tm-venue-tab.active {
-  border: 2px solid #0284C7;
-  background: #FFFFFF;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.14);
-}
-
-.tm-venue-icon {
-  color: #0284C7;
-  margin-bottom: 6px;
-  flex-shrink: 0;
-}
-
-.tm-venue-tab-title {
-  font-size: 0.76rem;
-  font-weight: 750;
-  color: #0F172A;
-  margin-bottom: 2px;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
-.tm-venue-tab-sub {
-  font-size: 0.67rem;
-  color: #64748B;
-  line-height: 1.25;
-  white-space: nowrap;
-}
 
 /* White Pill Badges under buttons (Matching Slipzen screenshot) */
 .tm-hero-pill-badge {
@@ -1813,9 +1754,6 @@
     display: none !important;
   }
 
-  .tm-hero-venue-tabs {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
 
   .tm-hide-mobile {
     display: none !important;

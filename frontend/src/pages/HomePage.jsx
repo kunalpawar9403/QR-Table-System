@@ -19,11 +19,7 @@ import {
   Utensils,
   Printer,
   Wifi,
-  Tablet,
-  Coffee,
-  ShoppingCart,
-  Hotel,
-  Wine
+  Tablet
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TextEffect } from '../components/motion-primitives/text-effect';
@@ -275,30 +271,6 @@ export default function HomePage() {
                         <span className="tm-feat-sub">Order KDS</span>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* 4 Venue Tabs under the Device Mockup (Matches Reference Image) */}
-                <div className="tm-hero-venue-tabs">
-                  <div className="tm-venue-tab">
-                    <Coffee size={20} className="tm-venue-icon" />
-                    <span className="tm-venue-tab-title">Tea, Cafe &amp; QSR</span>
-                    <span className="tm-venue-tab-sub">58mm Bluetooth printer</span>
-                  </div>
-                  <div className="tm-venue-tab">
-                    <ShoppingCart size={20} className="tm-venue-icon" />
-                    <span className="tm-venue-tab-title">Kirana &amp; Retail</span>
-                    <span className="tm-venue-tab-sub">80mm counter printer</span>
-                  </div>
-                  <div className="tm-venue-tab active">
-                    <Hotel size={20} className="tm-venue-icon" />
-                    <span className="tm-venue-tab-title">Hotel &amp; Restaurant</span>
-                    <span className="tm-venue-tab-sub">80mm kitchen printer</span>
-                  </div>
-                  <div className="tm-venue-tab">
-                    <Wine size={20} className="tm-venue-icon" />
-                    <span className="tm-venue-tab-title">Bar &amp; Dine-In</span>
-                    <span className="tm-venue-tab-sub">A4 &amp; thermal printer</span>
                   </div>
                 </div>
               </motion.div>
