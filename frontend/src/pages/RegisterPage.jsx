@@ -18,14 +18,8 @@ import { signUpWithCredentials, getStaffToken } from '../utils/staffAuth';
 import { TableMintBrandBadge } from '../components/TableMintLogoIcon';
 
 export default function RegisterPage() {
-  const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract selected plan from URL query param if present
-  const queryParams = new URLSearchParams(location.search);
-  const initialPlan = queryParams.get('plan') || 'standard';
-
-  const [selectedPlan, setSelectedPlan] = useState(initialPlan);
   const [restaurantName, setRestaurantName] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -84,12 +78,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
-  const planOptions = [
-    { id: 'starter', name: 'Starter', price: '₹999/mo' },
-    { id: 'standard', name: 'Standard', price: '₹1,999/mo' },
-    { id: 'premium', name: 'Premium', price: '₹3,999/mo' }
-  ];
 
   return (
     <div className="tm-auth-page-wrapper">
@@ -180,29 +168,6 @@ export default function RegisterPage() {
             <p className="tm-auth-form-sub">
               Start your 14-day free trial. No credit card needed.
             </p>
-          </div>
-
-          {/* Plan Selector */}
-          <div style={{ marginBottom: 16 }}>
-            <label className="tm-auth-label" style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#64748B' }}>
-              SELECTED PLAN
-            </label>
-            <div className="tm-auth-plan-grid">
-              {planOptions.map((plan) => {
-                const isActive = selectedPlan === plan.id;
-                return (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => setSelectedPlan(plan.id)}
-                    className={`tm-auth-plan-btn ${isActive ? 'active' : ''}`}
-                  >
-                    <span className="tm-auth-plan-name">{plan.name}</span>
-                    <span className="tm-auth-plan-price">{plan.price}</span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           {errorMessage && (
