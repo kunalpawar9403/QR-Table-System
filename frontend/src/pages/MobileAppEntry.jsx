@@ -656,35 +656,11 @@ export default function MobileAppEntry() {
                 <TableMintBrandBadge size={54} />
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 4px 0', color: '#ffffff' }}>
-                Table<span style={{ color: '#0284C7' }}>Mint</span> POS
+                Table<span style={{ color: '#0284C7' }}>Mint</span>
               </h2>
               <p style={{ fontSize: '0.86rem', color: '#94a3b8', margin: 0 }}>
-                {authMode === 'signin' ? 'Sign in to access your restaurant POS' : 'Create your restaurant workspace'}
+                {authMode === 'signin' ? 'Sign in to your restaurant workspace' : 'Create your restaurant workspace'}
               </p>
-            </div>
-
-            {/* Server Connection Pill */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-              <button
-                type="button"
-                onClick={() => { setShowServerModal(true); setTestStatus(null); }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.06)',
-                  border: '1px solid rgba(2, 132, 199, 0.25)',
-                  borderRadius: 999,
-                  padding: '5px 12px',
-                  color: '#94a3b8',
-                  fontSize: '0.76rem',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  cursor: 'pointer'
-                }}
-              >
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#0284C7', boxShadow: '0 0 6px #0284C7' }} />
-                <span>Backend: <strong style={{ color: '#e2e8f0' }}>{currentServerUrl.replace(/^https?:\/\//, '') || 'Auto'}</strong></span>
-                <Settings size={12} style={{ color: '#0284C7', marginLeft: 2 }} />
-              </button>
             </div>
 
             {/* Segmented Tab Switcher */}
@@ -1090,7 +1066,7 @@ export default function MobileAppEntry() {
               fontSize: '0.78rem'
             }}>
               <ShieldCheck size={16} style={{ color: '#0284C7' }} />
-              <span>256-Bit SSL Encrypted Multi-Tenant POS</span>
+              <span>256-Bit SSL Encrypted Platform</span>
             </div>
           </motion.div>
         )}
