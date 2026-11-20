@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, ChevronDown } from 'lucide-react';
-import { TableMintBrandBadge } from '../TableMintLogoIcon';
+import { TableMintWhiteFooterLogo } from '../TableMintLogoIcon';
 
 export default function PublicFooter() {
   const currentYear = new Date().getFullYear();
@@ -25,12 +25,8 @@ export default function PublicFooter() {
       <div className="tm-footer-grid">
         {/* Brand Column */}
         <div className="tm-footer-brand-col">
-          <Link to="/" className="tm-brand-link" style={{ width: 'fit-content' }}>
-            <TableMintBrandBadge size={36} />
-            <div>
-              <span className="tm-brand-name">Table</span>
-              <span className="tm-brand-accent">Mint</span>
-            </div>
+          <Link to="/" className="tm-brand-link" style={{ width: 'fit-content', textDecoration: 'none' }}>
+            <TableMintWhiteFooterLogo size={34} />
           </Link>
           <p className="tm-footer-desc">
             The next-generation restaurant operating system & cloud POS. Built for high-volume dining, instant contactless QR ordering, kitchen display management, and automated GST billing.

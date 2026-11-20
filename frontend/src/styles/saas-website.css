@@ -1166,6 +1166,12 @@
   gap: 16px;
 }
 
+.tm-saas-footer .tm-brand-link,
+.tm-saas-footer .tm-brand-name,
+.tm-saas-footer .tm-brand-accent {
+  color: #FFFFFF !important;
+}
+
 .tm-footer-desc {
   font-size: 0.9rem;
   color: #64748B;
