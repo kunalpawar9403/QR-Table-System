@@ -38,7 +38,7 @@ import {
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { useToast } from '../components/Toast';
-import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
+import { TableMintLogoIcon, TableMintBrandBadge } from '../components/TableMintLogoIcon';
 import { formatApiUrl } from '../utils/apiConfig';
 import '../styles/customer.css';
 
@@ -756,7 +756,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           {/* Top Brand Header */}
           <div className="welcome-top-bar">
             <div className="welcome-brand-badge">
-              <TableMintLogoIcon size={24} />
+              <TableMintBrandBadge size={28} />
               <span className="welcome-brand-text">TableMint</span>
             </div>
             <div className="welcome-table-badge">
@@ -843,7 +843,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           <header className="mobile-menu-header">
             <div className="menu-header-row">
               <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
-                <TableMintLogoIcon size={24} />
+                <TableMintBrandBadge size={28} />
                 <span className="header-brand-title">Table<span style={{ color: '#7DD3FC' }}>Mint</span></span>
               </div>
               <div className="header-table-pill">

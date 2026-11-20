@@ -213,7 +213,7 @@ for (const cand of distCandidates) {
 }
 
 app.use('/images', express.static(path.join(distDir, 'images'), {
-  maxAge: '7d'
+  maxAge: '1h'
 }));
 
 app.use('/api', (req, res, next) => {

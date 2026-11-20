@@ -10,7 +10,7 @@ export function TableMintBrandBadge({ size = 36, className = '', style = {} }) {
 
   return (
     <img
-      src="/images/tablemint_icon.png"
+      src="/images/tablemint_icon.png?v=2.5"
       alt="TableMint"
       width={size}
       height={size}

@@ -1448,16 +1448,12 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
             ) : activeTab === 'tables' ? (
               <div className="mobile-brand-box">
-                <div className="mobile-brand-leaf-wrap">
-                  <TableMintLogoIcon size={20} />
-                </div>
+                <TableMintBrandBadge size={24} />
                 <span className="mobile-brand-title">Tables</span>
               </div>
             ) : activeTab === 'menu' ? (
               <div className="mobile-brand-box">
-                <div className="mobile-brand-leaf-wrap">
-                  <TableMintLogoIcon size={20} />
-                </div>
+                <TableMintBrandBadge size={24} />
                 <span className="mobile-brand-title">Menu</span>
               </div>
             ) : activeTab === 'kitchen' ? (
