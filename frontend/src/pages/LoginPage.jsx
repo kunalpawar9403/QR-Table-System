@@ -11,7 +11,8 @@ import {
   Monitor,
   Tablet,
   Smartphone,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { signInWithCredentials, getStaffToken } from '../utils/staffAuth';
@@ -139,6 +140,11 @@ export default function LoginPage() {
 
         {/* Right Side: Sign In Form */}
         <div className="tm-auth-form-panel">
+          {/* Close Button linking back to Home */}
+          <Link to="/" className="tm-auth-close-btn" aria-label="Close">
+            <X size={18} />
+          </Link>
+
           <div className="tm-auth-form-header">
             <span className="tm-auth-form-step-tag">WELCOME BACK</span>
             <h2 className="tm-auth-form-title">
