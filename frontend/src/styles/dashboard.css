@@ -57,7 +57,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 2px 6px;
+  padding: 4px 6px;
 }
 
 .sidebar-logo-badge {
@@ -81,32 +81,33 @@
 }
 
 .brand-mint-text {
-  color: #7DD3FC;
+  color: #BAE6FD;
 }
 
 .sidebar-brand-text h2 {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: #ffffff;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .sidebar-brand-text p {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 0.08em;
+  font-size: 0.65rem;
+  font-weight: 750;
+  color: #BAE6FD;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin: 0;
+  margin: 2px 0 0 0;
+  opacity: 0.92;
 }
 
 /* Navigation items list */
 .sidebar-nav-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .sidebar-nav-item {
@@ -115,8 +116,8 @@
   justify-content: space-between;
   padding: 9px 12px;
   border-radius: 10px;
-  color: #94a3b8;
-  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
   font-weight: 600;
   background: transparent;
   width: 100%;
@@ -128,26 +129,26 @@
 }
 
 .sidebar-nav-item svg {
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.75);
   transition: color 0.18s ease;
   flex-shrink: 0;
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
 }
 
 .sidebar-nav-item:hover svg {
-  color: #BAE6FD;
+  color: #ffffff;
 }
 
 .sidebar-nav-item.active {
-  background: #0284C7 !important;
-  border-color: #0284C7 !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
 }
 
 .sidebar-nav-item.active svg {
@@ -161,8 +162,8 @@
 }
 
 .sidebar-badge {
-  background: rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
   font-size: 0.72rem;
   font-weight: 700;
   padding: 2px 8px;
@@ -173,10 +174,10 @@
 }
 
 .sidebar-badge.sidebar-badge-new {
-  background: #0284C7;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0284C7;
   font-weight: 800;
-  box-shadow: 0 0 10px rgba(2, 132, 199, 0.45);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
   animation: badgePulse 2s infinite ease-in-out;
 }
 
@@ -192,22 +193,22 @@
 }
 
 .sidebar-nav-item.active .sidebar-badge {
-  background: rgba(255, 255, 255, 0.24) !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  color: #0284C7 !important;
   font-weight: 800 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
 }
 
 .sidebar-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.15);
   margin: 10px 6px;
 }
 
 /* Sidebar bottom Live Sync card */
 .sidebar-bottom-status {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
   padding: 11px 13px;
   display: flex;
@@ -218,8 +219,8 @@
 }
 
 .sidebar-bottom-status:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(52, 211, 153, 0.3);
+  background: rgba(0, 0, 0, 0.22);
+  border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -233,8 +234,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #0284C7;
-  box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
+  background: #38BDF8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.85);
   flex-shrink: 0;
 }
 
@@ -247,7 +248,7 @@
 
 .status-card-sub {
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.75);
   margin-top: 1px;
 }
 

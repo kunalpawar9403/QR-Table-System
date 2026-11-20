@@ -53,7 +53,7 @@ import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
 import { authFetch, getStaffToken, getCurrentUser, updateUserProfile, logoutStaff, changeUserPassword } from '../utils/staffAuth';
 import { useToast } from '../components/Toast';
-import { TableMintLogoIcon } from '../components/TableMintLogoIcon';
+import { TableMintLogoIcon, TableMintBrandBadge } from '../components/TableMintLogoIcon';
 import TableMintBannerSlider from '../components/TableMintBannerSlider';
 import EmptyMenuState from '../components/menu/EmptyMenuState';
 import MenuItemModal from '../components/menu/MenuItemModal';
@@ -1271,9 +1271,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
         <div className="sidebar-top">
           {/* Brand Logo */}
           <div className="sidebar-brand-box">
-            <div className="sidebar-logo-badge">
-              <TableMintLogoIcon size={24} />
-            </div>
+            <TableMintBrandBadge size={40} />
             <div className="sidebar-brand-text">
               <h2>Table<span className="brand-mint-text">Mint</span></h2>
               <p>RESTAURANT POS</p>
@@ -1412,7 +1410,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               <div className="status-card-sub">{currentUser ? (currentUser.role === 'admin' ? 'Owner / Admin' : 'Floor Staff') : 'All systems connected'}</div>
             </div>
           </div>
-          <ChevronRight size={16} style={{ color: '#64748b' }} />
+          <ChevronRight size={16} style={{ color: 'rgba(255, 255, 255, 0.65)' }} />
         </div>
       </aside>
 
@@ -1445,9 +1443,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
           <div className="mobile-top-left">
             {activeTab === 'overview' ? (
               <div className="mobile-brand-box">
-                <div className="mobile-brand-leaf-wrap">
-                  <TableMintLogoIcon size={24} />
-                </div>
+                <TableMintBrandBadge size={28} />
                 <span className="mobile-brand-title">TableMint</span>
               </div>
             ) : activeTab === 'tables' ? (
