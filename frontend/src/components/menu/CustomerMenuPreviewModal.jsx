@@ -264,18 +264,19 @@ export default function CustomerMenuPreviewModal({
                   <button
                     type="button"
                     style={{
-                      padding: '5px 12px',
-                      borderRadius: 14,
-                      border: '1px solid #0284C7',
-                      background: '#E0F2FE',
-                      color: '#0369A1',
+                      padding: '6px 14px',
+                      borderRadius: 9999,
+                      border: 'none',
+                      background: '#0284C7',
+                      color: '#ffffff',
                       fontSize: '0.78rem',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      boxShadow: '0 2px 8px rgba(2, 132, 199, 0.28)'
                     }}
                   >
-                    ADD
+                    + ADD
                   </button>
                 </div>
               ))

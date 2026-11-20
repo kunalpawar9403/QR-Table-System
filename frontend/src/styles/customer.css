@@ -22,7 +22,7 @@
   --tm-primary:            #0284C7;
   --tm-primary-hover:      #0369A1;
   --tm-primary-light:      #E0F2FE;
-  --tm-primary-dark:       #1E40AF;
+  --tm-primary-dark:       #0369A1;
   --tm-text-main:          #0F172A;
   --tm-text-muted:         #64748B;
   --tm-border:             #E2E8F0;
@@ -303,19 +303,19 @@
 }
 
 .header-brand-title {
-  font-size: 1.22rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #0284C7;
+  color: #0f172a;
 }
 
 .header-table-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  background: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  color: #0284C7;
   font-size: 0.8rem;
   font-weight: 700;
   padding: 5px 12px;
@@ -414,14 +414,16 @@
   justify-content: center;
   font-size: 1.35rem;
   transition: all 0.2s ease;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
 }
 
 .category-item-card.active .category-icon-box {
   background: #0284C7 !important;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+  border-color: #0284C7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
   transform: translateY(-2px);
 }
 
@@ -481,19 +483,20 @@
 .dish-grid-card {
   background: #ffffff;
   border-radius: 16px;
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   position: relative;
 }
 
 .dish-grid-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+  border-color: #bae6fd;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.12);
 }
 
 .dish-grid-card.sold-out {
@@ -581,9 +584,9 @@
 }
 
 .dish-card-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #111827;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #0f172a;
   margin: 0;
   line-height: 1.25;
   overflow: hidden;
@@ -591,6 +594,7 @@
   white-space: nowrap;
   flex: 1;
   min-width: 0;
+  letter-spacing: -0.01em;
 }
 
 /* Standard Indian Food Diet Tag (Veg Green / Non-Veg Red Box with Inner Dot) */
@@ -630,8 +634,8 @@
 
 /* Fixed 2-Line Description: perfectly aligns all cards in the grid row */
 .dish-card-desc {
-  font-size: 0.72rem;
-  color: #8c9ba5;
+  font-size: 0.74rem;
+  color: #64748b;
   margin: 0 0 8px;
   line-height: 1.35;
   display: -webkit-box;
@@ -651,13 +655,13 @@
 }
 
 .dish-card-price {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.01em;
 }
 
-/* Green + Add Button */
+/* Vibrant Sky Blue + Add Button (Slipzen Theme) */
 .btn-add-food-pill {
   display: inline-flex;
   align-items: center;
@@ -673,11 +677,12 @@
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
 }
 
 .btn-add-food-pill:hover,
 .btn-add-food-pill:active {
-  background: #1E40AF;
+  background: #0369A1;
   transform: scale(0.97);
 }
 
@@ -686,10 +691,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #1E40AF;
+  background: #0284C7;
   color: #ffffff;
   border-radius: var(--tm-radius-full);
   padding: 3px 6px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
 }
 
 .grid-stepper-btn {
@@ -718,7 +724,7 @@
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: 440px;
-  background: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%);
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   color: #ffffff;
   border-radius: 18px;
   padding: 12px 18px;
@@ -751,8 +757,8 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #0284C7;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0284C7;
   font-size: 0.85rem;
   font-weight: 800;
   display: flex;
@@ -772,21 +778,26 @@
 
 .cart-cta-sub {
   font-size: 0.72rem;
-  color: #94a3b8;
+  color: #BAE6FD;
 }
 
 .cart-cta-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #0284C7;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0284C7;
   border: none;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 8px 16px;
   border-radius: var(--tm-radius-full);
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.cart-cta-btn:hover {
+  background: #f0f9ff;
 }
 
 /* =========================================================
@@ -918,7 +929,7 @@
 }
 
 .waiter-hero-card {
-  background: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%);
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   color: #ffffff;
   border-radius: 20px;
   padding: 24px 20px;
@@ -1356,7 +1367,7 @@
 }
 
 .btn-custom-add-to-cart:hover {
-  background: #1E40AF;
+  background: #0369A1;
 }
 
 .footer-btn-divider {
@@ -1686,7 +1697,7 @@
 }
 
 .btn-place-order:hover {
-  background: #1E40AF;
+  background: #0369A1;
 }
 
 .btn-place-order:disabled {
@@ -1950,12 +1961,12 @@
 
 .tracking-action-btn {
   background: #ffffff;
-  border: 1.5px solid #065f46;
+  border: 1.5px solid #0284C7;
   border-radius: var(--tm-radius-full);
   padding: 12px;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #065f46;
+  color: #0284C7;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1966,6 +1977,8 @@
 
 .tracking-action-btn:hover {
   background: #E0F2FE;
+  border-color: #0369A1;
+  color: #0369A1;
 }
 
 /* Service / Waiter Modal */
@@ -2005,7 +2018,7 @@
 .btn-service-call-option:hover {
   background: #E0F2FE;
   border-color: #0284C7;
-  color: #065f46;
+  color: #0284C7;
 }
 
 /* Empty & Loading states */
@@ -2199,13 +2212,13 @@
 .order-paid-badge-card .paid-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #065f46;
+  color: #16A34A;
   margin-bottom: 4px;
 }
 
 .order-paid-badge-card .paid-desc {
   font-size: 0.86rem;
-  color: #047857;
+  color: #15803D;
   line-height: 1.45;
   max-width: 300px;
 }
