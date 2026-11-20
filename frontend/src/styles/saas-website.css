@@ -1837,6 +1837,8 @@
 .tm-auth-modal-card {
   width: 100%;
   max-width: 1060px;
+  max-height: min(92vh, 820px);
+  height: 100%;
   background: #FFFFFF;
   border-radius: 28px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
@@ -1846,15 +1848,18 @@
   position: relative;
 }
 
-/* Left Column: Pastel Sky Blue Benefit Showcase */
+/* Left Column: Pastel Sky Blue Benefit Showcase (Fully visible) */
 .tm-auth-side-panel {
   background: linear-gradient(155deg, #F0F9FF 0%, #E0F2FE 55%, #BAE6FD 100%);
-  padding: 44px 40px 36px 40px;
+  padding: 34px 34px 26px 34px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-right: 1px solid #BAE6FD;
   position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .tm-auth-brand-row {
@@ -1884,17 +1889,17 @@
   align-items: center;
   gap: 8px;
   color: #0284C7;
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-top: 24px;
-  margin-bottom: 12px;
+  margin-top: 14px;
+  margin-bottom: 8px;
 }
 
 .tm-auth-tag-line::before {
   content: '';
-  width: 18px;
+  width: 16px;
   height: 2px;
   background: #0284C7;
   border-radius: 2px;
@@ -1902,12 +1907,12 @@
 
 .tm-auth-side-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.85rem, 2.6vw, 2.25rem);
+  font-size: clamp(1.6rem, 2.1vw, 1.95rem);
   font-weight: 850;
   line-height: 1.18;
   letter-spacing: -0.025em;
   color: #0F172A;
-  margin: 0 0 14px 0;
+  margin: 0 0 10px 0;
 }
 
 .tm-auth-side-title .highlight {
@@ -1915,36 +1920,36 @@
 }
 
 .tm-auth-side-desc {
-  font-size: 0.94rem;
-  line-height: 1.6;
+  font-size: 0.86rem;
+  line-height: 1.5;
   color: #475569;
-  margin: 0 0 24px 0;
+  margin: 0 0 16px 0;
 }
 
 .tm-auth-checklist-box {
   background: #FFFFFF;
   border: 1px solid #BAE6FD;
   border-radius: 16px;
-  padding: 16px 18px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.08);
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .tm-auth-check-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
+  gap: 8px;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #0F172A;
 }
 
 .tm-auth-check-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 9999px;
   background: #E0F2FE;
   color: #0284C7;
@@ -1958,7 +1963,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: #64748B;
   flex-wrap: wrap;
@@ -1971,14 +1976,34 @@
   color: #0284C7;
 }
 
-/* Right Column: Form Container */
+/* Right Column: Form Container (Only right side scrolls) */
 .tm-auth-form-panel {
   background: #FFFFFF;
-  padding: 44px 44px 38px 44px;
+  padding: 38px 40px 32px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+  overflow-y: auto;
+  max-height: 100%;
+  box-sizing: border-box;
+}
+
+.tm-auth-form-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tm-auth-form-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tm-auth-form-panel::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+.tm-auth-form-panel::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 
 .tm-auth-form-header {

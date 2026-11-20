@@ -166,22 +166,14 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side: Account Registration Form */}
+        {/* Right Side: Account Registration Form (Scrollable) */}
         <div className="tm-auth-form-panel">
           {/* Close Button linking back to Home */}
           <Link to="/" className="tm-auth-close-btn" aria-label="Close">
             <X size={18} />
           </Link>
 
-          {/* 3 Step Progress Bars */}
-          <div className="tm-auth-progress-bars">
-            <div className="tm-auth-progress-bar active" />
-            <div className="tm-auth-progress-bar" />
-            <div className="tm-auth-progress-bar" />
-          </div>
-
           <div className="tm-auth-form-header">
-            <span className="tm-auth-form-step-tag">STEP 1 OF 3 • CREATE ACCOUNT</span>
             <h2 className="tm-auth-form-title">
               Create Your Restaurant Account
             </h2>
