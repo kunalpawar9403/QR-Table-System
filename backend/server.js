@@ -185,9 +185,16 @@ app.use((req, res, next) => {
   next();
 });
 
-const distDir = fs.existsSync(path.join(__dirname, '..', 'frontend', 'dist'))
-  ? path.join(__dirname, '..', 'frontend', 'dist')
-  : path.join(__dirname, 'dist');
+const distCandidates = [
+  path.join(__dirname, '..', 'frontend', 'dist'),
+  path.join(__dirname, 'dist'),
+  path.join(__dirname, '..', 'dist'),
+  path.join(process.cwd(), 'frontend', 'dist'),
+  path.join(process.cwd(), 'dist')
+];
+
+let distDir = distCandidates.find((d) => fs.existsSync(path.join(d, 'index.html'))) || distCandidates[0];
+console.log(`[Static] Resolved frontend dist directory: ${distDir} (exists: ${fs.existsSync(distDir)})`);
 
 app.use(express.static(distDir, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
@@ -197,6 +204,13 @@ app.use(express.static(distDir, {
     }
   }
 }));
+
+// Fallback static providers from any candidate directory that exists
+for (const cand of distCandidates) {
+  if (cand !== distDir && fs.existsSync(cand)) {
+    app.use(express.static(cand));
+  }
+}
 
 app.use('/images', express.static(path.join(distDir, 'images'), {
   maxAge: '7d'
@@ -2107,11 +2121,29 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.path.startsWith('/images')) {
     return next();
   }
-  const indexPath = path.join(distDir, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+  for (const candidate of distCandidates) {
+    const p = path.join(candidate, 'index.html');
+    if (fs.existsSync(p)) {
+      return res.sendFile(p);
+    }
   }
-  next();
+  const fallbackHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="3" />
+  <title>TableMint – Starting Application</title>
+</head>
+<body style="margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#0B132B; color:#ffffff; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; text-align:center; padding:20px;">
+  <div style="max-width:440px; padding:32px 24px; background:#0F172A; border-radius:20px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+    <h2 style="margin:0 0 8px; font-size:1.4rem;">TableMint POS & QR System</h2>
+    <p style="color:#94a3b8; font-size:0.9rem; line-height:1.5;">The web application is finishing its initialization. This page will refresh automatically in a few seconds...</p>
+    <div style="margin-top:16px; font-size:0.75rem; color:#64748B;">Connecting to server...</div>
+  </div>
+</body>
+</html>`;
+  return res.status(200).send(fallbackHtml);
 });
 
 async function startServer() {
