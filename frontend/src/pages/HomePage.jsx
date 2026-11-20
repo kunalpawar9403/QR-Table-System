@@ -116,7 +116,7 @@ export default function HomePage() {
           <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
             <div className="tm-hero-home-grid">
               {/* Left Column: Vertically centered to match other section banners */}
-              <div style={{ textAlign: 'left', maxWidth: '540px' }}>
+              <div style={{ textAlign: 'left', maxWidth: '580px' }}>
                 {/* Badge */}
                 <motion.div 
                   className="tm-hero-badge"
@@ -128,35 +128,35 @@ export default function HomePage() {
                   <span>Modern Restaurant Management</span>
                 </motion.div>
 
-                {/* Main Headline */}
+                {/* Main Headline - Perfectly balanced on 2 lines */}
                 <h1 className="tm-hero-title">
                   <motion.span 
-                    initial={{ opacity: 0, y: 14 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.15 }}
+                    transition={{ duration: 0.45, delay: 0.1 }}
                     style={{ display: 'block' }}
                   >
-                    The Smart Restaurant POS &
+                    The Smart Restaurant POS
                   </motion.span>
                   <motion.span 
                     className="tm-hero-title-accent"
-                    initial={{ opacity: 0, y: 14 }}
+                    initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.35 }}
+                    transition={{ duration: 0.45, delay: 0.25 }}
                     style={{ display: 'block' }}
                   >
-                    Contactless Dining Platform
+                    &amp; Contactless Dining
                   </motion.span>
                 </h1>
 
                 {/* Subheading */}
                 <motion.p 
                   className="tm-hero-subtitle"
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.35 }}
+                  transition={{ duration: 0.45, delay: 0.35 }}
                 >
-                  Empower your restaurant with intelligent table management, contactless ordering, powerful POS billing, live kitchen display, and real-time analytics — all in one easy platform.
+                  Empower your floor with intelligent table management, contactless QR ordering, express POS billing, and real-time kitchen display.
                 </motion.p>
 
                 {/* CTA Buttons */}
@@ -164,7 +164,7 @@ export default function HomePage() {
                   className="tm-hero-actions"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
+                  transition={{ duration: 0.5, delay: 0.45 }}
                 >
                   <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                     <Link
@@ -181,7 +181,7 @@ export default function HomePage() {
                       to="/demo"
                       className="tm-btn-hero-secondary"
                     >
-                      <Play size={15} fill="#FFFFFF" />
+                      <Play size={15} fill="#0284C7" color="#0284C7" />
                       <span>Watch Video Demo</span>
                     </Link>
                   </motion.div>

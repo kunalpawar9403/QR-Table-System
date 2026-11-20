@@ -532,12 +532,13 @@
 }
 
 .tm-hero-title {
-  font-size: clamp(2.05rem, 3.1vw, 2.75rem);
+  font-size: clamp(2.1rem, 3.4vw, 3rem);
   font-weight: 850;
-  line-height: 1.18;
-  letter-spacing: -0.025em;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   color: #0F172A;
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
+  text-wrap: balance;
 }
 
 .tm-hero-title-accent {
@@ -545,15 +546,15 @@
   background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline;
+  display: inline-block;
 }
 
 .tm-hero-subtitle {
-  font-size: 0.98rem;
+  font-size: 1.05rem;
   color: #475569;
-  line-height: 1.58;
-  margin: 0 0 20px 0;
-  max-width: 510px;
+  line-height: 1.62;
+  margin: 0 0 24px 0;
+  max-width: 540px;
   font-weight: 400;
 }
 
@@ -562,7 +563,7 @@
   align-items: center;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .tm-btn-hero-primary {
@@ -572,10 +573,10 @@
   gap: 8px;
   background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
   color: #FFFFFF !important;
-  padding: 11px 24px;
+  padding: 12px 26px;
   border-radius: 9999px;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   box-shadow: 0 8px 22px rgba(2, 132, 199, 0.35);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -596,10 +597,10 @@
   background: #FFFFFF;
   border: 1px solid #CBD5E1;
   color: #0F172A !important;
-  padding: 11px 20px;
+  padding: 12px 22px;
   border-radius: 9999px;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   transition: all 0.2s ease;
@@ -615,17 +616,19 @@
 .tm-hero-trust-row {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 22px;
   flex-wrap: wrap;
   color: #475569;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 500;
+  margin-top: 4px;
 }
 
 .tm-hero-trust-item {
   display: flex;
   align-items: center;
   gap: 7px;
+  white-space: nowrap;
 }
 
 .tm-hero-trust-item svg {
