@@ -4236,9 +4236,9 @@
     width: 100%;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.08);
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.12);
     position: relative;
-    background: #e6f9f0;
+    background: #0B132B;
     cursor: pointer;
     user-select: none;
     touch-action: pan-y;
@@ -7598,7 +7598,7 @@
 
 .default-menu-header {
   padding: 22px 28px 18px;
-  background: linear-gradient(135deg, #0F172A 0%, #0d4a38 100%);
+  background: linear-gradient(135deg, #0B132B 0%, #0369A1 100%);
   color: #ffffff;
   display: flex;
   align-items: flex-start;

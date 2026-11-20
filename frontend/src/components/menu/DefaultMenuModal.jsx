@@ -611,7 +611,7 @@ export default function DefaultMenuModal({
                 padding: '10px 24px',
                 borderRadius: 10,
                 border: 'none',
-                background: 'linear-gradient(135deg, #0369A1 0%, #047857 100%)',
+                background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
                 color: '#ffffff',
                 fontSize: '0.9rem',
                 fontWeight: 700,

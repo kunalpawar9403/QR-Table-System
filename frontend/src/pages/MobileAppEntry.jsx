@@ -31,6 +31,7 @@ import {
   resetPasswordWithCode
 } from '../utils/staffAuth';
 import { getApiBaseUrl, setApiBaseUrl, isNativeAppEnvironment } from '../utils/apiConfig';
+import { TableMintBrandBadge } from '../components/TableMintLogoIcon';
 export { isNativeAppEnvironment };
 
 export default function MobileAppEntry() {
@@ -304,7 +305,7 @@ export default function MobileAppEntry() {
     <div style={{
       width: '100%',
       minHeight: '100dvh',
-      background: '#041c14',
+      background: '#0B132B',
       color: '#ffffff',
       display: 'flex',
       flexDirection: 'column',
@@ -364,27 +365,14 @@ export default function MobileAppEntry() {
               animate={{ scale: [0.8, 1.05, 1], opacity: 1 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
               style={{
-                width: 110,
-                height: 110,
-                borderRadius: '28px',
-                background: 'linear-gradient(145deg, #0f4d3a, #06261d)',
-                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45), 0 0 35px rgba(2, 132, 199, 0.35)',
-                border: '1.5px solid rgba(2, 132, 199, 0.4)',
+                marginBottom: 24,
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 24,
-                position: 'relative'
+                justifyContent: 'center'
               }}
             >
-              <img
-                src="/images/tablemint_icon.png"
-                alt="TableMint Logo"
-                style={{ width: 80, height: 80, borderRadius: '20px', objectFit: 'contain' }}
-                onError={(e) => {
-                  e.currentTarget.src = '/images/tablemint_logo.jpg';
-                }}
-              />
+              <TableMintBrandBadge size={104} style={{ borderRadius: '28px', boxShadow: '0 16px 40px rgba(0, 0, 0, 0.45), 0 0 35px rgba(2, 132, 199, 0.4)' }} />
             </motion.div>
 
             {/* App Brand Name */}
@@ -466,13 +454,8 @@ export default function MobileAppEntry() {
               justifyContent: 'space-between',
               marginBottom: 20
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <img
-                  src="/images/tablemint_icon.png"
-                  alt="Icon"
-                  style={{ width: 28, height: 28, borderRadius: 6 }}
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <TableMintBrandBadge size={28} />
                 <span style={{ fontWeight: 800, fontSize: '1.1rem', color: '#ffffff' }}>
                   Table<span style={{ color: '#0284C7' }}>Mint</span>
                 </span>
@@ -601,7 +584,7 @@ export default function MobileAppEntry() {
                     width: '100%',
                     padding: '16px',
                     background: '#0284C7',
-                    color: '#041c14',
+                    color: '#ffffff',
                     border: 'none',
                     borderRadius: '16px',
                     fontSize: '1.02rem',
@@ -624,8 +607,8 @@ export default function MobileAppEntry() {
                   style={{
                     width: '100%',
                     padding: '16px',
-                    background: 'linear-gradient(135deg, #0284C7, #0ea375)',
-                    color: '#041c14',
+                    background: 'linear-gradient(135deg, #0284C7, #0369A1)',
+                    color: '#ffffff',
                     border: 'none',
                     borderRadius: '16px',
                     fontSize: '1.02rem',
@@ -669,23 +652,8 @@ export default function MobileAppEntry() {
           >
             {/* App Header */}
             <div style={{ textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
-              <div style={{
-                width: 52,
-                height: 52,
-                borderRadius: '16px',
-                background: 'linear-gradient(145deg, #0369A1, #041f17)',
-                border: '1px solid rgba(2, 132, 199, 0.4)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 12
-              }}>
-                <img
-                  src="/images/tablemint_icon.png"
-                  alt="Logo"
-                  style={{ width: 36, height: 36, borderRadius: '10px' }}
-                  onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
-                />
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+                <TableMintBrandBadge size={54} />
               </div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: 800, margin: '0 0 4px 0', color: '#ffffff' }}>
                 Table<span style={{ color: '#0284C7' }}>Mint</span> POS
@@ -736,7 +704,7 @@ export default function MobileAppEntry() {
                   borderRadius: '10px',
                   border: 'none',
                   background: authMode === 'signin' ? '#0284C7' : 'transparent',
-                  color: authMode === 'signin' ? '#041c14' : '#cbd5e1',
+                  color: authMode === 'signin' ? '#ffffff' : '#cbd5e1',
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   cursor: 'pointer',
@@ -754,7 +722,7 @@ export default function MobileAppEntry() {
                   borderRadius: '10px',
                   border: 'none',
                   background: authMode === 'signup' ? '#0284C7' : 'transparent',
-                  color: authMode === 'signup' ? '#041c14' : '#cbd5e1',
+                  color: authMode === 'signup' ? '#ffffff' : '#cbd5e1',
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   cursor: 'pointer',
@@ -937,7 +905,7 @@ export default function MobileAppEntry() {
                       width: '100%',
                       padding: '14px',
                       background: '#0284C7',
-                      color: '#041c14',
+                      color: '#ffffff',
                       border: 'none',
                       borderRadius: '14px',
                       fontSize: '1rem',
@@ -1090,7 +1058,7 @@ export default function MobileAppEntry() {
                       width: '100%',
                       padding: '14px',
                       background: '#0284C7',
-                      color: '#041c14',
+                      color: '#ffffff',
                       border: 'none',
                       borderRadius: '14px',
                       fontSize: '1rem',
@@ -1280,7 +1248,7 @@ export default function MobileAppEntry() {
                       width: '100%',
                       padding: '14px',
                       background: '#0284C7',
-                      color: '#041c14',
+                      color: '#ffffff',
                       border: 'none',
                       borderRadius: '14px',
                       fontSize: '1rem',
@@ -1365,7 +1333,7 @@ export default function MobileAppEntry() {
                       width: '100%',
                       padding: '14px',
                       background: '#0284C7',
-                      color: '#041c14',
+                      color: '#ffffff',
                       border: 'none',
                       borderRadius: '14px',
                       fontSize: '1rem',
@@ -1556,7 +1524,7 @@ export default function MobileAppEntry() {
                   flex: 2,
                   padding: '12px',
                   background: '#0284C7',
-                  color: '#041c14',
+                  color: '#ffffff',
                   border: 'none',
                   borderRadius: 12,
                   fontSize: '0.88rem',

@@ -82,7 +82,7 @@ export default function EmptyMenuState({
         style={{
           maxWidth: 1040,
           margin: '0 auto 24px',
-          background: 'linear-gradient(135deg, #0F172A 0%, #0d4a38 100%)',
+          background: 'linear-gradient(135deg, #0B132B 0%, #0369A1 100%)',
           borderRadius: 18,
           padding: '24px 28px',
           cursor: 'pointer',
