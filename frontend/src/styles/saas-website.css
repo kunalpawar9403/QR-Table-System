@@ -138,11 +138,11 @@
 }
 
 .tm-brand-name {
-  color: var(--tm-white);
+  color: #FFFFFF;
 }
 
 .tm-brand-accent {
-  color: var(--tm-mint);
+  color: #38BDF8;
 }
 
 .tm-brand-badge {

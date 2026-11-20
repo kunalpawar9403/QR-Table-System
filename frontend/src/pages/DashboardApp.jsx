@@ -1430,14 +1430,14 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               />
               <path
                 d="M45 56C75 42 115 25 145 10"
-                stroke="rgba(52, 211, 153, 0.35)"
+                stroke="rgba(125, 211, 252, 0.35)"
                 strokeWidth="1.5"
                 strokeLinecap="round"
               />
               <defs>
                 <linearGradient id="headerLeafGrad" x1="20" y1="70" x2="145" y2="10" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#0284C7" stopOpacity="0.55" />
-                  <stop offset="1" stopColor="#047857" stopOpacity="0.1" />
+                  <stop offset="1" stopColor="#0369A1" stopOpacity="0.1" />
                 </linearGradient>
               </defs>
             </svg>
@@ -1467,7 +1467,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             ) : activeTab === 'kitchen' ? (
               <div className="mobile-brand-box">
                 <div className="mobile-brand-leaf-wrap">
-                  <ChefHat size={18} className="text-emerald-400" />
+                  <ChefHat size={18} style={{ color: '#0284C7' }} />
                 </div>
                 <span className="mobile-brand-title">Kitchen Display</span>
               </div>

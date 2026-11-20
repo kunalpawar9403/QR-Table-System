@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { getStaffToken, logoutStaff } from '../../utils/staffAuth';
+import { TableMintBrandBadge } from '../TableMintLogoIcon';
 
 export default function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -78,12 +79,7 @@ export default function PublicNavbar() {
       <div className="tm-navbar-inner">
         {/* Brand Logo */}
         <Link to="/" className="tm-brand-link" onClick={() => setMobileMenuOpen(false)}>
-          <img 
-            src="/images/tablemint_icon.png" 
-            alt="TableMint Logo" 
-            className="tm-brand-logo-img"
-            onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
-          />
+          <TableMintBrandBadge size={36} />
           <div>
             <span className="tm-brand-name">Table</span>
             <span className="tm-brand-accent">Mint</span>
@@ -174,12 +170,7 @@ export default function PublicNavbar() {
         {/* Drawer Header */}
         <div className="tm-drawer-header">
           <Link to="/" className="tm-brand-link" onClick={() => setMobileMenuOpen(false)}>
-            <img 
-              src="/images/tablemint_icon.png" 
-              alt="TableMint Logo" 
-              className="tm-brand-logo-img"
-              onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
-            />
+            <TableMintBrandBadge size={34} />
             <div>
               <span className="tm-brand-name">Table</span>
               <span className="tm-brand-accent">Mint</span>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="tmSvgGrad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+    <linearGradient id="tmSvgLeafGrad" x1="16" y1="10" x2="34" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E0F2FE" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="url(#tmSvgGrad)" stroke="#7DD3FC" stroke-width="1.6" stroke-opacity="0.6" />
+  
+  <path d="M22 37C17 37 12.5 33.2 12.5 27.5C12.5 19.5 20.5 13.5 32.5 10C34.5 16 35.2 24 30.5 29.8C27.2 34.2 24.8 37 22 37Z" fill="url(#tmSvgLeafGrad)" />
+  <path d="M22 34.5C18.2 34.5 15 31.8 15 27.2C15 21.2 21 16.5 30.2 13.5C31.8 18 32 23.8 28.5 28.2C25.8 31.8 23.8 34.5 22 34.5Z" fill="#BAE6FD" opacity="0.45" />
+  <path d="M9 35.5C15 35 19.8 29.8 23.2 23.8C25.8 19.2 27.8 14.5 31.2 11" stroke="#0284C7" stroke-width="2.8" stroke-linecap="round" />
+  <circle cx="33.8" cy="11.2" r="1.8" fill="#FFFFFF" />
+</svg>

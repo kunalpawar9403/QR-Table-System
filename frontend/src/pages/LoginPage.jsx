@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { signInWithCredentials, getStaffToken } from '../utils/staffAuth';
+import { TableMintBrandBadge } from '../components/TableMintLogoIcon';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -91,15 +92,10 @@ export default function LoginPage() {
         }} />
 
         {/* Top Brand */}
-        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none', position: 'relative', zIndex: 1 }}>
-          <img 
-            src="/images/tablemint_icon.png" 
-            alt="TableMint Logo" 
-            style={{ width: 40, height: 40, borderRadius: '10px' }}
-            onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
-          />
-          <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)' }}>
-            Table<span style={{ color: '#0284C7' }}>Mint</span>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 12, textDecoration: 'none', position: 'relative', zIndex: 1 }}>
+          <TableMintBrandBadge size={42} />
+          <div style={{ fontSize: '1.45rem', fontWeight: 800, color: '#FFFFFF', fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
+            Table<span style={{ color: '#38BDF8' }}>Mint</span>
           </div>
         </Link>
 

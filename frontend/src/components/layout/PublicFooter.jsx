@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, ChevronDown } from 'lucide-react';
+import { TableMintBrandBadge } from '../TableMintLogoIcon';
 
 export default function PublicFooter() {
   const currentYear = new Date().getFullYear();
@@ -25,12 +26,7 @@ export default function PublicFooter() {
         {/* Brand Column */}
         <div className="tm-footer-brand-col">
           <Link to="/" className="tm-brand-link" style={{ width: 'fit-content' }}>
-            <img 
-              src="/images/tablemint_icon.png" 
-              alt="TableMint Logo" 
-              className="tm-brand-logo-img"
-              onError={(e) => { e.currentTarget.src = '/images/tablemint_logo.jpg'; }}
-            />
+            <TableMintBrandBadge size={36} />
             <div>
               <span className="tm-brand-name">Table</span>
               <span className="tm-brand-accent">Mint</span>

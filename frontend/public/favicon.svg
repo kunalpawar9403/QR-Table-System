@@ -1,12 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
   <defs>
     <linearGradient id="tmFavGrad" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#059669" />
+      <stop offset="0%" stop-color="#0284C7" />
+      <stop offset="100%" stop-color="#0369A1" />
+    </linearGradient>
+    <linearGradient id="tmFavLeafGrad" x1="12" y1="6" x2="24" y2="22" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E0F2FE" />
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="8" fill="url(#tmFavGrad)" />
-  <path d="M16 6C16 6 12 11 12 17C12 20.3137 14.6863 23 18 23C21.3137 23 24 20.3137 24 17C24 10 16 6 16 6Z" fill="#ffffff" fill-opacity="0.95" />
-  <path d="M14 17C14 17 16 19 18 19" stroke="#10b981" stroke-width="1.75" stroke-linecap="round" />
-  <circle cx="11" cy="22" r="2" fill="#34d399" />
+  {/* Rounded Squircle Emblem */}
+  <rect width="32" height="32" rx="8" fill="url(#tmFavGrad)" stroke="#7DD3FC" stroke-width="1.2" stroke-opacity="0.6" />
+  
+  {/* Mint Leaf & Plate */}
+  <path d="M15 25C11.5 25 8.5 22.5 8.5 18.5C8.5 13 13.5 9 22 6.5C23.5 10.5 24 16 20.8 19.8C18.5 23 16.8 25 15 25Z" fill="url(#tmFavLeafGrad)" />
+  <path d="M15 23.5C12.5 23.5 10.2 21.5 10.2 18.5C10.2 14.5 14 11 20.5 9C21.5 12 21.8 16 19.5 19C17.5 21.5 16.2 23.5 15 23.5Z" fill="#BAE6FD" opacity="0.4" />
+  <path d="M6 24C10 23.5 13 20 15.5 16C17.2 12.8 18.8 9.5 21 7.2" stroke="#0284C7" stroke-width="2" stroke-linecap="round" />
+  <circle cx="22.5" cy="7.2" r="1.2" fill="#FFFFFF" />
 </svg>
