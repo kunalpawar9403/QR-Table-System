@@ -1,442 +1,318 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  ArrowRight, 
-  CheckCircle, 
-  Sparkles, 
-  LayoutDashboard, 
-  Smartphone, 
-  Receipt, 
-  ChefHat, 
-  TrendingUp, 
-  QrCode, 
-  ShieldCheck, 
-  Zap, 
-  Check, 
-  ChevronRight,
+import {
+  ArrowRight,
+  LayoutDashboard,
+  Smartphone,
+  Receipt,
+  ChefHat,
+  TrendingUp,
+  QrCode,
+  ShieldCheck,
+  Zap,
   Play,
   UtensilsCrossed,
-  Utensils,
   Printer,
   Wifi,
   Tablet
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { TextEffect } from '../components/motion-primitives/text-effect';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
+import Reveal, { enterProps } from '../components/marketing/Reveal';
+import SectionHeader from '../components/marketing/SectionHeader';
+import CheckList from '../components/marketing/CheckList';
+import MediaFrame from '../components/marketing/MediaFrame';
+import BillingToggle from '../components/marketing/BillingToggle';
+import PlanCard from '../components/marketing/PlanCard';
+
+const HERO_SPECS = [
+  { icon: Printer, title: '58mm & 80mm', sub: 'ESC/POS' },
+  { icon: Wifi, title: 'Bluetooth &', sub: 'Wi-Fi Sync' },
+  { icon: Tablet, title: 'Android &', sub: 'iOS Tablet' },
+  { icon: Zap, title: 'Instant', sub: 'Order KDS' }
+];
+
+const PILLARS = [
+  {
+    icon: Receipt,
+    title: 'Token & KOT System',
+    desc: 'Every bill generates an automatic sequential token number, so customers, waitstaff, and delivery partners stay synchronized.',
+    link: '/features#order-mgmt'
+  },
+  {
+    icon: LayoutDashboard,
+    title: 'Visual Floor & Tables',
+    desc: 'Real-time visual table occupancy. Instantly see vacant, seated, dining, and billed tables with 1-tap fast status shifts.',
+    link: '/features#table-mgmt'
+  },
+  {
+    icon: Printer,
+    title: 'Express Point of Sale',
+    desc: 'High-speed billing counter that punches orders in seconds, supports split tender (Cash/UPI/Card), and auto-prints 58/80mm receipts.',
+    link: '/features#pos-billing'
+  }
+];
+
+const STATS = [
+  { num: '3.5x', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
+  { num: '28%', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
+  { num: '0%', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
+  { num: '₹0', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
+];
+
+const FEATURES = [
+  {
+    icon: LayoutDashboard,
+    title: 'Real-Time POS Dashboard',
+    desc: "Live visibility into table occupancy, active orders, today's gross sales, and average ticket size in a unified view.",
+    link: '/features#dashboard'
+  },
+  {
+    icon: UtensilsCrossed,
+    title: 'Interactive Floor & Tables',
+    desc: 'Color-coded visual table management. Instantly see vacant, seated, dining, and billed tables with 1-click status shifts.',
+    link: '/features#table-mgmt'
+  },
+  {
+    icon: Receipt,
+    title: 'Express Billing & Split Pay',
+    desc: 'Generate GST-compliant tax invoices in under 3 seconds. Split bills by seat or item with Cash, UPI, and Card options.',
+    link: '/features#pos-billing'
+  },
+  {
+    icon: ChefHat,
+    title: 'Kitchen Display (KDS)',
+    desc: 'Paperless kitchen routing. Kitchen displays update immediately with prep timers, special cooking notes, and audio chime alerts.',
+    link: '/features#kds'
+  },
+  {
+    icon: QrCode,
+    title: 'Smart Contactless QR Menus',
+    desc: 'Guests scan table QR codes to view rich menus with HD photos, customize dishes, and order directly without app downloads.',
+    link: '/features#qr-menu'
+  },
+  {
+    icon: TrendingUp,
+    title: 'Actionable Analytics & GST',
+    desc: 'Comprehensive daily, weekly, and monthly sales breakdowns, top-selling items, peak rush hours, and ready-to-file GST reports.',
+    link: '/features#reports'
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Role-Based Staff PINs',
+    desc: 'Secure POS access with quick 4-digit PIN unlock. Restrict discounts, cancellations, and cash drawer actions to managers.',
+    link: '/features#staff-mgmt'
+  },
+  {
+    icon: Zap,
+    title: 'Instant Multi-Device Sync',
+    desc: 'Built on high-speed WebSockets. Changes made on one POS terminal reflect instantaneously across tablets and kitchen screens.',
+    link: '/features#dashboard'
+  }
+];
+
+const DEVICE_LIST = [
+  'Apple iPads & iPad Mini for captain order taking',
+  'Android & Windows POS touch terminals for cashiers',
+  'Large HD screens and wall-mounted tablets for Kitchen KDS',
+  'Thermal USB, Bluetooth & Network receipt printers (ESC/POS)',
+  'Mobile phone browser support for owners on the go'
+];
+
+const RESTAURANT_TYPES = [
+  {
+    title: 'Fine Dining & Casual Restaurants',
+    desc: 'Multi-course pacing, captain ordering, table reservations, and seamless split bills for large groups.',
+    image: '/images/landing/type_restaurant.jpg',
+    tag: 'Full Service',
+    to: '/solutions#restaurants'
+  },
+  {
+    title: 'Cafes & Quick Service (QSR)',
+    desc: 'Rapid counter checkout, combo modifiers, coffee customizers, and express takeaway packaging.',
+    image: '/images/landing/type_cafe.jpg',
+    tag: 'High Turnover',
+    to: '/solutions#cafes'
+  },
+  {
+    title: 'Bars, Lounges & Breweries',
+    desc: 'Open bar tabs, fast drink reorders, happy hour pricing automation, and keg/bottle tracking.',
+    image: '/images/landing/type_bar.jpg',
+    tag: 'Nightlife & Pubs',
+    to: '/solutions#bars'
+  },
+  {
+    title: 'Cloud Kitchens & Delivery',
+    desc: 'Multi-brand kitchen dispatch, synchronized KDS pacing, and consolidated prep queues.',
+    image: '/images/landing/type_cloud_kitchen.jpg',
+    tag: 'Delivery Focused',
+    to: '/solutions#cloud-kitchen'
+  }
+];
+
+const PLANS = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    tagline: 'Ideal for small cafes, takeaway counters, and food trucks.',
+    monthlyPrice: 999,
+    yearlyPrice: 799,
+    ctaText: 'Get Started',
+    features: ['Up to 10 Dining Tables', '1 POS Terminal Cashier', 'Contactless QR Menus', 'Basic Sales Reports', 'Email Support']
+  },
+  {
+    id: 'standard',
+    name: 'Standard',
+    tagline: 'Perfect for busy casual dining, bistros, and full-service restaurants.',
+    monthlyPrice: 1999,
+    yearlyPrice: 1599,
+    badge: 'Most Popular',
+    highlight: true,
+    ctaText: 'Start 14-Day Free Trial',
+    features: [
+      'Up to 30 Dining Tables',
+      '3 POS Terminals & Waiter Tablets',
+      'Kitchen Display System (KDS)',
+      'Custom Branded QR Stands',
+      'Daily & Weekly GST Reports',
+      'Priority WhatsApp Support'
+    ]
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    tagline: 'For high-volume multi-floor restaurants, bars, and multi-outlet chains.',
+    monthlyPrice: 3999,
+    yearlyPrice: 3199,
+    ctaText: 'Get Started',
+    features: [
+      'Unlimited Dining Tables & Zones',
+      'Unlimited Staff & POS Terminals',
+      'Multi-Station KDS Routing',
+      'Inventory & Recipe Tracking',
+      'Dedicated Account Manager',
+      '24/7 Phone & On-Site Assistance'
+    ]
+  }
+];
 
 export default function HomePage() {
   const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
 
-  const features = [
-    {
-      icon: <LayoutDashboard size={24} />,
-      title: "Real-Time POS Dashboard",
-      desc: "Live visibility into table occupancy, active orders, today's gross sales, and average ticket size in a unified view.",
-      link: "/features#dashboard"
-    },
-    {
-      icon: <UtensilsCrossed size={24} />,
-      title: "Interactive Floor & Tables",
-      desc: "Color-coded visual table management. Instantly see vacant, seated, dining, and billed tables with 1-click status shifts.",
-      link: "/features#table-mgmt"
-    },
-    {
-      icon: <Receipt size={24} />,
-      title: "Express Billing & Split Pay",
-      desc: "Generate GST-compliant tax invoices in under 3 seconds. Split bills by seat or item with Cash, UPI, and Card options.",
-      link: "/features#pos-billing"
-    },
-    {
-      icon: <ChefHat size={24} />,
-      title: "Kitchen Display (KDS)",
-      desc: "Paperless kitchen routing. Kitchen displays update immediately with prep timers, special cooking notes, and audio chime alerts.",
-      link: "/features#kds"
-    },
-    {
-      icon: <QrCode size={24} />,
-      title: "Smart Contactless QR Menus",
-      desc: "Guests scan table QR codes to view rich menus with HD photos, customize dishes, and order directly without app downloads.",
-      link: "/features#qr-menu"
-    },
-    {
-      icon: <TrendingUp size={24} />,
-      title: "Actionable Analytics & GST",
-      desc: "Comprehensive daily, weekly, and monthly sales breakdowns, top-selling items, peak rush hours, and ready-to-file GST reports.",
-      link: "/features#analytics"
-    },
-    {
-      icon: <ShieldCheck size={24} />,
-      title: "Role-Based Staff PINs",
-      desc: "Secure POS access with quick 4-digit PIN unlock. Restrict discounts, cancellations, and cash drawer actions to managers.",
-      link: "/features#staff"
-    },
-    {
-      icon: <Zap size={24} />,
-      title: "Instant Multi-Device Sync",
-      desc: "Built on high-speed WebSockets. Changes made on one POS terminal reflect instantaneously across tablets and kitchen screens.",
-      link: "/features#sync"
-    }
-  ];
-
-  const restaurantTypes = [
-    {
-      title: "Fine Dining & Casual Restaurants",
-      desc: "Multi-course pacing, captain ordering, table reservations, and seamless split bills for large groups.",
-      image: "/images/landing/type_restaurant.jpg",
-      tag: "Full Service"
-    },
-    {
-      title: "Cafes & Quick Service (QSR)",
-      desc: "Rapid counter checkout, combo modifiers, coffee customizers, and express takeaway packaging.",
-      image: "/images/landing/type_cafe.jpg",
-      tag: "High Turnover"
-    },
-    {
-      title: "Bars, Lounges & Breweries",
-      desc: "Open bar tabs, fast drink reorders, happy hour pricing automation, and keg/bottle tracking.",
-      image: "/images/landing/type_bar.jpg",
-      tag: "Nightlife & Pubs"
-    },
-    {
-      title: "Cloud Kitchens & Delivery",
-      desc: "Multi-brand kitchen dispatch, synchronized KDS pacing, and consolidated prep queues.",
-      image: "/images/landing/type_cloud_kitchen.jpg",
-      tag: "Delivery Focused"
-    }
-  ];
-
-
   return (
     <div className="tm-home-page">
-      {/* =========================================================
-          HERO SECTION - FLOATING BANNER WITH GAPS
-          ========================================================= */}
-      <section className="tm-hero-banner-section">
-        <div className="tm-hero-home">
-          <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
-            <div className="tm-hero-home-grid">
-              {/* Left Column: Clean Typography & Quick Actions (Matches exact reference) */}
-              <div className="tm-hero-text-col">
-                {/* Badge */}
-                <motion.div 
-                  className="tm-hero-badge"
-                  initial={{ opacity: 0, y: -12, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.45, ease: 'easeOut' }}
-                >
-                  <Utensils size={14} />
-                  <span>MODERN RESTAURANT MANAGEMENT</span>
-                </motion.div>
-
-                {/* Main Headline - Exactly matching target reference image */}
-                <h1 className="tm-hero-title">
-                  <motion.span 
-                    className="tm-hero-title-line"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, delay: 0.1 }}
-                  >
-                    The Smart
-                  </motion.span>
-                  <motion.span 
-                    className="tm-hero-title-line"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, delay: 0.2 }}
-                  >
-                    Restaurant POS
-                  </motion.span>
-                  <motion.span 
-                    className="tm-hero-title-accent"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, delay: 0.3 }}
-                  >
-                    &amp; Contactless Dining
-                    <svg className="tm-hero-title-swoosh" viewBox="0 0 160 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 10C45 2 115 2 157 9" stroke="#0284C7" strokeWidth="3.2" strokeLinecap="round" />
-                    </svg>
-                  </motion.span>
-                </h1>
-
-                {/* Subheading */}
-                <motion.p 
-                  className="tm-hero-subtitle"
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.45, delay: 0.35 }}
-                >
-                  Empower your floor with intelligent table management, contactless<br className="tm-hide-mobile" />
-                  QR ordering, express POS billing, and real-time kitchen display.
-                </motion.p>
-
-                {/* CTA Buttons */}
-                <motion.div 
-                  className="tm-hero-actions"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.45 }}
-                >
-                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                    <Link
-                      to="/register"
-                      className="tm-btn-hero-primary"
-                    >
-                      <span>Start 14 Days Free Trial</span>
-                      <ArrowRight size={16} />
-                    </Link>
-                  </motion.div>
-
-                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                    <Link
-                      to="/features"
-                      className="tm-btn-hero-secondary"
-                    >
-                      <span>Explore Features</span>
-                      <ArrowRight size={15} />
-                    </Link>
-                  </motion.div>
-                </motion.div>
-
-                {/* Trust Checkmarks - Slipzen White Pill Badges */}
-                <motion.div 
-                  className="tm-hero-trust-row"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.65 }}
-                >
-                  <div className="tm-hero-pill-badge">
-                    <ShieldCheck size={14} />
-                    <span>No credit card required</span>
-                  </div>
-                  <div className="tm-hero-pill-badge">
-                    <Zap size={14} />
-                    <span>Setup in 5 minutes</span>
-                  </div>
-                  <div className="tm-hero-pill-badge">
-                    <Smartphone size={14} />
-                    <span>Works on all devices</span>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Right Column: High-End 3D Device Showcase with Card Features & Venue Tabs */}
-              <motion.div 
-                className="tm-hero-showcase"
-                initial={{ opacity: 0, x: 28, scale: 0.96 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-              >
-                {/* Main Showcase Card with embedded 4 feature items */}
-                <div className="tm-hero-image-card">
-                  <img 
-                    src="/images/landing/hero_pos_devices.jpg" 
-                    alt="TableMint POS, Contactless QR Menu & Thermal Receipt Billing" 
-                    className="tm-hero-showcase-img"
-                    loading="eager"
-                  />
-
-                  {/* 4 Feature Items Strip Inside Card (Matches Reference Image) */}
-                  <div className="tm-hero-card-features">
-                    <div className="tm-card-feat-item">
-                      <Printer size={18} className="tm-card-feat-icon" />
-                      <div className="tm-card-feat-text">
-                        <span className="tm-feat-title">58mm &amp; 80mm</span>
-                        <span className="tm-feat-sub">ESC/POS</span>
-                      </div>
-                    </div>
-                    <div className="tm-card-feat-divider" />
-                    <div className="tm-card-feat-item">
-                      <Wifi size={18} className="tm-card-feat-icon" />
-                      <div className="tm-card-feat-text">
-                        <span className="tm-feat-title">Bluetooth &amp;</span>
-                        <span className="tm-feat-sub">Wi-Fi Sync</span>
-                      </div>
-                    </div>
-                    <div className="tm-card-feat-divider" />
-                    <div className="tm-card-feat-item">
-                      <Tablet size={18} className="tm-card-feat-icon" />
-                      <div className="tm-card-feat-text">
-                        <span className="tm-feat-title">Android &amp;</span>
-                        <span className="tm-feat-sub">iOS Tablet</span>
-                      </div>
-                    </div>
-                    <div className="tm-card-feat-divider" />
-                    <div className="tm-card-feat-item">
-                      <Zap size={18} className="tm-card-feat-icon" />
-                      <div className="tm-card-feat-text">
-                        <span className="tm-feat-title">Instant</span>
-                        <span className="tm-feat-sub">Order KDS</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3 Core Highlight Pillars (Matching Slipzen Screenshot 1) */}
-        <div className="tm-hero-pillars-grid">
-          <motion.div 
-            className="tm-hero-pillar-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.35 }}
-          >
-            <div className="tm-pillar-icon-box">
-              <Receipt size={22} />
-            </div>
-            <h4>Token & KOT System</h4>
-            <p>Every bill generates an automatic sequential token number, so customers, waitstaff, and delivery partners stay synchronized.</p>
-            <Link to="/features" className="tm-pillar-link">
-              <span>Learn more</span>
-              <ArrowRight size={14} />
-            </Link>
-          </motion.div>
-
-          <motion.div 
-            className="tm-hero-pillar-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.45 }}
-          >
-            <div className="tm-pillar-icon-box">
-              <LayoutDashboard size={22} />
-            </div>
-            <h4>Visual Floor & Tables</h4>
-            <p>Real-time visual table occupancy. Instantly see vacant, seated, dining, and billed tables with 1-tap fast status shifts.</p>
-            <Link to="/features" className="tm-pillar-link">
-              <span>Learn more</span>
-              <ArrowRight size={14} />
-            </Link>
-          </motion.div>
-
-          <motion.div 
-            className="tm-hero-pillar-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.55 }}
-          >
-            <div className="tm-pillar-icon-box">
-              <Printer size={22} />
-            </div>
-            <h4>Express Point of Sale</h4>
-            <p>High-speed billing counter that punches orders in seconds, supports split tender (Cash/UPI/Card), and auto-prints 58/80mm receipts.</p>
-            <Link to="/features" className="tm-pillar-link">
-              <span>Learn more</span>
-              <ArrowRight size={14} />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          KEY NUMBERS / IMPACT STATS
-          ========================================================= */}
-      <section className="tm-stats-section" style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #e2e8f0',
-        padding: '44px 24px'
-      }}>
+      {/* ================= HERO ================= */}
+      <section className="tm-home-hero">
         <PageContainer>
-          <div className="tm-stats-grid">
-            {[
-              { num: '3.5x', color: '#0F172A', title: 'Faster Order Checkout', desc: 'From order punch to printed receipt in under 4 seconds' },
-              { num: '28%', color: '#0284C7', title: 'Higher Average Order Value', desc: 'With visual QR menu upselling and dessert prompts' },
-              { num: '0%', color: '#0F172A', title: 'Kitchen Order Confusion', desc: 'Direct-to-screen KDS replaces lost paper tickets' },
-              { num: '₹0', color: '#0284C7', title: 'Expensive Hardware Lock-in', desc: 'Runs on any iPad, tablet, laptop, or existing POS terminal' }
-            ].map((stat, idx) => (
-              <motion.div 
-                key={idx}
-                className="tm-stat-item"
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.45, delay: idx * 0.1 }}
-              >
-                <div className="tm-stat-number" style={{ color: stat.color }}>
-                  {stat.num}
-                </div>
-                <p className="tm-stat-title">{stat.title}</p>
-                <p className="tm-stat-desc">{stat.desc}</p>
+          <div className="tm-home-hero-grid">
+            <div>
+              <motion.span className="tm-eyebrow" {...enterProps(0)}>
+                Modern Restaurant Management
+              </motion.span>
+
+              <motion.h1 className="tm-display" {...enterProps(0.06)}>
+                The Smart Restaurant POS <em>&amp; Contactless Dining</em>
+              </motion.h1>
+
+              <motion.p className="tm-lead" {...enterProps(0.12)}>
+                Empower your floor with intelligent table management, contactless QR ordering, express POS billing, and real-time kitchen display.
+              </motion.p>
+
+              <motion.div className="tm-actions tm-home-hero-actions" {...enterProps(0.18)}>
+                <Link to="/register" className="tm-btn tm-btn-primary tm-btn-lg">
+                  <span>Start 14 Days Free Trial</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link to="/features" className="tm-btn tm-btn-secondary tm-btn-lg">
+                  <span>Explore Features</span>
+                  <ArrowRight size={15} />
+                </Link>
               </motion.div>
+
+              <motion.ul className="tm-trust-row" {...enterProps(0.24)}>
+                <li><ShieldCheck size={15} /><span>No credit card required</span></li>
+                <li><Zap size={15} /><span>Setup in 5 minutes</span></li>
+                <li><Smartphone size={15} /><span>Works on all devices</span></li>
+              </motion.ul>
+            </div>
+
+            <motion.figure className="tm-hero-frame" {...enterProps(0.14, 20)}>
+              <img
+                src="/images/landing/hero_pos_devices.jpg"
+                alt="TableMint POS, Contactless QR Menu & Thermal Receipt Billing"
+                loading="eager"
+                fetchPriority="high"
+              />
+              <ul className="tm-spec-strip">
+                {HERO_SPECS.map(({ icon: Icon, title, sub }) => (
+                  <li key={sub}>
+                    <Icon size={22} />
+                    <span className="tm-spec-text">
+                      <strong>{title}</strong>
+                      <span>{sub}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </motion.figure>
+          </div>
+
+          <div className="tm-pillars">
+            {PILLARS.map(({ icon: Icon, title, desc, link }, idx) => (
+              <Reveal key={title} className="tm-pillar" delay={idx * 0.06}>
+                <Icon size={22} className="tm-pillar-icon" />
+                <h3 className="tm-pillar-title">{title}</h3>
+                <p className="tm-pillar-desc">{desc}</p>
+                <Link to={link} className="tm-link">
+                  <span>Learn more</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </Reveal>
             ))}
           </div>
         </PageContainer>
       </section>
 
-      {/* =========================================================
-          FEATURES HIGHLIGHT SECTION (8 Pillars)
-          ========================================================= */}
-      <section className="tm-section-spacious" style={{ background: '#F8FAFC' }}>
+      {/* ================= IMPACT STATS ================= */}
+      <section className="tm-stats" aria-label="Impact">
         <PageContainer>
-          <motion.div 
-            className="tm-section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="tm-section-badge">
-              <Sparkles size={14} />
-              <span>Full-Stack Restaurant Architecture</span>
-            </span>
-            <h2 className="tm-section-title">
-              Engineered for Speed, Reliability, and Delight
-            </h2>
-            <p className="tm-section-subtitle">
-              Everything your restaurant needs to operate smoothly from the moment guests are seated until the final receipt is settled.
-            </p>
-          </motion.div>
+          <Reveal className="tm-stats-grid">
+            {STATS.map((stat) => (
+              <div key={stat.title} className="tm-stat">
+                <div className="tm-stat-number">{stat.num}</div>
+                <p className="tm-stat-title">{stat.title}</p>
+                <p className="tm-stat-desc">{stat.desc}</p>
+              </div>
+            ))}
+          </Reveal>
+        </PageContainer>
+      </section>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-            gap: 28
-          }}>
-            {features.map((feat, idx) => (
-              <motion.div 
-                key={idx} 
-                className="tm-card" 
-                style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-30px' }}
-                transition={{ duration: 0.4, delay: (idx % 3) * 0.08 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              >
-                <div className="tm-icon-box">
-                  {feat.icon}
-                </div>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: 10, color: '#0F172A' }}>
-                  {feat.title}
-                </h3>
-                <p style={{ fontSize: '0.94rem', color: '#64748B', marginBottom: 20, flex: 1 }}>
-                  {feat.desc}
-                </p>
-                <Link 
-                  to={feat.link}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    color: '#0284C7',
-                    fontWeight: 600,
-                    fontSize: '0.88rem',
-                    textDecoration: 'none'
-                  }}
-                >
+      {/* ================= FEATURES ================= */}
+      <section className="tm-section">
+        <PageContainer>
+          <SectionHeader
+            eyebrow="Full-Stack Restaurant Architecture"
+            title="Engineered for Speed, Reliability, and Delight"
+            subtitle="Everything your restaurant needs to operate smoothly from the moment guests are seated until the final receipt is settled."
+          />
+
+          <Reveal className="tm-feature-grid">
+            {FEATURES.map(({ icon: Icon, title, desc, link }) => (
+              <Link key={title} to={link} className="tm-feature-cell">
+                <span className="tm-feature-icon"><Icon size={20} /></span>
+                <h3 className="tm-feature-title">{title}</h3>
+                <p className="tm-feature-desc">{desc}</p>
+                <span className="tm-feature-more">
                   <span>Learn more</span>
                   <ArrowRight size={14} />
-                </Link>
-              </motion.div>
+                </span>
+              </Link>
             ))}
-          </div>
+          </Reveal>
 
-          <div style={{ textAlign: 'center', marginTop: 48 }}>
+          <div className="tm-center-action">
             <Link to="/features" className="tm-btn tm-btn-secondary tm-btn-lg">
               <span>View All 9 Feature Modules in Depth</span>
               <ArrowRight size={16} />
@@ -445,448 +321,92 @@ export default function HomePage() {
         </PageContainer>
       </section>
 
-      {/* =========================================================
-          DEVICE COMPATIBILITY SHOWCASE - FLOATING BANNER
-          ========================================================= */}
-      <section className="tm-device-banner-wrapper">
-        <div className="tm-device-banner-card">
-          <div style={{ maxWidth: '1280px', margin: '0 auto', width: '100%', position: 'relative', zIndex: 1 }}>
-            <div className="tm-device-grid">
-              <motion.div
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-              >
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '6px 14px',
-                  borderRadius: '9999px',
-                  background: 'rgba(2, 132, 199, 0.12)',
-                  border: '1px solid rgba(2, 132, 199, 0.3)',
-                  color: '#0284C7',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  marginBottom: 16
-                }}>
-                  <Smartphone size={14} />
-                  <span>Zero Hardware Restrictions</span>
-                </div>
-                <h2 style={{
-                  fontSize: 'clamp(2rem, 3.5vw, 2.8rem)',
-                  fontWeight: 800,
-                  lineHeight: 1.2,
-                  color: '#FFFFFF',
-                  marginBottom: 20
-                }}>
-                  Works seamlessly on every device you already own
-                </h2>
-                <p style={{ fontSize: '1.05rem', color: '#cbd5e1', lineHeight: 1.65, marginBottom: 28 }}>
-                  No proprietary expensive POS terminals required. TableMint is cloud-native and responsive. Launch it on your existing iPads, Android tablets, desktop computers, thermal printers, and mobile phones.
-                </p>
+      {/* ================= DEVICE COMPATIBILITY ================= */}
+      <section className="tm-band-dark">
+        <PageContainer>
+          <div className="tm-split">
+            <Reveal>
+              <span className="tm-eyebrow is-on-dark">Zero Hardware Restrictions</span>
+              <h2 className="tm-section-title">Works seamlessly on every device you already own</h2>
+              <p className="tm-section-subtitle">
+                No proprietary expensive POS terminals required. TableMint is cloud-native and responsive. Launch it on your existing iPads, Android tablets, desktop computers, thermal printers, and mobile phones.
+              </p>
+              <CheckList items={DEVICE_LIST} />
+              <Link to="/features" className="tm-btn tm-btn-light">
+                <span>Explore Supported Hardware</span>
+                <ArrowRight size={16} />
+              </Link>
+            </Reveal>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 36 }}>
-                  {[
-                    "Apple iPads & iPad Mini for captain order taking",
-                    "Android & Windows POS touch terminals for cashiers",
-                    "Large HD screens and wall-mounted tablets for Kitchen KDS",
-                    "Thermal USB, Bluetooth & Network receipt printers (ESC/POS)",
-                    "Mobile phone browser support for owners on the go"
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '0.95rem', color: '#e2e8f0' }}>
-                      <div style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: '50%',
-                        background: 'rgba(2, 132, 199, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#0284C7',
-                        flexShrink: 0
-                      }}>
-                        <Check size={13} strokeWidth={3} />
-                      </div>
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <Link to="/features" className="tm-btn tm-btn-primary">
-                  <span>Explore Supported Features</span>
-                  <ArrowRight size={16} />
-                </Link>
-              </motion.div>
-
-              {/* Showcase Image */}
-              <motion.div 
-                style={{
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)'
-                }}
-                initial={{ opacity: 0, x: 24, scale: 0.98 }}
-                whileInView={{ opacity: 1, x: 0, scale: 1 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.5, ease: 'easeOut', delay: 0.15 }}
-                whileHover={{ scale: 1.015, transition: { duration: 0.25 } }}
-              >
-                <img 
-                  src="/images/landing/devices_showcase.jpg" 
-                  alt="TableMint Works on iPad, Android Tablets, Windows and Mac"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
-                />
-              </motion.div>
-            </div>
+            <Reveal delay={0.1}>
+              <MediaFrame
+                src="/images/landing/devices_showcase.jpg"
+                alt="TableMint works on iPad, Android tablets, Windows and Mac"
+                onDark
+              />
+            </Reveal>
           </div>
-        </div>
+        </PageContainer>
       </section>
 
-      {/* =========================================================
-          RESTAURANT CATEGORIES (Tailored for Every Venue)
-          ========================================================= */}
-      <section className="tm-section-spacious" style={{ background: '#FFFFFF' }}>
+      {/* ================= VENUE TYPES ================= */}
+      <section className="tm-section is-white">
         <PageContainer>
-          <motion.div 
-            className="tm-section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="tm-section-badge">
-              <UtensilsCrossed size={14} />
-              <span>Tailored Solutions</span>
-            </span>
-            <h2 className="tm-section-title">
-              Designed for Every Dining Environment
-            </h2>
-            <p className="tm-section-subtitle">
-              Whether you run a high-energy craft brewery or an intimate fine-dining destination, TableMint adapts to your service flow.
-            </p>
-          </motion.div>
+          <SectionHeader
+            eyebrow="Tailored Solutions"
+            title="Designed for Every Dining Environment"
+            subtitle="Whether you run a high-energy craft brewery or an intimate fine-dining destination, TableMint adapts to your service flow."
+          />
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
-            gap: 24
-          }}>
-            {restaurantTypes.map((type, idx) => (
-              <motion.div 
-                key={idx}
-                style={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  background: '#F8FAFC',
-                  border: '1px solid #e2e8f0',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-30px' }}
-                transition={{ duration: 0.45, delay: idx * 0.08 }}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-              >
-                <div style={{ position: 'relative', height: '180px', overflow: 'hidden' }}>
-                  <img 
-                    src={type.image} 
-                    alt={type.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                  <span style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    background: 'rgba(15, 23, 42, 0.85)',
-                    backdropFilter: 'blur(8px)',
-                    color: '#0284C7',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    padding: '4px 10px',
-                    borderRadius: '9999px',
-                    border: '1px solid rgba(2, 132, 199, 0.3)'
-                  }}>
-                    {type.tag}
-                  </span>
-                </div>
-                <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: 10, color: '#0F172A' }}>
-                    {type.title}
-                  </h3>
-                  <p style={{ fontSize: '0.92rem', color: '#64748B', marginBottom: 18, flex: 1 }}>
-                    {type.desc}
-                  </p>
-                  <Link 
-                    to="/solutions"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      color: '#0284C7',
-                      fontWeight: 600,
-                      fontSize: '0.88rem'
-                    }}
-                  >
+          <div className="tm-venue-grid">
+            {RESTAURANT_TYPES.map((type, idx) => (
+              <Reveal key={type.title} delay={idx * 0.06}>
+                <Link to={type.to} className="tm-venue">
+                  <div className="tm-venue-media">
+                    <img src={type.image} alt={type.title} loading="lazy" decoding="async" />
+                  </div>
+                  <span className="tm-venue-tag">{type.tag}</span>
+                  <h3 className="tm-venue-title">{type.title}</h3>
+                  <p className="tm-venue-desc">{type.desc}</p>
+                  <span className="tm-feature-more">
                     <span>Explore solution</span>
-                    <ChevronRight size={14} />
-                  </Link>
-                </div>
-              </motion.div>
+                    <ArrowRight size={14} />
+                  </span>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </PageContainer>
       </section>
 
-      {/* =========================================================
-          PRICING PREVIEW
-          ========================================================= */}
-      <section className="tm-section-spacious" style={{ background: '#F8FAFC' }}>
+      {/* ================= PRICING PREVIEW ================= */}
+      <section className="tm-section is-sand">
         <PageContainer>
-          <motion.div 
-            className="tm-section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.5 }}
+          <SectionHeader
+            eyebrow="Transparent SaaS Pricing"
+            title="Predictable Plans With No Hidden Commissions"
+            subtitle="Keep 100% of your restaurant profits. All plans include automated GST billing, menu management, and unlimited staff accounts."
           >
-            <span className="tm-section-badge">
-              <Receipt size={14} />
-              <span>Transparent SaaS Pricing</span>
-            </span>
-            <h2 className="tm-section-title">
-              Predictable Plans With No Hidden Commissions
-            </h2>
-            <p className="tm-section-subtitle">
-              Keep 100% of your restaurant profits. All plans include automated GST billing, menu management, and unlimited staff accounts.
-            </p>
+            <BillingToggle value={billingCycle} onChange={setBillingCycle} />
+          </SectionHeader>
 
-            {/* Monthly / Yearly Switch */}
-            <div 
-              className="tm-billing-switcher"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                background: '#e2e8f0',
-                padding: 4,
-                borderRadius: '9999px',
-                marginTop: 24
-              }}
-            >
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setBillingCycle('monthly')}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background: billingCycle === 'monthly' ? '#FFFFFF' : 'transparent',
-                  color: billingCycle === 'monthly' ? '#0F172A' : '#64748b',
-                  boxShadow: billingCycle === 'monthly' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                Monthly Billing
-              </motion.button>
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setBillingCycle('yearly')}
-                style={{
-                  padding: '8px 20px',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background: billingCycle === 'yearly' ? '#FFFFFF' : 'transparent',
-                  color: billingCycle === 'yearly' ? '#0F172A' : '#64748b',
-                  boxShadow: billingCycle === 'yearly' ? '0 2px 6px rgba(0,0,0,0.08)' : 'none',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6
-                }}
-              >
-                <span>Yearly Billing</span>
-                <span style={{
-                  background: '#0284C7',
-                  color: '#FFFFFF',
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: '9999px'
-                }}>
-                  SAVE 20%
-                </span>
-              </motion.button>
-            </div>
-          </motion.div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-            gap: 28,
-            alignItems: 'stretch'
-          }}>
-            {/* Starter */}
-            <motion.div 
-              className="tm-card" 
-              style={{ display: 'flex', flexDirection: 'column' }}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ duration: 0.45 }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-            >
-              <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Starter</h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
-                Ideal for small cafes, takeaway counters, and food trucks.
-              </p>
-              <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', fontFamily: 'var(--font-heading)' }}>
-                  ₹{billingCycle === 'yearly' ? '799' : '999'}
-                </span>
-                <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                {["Up to 10 Dining Tables", "1 POS Terminal Cashier", "Contactless QR Menus", "Basic Sales Reports", "Email Support"].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/register?plan=starter" className="tm-btn tm-btn-secondary" style={{ width: '100%' }}>
-                Get Started
-              </Link>
-            </motion.div>
-
-            {/* Standard - Featured */}
-            <motion.div 
-              className="tm-card" 
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                borderColor: '#0284C7',
-                boxShadow: '0 12px 30px rgba(2, 132, 199, 0.15)',
-                borderWidth: 2
-              }}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ duration: 0.45, delay: 0.1 }}
-              whileHover={{ y: -8, scale: 1.015, transition: { duration: 0.2 } }}
-            >
-              <span style={{
-                position: 'absolute',
-                top: -12,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                background: '#0284C7',
-                color: '#FFFFFF',
-                padding: '4px 14px',
-                borderRadius: '9999px',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em'
-              }}>
-                Most Popular
-              </span>
-              <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Standard</h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
-                Perfect for busy casual dining, bistros, and full-service restaurants.
-              </p>
-              <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0284C7', fontFamily: 'var(--font-heading)' }}>
-                  ₹{billingCycle === 'yearly' ? '1,599' : '1,999'}
-                </span>
-                <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                {[
-                  "Up to 30 Dining Tables",
-                  "3 POS Terminals & Waiter Tablets",
-                  "Kitchen Display System (KDS)",
-                  "Custom Branded QR Stands",
-                  "Daily & Weekly GST Reports",
-                  "Priority WhatsApp Support"
-                ].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/register?plan=standard" className="tm-btn tm-btn-primary" style={{ width: '100%' }}>
-                Start 14-Day Free Trial
-              </Link>
-            </motion.div>
-
-            {/* Premium */}
-            <motion.div 
-              className="tm-card" 
-              style={{ display: 'flex', flexDirection: 'column' }}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ duration: 0.45, delay: 0.2 }}
-              whileHover={{ y: -6, transition: { duration: 0.2 } }}
-            >
-              <h3 style={{ fontSize: '1.35rem', marginBottom: 6 }}>Premium</h3>
-              <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: 20 }}>
-                For high-volume multi-floor restaurants, bars, and multi-outlet chains.
-              </p>
-              <div style={{ marginBottom: 24 }}>
-                <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0F172A', fontFamily: 'var(--font-heading)' }}>
-                  ₹{billingCycle === 'yearly' ? '3,199' : '3,999'}
-                </span>
-                <span style={{ color: '#64748b', fontSize: '0.9rem' }}> / month</span>
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-                {[
-                  "Unlimited Dining Tables & Zones",
-                  "Unlimited Staff & POS Terminals",
-                  "Multi-Station KDS Routing",
-                  "Inventory & Recipe Tracking",
-                  "Dedicated Account Manager",
-                  "24/7 Phone & On-Site Assistance"
-                ].map((item, i) => (
-                  <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: '0.92rem', color: '#0F172A' }}>
-                    <Check size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link to="/register?plan=premium" className="tm-btn tm-btn-secondary" style={{ width: '100%' }}>
-                Get Started
-              </Link>
-            </motion.div>
+          <div className="tm-plan-grid">
+            {PLANS.map((plan, idx) => (
+              <Reveal key={plan.id} delay={idx * 0.06}>
+                <PlanCard plan={plan} billingCycle={billingCycle} />
+              </Reveal>
+            ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <Link to="/pricing" style={{ color: '#0284C7', fontWeight: 600, fontSize: '0.95rem' }}>
-              Compare all features and specifications in our complete pricing table →
+          <div className="tm-center-action">
+            <Link to="/pricing" className="tm-link">
+              <span>Compare all features and specifications in our complete pricing table</span>
+              <ArrowRight size={15} />
             </Link>
           </div>
         </PageContainer>
       </section>
 
-
-
-      {/* =========================================================
-          FINAL CTA SECTION
-          ========================================================= */}
       <CTASection />
     </div>
   );

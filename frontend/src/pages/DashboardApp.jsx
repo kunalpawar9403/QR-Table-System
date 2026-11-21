@@ -66,6 +66,7 @@ import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanne
 import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
 import { generateTableQrDataUrl, getTableScanUrl, generateQrDataUrl } from '../utils/qrHelper';
 import '../styles/dashboard.css';
+import '../styles/dashboard-premium.css';
 
 /* =========================================================
    REUSABLE SECTION PAGINATION COMPONENT
@@ -4270,7 +4271,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             analyticsTimeframe.toUpperCase()
                           })
                         </h3>
-                        <div style={{ background: '#0284C7', color: '#0284C7', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
+                        <div style={{ background: '#EDF5FA', color: '#0369A1', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 600 }}>
                           ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                         </div>
                       </div>
@@ -5243,8 +5244,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
               <div className="page-header-actions">
                 <button
-                  className="btn-brand-primary"
-                  style={{ background: '#DC2626' }}
+                  className="btn-brand-primary is-danger"
                   onClick={handleLogout}
                 >
                   <Lock size={15} /> Lock Terminal Now
@@ -5797,8 +5797,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <div className="page-header-actions">
                   <button
                     type="button"
-                    className="btn-brand-primary"
-                    style={{ background: '#DC2626' }}
+                    className="btn-brand-primary is-danger"
                     onClick={handleLogout}
                     title="Sign out and return to Login & Sign Up screen"
                   >
@@ -6017,8 +6016,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   </div>
                   <button
                     type="button"
-                    className="btn-brand-primary"
-                    style={{ background: '#dc2626', flexShrink: 0 }}
+                    className="btn-brand-primary is-danger"
+                    style={{ flexShrink: 0 }}
                     onClick={handleLogout}
                   >
                     <LogOut size={16} /> Sign Out
@@ -6294,7 +6293,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </button>
             </div>
             <div className="dash-modal-body" style={{ alignItems: 'center' }}>
-              <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+              <div className="dx-qr-frame">
                 <img
                   src={modalQrDataUrl || formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`)}
                   alt={`Table ${viewQrTable.id} QR Code`}
@@ -6308,8 +6307,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 />
               </div>
 
-              <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px', fontSize: '0.8rem', color: '#cbd5e1', wordBreak: 'break-all' }}>
-                <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>
+              <div className="dx-qr-link">
+                <div className="dx-qr-link-label">
                   Scan Target Link:
                 </div>
                 {`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`}
@@ -6339,8 +6338,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 </button>
                 <button
                   type="button"
-                  className="btn-primary"
-                  style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  className="btn-secondary"
+                  style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   onClick={() => {
                     const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
                     window.open(`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');

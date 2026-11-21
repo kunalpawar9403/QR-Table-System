@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Building2, 
-  User, 
-  Mail, 
-  Lock, 
-  ArrowRight, 
-  Check, 
-  ShieldCheck, 
-  Eye, 
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Building2,
+  User,
+  Mail,
+  Lock,
+  ArrowRight,
+  ShieldCheck,
+  Eye,
   EyeOff,
-  AlertCircle,
-  X
+  AlertCircle
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import { signUpWithCredentials, getStaffToken } from '../utils/staffAuth';
-import { TableMintBrandBadge } from '../components/TableMintLogoIcon';
+import AuthShell from '../components/auth/AuthShell';
+
+const REGISTER_POINTS = [
+  'Zero setup fees and no credit card required',
+  'Pre-loaded with fresh tables and starter menu',
+  'Connect unlimited waiter iPads, tablets, and phones',
+  'Automated GST invoicing with printable bills',
+  'Live Kitchen Display System (KDS) included'
+];
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -80,208 +85,119 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="tm-auth-page-wrapper">
-      <motion.div 
-        className="tm-auth-modal-card"
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-      >
-        {/* Left Side: Setup In 60 Seconds Benefits Panel */}
-        <div className="tm-auth-side-panel">
-          <div>
-            <Link to="/" className="tm-auth-brand-row">
-              <TableMintBrandBadge size={40} />
-              <div className="tm-auth-brand-text">
-                <span className="name">Table</span>
-                <span className="accent">Mint</span>
-              </div>
-            </Link>
+    <AuthShell
+      title={<>Set up your restaurant workspace in <em>60 seconds.</em></>}
+      description="Upon registration, TableMint provides a clean, isolated database for your venue with fresh tables, dynamic QR codes, and default categories."
+      points={REGISTER_POINTS}
+      asideFooter={
+        <span className="tm-auth-secure">
+          <ShieldCheck size={15} />
+          Complete Data Isolation &amp; Enterprise Encryption
+        </span>
+      }
+    >
+      <div className="tm-auth-head">
+        <span className="tm-eyebrow">14-Day Free Trial</span>
+        <h2 className="tm-auth-form-title">Create Your Restaurant Account</h2>
+        <p>Start your 14-day free trial. No credit card needed.</p>
+      </div>
 
-            <div className="tm-auth-tag-line">
-              MODERN RESTAURANT MANAGEMENT
-            </div>
+      {errorMessage && (
+        <div className="tm-alert" role="alert">
+          <AlertCircle size={17} />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
-            <h1 className="tm-auth-side-title">
-              Set up your restaurant<br />
-              workspace in<br />
-              <span className="highlight">60 seconds.</span>
-            </h1>
-
-            <p className="tm-auth-side-desc">
-              Upon registration, TableMint provides a clean, isolated database for your venue with fresh tables, dynamic QR codes, and default categories.
-            </p>
-
-            <div className="tm-auth-checklist-box">
-              <div className="tm-auth-check-item">
-                <div className="tm-auth-check-icon">
-                  <Check size={13} strokeWidth={3} />
-                </div>
-                <span>Zero setup fees and no credit card required</span>
-              </div>
-              <div className="tm-auth-check-item">
-                <div className="tm-auth-check-icon">
-                  <Check size={13} strokeWidth={3} />
-                </div>
-                <span>Pre-loaded with fresh tables and starter menu</span>
-              </div>
-              <div className="tm-auth-check-item">
-                <div className="tm-auth-check-icon">
-                  <Check size={13} strokeWidth={3} />
-                </div>
-                <span>Connect unlimited waiter iPads, tablets, and phones</span>
-              </div>
-              <div className="tm-auth-check-item">
-                <div className="tm-auth-check-icon">
-                  <Check size={13} strokeWidth={3} />
-                </div>
-                <span>Automated GST invoicing with printable bills</span>
-              </div>
-              <div className="tm-auth-check-item">
-                <div className="tm-auth-check-icon">
-                  <Check size={13} strokeWidth={3} />
-                </div>
-                <span>Live Kitchen Display System (KDS) included</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="tm-auth-side-footer">
-            <div className="tm-auth-footer-badge">
-              <ShieldCheck size={16} />
-              <span>Complete Data Isolation &amp; Enterprise Encryption</span>
-            </div>
+      <form onSubmit={handleSubmit} className="tm-form tm-auth-form">
+        <div>
+          <label htmlFor="reg-restaurant" className="tm-label">Restaurant / Venue Name *</label>
+          <div className="tm-input-wrap">
+            <Building2 size={17} className="tm-input-icon" />
+            <input
+              id="reg-restaurant"
+              type="text"
+              required
+              autoComplete="organization"
+              placeholder="e.g. Copper Chimney Bistro"
+              value={restaurantName}
+              onChange={(e) => setRestaurantName(e.target.value)}
+              className="tm-input has-icon"
+            />
           </div>
         </div>
 
-        {/* Right Side: Account Registration Form (Scrollable) */}
-        <div className="tm-auth-form-panel">
-          {/* Close Button linking back to Home */}
-          <Link to="/" className="tm-auth-close-btn" aria-label="Close">
-            <X size={18} />
-          </Link>
-
-          {/* Mobile Brand Logo Header (Visible on mobile when side panel is hidden) */}
-          <div className="tm-auth-mobile-brand">
-            <TableMintBrandBadge size={38} />
-            <div className="tm-auth-brand-text">
-              <span className="name">Table</span>
-              <span className="accent">Mint</span>
-            </div>
+        <div>
+          <label htmlFor="reg-name" className="tm-label">Owner / Manager Full Name *</label>
+          <div className="tm-input-wrap">
+            <User size={17} className="tm-input-icon" />
+            <input
+              id="reg-name"
+              type="text"
+              required
+              autoComplete="name"
+              placeholder="e.g. Rohan Verma"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="tm-input has-icon"
+            />
           </div>
+        </div>
 
-          <div className="tm-auth-form-header">
-            <h2 className="tm-auth-form-title">
-              Create Your Restaurant Account
-            </h2>
-            <p className="tm-auth-form-sub">
-              Start your 14-day free trial. No credit card needed.
-            </p>
+        <div>
+          <label htmlFor="reg-email" className="tm-label">Email Address *</label>
+          <div className="tm-input-wrap">
+            <Mail size={17} className="tm-input-icon" />
+            <input
+              id="reg-email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="rohan@copperchimney.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="tm-input has-icon"
+            />
           </div>
+        </div>
 
-          {errorMessage && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              background: '#FEF2F2',
-              border: '1px solid #FECACA',
-              color: '#DC2626',
-              padding: '12px 14px',
-              borderRadius: '12px',
-              fontSize: '0.88rem',
-              marginBottom: 18
-            }}>
-              <AlertCircle size={17} style={{ flexShrink: 0 }} />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="tm-auth-field">
-              <label className="tm-auth-label">Restaurant / Venue Name *</label>
-              <div className="tm-auth-input-wrapper">
-                <Building2 size={17} className="tm-auth-input-icon" />
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Copper Chimney Bistro"
-                  value={restaurantName}
-                  onChange={(e) => setRestaurantName(e.target.value)}
-                  className="tm-auth-input"
-                />
-              </div>
-            </div>
-
-            <div className="tm-auth-field">
-              <label className="tm-auth-label">Owner / Manager Full Name *</label>
-              <div className="tm-auth-input-wrapper">
-                <User size={17} className="tm-auth-input-icon" />
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Rohan Verma"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="tm-auth-input"
-                />
-              </div>
-            </div>
-
-            <div className="tm-auth-field">
-              <label className="tm-auth-label">Email Address *</label>
-              <div className="tm-auth-input-wrapper">
-                <Mail size={17} className="tm-auth-input-icon" />
-                <input
-                  type="email"
-                  required
-                  placeholder="rohan@copperchimney.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="tm-auth-input"
-                />
-              </div>
-            </div>
-
-            <div className="tm-auth-field">
-              <label className="tm-auth-label">Password * (min 6 characters)</label>
-              <div className="tm-auth-input-wrapper">
-                <Lock size={17} className="tm-auth-input-icon" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="Create a secure password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="tm-auth-input"
-                  style={{ paddingRight: '42px' }}
-                />
-                <button
-                  type="button"
-                  className="tm-auth-eye-btn"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                </button>
-              </div>
-            </div>
-
+        <div>
+          <div className="tm-label-row">
+            <label htmlFor="reg-password" className="tm-label">Password *</label>
+            <span className="tm-label-hint">Min 6 characters</span>
+          </div>
+          <div className="tm-input-wrap">
+            <Lock size={17} className="tm-input-icon" />
+            <input
+              id="reg-password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              autoComplete="new-password"
+              placeholder="Create a secure password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="tm-input has-icon has-action"
+            />
             <button
-              type="submit"
-              disabled={loading}
-              className="tm-auth-btn-primary"
+              type="button"
+              className="tm-input-action"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              <span>{loading ? 'Setting up workspace...' : 'Create Account & Launch POS'}</span>
-              <ArrowRight size={16} />
+              {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
-          </form>
-
-          <div className="tm-auth-footer-link">
-            Already have an account? <Link to="/login">Sign In</Link>
           </div>
         </div>
-      </motion.div>
-    </div>
+
+        <button type="submit" disabled={loading} className="tm-btn tm-btn-primary tm-btn-lg tm-btn-block">
+          <span>{loading ? 'Setting up workspace...' : 'Create Account & Launch POS'}</span>
+          <ArrowRight size={16} />
+        </button>
+      </form>
+
+      <p className="tm-auth-switch">
+        Already have an account? <Link to="/login" style={{ textDecoration: 'none' }}>Sign In</Link>
+      </p>
+    </AuthShell>
   );
 }

@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const siftLib = require('sift');
+const sift = siftLib.default || siftLib;
+
+// Prevent mongoose from buffering operations indefinitely when disconnected
+mongoose.set('bufferCommands', false);
 
 const CANONICAL_MENU_FILE = path.join(__dirname, 'data', 'canonical_menu.json');
 
@@ -300,25 +305,319 @@ const AuditLogSchema = new mongoose.Schema(
 
 AuditLogSchema.index({ restaurantSlug: 1, createdAt: -1 });
 
-// Model instantiations
-const CategoryModel = mongoose.models.Category || mongoose.model('Category', CategorySchema);
-const OrderModel = mongoose.models.Order || mongoose.model('Order', OrderSchema);
-const TableModel = mongoose.models.Table || mongoose.model('Table', TableSchema);
-const MenuItemModel = mongoose.models.MenuItem || mongoose.model('MenuItem', MenuItemSchema);
-const SettingModel = mongoose.models.Setting || mongoose.model('Setting', SettingSchema);
-const UserModel = mongoose.models.User || mongoose.model('User', UserSchema);
-const AuditLogModel = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
+// Local JSON Storage Engine for Offline / Local File Storage Mode
+class LocalStore {
+  constructor(name, filePath, defaultData = []) {
+    this.name = name;
+    this.filePath = filePath;
+    this.defaultData = defaultData;
+    this.items = [];
+    this.load();
+  }
+
+  load() {
+    try {
+      if (fs.existsSync(this.filePath)) {
+        const raw = fs.readFileSync(this.filePath, 'utf8');
+        const parsed = JSON.parse(raw);
+        this.items = Array.isArray(parsed) ? parsed : [parsed];
+      } else {
+        this.items = JSON.parse(JSON.stringify(this.defaultData));
+        this.save();
+      }
+    } catch (e) {
+      console.warn(`[LocalStore ${this.name}] Failed to load, using default:`, e.message);
+      this.items = JSON.parse(JSON.stringify(this.defaultData));
+    }
+  }
+
+  save() {
+    try {
+      const dir = path.dirname(this.filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      const tempPath = `${this.filePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tempPath, JSON.stringify(this.items, null, 2), 'utf8');
+      fs.renameSync(tempPath, this.filePath);
+    } catch (e) {
+      console.error(`[LocalStore ${this.name}] Failed to write file:`, e.message);
+    }
+  }
+
+  _clone(doc) {
+    return doc ? JSON.parse(JSON.stringify(doc)) : doc;
+  }
+
+  _sortItems(items, sortObj) {
+    if (!sortObj || typeof sortObj !== 'object') return items;
+    return items.sort((a, b) => {
+      for (const [key, dir] of Object.entries(sortObj)) {
+        const valA = a[key];
+        const valB = b[key];
+        if (valA === valB) continue;
+        if (valA === undefined || valA === null) return 1;
+        if (valB === undefined || valB === null) return -1;
+        const comp = valA > valB ? 1 : -1;
+        return dir === -1 || dir === 'desc' ? -comp : comp;
+      }
+      return 0;
+    });
+  }
+
+  find(filter = {}) {
+    const matcher = sift(filter || {});
+    let result = this.items.filter(matcher);
+
+    const query = {
+      _sort: null,
+      _skip: 0,
+      _limit: null,
+      sort: (s) => { query._sort = s; return query; },
+      skip: (n) => { query._skip = n; return query; },
+      limit: (n) => { query._limit = n; return query; },
+      select: () => query,
+      lean: () => query.exec(),
+      exec: async () => {
+        let docs = [...result];
+        if (query._sort) docs = this._sortItems(docs, query._sort);
+        if (query._skip) docs = docs.slice(query._skip);
+        if (query._limit) docs = docs.slice(0, query._limit);
+        return this._clone(docs);
+      },
+      then: (resolve, reject) => query.exec().then(resolve, reject)
+    };
+    return query;
+  }
+
+  findOne(filter = {}) {
+    const matcher = sift(filter || {});
+    let result = this.items.filter(matcher);
+
+    const query = {
+      _sort: null,
+      sort: (s) => { query._sort = s; return query; },
+      select: () => query,
+      lean: () => query.exec(),
+      exec: async () => {
+        let docs = [...result];
+        if (query._sort) docs = this._sortItems(docs, query._sort);
+        return docs.length > 0 ? this._clone(docs[0]) : null;
+      },
+      then: (resolve, reject) => query.exec().then(resolve, reject)
+    };
+    return query;
+  }
+
+  findOneAndUpdate(filter = {}, update = {}, options = {}) {
+    const matcher = sift(filter || {});
+    const idx = this.items.findIndex(matcher);
+
+    let doc;
+    if (idx >= 0) {
+      const existing = this.items[idx];
+      const updates = update.$set ? { ...update.$set } : { ...update };
+      delete updates.$set;
+      doc = { ...existing, ...updates, updatedAt: updates.updatedAt || new Date().toISOString() };
+      this.items[idx] = doc;
+      this.save();
+    } else if (options && options.upsert) {
+      const updates = update.$set ? { ...update.$set } : { ...update };
+      delete updates.$set;
+      doc = {
+        _id: 'local_' + crypto.randomBytes(8).toString('hex'),
+        ...filter,
+        ...updates,
+        createdAt: updates.createdAt || new Date().toISOString(),
+        updatedAt: updates.updatedAt || new Date().toISOString()
+      };
+      this.items.push(doc);
+      this.save();
+    } else {
+      doc = null;
+    }
+
+    const cloned = this._clone(doc);
+    return {
+      lean: async () => cloned,
+      exec: async () => cloned,
+      then: (resolve, reject) => Promise.resolve(cloned).then(resolve, reject)
+    };
+  }
+
+  async updateOne(filter = {}, update = {}) {
+    const matcher = sift(filter || {});
+    const idx = this.items.findIndex(matcher);
+    if (idx >= 0) {
+      const existing = this.items[idx];
+      const updates = update.$set ? { ...update.$set } : { ...update };
+      delete updates.$set;
+      this.items[idx] = { ...existing, ...updates, updatedAt: updates.updatedAt || new Date().toISOString() };
+      this.save();
+      return { acknowledged: true, modifiedCount: 1, matchedCount: 1 };
+    }
+    return { acknowledged: true, modifiedCount: 0, matchedCount: 0 };
+  }
+
+  async updateMany(filter = {}, update = {}) {
+    const matcher = sift(filter || {});
+    let modifiedCount = 0;
+    const updates = update.$set ? { ...update.$set } : { ...update };
+    delete updates.$set;
+    for (let i = 0; i < this.items.length; i++) {
+      if (matcher(this.items[i])) {
+        this.items[i] = { ...this.items[i], ...updates, updatedAt: updates.updatedAt || new Date().toISOString() };
+        modifiedCount++;
+      }
+    }
+    if (modifiedCount > 0) this.save();
+    return { acknowledged: true, modifiedCount, matchedCount: modifiedCount };
+  }
+
+  async create(docOrDocs) {
+    if (Array.isArray(docOrDocs)) {
+      return this.insertMany(docOrDocs);
+    }
+    const doc = {
+      _id: docOrDocs._id || ('local_' + crypto.randomBytes(8).toString('hex')),
+      ...docOrDocs,
+      createdAt: docOrDocs.createdAt || new Date().toISOString(),
+      updatedAt: docOrDocs.updatedAt || new Date().toISOString()
+    };
+    this.items.push(doc);
+    this.save();
+    const cloned = this._clone(doc);
+    cloned.toObject = () => ({ ...cloned });
+    return cloned;
+  }
+
+  async insertMany(docs = []) {
+    const inserted = docs.map(d => ({
+      _id: d._id || ('local_' + crypto.randomBytes(8).toString('hex')),
+      ...d,
+      createdAt: d.createdAt || new Date().toISOString(),
+      updatedAt: d.updatedAt || new Date().toISOString()
+    }));
+    this.items.push(...inserted);
+    this.save();
+    return this._clone(inserted);
+  }
+
+  async deleteOne(filter = {}) {
+    const matcher = sift(filter || {});
+    const idx = this.items.findIndex(matcher);
+    if (idx >= 0) {
+      this.items.splice(idx, 1);
+      this.save();
+      return { acknowledged: true, deletedCount: 1 };
+    }
+    return { acknowledged: true, deletedCount: 0 };
+  }
+
+  async deleteMany(filter = {}) {
+    const matcher = sift(filter || {});
+    const initialLen = this.items.length;
+    this.items = this.items.filter(item => !matcher(item));
+    const deletedCount = initialLen - this.items.length;
+    if (deletedCount > 0) this.save();
+    return { acknowledged: true, deletedCount };
+  }
+
+  async countDocuments(filter = {}) {
+    const matcher = sift(filter || {});
+    return this.items.filter(matcher).length;
+  }
+
+  async bulkWrite(ops = []) {
+    let modified = 0;
+    for (const op of ops) {
+      if (op.updateOne) {
+        const { filter, update, upsert } = op.updateOne;
+        await this.findOneAndUpdate(filter, update, { upsert });
+        modified++;
+      } else if (op.deleteOne) {
+        await this.deleteOne(op.deleteOne.filter);
+        modified++;
+      }
+    }
+    return { ok: 1, nModified: modified };
+  }
+
+  async syncIndexes() {
+    return true;
+  }
+
+  async aggregate(pipeline = []) {
+    let result = [...this.items];
+    for (const stage of pipeline) {
+      if (stage.$match) {
+        const matcher = sift(stage.$match);
+        result = result.filter(matcher);
+      } else if (stage.$group) {
+        const totalRev = result.reduce((sum, o) => sum + (o.paid ? (Number(o.total) || 0) : 0), 0);
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayISO = todayStart.toISOString();
+        const todaySales = result.reduce((sum, o) => {
+          if (o.paid && o.createdAt >= todayISO) return sum + (Number(o.total) || 0);
+          return sum;
+        }, 0);
+        return [{ totalRevenue: totalRev, todaySales: todaySales }];
+      }
+    }
+    return result;
+  }
+}
+
+// Model instantiations (Raw Mongoose)
+const rawCategoryModel = mongoose.models.Category || mongoose.model('Category', CategorySchema);
+const rawOrderModel = mongoose.models.Order || mongoose.model('Order', OrderSchema);
+const rawTableModel = mongoose.models.Table || mongoose.model('Table', TableSchema);
+const rawMenuItemModel = mongoose.models.MenuItem || mongoose.model('MenuItem', MenuItemSchema);
+const rawSettingModel = mongoose.models.Setting || mongoose.model('Setting', SettingSchema);
+const rawUserModel = mongoose.models.User || mongoose.model('User', UserSchema);
+const rawAuditLogModel = mongoose.models.AuditLog || mongoose.model('AuditLog', AuditLogSchema);
+
+// Local File Storage Instances
+const categoryStore = new LocalStore('Category', path.join(__dirname, 'data', 'categories.json'));
+const orderStore = new LocalStore('Order', path.join(__dirname, 'data', 'orders.json'));
+const tableStore = new LocalStore('Table', path.join(__dirname, 'data', 'tables.json'));
+const menuStore = new LocalStore('MenuItem', path.join(__dirname, 'data', 'menu.json'));
+const settingStore = new LocalStore('Setting', path.join(__dirname, 'data', 'settings.json'), [defaultSettings]);
+const userStore = new LocalStore('User', path.join(__dirname, 'data', 'users.json'));
+const auditLogStore = new LocalStore('AuditLog', path.join(__dirname, 'data', 'audit_logs.json'));
 
 let isConnectedToMongo = false;
+
+function createModelProxy(mongooseModel, localStore) {
+  return new Proxy(mongooseModel, {
+    get(target, prop) {
+      if (!isConnectedToMongo) {
+        if (typeof localStore[prop] === 'function') {
+          return localStore[prop].bind(localStore);
+        }
+        return localStore[prop];
+      }
+      return target[prop];
+    }
+  });
+}
+
+// Proxied Models that seamlessly route to MongoDB Atlas when connected, or LocalStore when offline
+const CategoryModel = createModelProxy(rawCategoryModel, categoryStore);
+const OrderModel = createModelProxy(rawOrderModel, orderStore);
+const TableModel = createModelProxy(rawTableModel, tableStore);
+const MenuItemModel = createModelProxy(rawMenuItemModel, menuStore);
+const SettingModel = createModelProxy(rawSettingModel, settingStore);
+const UserModel = createModelProxy(rawUserModel, userStore);
+const AuditLogModel = createModelProxy(rawAuditLogModel, auditLogStore);
 
 // ----------------- Database Initialization -----------------
 async function initDatabase() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('[FATAL] MONGODB_URI is required in production! Cannot proceed without database.');
-    }
-    console.warn('⚠️  [DB] No MONGODB_URI found. Development fallback mode.');
+    console.log('----------------------------------------------------');
+    console.log('  [DB] Running in High-Speed Local File Storage Mode.');
+    console.log('  [DB] For cloud persistence on Render, set MONGODB_URI in environment.');
+    console.log('----------------------------------------------------');
     isConnectedToMongo = false;
     return false;
   }
@@ -338,21 +637,19 @@ async function initDatabase() {
 
     // Ensure compound indexes are synced in MongoDB
     await Promise.all([
-      CategoryModel.syncIndexes().catch(e => console.warn('[DB] Category indexes sync:', e.message)),
-      OrderModel.syncIndexes().catch(e => console.warn('[DB] Order indexes sync:', e.message)),
-      TableModel.syncIndexes().catch(e => console.warn('[DB] Table indexes sync:', e.message)),
-      MenuItemModel.syncIndexes().catch(e => console.warn('[DB] MenuItem indexes sync:', e.message)),
-      SettingModel.syncIndexes().catch(e => console.warn('[DB] Setting indexes sync:', e.message)),
-      UserModel.syncIndexes().catch(e => console.warn('[DB] User indexes sync:', e.message)),
-      AuditLogModel.syncIndexes().catch(e => console.warn('[DB] AuditLog indexes sync:', e.message))
+      rawCategoryModel.syncIndexes().catch(e => console.warn('[DB] Category indexes sync:', e.message)),
+      rawOrderModel.syncIndexes().catch(e => console.warn('[DB] Order indexes sync:', e.message)),
+      rawTableModel.syncIndexes().catch(e => console.warn('[DB] Table indexes sync:', e.message)),
+      rawMenuItemModel.syncIndexes().catch(e => console.warn('[DB] MenuItem indexes sync:', e.message)),
+      rawSettingModel.syncIndexes().catch(e => console.warn('[DB] Setting indexes sync:', e.message)),
+      rawUserModel.syncIndexes().catch(e => console.warn('[DB] User indexes sync:', e.message)),
+      rawAuditLogModel.syncIndexes().catch(e => console.warn('[DB] AuditLog indexes sync:', e.message))
     ]);
 
     return true;
   } catch (err) {
-    console.error('❌ [FATAL] MongoDB Atlas connection failed:', err.message);
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`Production MongoDB connection failed: ${err.message}`);
-    }
+    console.warn('⚠️  [DB] MongoDB Atlas connection failed:', err.message);
+    console.log('  [DB] Falling back to safe atomic local file storage.');
     isConnectedToMongo = false;
     return false;
   }

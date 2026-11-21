@@ -25,5 +25,33 @@
     "restaurantSlug": "tablemint",
     "role": "admin",
     "salt": "744dcea729de0f3f4c80f3154b2e7906"
+  },
+  {
+    "_id": "6ae481338cf79608565db80e",
+    "id": "user_mahajan",
+    "name": "Kuldeep Mahajan",
+    "email": "mahajankuldeep628@gmail.com",
+    "hash": "e09815415a24814d27575fddea86972c4274a7ec7348f5174480e425458c5ac6bce67bc1001d955f34ea9ab5fb295686fca88c0a1a03ca76df8675c6337b1c75",
+    "salt": "54c71732c621baedf331d599a0ed9bd3",
+    "role": "admin",
+    "restaurantName": "TableMint",
+    "restaurantSlug": "tablemint",
+    "createdAt": "2026-11-20T06:50:00.000Z",
+    "updatedAt": "2026-11-20T06:50:00.000Z",
+    "__v": 0
+  },
+  {
+    "_id": "local_0d40d45720bba364",
+    "id": "user_1795158375497_8da89a",
+    "name": "New Chef",
+    "email": "test_1795158375455@example.com",
+    "hash": "0a9ca8217f95a6a89b42da5f381900660e89c790914c70306527e25f7fb921b5a6c4673c0796ed71a95071392f78b588c4482851ccf8e8590875cdd976b27896",
+    "salt": "f9c830943b9976f0d05fba403d58c495",
+    "role": "admin",
+    "restaurantId": "rest_0116483031f3",
+    "restaurantName": "The Spice Lounge",
+    "restaurantSlug": "the-spice-lounge",
+    "createdAt": "2026-11-20T07:06:15.497Z",
+    "updatedAt": "2026-11-20T07:06:15.498Z"
   }
 ]

@@ -1,17 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Play, 
-  Upload, 
-  Video, 
-  LayoutDashboard, 
-  UtensilsCrossed, 
-  Receipt, 
-  ChefHat, 
-  Smartphone, 
-  CheckCircle, 
-  ArrowRight, 
-  Sparkles, 
+import {
+  Play,
+  Upload,
+  LayoutDashboard,
+  UtensilsCrossed,
+  Receipt,
+  ChefHat,
+  Smartphone,
+  ArrowRight,
   Mail,
   FileVideo
 } from 'lucide-react';
@@ -19,6 +16,83 @@ import { motion, AnimatePresence } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
+import Reveal from '../components/marketing/Reveal';
+import SectionHeader from '../components/marketing/SectionHeader';
+import CheckList from '../components/marketing/CheckList';
+import MediaFrame from '../components/marketing/MediaFrame';
+
+const MODULES = [
+  {
+    id: 'dashboard',
+    label: 'Live Dashboard',
+    icon: LayoutDashboard,
+    title: 'Real-Time Floor & Revenue Command Center',
+    tagline: 'Always know what is happening across your tables and cash desk.',
+    image: '/images/landing/screen_dashboard.jpg',
+    points: [
+      'Live table occupancy counter with Vacant, Seated, and Dining counts',
+      'Gross sales & net revenue pace tracked by the minute',
+      'Recent orders log with table numbers and token status',
+      'Direct quick actions to punch bills, reserve tables, or view KDS'
+    ]
+  },
+  {
+    id: 'tables',
+    label: 'Table Floor Map',
+    icon: UtensilsCrossed,
+    title: 'Interactive Visual Table Grid',
+    tagline: 'Eliminate floor confusion and seat diners faster.',
+    image: '/images/landing/screen_tables.jpg',
+    points: [
+      'Color-coded table indicators: Green (Available), Red (Occupied), Amber (Billed)',
+      'Click any table to open current running order or generate tax invoice',
+      'Add, edit, or reorganize tables with custom capacity limits',
+      'QR stand download and print directly for each table'
+    ]
+  },
+  {
+    id: 'billing',
+    label: 'Express POS Billing',
+    icon: Receipt,
+    title: 'Lightning-Fast Thermal Invoicing & Split Pay',
+    tagline: 'From order punch to settled payment in 3 seconds.',
+    image: '/images/landing/screen_pos_billing.jpg',
+    points: [
+      'Fast-search item catalog with vegetarian/non-veg tags',
+      'Automated CGST/SGST tax computation with restaurant GSTIN',
+      'Dynamic UPI QR code on bill for instant customer scanning',
+      'Split bill evenly among guests or by custom dishes'
+    ]
+  },
+  {
+    id: 'kds',
+    label: 'Kitchen KDS',
+    icon: ChefHat,
+    title: 'Paperless Kitchen Order Routing',
+    tagline: 'Chefs prepare orders with zero lost tickets and precise timers.',
+    image: '/images/landing/hero_pos_mockup.jpg',
+    points: [
+      'Live tickets appear automatically with audio chime alert',
+      'Elapsed cooking timers show if orders exceed target prep time',
+      'Check off cooked items individually as they finish on the stove',
+      'One-click mark order ready to notify waitstaff immediately'
+    ]
+  },
+  {
+    id: 'devices',
+    label: 'Multi-Device Sync',
+    icon: Smartphone,
+    title: 'Zero Hardware Lock-In',
+    tagline: 'Runs on iPads, Android tablets, laptops, and thermal printers.',
+    image: '/images/landing/devices_showcase.jpg',
+    points: [
+      'Captains take orders on iPad Mini or budget Android tablets',
+      'Cashier operates Windows touchscreen or desktop PC',
+      'Chefs view high-contrast KDS on wall-mounted display',
+      'Owners check live restaurant sales from their mobile phones'
+    ]
+  }
+];
 
 export default function DemoPage() {
   const [activeTourTab, setActiveTourTab] = useState('dashboard');
@@ -27,80 +101,7 @@ export default function DemoPage() {
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
 
-  const modules = [
-    {
-      id: 'dashboard',
-      label: 'Live Dashboard',
-      icon: <LayoutDashboard size={18} />,
-      title: 'Real-Time Floor & Revenue Command Center',
-      tagline: 'Always know what is happening across your tables and cash desk.',
-      image: '/images/landing/screen_dashboard.jpg',
-      points: [
-        'Live table occupancy counter with Vacant, Seated, and Dining counts',
-        'Gross sales & net revenue pace tracked by the minute',
-        'Recent orders log with table numbers and token status',
-        'Direct quick actions to punch bills, reserve tables, or view KDS'
-      ]
-    },
-    {
-      id: 'tables',
-      label: 'Table Floor Map',
-      icon: <UtensilsCrossed size={18} />,
-      title: 'Interactive Visual Table Grid',
-      tagline: 'Eliminate floor confusion and seat diners faster.',
-      image: '/images/landing/screen_tables.jpg',
-      points: [
-        'Color-coded table indicators: Green (Available), Red (Occupied), Amber (Billed)',
-        'Click any table to open current running order or generate tax invoice',
-        'Add, edit, or reorganize tables with custom capacity limits',
-        'QR stand download and print directly for each table'
-      ]
-    },
-    {
-      id: 'billing',
-      label: 'Express POS Billing',
-      icon: <Receipt size={18} />,
-      title: 'Lightning-Fast Thermal Invoicing & Split Pay',
-      tagline: 'From order punch to settled payment in 3 seconds.',
-      image: '/images/landing/screen_pos_billing.jpg',
-      points: [
-        'Fast-search item catalog with vegetarian/non-veg tags',
-        'Automated CGST/SGST tax computation with restaurant GSTIN',
-        'Dynamic UPI QR code on bill for instant customer scanning',
-        'Split bill evenly among guests or by custom dishes'
-      ]
-    },
-    {
-      id: 'kds',
-      label: 'Kitchen KDS',
-      icon: <ChefHat size={18} />,
-      title: 'Paperless Kitchen Order Routing',
-      tagline: 'Chefs prepare orders with zero lost tickets and precise timers.',
-      image: '/images/landing/hero_pos_mockup.jpg',
-      points: [
-        'Live tickets appear automatically with audio chime alert',
-        'Elapsed cooking timers show if orders exceed target prep time',
-        'Check off cooked items individually as they finish on the stove',
-        'One-click mark order ready to notify waitstaff immediately'
-      ]
-    },
-    {
-      id: 'devices',
-      label: 'Multi-Device Sync',
-      icon: <Smartphone size={18} />,
-      title: 'Zero Hardware Lock-In',
-      tagline: 'Runs on iPads, Android tablets, laptops, and thermal printers.',
-      image: '/images/landing/devices_showcase.jpg',
-      points: [
-        'Captains take orders on iPad Mini or budget Android tablets',
-        'Cashier operates Windows touchscreen or desktop PC',
-        'Chefs view high-contrast KDS on wall-mounted display',
-        'Owners check live restaurant sales from their mobile phones'
-      ]
-    }
-  ];
-
-  const currentMod = modules.find((m) => m.id === activeTourTab) || modules[0];
+  const currentMod = MODULES.find((m) => m.id === activeTourTab) || MODULES[0];
 
   const handleVideoUpload = (e) => {
     const file = e.target.files?.[0];
@@ -124,7 +125,6 @@ export default function DemoPage() {
 
   return (
     <div className="tm-demo-page">
-      {/* Page Hero */}
       <PageHero
         badge="Video Walkthrough & Live Tour"
         title="Watch TableMint POS in"
@@ -132,15 +132,11 @@ export default function DemoPage() {
         description="Watch our video demo and explore actual application screenshots of the live system. See how orders flow smoothly from table to kitchen to final GST settlement."
         actions={
           <>
-            <button
-              type="button"
-              onClick={scrollToVideo}
-              className="tm-btn tm-btn-primary tm-btn-lg"
-            >
-              <Play size={18} />
+            <button type="button" onClick={scrollToVideo} className="tm-btn tm-btn-primary tm-btn-lg">
+              <Play size={16} />
               <span>Watch Demo Video</span>
             </button>
-            <Link to="/register" className="tm-btn tm-btn-outline-white tm-btn-lg">
+            <Link to="/register" className="tm-btn tm-btn-secondary tm-btn-lg">
               <span>Start 14-Day Free Trial</span>
               <ArrowRight size={16} />
             </Link>
@@ -148,316 +144,114 @@ export default function DemoPage() {
         }
       />
 
-      {/* =========================================================
-          VIDEO SHOWCASE & UPLOAD SECTION
-          ========================================================= */}
-      <section 
-        id="demo-video-section"
-        style={{
-          padding: '80px 24px 70px',
-          background: 'linear-gradient(180deg, #0F172A 0%, #08382b 60%, #F8FAFC 100%)',
-          color: '#FFFFFF'
-        }}
-      >
+      {/* ================= VIDEO ================= */}
+      <section id="demo-video-section" className="tm-band-dark tm-scroll-target">
         <PageContainer maxWidth="1100px">
-          <div style={{ textAlign: 'center', marginBottom: 36 }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '6px 14px',
-              borderRadius: '9999px',
-              background: 'rgba(2, 132, 199, 0.15)',
-              border: '1px solid rgba(2, 132, 199, 0.35)',
-              color: '#0284C7',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              marginBottom: 14
-            }}>
-              <Video size={14} />
-              <span>TableMint Product Video</span>
-            </span>
-
-            <h2 style={{
-              fontSize: 'clamp(1.9rem, 3.5vw, 2.7rem)',
-              fontWeight: 800,
-              color: '#FFFFFF',
-              marginBottom: 12
-            }}>
-              Full System Walkthrough Video
-            </h2>
-
-            <p style={{
-              fontSize: '1.05rem',
-              color: '#cbd5e1',
-              maxWidth: '650px',
-              margin: '0 auto 24px',
-              lineHeight: 1.6
-            }}>
+          <Reveal className="tm-video-head">
+            <span className="tm-eyebrow is-on-dark">TableMint Product Video</span>
+            <h2 className="tm-section-title">Full System Walkthrough Video</h2>
+            <p className="tm-section-subtitle">
               Watch how our staff-friendly POS, live table grid, contactless QR ordering, and paperless kitchen screens work in harmony.
             </p>
+          </Reveal>
 
-            {/* Video Upload Control Action */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept="video/mp4,video/webm,video/ogg,video/quicktime"
-                onChange={handleVideoUpload}
-                style={{ display: 'none' }}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                className="tm-btn"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.12)',
-                  border: '1px solid rgba(255, 255, 255, 0.28)',
-                  color: '#FFFFFF',
-                  padding: '9px 18px',
-                  fontSize: '0.88rem'
-                }}
-              >
-                <Upload size={16} />
-                <span>Upload / Change Video</span>
-              </button>
-
-              {uploadedVideoName && (
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  color: '#0284C7',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                  background: 'rgba(2, 132, 199, 0.15)',
-                  padding: '6px 12px',
-                  borderRadius: '6px'
-                }}>
-                  <FileVideo size={15} />
-                  <span>Loaded: {uploadedVideoName}</span>
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Video Player Frame */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            whileInView={{ opacity: 1, scale: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            style={{
-              background: '#0F172A',
-              borderRadius: '20px',
-              overflow: 'hidden',
-              border: '2px solid rgba(2, 132, 199, 0.35)',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.5), 0 0 35px rgba(2, 132, 199, 0.25)',
-              position: 'relative'
-            }}
-          >
+          <Reveal delay={0.08} className="tm-video-frame">
             <video
               ref={videoRef}
               controls
               playsInline
               preload="metadata"
               poster="/images/landing/hero_pos_mockup.jpg"
-              style={{
-                width: '100%',
-                maxHeight: '620px',
-                display: 'block',
-                background: '#0F172A'
-              }}
             >
               <source src={videoSrc} type="video/mp4" />
               Your browser does not support HTML5 video. Please try updating your browser.
             </video>
-          </motion.div>
+          </Reveal>
 
-          <div style={{
-            textAlign: 'center',
-            marginTop: 18,
-            fontSize: '0.84rem',
-            color: '#64748B'
-          }}>
-            Tip: You can upload your own custom video recording using the "Upload / Change Video" button, or place it at <code>frontend/public/videos/demo.mp4</code>.
+          <div className="tm-video-tools">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="video/mp4,video/webm,video/ogg,video/quicktime"
+              onChange={handleVideoUpload}
+              hidden
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              className="tm-btn tm-btn-outline-white tm-btn-sm"
+            >
+              <Upload size={15} />
+              <span>Upload / Change Video</span>
+            </button>
+
+            {uploadedVideoName && (
+              <span className="tm-file-chip">
+                <FileVideo size={14} />
+                <span>Loaded: {uploadedVideoName}</span>
+              </span>
+            )}
           </div>
+
+          <p className="tm-video-tip">
+            Tip: You can upload your own custom video recording using the "Upload / Change Video" button, or place it at <code>frontend/public/videos/demo.mp4</code>.
+          </p>
         </PageContainer>
       </section>
 
-      {/* =========================================================
-          MODULE SCREENSHOT TOUR
-          ========================================================= */}
-      <section style={{ padding: '80px 24px 90px', background: '#F8FAFC' }}>
+      {/* ================= MODULE TOUR ================= */}
+      <section className="tm-section">
         <PageContainer>
-          <div className="tm-section-header">
-            <span className="tm-section-badge">
-              <Sparkles size={14} />
-              <span>Real System Screenshots</span>
-            </span>
-            <h2 className="tm-section-title">
-              Tour the Live TableMint Modules
-            </h2>
-            <p className="tm-section-subtitle">
-              Inspect actual screenshots from each module of our cloud restaurant operating system.
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Real System Screenshots"
+            title="Tour the Live TableMint Modules"
+            subtitle="Inspect actual screenshots from each module of our cloud restaurant operating system."
+          />
 
-          {/* Module Tab Selector */}
-          <div className="tm-demo-tabs-bar" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 10,
-            flexWrap: 'wrap',
-            marginBottom: 44
-          }}>
-            {modules.map((m) => (
-              <motion.button
-                key={m.id}
+          <div className="tm-tabs" role="tablist" aria-label="TableMint modules">
+            {MODULES.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
                 type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setActiveTourTab(m.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '11px 22px',
-                  borderRadius: '9999px',
-                  border: 'none',
-                  fontSize: '0.92rem',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  background: activeTourTab === m.id ? '#0F172A' : '#FFFFFF',
-                  color: activeTourTab === m.id ? '#0284C7' : '#64748B',
-                  boxShadow: activeTourTab === m.id ? '0 4px 15px rgba(15, 23, 42, 0.2)' : '0 2px 6px rgba(0,0,0,0.04)',
-                  transition: 'all 0.2s ease'
-                }}
+                role="tab"
+                id={`tm-tab-${id}`}
+                aria-selected={activeTourTab === id}
+                aria-controls="tm-tour-panel"
+                className={`tm-tab ${activeTourTab === id ? 'is-active' : ''}`}
+                onClick={() => setActiveTourTab(id)}
               >
-                {m.icon}
-                <span>{m.label}</span>
-              </motion.button>
+                <Icon size={16} />
+                <span>{label}</span>
+              </button>
             ))}
           </div>
 
-          {/* Module Showcase Card */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTourTab}
-              initial={{ opacity: 0, y: 15 }}
+              id="tm-tour-panel"
+              role="tabpanel"
+              aria-labelledby={`tm-tab-${activeTourTab}`}
+              className="tm-tour-panel"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="tm-demo-module-card"
-              style={{
-                background: '#FFFFFF',
-                borderRadius: '24px',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 12px 40px rgba(15, 23, 42, 0.08)',
-                padding: 'clamp(20px, 4vw, 48px)',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-                gap: 36,
-                alignItems: 'center'
-              }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
             >
-              {/* Screenshot */}
-              <motion.div 
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-                style={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 16px 36px rgba(0, 0, 0, 0.1)',
-                  background: '#0F172A',
-                  position: 'relative'
-                }}
-              >
-                <span style={{
-                  position: 'absolute',
-                  top: 14,
-                  left: 14,
-                  background: 'rgba(15, 23, 42, 0.9)',
-                  color: '#0284C7',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '4px 12px',
-                  borderRadius: '9999px',
-                  border: '1px solid rgba(2, 132, 199, 0.3)',
-                  zIndex: 2
-                }}>
-                  Live System Screen
-                </span>
-                <img 
-                  src={currentMod.image} 
-                  alt={currentMod.title}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    display: 'block',
-                    maxHeight: '440px',
-                    objectFit: 'cover'
-                  }}
-                />
-              </motion.div>
+              <MediaFrame src={currentMod.image} alt={currentMod.title} tag="Live System Screen" loading="eager" />
 
-              {/* Content & Details */}
               <div>
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'rgba(2, 132, 199, 0.1)',
-                  color: '#0284C7',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  padding: '4px 12px',
-                  borderRadius: '9999px',
-                  marginBottom: 14
-                }}>
-                  <span>Module Tour: {currentMod.label}</span>
-                </div>
-
-                <h3 style={{
-                  fontSize: 'clamp(1.6rem, 3vw, 2.2rem)',
-                  fontWeight: 800,
-                  color: '#0F172A',
-                  lineHeight: 1.25,
-                  marginBottom: 10
-                }}>
-                  {currentMod.title}
-                </h3>
-
-                <p style={{
-                  fontSize: '1.05rem',
-                  color: '#0F172A',
-                  fontWeight: 600,
-                  marginBottom: 20
-                }}>
-                  {currentMod.tagline}
-                </p>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 32 }}>
-                  {currentMod.points.map((pt, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: '0.94rem', color: '#0F172A' }}>
-                      <CheckCircle size={17} style={{ color: '#0284C7', flexShrink: 0, marginTop: 2 }} />
-                      <span>{pt}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                <span className="tm-eyebrow">Module Tour: {currentMod.label}</span>
+                <h3 className="tm-module-title">{currentMod.title}</h3>
+                <p className="tm-module-headline">{currentMod.tagline}</p>
+                <CheckList items={currentMod.points} />
+                <div className="tm-actions is-inline">
                   <Link to="/register" className="tm-btn tm-btn-primary">
                     <span>Start 14-Day Free Trial</span>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </Link>
                   <Link to="/contact" className="tm-btn tm-btn-secondary">
-                    <Mail size={16} />
+                    <Mail size={15} />
                     <span>Email Us With Questions</span>
                   </Link>
                 </div>
@@ -467,7 +261,6 @@ export default function DemoPage() {
         </PageContainer>
       </section>
 
-      {/* Final CTA */}
       <CTASection
         title="Ready to Test Drive TableMint Yourself?"
         subtitle="Create your restaurant workspace in 60 seconds with no credit card required and experience the platform right now."

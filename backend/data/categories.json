@@ -1,0 +1,74 @@
+[
+  {
+    "id": "cat_starters",
+    "restaurantSlug": "tablemint",
+    "name": "Starters",
+    "description": "Appetizers and quick bites",
+    "displayOrder": 1,
+    "isActive": true
+  },
+  {
+    "id": "cat_main_course",
+    "restaurantSlug": "tablemint",
+    "name": "Main Course",
+    "description": "Hearty main courses",
+    "displayOrder": 2,
+    "isActive": true
+  },
+  {
+    "id": "cat_north_indian",
+    "restaurantSlug": "tablemint",
+    "name": "North Indian",
+    "description": "Authentic North Indian dishes",
+    "displayOrder": 3,
+    "isActive": true
+  },
+  {
+    "id": "cat_tandoori",
+    "restaurantSlug": "tablemint",
+    "name": "Tandoori",
+    "description": "Clay oven specialties",
+    "displayOrder": 4,
+    "isActive": true
+  },
+  {
+    "id": "cat_chinese",
+    "restaurantSlug": "tablemint",
+    "name": "Chinese",
+    "description": "Asian and Indo-Chinese favorites",
+    "displayOrder": 5,
+    "isActive": true
+  },
+  {
+    "id": "cat_soup",
+    "restaurantSlug": "tablemint",
+    "name": "Soups",
+    "description": "Warm comforting soups",
+    "displayOrder": 6,
+    "isActive": true
+  },
+  {
+    "id": "cat_snacks",
+    "restaurantSlug": "tablemint",
+    "name": "Snacks",
+    "description": "Crispy snacks",
+    "displayOrder": 7,
+    "isActive": true
+  },
+  {
+    "id": "cat_beverages",
+    "restaurantSlug": "tablemint",
+    "name": "Beverages",
+    "description": "Juices and milkshakes",
+    "displayOrder": 8,
+    "isActive": true
+  },
+  {
+    "id": "cat_desserts",
+    "restaurantSlug": "tablemint",
+    "name": "Desserts",
+    "description": "Ice cream and sweets",
+    "displayOrder": 9,
+    "isActive": true
+  }
+]
