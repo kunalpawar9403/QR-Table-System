@@ -230,7 +230,6 @@ export default function FeaturesPage() {
                       View Pricing
                     </Link>
                   </div>
-                  </div>
                 </Reveal>
 
                 <Reveal delay={0.08} className="tm-module-media">
