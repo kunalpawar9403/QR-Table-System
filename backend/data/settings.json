@@ -67,5 +67,38 @@
     "sessionTimeoutHours": 3,
     "restaurantSlug": "raj-times",
     "updatedAt": "2026-10-30T10:26:05.971Z"
+  },
+  {
+    "_id": "local_4584b395770835d3",
+    "restaurantSlug": "the-spice-lounge",
+    "restaurantName": "The Spice Lounge",
+    "tagline": "Smart QR Dining & POS",
+    "phone": "+91 98765 43210",
+    "email": "test_1795158375455@example.com",
+    "address": "Dining Hall & Kitchen",
+    "currency": "₹",
+    "taxRate": 5,
+    "serviceCharge": 0,
+    "upiId": "tablemint@upi",
+    "upiPayeeName": "TableMint Restaurant",
+    "upiQrEnabled": true,
+    "acceptedPaymentMethods": [
+      "UPI",
+      "Cash",
+      "Card"
+    ],
+    "soundAlerts": true,
+    "autoAcceptOrders": false,
+    "sessionTimeoutHours": 3,
+    "subscriptionPlan": "starter",
+    "planLimits": {
+      "maxTables": 50,
+      "maxMenuItems": 500,
+      "maxStaff": 20,
+      "advancedReports": true
+    },
+    "updatedAt": "2026-11-20T07:06:15.508Z",
+    "createdAt": "2026-11-20T07:06:15.504Z",
+    "restaurantId": "rest_0116483031f3"
   }
 ]

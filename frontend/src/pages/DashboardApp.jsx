@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Home,
@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Bell,
+  Flame,
   Volume2,
   VolumeX,
   Lock,
@@ -66,6 +67,7 @@ import OnboardingProgressBanner from '../components/menu/OnboardingProgressBanne
 import { formatApiUrl, getCustomerWebBaseUrl } from '../utils/apiConfig';
 import { generateTableQrDataUrl, getTableScanUrl, generateQrDataUrl } from '../utils/qrHelper';
 import '../styles/dashboard.css';
+import '../styles/dashboard-premium.css';
 
 /* =========================================================
    REUSABLE SECTION PAGINATION COMPONENT
@@ -297,6 +299,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   // Section Pagination States
   const [menuPage, setMenuPage] = useState(1);
   const [menuCategoryFilter, setMenuCategoryFilter] = useState('all');
+  const [menuDietFilter, setMenuDietFilter] = useState('all'); // 'all' | 'veg' | 'non-veg'
   const menuPerPage = 8;
 
   const [standsPage, setStandsPage] = useState(1);
@@ -362,10 +365,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     });
   }, [viewQrTable, currentUser?.restaurantSlug, settingsForm?.restaurantSlug]);
 
-  // Reset menu page when search or category filter changes
+  // Reset menu page when search, category, or diet filter changes
   useEffect(() => {
     setMenuPage(1);
-  }, [menuSearch, menuCategoryFilter]);
+  }, [menuSearch, menuCategoryFilter, menuDietFilter]);
 
   // Live Helper Functions for Real Data & Cross-Panel Sync
   const getTableActiveOrders = (tblId) => {
@@ -1220,17 +1223,76 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   ).length;
   const avgTicket = orders.length > 0 ? Math.round(totalRevenue / orders.length) : 328;
 
-  const activeMenuCategories = [
-    'all',
-    ...Array.from(new Set([
-      ...categories.map(c => c.name),
-      ...menu.map((m) => m.category).filter(Boolean)
-    ]))
-  ];
+  const normalizeCatKey = (str) => (str || '').toString().trim().toLowerCase().replace(/[\s_]+/g, '-');
+
+  const formatCategoryLabel = (raw) => {
+    if (!raw || raw === 'all') return 'All Items';
+    const matched = (categories || []).find(c =>
+      normalizeCatKey(c.name) === normalizeCatKey(raw) ||
+      normalizeCatKey(c.id?.replace('cat_', '')) === normalizeCatKey(raw)
+    );
+    if (matched && matched.name) return matched.name;
+    return raw
+      .toString()
+      .split(/[-_]+/)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  };
+
+  const menuCategoryList = useMemo(() => {
+    const map = new Map();
+    // Default All Items
+    map.set('all', {
+      key: 'all',
+      label: 'All Items',
+      count: (menu || []).length
+    });
+
+    // Seed official categories
+    (categories || []).forEach(cat => {
+      if (cat && cat.name) {
+        const key = normalizeCatKey(cat.name);
+        map.set(key, {
+          key,
+          label: cat.name,
+          count: 0
+        });
+      }
+    });
+
+    // Tally item counts and include any dish categories
+    (menu || []).forEach(item => {
+      if (!item || !item.category) return;
+      const key = normalizeCatKey(item.category);
+      if (map.has(key)) {
+        map.get(key).count += 1;
+      } else {
+        map.set(key, {
+          key,
+          label: formatCategoryLabel(item.category),
+          count: 1
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [categories, menu]);
+
+  // Backward compatible list for any legacy code
+  const activeMenuCategories = menuCategoryList.map(c => c.key);
 
   // Filter Menu
-  const filteredMenu = menu.filter((d) => {
-    if (menuCategoryFilter !== 'all' && d.category !== menuCategoryFilter) {
+  const filteredMenu = (menu || []).filter((d) => {
+    if (menuCategoryFilter !== 'all') {
+      const dishCatKey = normalizeCatKey(d.category);
+      if (dishCatKey !== menuCategoryFilter) {
+        return false;
+      }
+    }
+    if (menuDietFilter === 'veg' && !d.isVeg) {
+      return false;
+    }
+    if (menuDietFilter === 'non-veg' && d.isVeg) {
       return false;
     }
     if (menuSearch.trim()) {
@@ -1394,23 +1456,6 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
             </button>
           </nav>
-        </div>
-
-        {/* Sidebar Bottom Sync & Profile Card */}
-        <div
-          className="sidebar-bottom-status"
-          onClick={() => setActiveTab('profile')}
-          style={{ cursor: 'pointer' }}
-          title="Open Profile & Operations Account"
-        >
-          <div className="status-card-left">
-            <span className="status-dot-green" />
-            <div>
-              <div className="status-card-title">{currentUser?.name || 'Live Sync Active'}</div>
-              <div className="status-card-sub">{currentUser ? (currentUser.role === 'admin' ? 'Owner / Admin' : 'Floor Staff') : 'All systems connected'}</div>
-            </div>
-          </div>
-          <ChevronRight size={16} style={{ color: 'rgba(255, 255, 255, 0.65)' }} />
         </div>
       </aside>
 
@@ -2483,296 +2528,402 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
         )}
 
         {/* ========================================================
-            TAB: KITCHEN DISPLAY SYSTEM (MATCHING REFERENCE IMAGE 1 PANEL 5)
+            TAB: KITCHEN DISPLAY SYSTEM (SMART KANBAN & FEED)
             ======================================================== */}
-        {activeTab === 'kitchen' && (
-          <section className="admin-page-container">
-            <div className="page-header-row">
-              <div>
-                <h2 className="page-title">Kitchen Display System (KDS)</h2>
-                <p className="page-subtitle">Live kitchen orders with status and preparation timers</p>
-              </div>
-              <div className="page-header-actions">
-                <button className="btn-brand-outline">
-                  <ChefHat size={15} /> Kitchen ▾
-                </button>
-              </div>
-            </div>
+        {activeTab === 'kitchen' && (() => {
+          const kdsPending = orders.filter(o => o.status === 'pending');
+          const kdsPreparing = orders.filter(o => o.status === 'preparing');
+          const kdsReady = orders.filter(o => o.status === 'ready');
+          const kdsServed = orders.filter(o => o.status === 'served');
+          const activeKitchenCount = kdsPending.length + kdsPreparing.length + kdsReady.length;
 
-            {/* Screen 7: Mobile Kitchen Display Filter Pills (Reference Image Screen 7) */}
-            <div className="admin-filter-pills-row hide-on-desktop">
-              {[
-                { id: 'pending', label: 'Pending', count: orders.filter(o => o.status === 'pending').length },
-                { id: 'preparing', label: 'Preparing', count: orders.filter(o => o.status === 'preparing').length },
-                { id: 'ready', label: 'Ready', count: orders.filter(o => o.status === 'ready').length },
-                { id: 'served', label: 'Served', count: orders.filter(o => o.status === 'served').length }
-              ].map((p) => (
-                <button
-                  key={p.id}
-                  className={`admin-filter-pill ${kitchenStatusFilter === p.id ? 'active' : ''}`}
-                  onClick={() => setKitchenStatusFilter(p.id)}
-                >
-                  {p.label} ({p.count})
-                </button>
-              ))}
-            </div>
+          return (
+            <section className="admin-page-container">
+              {/* Header with Title */}
+              <div className="page-header-row kds-page-header-row">
+                <div>
+                  <h2 className="page-title">Kitchen Display System (KDS)</h2>
+                  <p className="page-subtitle">Live kitchen orders with status and preparation timers</p>
+                </div>
+              </div>
 
-            {/* Screen 7: Mobile Kitchen Display Tickets List */}
-            <div className="mobile-kds-cards-list hide-on-desktop">
-              {orders
-                .filter((t) => {
-                  if (kitchenStatusFilter === 'pending') return ['pending', 'preparing'].includes(t.status);
-                  return t.status === kitchenStatusFilter;
-                })
-                .map((ticket) => (
-                  <div key={ticket.id} className="mobile-kds-card">
-                    <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                      <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>
-                        #{ticket.orderNumber || ticket.id.replace('ORD-', '')}
-                      </span>
-                      <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#0369A1', fontWeight: 700 }}>
-                        {formatElapsed(ticket.createdAt)}
-                      </span>
+              {/* Top Overview Metrics Ribbon */}
+              <div className="kds-metrics-ribbon hide-on-mobile">
+                <div className="kds-metric-card total">
+                  <div className="kds-metric-icon-wrap total">
+                    <Flame size={18} />
+                  </div>
+                  <div>
+                    <div className="kds-metric-val">{activeKitchenCount}</div>
+                    <div className="kds-metric-lbl">Active in Kitchen</div>
+                  </div>
+                </div>
+
+                <div className="kds-metric-card pending">
+                  <div className="kds-metric-icon-wrap pending">
+                    <Clock size={18} />
+                  </div>
+                  <div>
+                    <div className="kds-metric-val">{kdsPending.length}</div>
+                    <div className="kds-metric-lbl">Pending Orders</div>
+                  </div>
+                </div>
+
+                <div className="kds-metric-card preparing">
+                  <div className="kds-metric-icon-wrap preparing">
+                    <ChefHat size={18} />
+                  </div>
+                  <div>
+                    <div className="kds-metric-val">{kdsPreparing.length}</div>
+                    <div className="kds-metric-lbl">Cooking Now</div>
+                  </div>
+                </div>
+
+                <div className="kds-metric-card ready">
+                  <div className="kds-metric-icon-wrap ready">
+                    <CheckCircle size={18} />
+                  </div>
+                  <div>
+                    <div className="kds-metric-val">{kdsReady.length}</div>
+                    <div className="kds-metric-lbl">Ready for Pickup</div>
+                  </div>
+                </div>
+
+                <div className="kds-metric-card served">
+                  <div className="kds-metric-icon-wrap served">
+                    <UtensilsCrossed size={18} />
+                  </div>
+                  <div>
+                    <div className="kds-metric-val">{kdsServed.length}</div>
+                    <div className="kds-metric-lbl">Served Recently</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Screen 7: Mobile Kitchen Display Filter Pills */}
+              <div className="admin-filter-pills-row hide-on-desktop">
+                {[
+                  { id: 'pending', label: 'Pending', count: kdsPending.length },
+                  { id: 'preparing', label: 'Preparing', count: kdsPreparing.length },
+                  { id: 'ready', label: 'Ready', count: kdsReady.length },
+                  { id: 'served', label: 'Served', count: kdsServed.length }
+                ].map((p) => (
+                  <button
+                    key={p.id}
+                    className={`admin-filter-pill ${kitchenStatusFilter === p.id ? 'active' : ''}`}
+                    onClick={() => setKitchenStatusFilter(p.id)}
+                  >
+                    {p.label} ({p.count})
+                  </button>
+                ))}
+              </div>
+
+              {/* Screen 7: Mobile Kitchen Display Tickets List */}
+              <div className="mobile-kds-cards-list hide-on-desktop">
+                {orders
+                  .filter((t) => {
+                    if (kitchenStatusFilter === 'pending') return ['pending', 'preparing'].includes(t.status);
+                    return t.status === kitchenStatusFilter;
+                  })
+                  .map((ticket) => (
+                    <div key={ticket.id} className="mobile-kds-card">
+                      <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                        <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>
+                          #{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}
+                        </span>
+                        <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#0369A1', fontWeight: 700 }}>
+                          {formatElapsed(ticket.createdAt)}
+                        </span>
+                      </div>
+                      <div className="kds-order-table" style={{ fontWeight: 700, fontSize: '0.86rem', color: '#475569', marginBottom: 8 }}>
+                        {ticket.tableName || `Table ${ticket.tableId}`}
+                      </div>
+                      <div className="kds-order-items" style={{ fontSize: '0.82rem', color: '#1e293b', background: '#f8fafc', padding: '8px 10px', borderRadius: 8, marginBottom: 12 }}>
+                        {(ticket.items || []).map((it, idx) => (
+                          <div key={idx} style={{ padding: '2px 0' }}>• {it.quantity} x {it.name}</div>
+                        ))}
+                      </div>
+                      {ticket.status === 'pending' ? (
+                        <button
+                          className="kds-btn-action pending"
+                          style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
+                        >
+                          ▶ Start Cooking
+                        </button>
+                      ) : ticket.status === 'preparing' ? (
+                        <button
+                          className="kds-btn-action preparing"
+                          style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
+                        >
+                          ✓ Ready for Pickup
+                        </button>
+                      ) : ticket.status === 'ready' ? (
+                        <button
+                          className="kds-btn-action ready"
+                          style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
+                        >
+                          🍽️ Mark as Served
+                        </button>
+                      ) : (
+                        <div style={{ textAlign: 'center', color: '#0284C7', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
+                          ✓ Order Served
+                        </div>
+                      )}
                     </div>
-                    <div className="kds-order-table" style={{ fontWeight: 700, fontSize: '0.86rem', color: '#475569', marginBottom: 8 }}>
-                      {ticket.tableName}
+                  ))}
+                {orders.filter(t => ['pending', 'preparing', 'ready', 'served'].includes(t.status)).length === 0 && (
+                  <div style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
+                    No active kitchen orders
+                  </div>
+                )}
+              </div>
+
+              {/* 4 Swimlane Columns for Desktop */}
+              <div className="kds-four-col-grid hide-on-mobile">
+                {/* Column 1: Pending */}
+                <div className="kds-column-lane">
+                  <div className="kds-col-header pending">
+                    <div className="kds-col-title-wrap">
+                      <span className="kds-col-dot pending" />
+                      <Clock size={16} />
+                      <span>Pending</span>
                     </div>
-                    <div className="kds-order-items" style={{ fontSize: '0.82rem', color: '#1e293b', background: '#f8fafc', padding: '8px 10px', borderRadius: 8, marginBottom: 12 }}>
-                      {(ticket.items || []).map((it, idx) => (
-                        <div key={idx} style={{ padding: '2px 0' }}>• {it.quantity} x {it.name}</div>
-                      ))}
-                    </div>
-                    {ticket.status === 'pending' ? (
-                      <button
-                        className="kds-btn-action pending"
-                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
-                        onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
-                      >
-                        Start Cooking
-                      </button>
-                    ) : ticket.status === 'preparing' ? (
-                      <button
-                        className="kds-btn-action preparing"
-                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
-                        onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
-                      >
-                        Ready for Pickup
-                      </button>
-                    ) : ticket.status === 'ready' ? (
-                      <button
-                        className="kds-btn-action ready"
-                        style={{ width: '100%', padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: '0.86rem', cursor: 'pointer', border: 'none' }}
-                        onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
-                      >
-                        Mark as Served
-                      </button>
-                    ) : (
-                      <div style={{ textAlign: 'center', color: '#0284C7', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
-                        ✓ Order Served
+                    <span className="kds-col-badge pending">{kdsPending.length}</span>
+                  </div>
+                  <div className="kds-column-body">
+                    {kdsPending.map((ticket) => (
+                      <div key={ticket.id} className="kds-order-card">
+                        <div className="kds-card-top">
+                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-timer pending">
+                            <Clock size={12} /> {formatElapsed(ticket.createdAt)}
+                          </span>
+                        </div>
+                        <div className="kds-order-table">{ticket.tableName || `Table ${ticket.tableId}`}</div>
+                        <div className="kds-order-items">
+                          {(ticket.items || []).map((it, idx) => (
+                            <div key={idx} className="kds-item-row">
+                              <span className="kds-item-qty">{it.quantity}×</span>
+                              <span className="kds-item-name">{it.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          className="kds-btn-action pending"
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
+                        >
+                          ▶ Start Cooking
+                        </button>
+                      </div>
+                    ))}
+                    {kdsPending.length === 0 && (
+                      <div className="kds-empty-lane">
+                        <div className="kds-empty-icon-circle pending">
+                          <Clock size={22} />
+                        </div>
+                        <div className="kds-empty-title">No Pending Orders</div>
+                        <div className="kds-empty-desc">New table tickets will appear here live</div>
                       </div>
                     )}
                   </div>
-                ))}
-              {orders.filter(t => ['pending', 'preparing', 'ready', 'served'].includes(t.status)).length === 0 && (
-                <div style={{ padding: '36px 16px', textAlign: 'center', color: '#94a3b8' }}>
-                  No active kitchen orders
                 </div>
-              )}
-            </div>
 
-            {/* 4 Status Columns matching Reference Panel 5 for Desktop */}
-            <div className="kds-four-col-grid hide-on-mobile">
-              {/* Column 1: Pending */}
-              <div className="kds-column">
-                <div className="kds-col-header pending">
-                  <span>Pending ({orders.filter(o => o.status === 'pending').length})</span>
+                {/* Column 2: Preparing */}
+                <div className="kds-column-lane">
+                  <div className="kds-col-header preparing">
+                    <div className="kds-col-title-wrap">
+                      <span className="kds-col-dot preparing" />
+                      <ChefHat size={16} />
+                      <span>Preparing</span>
+                    </div>
+                    <span className="kds-col-badge preparing">{kdsPreparing.length}</span>
+                  </div>
+                  <div className="kds-column-body">
+                    {kdsPreparing.map((ticket) => (
+                      <div key={ticket.id} className="kds-order-card">
+                        <div className="kds-card-top">
+                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-timer preparing">
+                            <Clock size={12} /> {formatElapsed(ticket.createdAt)}
+                          </span>
+                        </div>
+                        <div className="kds-order-table">{ticket.tableName || `Table ${ticket.tableId}`}</div>
+                        <div className="kds-order-items">
+                          {(ticket.items || []).map((it, idx) => (
+                            <div key={idx} className="kds-item-row">
+                              <span className="kds-item-qty">{it.quantity}×</span>
+                              <span className="kds-item-name">{it.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          className="kds-btn-action preparing"
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
+                        >
+                          ✓ Ready for Pickup
+                        </button>
+                      </div>
+                    ))}
+                    {kdsPreparing.length === 0 && (
+                      <div className="kds-empty-lane">
+                        <div className="kds-empty-icon-circle preparing">
+                          <ChefHat size={22} />
+                        </div>
+                        <div className="kds-empty-title">No Cooking in Progress</div>
+                        <div className="kds-empty-desc">Press "Start Cooking" on pending tickets to begin</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {orders.filter(o => o.status === 'pending').map((ticket) => (
-                  <div key={ticket.id} className="kds-order-card">
-                    <div className="kds-card-top">
-                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
-                      <span className="kds-order-timer" style={{ color: '#ea580c' }}>{formatElapsed(ticket.createdAt)}</span>
+
+                {/* Column 3: Ready */}
+                <div className="kds-column-lane">
+                  <div className="kds-col-header ready">
+                    <div className="kds-col-title-wrap">
+                      <span className="kds-col-dot ready" />
+                      <CheckCircle size={16} />
+                      <span>Ready for Pickup</span>
                     </div>
-                    <div className="kds-order-table">{ticket.tableName}</div>
-                    <div className="kds-order-items">
-                      {(ticket.items || []).map((it, idx) => (
-                        <div key={idx}>{it.quantity} x {it.name}</div>
-                      ))}
+                    <span className="kds-col-badge ready">{kdsReady.length}</span>
+                  </div>
+                  <div className="kds-column-body">
+                    {kdsReady.map((ticket) => (
+                      <div key={ticket.id} className="kds-order-card">
+                        <div className="kds-card-top">
+                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-timer ready">
+                            <Clock size={12} /> {formatElapsed(ticket.createdAt)}
+                          </span>
+                        </div>
+                        <div className="kds-order-table">{ticket.tableName || `Table ${ticket.tableId}`}</div>
+                        <div className="kds-order-items">
+                          {(ticket.items || []).map((it, idx) => (
+                            <div key={idx} className="kds-item-row">
+                              <span className="kds-item-qty">{it.quantity}×</span>
+                              <span className="kds-item-name">{it.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <button
+                          className="kds-btn-action ready"
+                          onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
+                        >
+                          🍽️ Mark as Served
+                        </button>
+                      </div>
+                    ))}
+                    {kdsReady.length === 0 && (
+                      <div className="kds-empty-lane">
+                        <div className="kds-empty-icon-circle ready">
+                          <CheckCircle size={22} />
+                        </div>
+                        <div className="kds-empty-title">No Orders Waiting</div>
+                        <div className="kds-empty-desc">Orders ready for service will appear here</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Column 4: Served */}
+                <div className="kds-column-lane">
+                  <div className="kds-col-header served">
+                    <div className="kds-col-title-wrap">
+                      <span className="kds-col-dot served" />
+                      <UtensilsCrossed size={16} />
+                      <span>Served</span>
                     </div>
-                    <button
-                      className="kds-btn-action pending"
-                      onClick={() => handleOrderStatusUpdate(ticket.id, 'preparing')}
-                    >
-                      Start Cooking
-                    </button>
+                    <span className="kds-col-badge served">{kdsServed.length}</span>
                   </div>
-                ))}
-                {orders.filter(o => o.status === 'pending').length === 0 && (
-                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                    No pending orders
+                  <div className="kds-column-body">
+                    {kdsServed.map((ticket) => (
+                      <div key={ticket.id} className="kds-order-card">
+                        <div className="kds-card-top">
+                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-timer">
+                            <Clock size={12} /> {formatElapsed(ticket.createdAt)}
+                          </span>
+                        </div>
+                        <div className="kds-order-table">{ticket.tableName || `Table ${ticket.tableId}`}</div>
+                        <div className="kds-order-items">
+                          {(ticket.items || []).map((it, idx) => (
+                            <div key={idx} className="kds-item-row">
+                              <span className="kds-item-qty">{it.quantity}×</span>
+                              <span className="kds-item-name">{it.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="kds-served-badge">
+                          ✓ Served to Table
+                        </div>
+                      </div>
+                    ))}
+                    {kdsServed.length === 0 && (
+                      <div className="kds-empty-lane">
+                        <div className="kds-empty-icon-circle served">
+                          <UtensilsCrossed size={22} />
+                        </div>
+                        <div className="kds-empty-title">No Served Orders</div>
+                        <div className="kds-empty-desc">Delivered table dishes will be recorded here</div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-
-              {/* Column 2: Preparing */}
-              <div className="kds-column">
-                <div className="kds-col-header preparing">
-                  <span>Preparing ({orders.filter(o => o.status === 'preparing').length})</span>
-                </div>
-                {orders.filter(o => o.status === 'preparing').map((ticket) => (
-                  <div key={ticket.id} className="kds-order-card">
-                    <div className="kds-card-top">
-                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
-                      <span className="kds-order-timer" style={{ color: '#0284c7' }}>{formatElapsed(ticket.createdAt)}</span>
-                    </div>
-                    <div className="kds-order-table">{ticket.tableName}</div>
-                    <div className="kds-order-items">
-                      {(ticket.items || []).map((it, idx) => (
-                        <div key={idx}>{it.quantity} x {it.name}</div>
-                      ))}
-                    </div>
-                    <button
-                      className="kds-btn-action preparing"
-                      onClick={() => handleOrderStatusUpdate(ticket.id, 'ready')}
-                    >
-                      Ready for Pickup
-                    </button>
-                  </div>
-                ))}
-                {orders.filter(o => o.status === 'preparing').length === 0 && (
-                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                    No cooking in progress
-                  </div>
-                )}
-              </div>
-
-              {/* Column 3: Ready */}
-              <div className="kds-column">
-                <div className="kds-col-header ready">
-                  <span>Ready ({orders.filter(o => o.status === 'ready').length})</span>
-                </div>
-                {orders.filter(o => o.status === 'ready').map((ticket) => (
-                  <div key={ticket.id} className="kds-order-card">
-                    <div className="kds-card-top">
-                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
-                      <span className="kds-order-timer" style={{ color: '#0369A1' }}>{formatElapsed(ticket.createdAt)}</span>
-                    </div>
-                    <div className="kds-order-table">{ticket.tableName}</div>
-                    <div className="kds-order-items">
-                      {(ticket.items || []).map((it, idx) => (
-                        <div key={idx}>{it.quantity} x {it.name}</div>
-                      ))}
-                    </div>
-                    <button
-                      className="kds-btn-action ready"
-                      onClick={() => handleOrderStatusUpdate(ticket.id, 'served')}
-                    >
-                      Mark as Served
-                    </button>
-                  </div>
-                ))}
-                {orders.filter(o => o.status === 'ready').length === 0 && (
-                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                    No orders waiting pickup
-                  </div>
-                )}
-              </div>
-
-              {/* Column 4: Served */}
-              <div className="kds-column">
-                <div className="kds-col-header served">
-                  <span>Served ({orders.filter(o => o.status === 'served').length})</span>
-                </div>
-                {orders.filter(o => o.status === 'served').map((ticket) => (
-                  <div key={ticket.id} className="kds-order-card">
-                    <div className="kds-card-top">
-                      <span className="kds-order-id">#{ticket.orderNumber || ticket.id.replace('ORD-', '')}</span>
-                      <span className="kds-order-timer">{formatElapsed(ticket.createdAt)}</span>
-                    </div>
-                    <div className="kds-order-table">{ticket.tableName}</div>
-                    <div className="kds-order-items">
-                      {(ticket.items || []).map((it, idx) => (
-                        <div key={idx}>{it.quantity} x {it.name}</div>
-                      ))}
-                    </div>
-                    <div style={{ textAlign: 'center', color: '#0284C7', fontWeight: 800, padding: '8px 0', fontSize: '0.85rem' }}>
-                      ✓ Served to Table
-                    </div>
-                  </div>
-                ))}
-                {orders.filter(o => o.status === 'served').length === 0 && (
-                  <div style={{ padding: '24px 12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                    No served orders
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bottom Summary Strip matching Panel 5 for Desktop */}
-            <div className="kds-summary-strip hide-on-mobile">
-              <span>📋 <strong>{orders.length}</strong> Total Orders</span>
-              <span>⏳ <strong>{orders.filter(o => o.status === 'pending').length}</strong> Pending</span>
-              <span>👨‍🍳 <strong>{orders.filter(o => o.status === 'preparing').length}</strong> Preparing</span>
-              <span>✅ <strong>{orders.filter(o => o.status === 'ready').length}</strong> Ready</span>
-              <span>🍽️ <strong>{orders.filter(o => o.status === 'served').length}</strong> Served</span>
-            </div>
-          </section>
-        )}
+            </section>
+          );
+        })()}
 
         {/* ========================================================
             TAB: MENU MANAGEMENT (SMART MENU BUILDER)
             ======================================================== */}
         {activeTab === 'menu' && (
           <section className="admin-page-container">
-            <div className="page-header-row">
+            <div className="page-header-row menu-page-header-row">
               <div>
                 <h2 className="page-title">Menu Management</h2>
                 <p className="page-subtitle">Add, edit, organize and publish your live restaurant catalog</p>
               </div>
-              <div className="page-header-actions" style={{ flexWrap: 'wrap', gap: 8 }}>
+              <div className="page-header-actions menu-header-actions">
                 <button
-                  className="btn-brand-outline"
-                  style={{
-                    background: '#E0F2FE',
-                    borderColor: '#0284C7',
-                    color: '#0284C7',
-                    fontWeight: 700
-                  }}
+                  className="btn-brand-outline menu-action-btn menu-btn-default"
                   onClick={() => setDefaultMenuModalOpen(true)}
                   title="Explore and import TableMint default starter menu catalog"
                 >
-                  <Sparkles size={15} style={{ color: '#0369A1' }} /> TableMint Default Menu
+                  <Sparkles size={15} /> TableMint Default Menu
                 </button>
                 <button
-                  className="btn-brand-outline"
+                  className="btn-brand-outline menu-action-btn"
                   onClick={() => setCategoryModalOpen(true)}
                   title="Manage custom menu categories"
                 >
                   <Tag size={15} /> Categories ({categories.length})
                 </button>
                 <button
-                  className="btn-brand-outline"
+                  className="btn-brand-outline menu-action-btn"
                   onClick={() => setCsvImportModalOpen(true)}
                   title="Upload CSV or Excel spreadsheet"
                 >
                   <Download size={15} /> Import CSV
                 </button>
                 <button
-                  className="btn-brand-outline"
+                  className="btn-brand-outline menu-action-btn"
                   onClick={() => setOcrModalOpen(true)}
                   title="Extract menu from photo using AI OCR"
                 >
                   <Sparkles size={15} /> AI OCR Photo
                 </button>
                 <button
-                  className="btn-brand-outline"
+                  className="btn-brand-outline menu-action-btn"
                   onClick={() => setPreviewQrModalOpen(true)}
                   title="Preview digital customer QR menu"
                 >
                   <QrCode size={15} /> Preview QR
                 </button>
                 <button
-                  className="btn-brand-primary"
+                  className="btn-brand-primary menu-action-btn menu-btn-add"
                   onClick={() => {
                     setEditingDish(null);
                     setMenuModalOpen(true);
@@ -2818,68 +2969,127 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       setMenuPage(1);
                     }}
                   />
+                  {menuSearch && (
+                    <button
+                      type="button"
+                      style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer', color: '#64748b' }}
+                      onClick={() => {
+                        setMenuSearch('');
+                        setMenuPage(1);
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
                 </div>
 
-                {/* Category Filter Pills */}
-                <div className="admin-filter-pills-row">
-                  {activeMenuCategories.map((c) => {
-                    const count = c === 'all'
-                      ? menu.length
-                      : menu.filter((m) => m.category === c).length;
-                    const label = c === 'all'
-                      ? 'All Items'
-                      : c.charAt(0).toUpperCase() + c.slice(1);
-                    return (
-                      <button
-                        key={c}
-                        className={`admin-filter-pill ${menuCategoryFilter === c ? 'active' : ''}`}
-                        onClick={() => {
-                          setMenuCategoryFilter(c);
-                          setMenuPage(1);
-                        }}
-                      >
-                        {label} ({count})
-                      </button>
-                    );
-                  })}
+                {/* Deduplicated Category Filter Pills Bar */}
+                <div className="menu-category-pills-bar">
+                  <div className="menu-category-pills-scroll">
+                    {menuCategoryList.map((cat) => {
+                      const isSelected = menuCategoryFilter === cat.key;
+                      return (
+                        <button
+                          key={cat.key}
+                          type="button"
+                          className={`menu-category-pill ${isSelected ? 'active' : ''}`}
+                          onClick={() => {
+                            setMenuCategoryFilter(cat.key);
+                            setMenuPage(1);
+                          }}
+                        >
+                          <span className="pill-label">{cat.label}</span>
+                          <span className="pill-count">{cat.count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Search & Filter Controls for Desktop */}
-                <div className="hide-on-mobile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                    <div className="topbar-search-box" style={{ maxWidth: 320 }}>
-                      <Search size={15} className="topbar-search-icon" />
+                {/* Unified Search & Filter Controls Toolbar for Desktop */}
+                <div className="menu-toolbar-row hide-on-mobile">
+                  <div className="menu-toolbar-left">
+                    <div className="menu-search-input-wrap">
+                      <Search size={15} className="menu-search-icon" />
                       <input
                         type="text"
-                        placeholder="Search menu items..."
+                        placeholder="Search dishes by name or description..."
                         value={menuSearch}
                         onChange={(e) => {
                           setMenuSearch(e.target.value);
                           setMenuPage(1);
                         }}
-                        className="topbar-search-input"
+                        className="menu-search-input"
                       />
+                      {menuSearch && (
+                        <button
+                          type="button"
+                          className="menu-search-clear-btn"
+                          onClick={() => {
+                            setMenuSearch('');
+                            setMenuPage(1);
+                          }}
+                          title="Clear search"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
 
-                    <select
-                      className="btn-brand-outline"
-                      style={{ padding: '8px 12px', fontSize: '0.82rem', background: '#f8fafc' }}
-                      value={menuCategoryFilter}
-                      onChange={(e) => {
-                        setMenuCategoryFilter(e.target.value);
-                        setMenuPage(1);
-                      }}
-                    >
-                      {activeMenuCategories.map((c) => (
-                        <option key={c} value={c}>
-                          {c === 'all' ? 'All Categories' : c.charAt(0).toUpperCase() + c.slice(1)}
-                        </option>
-                      ))}
-                    </select>
+                    {/* Diet Filter Controls */}
+                    <div className="menu-diet-toggle-group">
+                      <button
+                        type="button"
+                        className={`menu-diet-btn ${menuDietFilter === 'all' ? 'active' : ''}`}
+                        onClick={() => {
+                          setMenuDietFilter('all');
+                          setMenuPage(1);
+                        }}
+                      >
+                        All Diets
+                      </button>
+                      <button
+                        type="button"
+                        className={`menu-diet-btn veg ${menuDietFilter === 'veg' ? 'active' : ''}`}
+                        onClick={() => {
+                          setMenuDietFilter('veg');
+                          setMenuPage(1);
+                        }}
+                      >
+                        <span className="diet-dot veg" /> Veg
+                      </button>
+                      <button
+                        type="button"
+                        className={`menu-diet-btn non-veg ${menuDietFilter === 'non-veg' ? 'active' : ''}`}
+                        onClick={() => {
+                          setMenuDietFilter('non-veg');
+                          setMenuPage(1);
+                        }}
+                      >
+                        <span className="diet-dot non-veg" /> Non-Veg
+                      </button>
+                    </div>
                   </div>
 
-                  <div style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600 }}>
-                    Showing {filteredMenu.length} of {menu.length} dishes
+                  <div className="menu-toolbar-right">
+                    <div className="menu-counter-badge">
+                      Showing <strong>{filteredMenu.length}</strong> of <strong>{(menu || []).length}</strong> dishes
+                    </div>
+                    {(menuCategoryFilter !== 'all' || menuDietFilter !== 'all' || menuSearch) && (
+                      <button
+                        type="button"
+                        className="menu-reset-filter-btn"
+                        onClick={() => {
+                          setMenuCategoryFilter('all');
+                          setMenuDietFilter('all');
+                          setMenuSearch('');
+                          setMenuPage(1);
+                        }}
+                        title="Reset all filters"
+                      >
+                        <RotateCcw size={13} /> Reset Filters
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -3116,7 +3326,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                               </td>
                               <td>
                                 <span className={`diet-box ${dish.isVeg ? 'veg' : 'non-veg'}`} />
-                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#0369A1' : '#dc2626' }}>
+                                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: dish.isVeg ? '#16A34A' : '#dc2626' }}>
                                   {dish.isVeg ? 'Veg' : 'Non-Veg'}
                                 </span>
                               </td>
@@ -3300,37 +3510,39 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     <div className="stand-hospitality-footer">
                       <div className="stand-wifi-info">
                         <Wifi size={13} />
-                        <span>Guest Wi-Fi: <strong>SpiceGarden_Guest</strong> (No Pass)</span>
+                        <span>Guest Wi-Fi: <strong>{settingsForm?.wifiSsid || `${currentUser?.restaurantName || 'TableMint'}_Guest`}</strong> (No Pass)</span>
                       </div>
-                      <div className="stand-brand-micro">Powered by QR Table System</div>
+                      <div className="stand-brand-micro">Powered by TableMint POS</div>
                     </div>
 
-                    {/* Action Buttons (Screen Only - Hidden in Print) */}
+                    {/* Action Buttons (Screen Only - Hidden in Print - Guaranteed No Overlap) */}
                     <div className="stand-card-actions no-print">
                       <button
                         type="button"
-                        className="btn-primary stand-print-btn"
+                        className="btn-brand-primary stand-print-btn"
                         onClick={() => handlePrintSingleStand(t)}
                         title="Print only this table stand"
                       >
                         <Printer size={15} /> Print Stand
                       </button>
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={() => setViewQrTable(t)}
-                        title="Preview & Download High-Res QR"
-                      >
-                        <QrCode size={14} /> Preview
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-secondary stand-share-btn"
-                        onClick={() => handleShareOrDownloadStand(t)}
-                        title="Share QR or Save Stand Image"
-                      >
-                        <Share2 size={14} /> Share / Save
-                      </button>
+                      <div className="stand-actions-row">
+                        <button
+                          type="button"
+                          className="btn-brand-outline stand-btn-sm"
+                          onClick={() => setViewQrTable(t)}
+                          title="Preview & Download High-Res QR"
+                        >
+                          <QrCode size={14} /> Preview
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-brand-outline stand-btn-sm stand-share-btn"
+                          onClick={() => handleShareOrDownloadStand(t)}
+                          title="Share QR or Save Stand Image"
+                        >
+                          <Share2 size={14} /> Share / Save
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -4270,7 +4482,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                             analyticsTimeframe.toUpperCase()
                           })
                         </h3>
-                        <div style={{ background: '#0284C7', color: '#0284C7', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 800 }}>
+                        <div style={{ background: '#EDF5FA', color: '#0369A1', padding: '5px 14px', borderRadius: 9999, fontSize: '0.82rem', fontWeight: 600 }}>
                           ₹ {(kpis.totalRevenue || 0).toLocaleString('en-IN')}
                         </div>
                       </div>
@@ -4467,7 +4679,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 {analyticsSubTab === 'Peak Hours' && (
                   <div className="admin-card-inner">
                     <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 14px 0', color: '#0f172a' }}>Dining Peak Hours & Rush Analysis</h3>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <div className="analytics-peak-hours-grid">
                       <div style={{ padding: 18, background: '#f8fafc', borderRadius: 12, border: '1px solid #e2e8f0' }}>
                         <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#f59e0b', background: '#fef3c7', padding: '3px 8px', borderRadius: 9999 }}>
                           {peak.lunchRush.title}
@@ -5243,8 +5455,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
               <div className="page-header-actions">
                 <button
-                  className="btn-brand-primary"
-                  style={{ background: '#DC2626' }}
+                  className="btn-brand-primary is-danger"
                   onClick={handleLogout}
                 >
                   <Lock size={15} /> Lock Terminal Now
@@ -5797,8 +6008,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <div className="page-header-actions">
                   <button
                     type="button"
-                    className="btn-brand-primary"
-                    style={{ background: '#DC2626' }}
+                    className="btn-brand-primary is-danger"
                     onClick={handleLogout}
                     title="Sign out and return to Login & Sign Up screen"
                   >
@@ -5807,111 +6017,134 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 24, marginTop: 4 }}>
-              {/* Left Column: User Identity Card */}
-              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', height: 'fit-content' }}>
-                <div style={{
-                  width: 76,
-                  height: 76,
-                  borderRadius: '50%',
-                  background: '#0284C7',
-                  color: '#ffffff',
-                  fontSize: '1.5rem',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  marginBottom: 14,
-                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.15)'
-                }}>
-                  {currentUser?.name
-                    ? currentUser.name
-                        .split(' ')
-                        .filter(Boolean)
-                        .map((n) => n[0])
-                        .join('')
-                        .slice(0, 2)
-                        .toUpperCase()
-                    : 'TM'}
-                  <span style={{
-                    position: 'absolute',
-                    bottom: 2,
-                    right: 2,
-                    width: 14,
-                    height: 14,
+              {/* 1. TOP FIRST: Full-Width Profile Identity Hero Card */}
+              <div style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 16,
+                padding: '22px 28px',
+                marginTop: 6,
+                marginBottom: 24,
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 24,
+                flexWrap: 'wrap'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+                  <div style={{
+                    width: 72,
+                    height: 72,
                     borderRadius: '50%',
-                    background: '#0284C7',
-                    border: '2px solid #ffffff'
-                  }} title="Active Session" />
+                    background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
+                    color: '#ffffff',
+                    fontSize: '1.45rem',
+                    fontWeight: 800,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative',
+                    flexShrink: 0,
+                    boxShadow: '0 6px 16px rgba(2, 132, 199, 0.2)'
+                  }}>
+                    {currentUser?.name
+                      ? currentUser.name
+                          .split(' ')
+                          .filter(Boolean)
+                          .map((n) => n[0])
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase()
+                      : 'KP'}
+                    <span style={{
+                      position: 'absolute',
+                      bottom: 2,
+                      right: 2,
+                      width: 15,
+                      height: 15,
+                      borderRadius: '50%',
+                      background: '#16A34A',
+                      border: '2.5px solid #ffffff'
+                    }} title="Active Session" />
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                        {profileName || currentUser?.name || 'TableMint Staff'}
+                      </h3>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '3px 10px',
+                        borderRadius: 20,
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        background: '#E0F2FE',
+                        color: '#0284C7',
+                        border: '1px solid #BAE6FD'
+                      }}>
+                        <ShieldCheck size={13} />
+                        {currentUser?.role === 'admin' ? 'Admin / Owner' : 'Floor Staff'}
+                      </span>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '3px 10px',
+                        borderRadius: 20,
+                        fontSize: '0.74rem',
+                        fontWeight: 700,
+                        background: '#f8fafc',
+                        color: '#334155',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <UtensilsCrossed size={13} />
+                        {profileRestaurant || currentUser?.restaurantName || 'TableMint'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, color: '#64748b', fontSize: '0.82rem', flexWrap: 'wrap' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                        <Mail size={14} style={{ color: '#0284C7' }} />
+                        {currentUser?.email || 'admin@tablemint.com'}
+                      </span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#16A34A', fontWeight: 600 }}>
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#16A34A', display: 'inline-block' }} />
+                        Live Sync Relay: Connected (12ms)
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 4px' }}>{currentUser?.name || 'TableMint Staff'}</h3>
-                <p style={{ fontSize: '0.82rem', color: '#64748b', margin: '0 0 16px' }}>{currentUser?.email || 'admin@tablemint.com'}</p>
-
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 }}>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    padding: '4px 10px',
-                    borderRadius: 20,
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    background: '#E0F2FE',
-                    color: '#0284C7',
-                    border: '1px solid #BAE6FD'
-                  }}>
-                    <ShieldCheck size={13} />
-                    {currentUser?.role === 'admin' ? 'Admin / Owner' : 'Floor Staff'}
-                  </span>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    padding: '4px 10px',
-                    borderRadius: 20,
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    padding: '8px 14px',
+                    borderRadius: 10,
                     background: '#f8fafc',
-                    color: '#334155',
-                    border: '1px solid #e2e8f0'
+                    border: '1px solid #e2e8f0',
+                    fontSize: '0.78rem',
+                    color: '#475569',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
                   }}>
-                    <UtensilsCrossed size={13} />
-                    {currentUser?.restaurantName || 'TableMint'}
-                  </span>
-                </div>
-
-                <div style={{ width: '100%', borderTop: '1px solid #f1f5f9', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
-                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <ShieldCheck size={14} color="#0284C7" /> Security Standard
-                    </span>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>PBKDF2 SHA-512</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
-                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Lock size={14} color="#0284C7" /> Login Method
-                    </span>
-                    <span style={{ fontWeight: 700, color: '#0f172a' }}>Email & Password</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem' }}>
-                    <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Wifi size={14} color="#0284c7" /> Live Sync Relay
-                    </span>
-                    <span style={{ fontWeight: 700, color: '#0284c7' }}>Connected (12ms)</span>
+                    <Smartphone size={15} style={{ color: '#0284C7' }} />
+                    <span>Station: <strong>TableMint POS WebApp v2.4</strong></span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Edit Profile & Security Details */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                {/* Edit Profile Details Form */}
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
+              {/* 2. TWO-COLUMN LAYOUT: Left Side Form, Right Side Security (made like left section) */}
+              <div className="profile-content-split-grid">
+                {/* Left Side: Personal & Restaurant Profile Form */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 24, boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)' }}>
                   <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <User size={18} style={{ color: '#0284C7' }} /> Personal & Restaurant Profile
                   </h4>
-                  <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: 18 }}>
+                  <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: 20 }}>
                     Update your display name and dining brand name across POS tickets and receipts.
                   </p>
 
@@ -5943,7 +6176,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       </div>
                     </div>
 
-                    <div className="settings-form-grid" style={{ marginBottom: 20 }}>
+                    <div className="settings-form-grid" style={{ marginBottom: 22 }}>
                       <div className="settings-form-field">
                         <label className="settings-label">Email Address (Login Identity)</label>
                         <input
@@ -5967,7 +6200,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
                       <button
                         type="submit"
                         className="btn-brand-primary"
@@ -5980,52 +6213,81 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                   </form>
                 </div>
 
-                {/* Session Security Details */}
-                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20 }}>
-                  <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ShieldCheck size={17} style={{ color: '#0284c7' }} /> Station Security & Session Status
-                  </h4>
-                  <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: 14 }}>
-                    Your session is actively verified against TableMint backend server.
-                  </p>
+                {/* Right Side: Station Security & Session Status (Styled cleanly like the left section) */}
+                <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', gap: 20, boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)' }}>
+                  <div>
+                    <h4 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <ShieldCheck size={18} style={{ color: '#0284C7' }} /> Security & Station Verification
+                    </h4>
+                    <p style={{ fontSize: '0.82rem', color: '#64748b', margin: 0 }}>
+                      Session identity standards and encrypted terminal link status.
+                    </p>
+                  </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 8, fontSize: '0.8rem' }}>
-                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Lock size={14} /> Authorization Token
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <ShieldCheck size={15} color="#0284C7" /> Security Standard
                       </span>
-                      <span style={{ fontFamily: 'monospace', fontWeight: 600, color: '#475569' }}>
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>PBKDF2 SHA-512</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Lock size={15} color="#0284C7" /> Login Method
+                      </span>
+                      <span style={{ fontWeight: 700, color: '#0f172a' }}>Email & Password</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Lock size={15} color="#0284C7" /> Authorization Token
+                      </span>
+                      <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0284C7', background: '#E0F2FE', padding: '2px 8px', borderRadius: 6, fontSize: '0.76rem' }}>
                         tm_auth_{currentUser?.id ? currentUser.id.slice(0, 8) : 'staff'}••••••••
                       </span>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 8, fontSize: '0.8rem' }}>
-                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <Smartphone size={14} /> Station Interface
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Smartphone size={15} color="#0284C7" /> Station Interface
                       </span>
                       <span style={{ fontWeight: 700, color: '#0f172a' }}>TableMint POS WebApp v2.4</span>
                     </div>
-                  </div>
-                </div>
 
-                {/* Sign Out Card */}
-                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 14, padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-                  <div>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#991b1b', margin: '0 0 4px' }}>Sign Out of TableMint Station</h4>
-                    <p style={{ fontSize: '0.78rem', color: '#b91c1c', margin: 0 }}>
-                      Terminates your authenticated session immediately. Requires logging in again.
-                    </p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 14px', background: '#F0FDF4', borderRadius: 10, border: '1px solid #DCFCE7', fontSize: '0.82rem' }}>
+                      <span style={{ color: '#166534', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Wifi size={15} color="#16A34A" /> Live Sync Relay
+                      </span>
+                      <span style={{ fontWeight: 700, color: '#16A34A' }}>Connected (12ms)</span>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-brand-primary"
-                    style={{ background: '#dc2626', flexShrink: 0 }}
-                    onClick={handleLogout}
-                  >
-                    <LogOut size={16} /> Sign Out
-                  </button>
+
+                  <div style={{
+                    marginTop: 'auto',
+                    paddingTop: 16,
+                    borderTop: '1px solid #f1f5f9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a' }}>Terminal Session</div>
+                      <div style={{ fontSize: '0.74rem', color: '#64748b' }}>Exit current terminal station</div>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn-brand-outline is-danger"
+                      style={{ fontSize: '0.78rem', padding: '6px 14px' }}
+                      onClick={handleLogout}
+                      title="Terminate active session"
+                    >
+                      <LogOut size={14} /> Exit Station
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
           </section>
         )}
@@ -6294,7 +6556,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </button>
             </div>
             <div className="dash-modal-body" style={{ alignItems: 'center' }}>
-              <div style={{ background: '#ffffff', padding: 16, borderRadius: 18, border: '2px solid #f59e0b', width: 240, height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}>
+              <div className="dx-qr-frame">
                 <img
                   src={modalQrDataUrl || formatApiUrl(`/api/qrcode/${viewQrTable.id}?restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}&t=${Date.now()}`)}
                   alt={`Table ${viewQrTable.id} QR Code`}
@@ -6308,8 +6570,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 />
               </div>
 
-              <div style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 14px', fontSize: '0.8rem', color: '#cbd5e1', wordBreak: 'break-all' }}>
-                <div style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 800, marginBottom: 4 }}>
+              <div className="dx-qr-link">
+                <div className="dx-qr-link-label">
                   Scan Target Link:
                 </div>
                 {`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint')}`}
@@ -6339,8 +6601,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 </button>
                 <button
                   type="button"
-                  className="btn-primary"
-                  style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                  className="btn-secondary"
+                  style={{ gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                   onClick={() => {
                     const rSlug = currentUser?.restaurantSlug || settingsForm?.restaurantSlug || 'tablemint';
                     window.open(`${getCustomerWebBaseUrl()}/?table=${viewQrTable.id}&token=${viewQrTable.sessionToken || ''}&restaurant=${encodeURIComponent(rSlug)}`, '_blank');

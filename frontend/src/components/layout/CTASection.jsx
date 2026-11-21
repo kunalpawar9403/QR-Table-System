@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Sparkles, Shield, Zap } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ArrowRight, CheckCircle, Shield, Zap } from 'lucide-react';
+import Reveal from '../marketing/Reveal';
 
 export default function CTASection({
   title = "Ready to elevate your restaurant operations?",
@@ -11,58 +11,28 @@ export default function CTASection({
   secondaryTo = "/features"
 }) {
   return (
-    <div className="tm-cta-wrapper">
-      <section className="tm-cta-section">
-        <motion.div 
-          className="tm-cta-inner"
-          initial={{ opacity: 0, y: 24, scale: 0.98 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        >
-          <div className="tm-cta-badge">
-            <Sparkles size={14} />
-            <span>Transform Your Restaurant Today</span>
-          </div>
+    <section className="tm-cta">
+      <Reveal className="tm-cta-inner">
+        <span className="tm-eyebrow is-on-dark">Transform Your Restaurant Today</span>
+        <h2 className="tm-section-title">{title}</h2>
+        <p className="tm-section-subtitle">{subtitle}</p>
 
-          <h2 className="tm-cta-title" style={{ color: '#0F172A' }}>
-            {title}
-          </h2>
+        <div className="tm-actions is-center">
+          <Link to="/register" className="tm-btn tm-btn-light tm-btn-lg">
+            <span>{primaryText}</span>
+            <ArrowRight size={17} />
+          </Link>
+          <Link to={secondaryTo} className="tm-btn tm-btn-outline-white tm-btn-lg">
+            <span>{secondaryText}</span>
+          </Link>
+        </div>
 
-          <p className="tm-cta-subtitle" style={{ color: '#475569' }}>
-            {subtitle}
-          </p>
-
-          <div className="tm-cta-actions">
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/register" className="tm-btn tm-btn-primary tm-btn-lg">
-                <span>{primaryText}</span>
-                <ArrowRight size={18} />
-              </Link>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to={secondaryTo} className="tm-btn tm-btn-secondary tm-btn-lg">
-                <span>{secondaryText}</span>
-              </Link>
-            </motion.div>
-          </div>
-
-          <div className="tm-cta-perks">
-            <div className="tm-cta-perk-item">
-              <CheckCircle size={16} />
-              <span>No credit card required</span>
-            </div>
-            <div className="tm-cta-perk-item">
-              <Zap size={16} />
-              <span>Instant 5-minute setup</span>
-            </div>
-            <div className="tm-cta-perk-item">
-              <Shield size={16} />
-              <span>Dedicated 24/7 onboarding support</span>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-    </div>
+        <ul className="tm-cta-perks">
+          <li><CheckCircle size={15} /><span>No credit card required</span></li>
+          <li><Zap size={15} /><span>Instant 5-minute setup</span></li>
+          <li><Shield size={15} /><span>Dedicated 24/7 onboarding support</span></li>
+        </ul>
+      </Reveal>
+    </section>
   );
 }

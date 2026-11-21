@@ -1,7 +1,6 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { TextEffect } from '../motion-primitives/text-effect';
+import { enterProps } from '../marketing/Reveal';
 
 export default function PageHero({
   badge,
@@ -12,73 +11,33 @@ export default function PageHero({
   children
 }) {
   return (
-    <div className="tm-page-hero-wrapper">
-      <section className="tm-page-hero">
-        <div className="tm-page-hero-inner">
-          {badge && (
-            <motion.div 
-              className="tm-hero-badge"
-              initial={{ opacity: 0, scale: 0.9, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            >
-              <Sparkles size={14} />
-              <span>{badge}</span>
-            </motion.div>
-          )}
+    <section className="tm-page-hero">
+      <div className="tm-page-hero-inner">
+        {badge && (
+          <motion.span className="tm-eyebrow" {...enterProps(0)}>
+            {badge}
+          </motion.span>
+        )}
 
-          <h1 className="tm-page-hero-title" style={{ color: '#0F172A' }}>
-            <motion.span 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.1 }}
-              style={{ color: '#0F172A', WebkitTextFillColor: '#0F172A', display: 'inline-block' }}
-            >
-              {title}
-            </motion.span>{' '}
-            {titleAccent && (
-              <motion.span 
-                initial={{ opacity: 0, filter: 'blur(8px)', y: 8 }}
-                animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                style={{ 
-                  color: '#0284C7', 
-                  background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', 
-                  WebkitBackgroundClip: 'text', 
-                  WebkitTextFillColor: 'transparent',
-                  display: 'inline-block'
-                }}
-              >
-                {titleAccent}
-              </motion.span>
-            )}
-          </h1>
+        <motion.h1 className="tm-page-title" {...enterProps(0.06)}>
+          {title}
+          {titleAccent && <> <em>{titleAccent}</em></>}
+        </motion.h1>
 
-          {description && (
-            <motion.p 
-              className="tm-page-hero-desc"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.35 }}
-            >
-              {description}
-            </motion.p>
-          )}
+        {description && (
+          <motion.p className="tm-page-hero-desc" {...enterProps(0.12)}>
+            {description}
+          </motion.p>
+        )}
 
-          {actions && (
-            <motion.div 
-              className="tm-page-hero-actions"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.45 }}
-            >
-              {actions}
-            </motion.div>
-          )}
+        {actions && (
+          <motion.div className="tm-actions is-center tm-page-hero-actions" {...enterProps(0.18)}>
+            {actions}
+          </motion.div>
+        )}
 
-          {children}
-        </div>
-      </section>
-    </div>
+        {children && <motion.div {...enterProps(0.18)}>{children}</motion.div>}
+      </div>
+    </section>
   );
 }

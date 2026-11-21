@@ -4,40 +4,42 @@
    ========================================================= */
 
 :root {
-  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-main: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-display: 'Poppins', system-ui, -apple-system, sans-serif;
 
   /* =========================================================
-     SLIPZEN THEME DESIGN TOKENS (Matching Screenshot Reference)
+     MARKETING WEBSITE & DASHBOARD UNIFIED TOKENS
      ========================================================= */
-  --color-primary-blue:    #0284C7; /* Slipzen Vibrant Sky Blue (Buttons, Active Elements) */
-  --color-primary-hover:   #0369A1; /* Slipzen Primary Hover */
-  --color-primary-light:   #E0F2FE; /* Slipzen Soft Pastel Hero / Banner Container */
-  --color-primary-soft:    #F0F9FF; /* Slipzen Lightest Sky Tint */
-  --color-primary-border:  #BAE6FD; /* Slipzen Soft Blue Border */
+  --color-primary-blue:    #0369A1; /* Website Brand Blue */
+  --color-primary-hover:   #075985; /* Website Brand Hover */
+  --color-primary-bright:  #0284C7; /* Website Bright Sky Blue */
+  --color-primary-light:   #EDF5FA; /* Website Soft Blue Tint */
+  --color-primary-soft:    #F4F8FA;
+  --color-primary-border:  #BAE6FD;
 
-  --color-dark-text:       #0F172A; /* Bold Dark Slate Titles & Headings */
-  --color-secondary-text:  #475569; /* Slate Body Copy & Explanations */
-  --color-muted-text:      #64748B; /* Subtle Metadata & Inactive Icons */
-  --color-page-bg:         #FFFFFF; /* Pure White Main Canvas */
-  --color-section-bg:      #F8FAFC; /* Light Slate Section Alternating BG */
+  --color-dark-text:       #0F1B2D; /* Website Ink Navy Titles & Headings */
+  --color-secondary-text:  #4A5465; /* Website Slate Body Copy */
+  --color-muted-text:      #6B7485; /* Website Metadata & Subtitle */
+  --color-page-bg:         #FAFAF8; /* Website Warm Paper Canvas */
+  --color-section-bg:      #F4F2ED; /* Website Sand Section BG */
   --color-card-bg:         #FFFFFF; /* Pure White Content Cards */
-  --color-border:          #E2E8F0; /* Clean Structural Card Border */
-  --color-border-light:    #F1F5F9;
+  --color-border:          #E6E3DC; /* Website Subtle Hairline Border */
+  --color-border-light:    #EFEDE8;
+  --color-border-strong:   #D7D3C9;
 
-  --color-success:         #16A34A; /* WhatsApp / Success Green */
-  --color-success-soft:    #DCFCE7;
-  --color-success-border:  #86EFAC;
-  --color-warning:         #F59E0B; /* Caution / Amber Badges */
-  --color-warning-soft:    #FEF3C7;
+  --color-success:         #15803D; /* Website Success Green */
+  --color-success-soft:    #F0FDF4;
+  --color-success-border:  #BBF7D0;
+  --color-warning:         #B45309; /* Website Amber */
+  --color-warning-soft:    #FFFBEB;
   --color-warning-border:  #FDE68A;
-  --color-error:           #DC2626; /* Error / Non-veg Red */
-  --color-error-soft:      #FEE2E2;
+  --color-error:           #B42318; /* Website Danger Red */
+  --color-error-soft:      #FEF3F2;
   --color-error-border:    #FECACA;
-  --color-purple:          #9333EA; /* Phone Icon / Feature Purple */
+  --color-purple:          #9333EA;
   --color-purple-soft:     #F3E8FF;
 
-  --color-footer-bg:       #0B132B; /* Slipzen Deep Midnight Black Footer */
+  --color-footer-bg:       #0F1B2D; /* Website Deep Ink Navy Footer */
 
   /* Semantic UI Tokens */
   --primary:               var(--color-primary-blue);
@@ -106,6 +108,7 @@ html {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-x: clip;
   background-color: #F8FAFC;
 }
 
@@ -114,9 +117,11 @@ body {
   background-color: #F8FAFC;
   color: #0f172a;
   min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-x: clip;
   line-height: 1.5;
   background-image: none;
 }
@@ -144,6 +149,7 @@ a, a:link, a:visited {
   width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-x: clip;
   background-color: #F8FAFC;
 }
 
