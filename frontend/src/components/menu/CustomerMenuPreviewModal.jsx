@@ -90,133 +90,136 @@ export default function CustomerMenuPreviewModal({
           </div>
         </div>
 
-        {/* Mobile Phone Mockup Body */}
+        {/* Mobile Phone Mockup Body - Fixed Shell with Sticky Top and Scrolling Menu */}
         <div style={{
           flex: 1,
-          overflowY: 'auto',
+          overflow: 'hidden',
           background: '#F8FAFC',
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Mock Phone Status & Header */}
-          <div style={{
-            background: '#0284C7',
-            padding: '14px 16px 16px',
-            color: '#ffffff'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#BAE6FD' }}>
-                9:41 AM
-              </span>
-              <span style={{
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                background: 'rgba(2, 132, 199, 0.2)',
-                color: '#0284C7',
-                padding: '2px 8px',
-                borderRadius: 12
-              }}>
-                Table 1
-              </span>
-            </div>
-
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 800, margin: '0 0 2px', color: '#ffffff' }}>
-              {restaurantName}
-            </h4>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
-              Smart QR Menu • Dine-in Session Active
-            </p>
-
-            {/* In-app Search bar */}
+          {/* Sticky Top Header Container */}
+          <div style={{ flexShrink: 0, zIndex: 10, background: '#ffffff', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
+            {/* Mock Phone Status & Header - Reduced Top Space */}
             <div style={{
-              marginTop: 12,
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: 10,
-              padding: '6px 10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8
+              background: '#0284C7',
+              padding: '10px 14px 12px',
+              color: '#ffffff'
             }}>
-              <Search size={14} style={{ color: '#94a3b8' }} />
-              <input
-                type="text"
-                placeholder="Search dishes..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  background: 'none',
-                  border: 'none',
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#BAE6FD' }}>
+                  9:41 AM
+                </span>
+                <span style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  background: 'rgba(255, 255, 255, 0.2)',
                   color: '#ffffff',
-                  fontSize: '0.8rem',
-                  outline: 'none',
-                  width: '100%'
-                }}
-              />
-            </div>
-          </div>
+                  padding: '2px 8px',
+                  borderRadius: 12
+                }}>
+                  Table 1
+                </span>
+              </div>
 
-          {/* Categories Horizontal Scroll */}
-          <div style={{
-            background: '#ffffff',
-            padding: '10px 14px',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            gap: 8,
-            overflowX: 'auto'
-          }}>
-            <button
-              type="button"
-              onClick={() => setSelectedCat('all')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 16,
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                border: 'none',
-                background: selectedCat === 'all' ? '#0284C7' : '#f1f5f9',
-                color: selectedCat === 'all' ? '#ffffff' : '#64748b',
-                whiteSpace: 'nowrap',
-                cursor: 'pointer'
-              }}
-            >
-              All ({publishedDishes.length})
-            </button>
-            {displayCategories.map(cat => (
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 800, margin: '0 0 2px', color: '#ffffff' }}>
+                {restaurantName}
+              </h4>
+              <p style={{ fontSize: '0.72rem', color: '#E0F2FE', margin: 0 }}>
+                Smart QR Menu • Dine-in Session Active
+              </p>
+
+              {/* In-app Search bar */}
+              <div style={{
+                marginTop: 8,
+                background: 'rgba(255, 255, 255, 0.15)',
+                borderRadius: 10,
+                padding: '5px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8
+              }}>
+                <Search size={14} style={{ color: '#E0F2FE' }} />
+                <input
+                  type="text"
+                  placeholder="Search dishes..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#ffffff',
+                    fontSize: '0.8rem',
+                    outline: 'none',
+                    width: '100%'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Categories Horizontal Scroll */}
+            <div style={{
+              background: '#ffffff',
+              padding: '8px 12px',
+              borderBottom: '1px solid #e2e8f0',
+              display: 'flex',
+              gap: 8,
+              overflowX: 'auto'
+            }}>
               <button
-                key={cat.id || cat.name}
                 type="button"
-                onClick={() => setSelectedCat(cat.name)}
+                onClick={() => setSelectedCat('all')}
                 style={{
                   padding: '4px 12px',
                   borderRadius: 16,
-                  fontSize: '0.78rem',
+                  fontSize: '0.75rem',
                   fontWeight: 700,
                   border: 'none',
-                  background: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#0284C7' : '#f1f5f9',
-                  color: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#ffffff' : '#64748b',
+                  background: selectedCat === 'all' ? '#0284C7' : '#f1f5f9',
+                  color: selectedCat === 'all' ? '#ffffff' : '#64748b',
                   whiteSpace: 'nowrap',
                   cursor: 'pointer'
                 }}
               >
-                {cat.name}
+                All ({publishedDishes.length})
               </button>
-            ))}
+              {displayCategories.map(cat => (
+                <button
+                  key={cat.id || cat.name}
+                  type="button"
+                  onClick={() => setSelectedCat(cat.name)}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: 16,
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    border: 'none',
+                    background: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#0284C7' : '#f1f5f9',
+                    color: selectedCat.toLowerCase() === cat.name.toLowerCase() ? '#ffffff' : '#64748b',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Veg Only Toggle */}
+            <div style={{ padding: '6px 14px', display: 'flex', justifyContent: 'flex-end', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.75rem', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={vegOnly}
+                  onChange={(e) => setVegOnly(e.target.checked)}
+                />
+                Veg Only
+              </label>
+            </div>
           </div>
 
-          {/* Veg Only Toggle */}
-          <div style={{ padding: '8px 16px', display: 'flex', justifyContent: 'flex-end', background: '#f8fafc' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={vegOnly}
-                onChange={(e) => setVegOnly(e.target.checked)}
-              />
-              Veg Only
-            </label>
-          </div>
-
-          {/* Dish Cards List */}
-          <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {/* Dish Cards List - Scrollable Menu Area */}
+          <div style={{ padding: 12, flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {filtered.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '36px 16px', background: '#ffffff', borderRadius: 14 }}>
                 <UtensilsCrossed size={28} style={{ color: '#cbd5e1', marginBottom: 8 }} />

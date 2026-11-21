@@ -137,6 +137,11 @@ body:has(.tm-saas-root),
   color: var(--mk-text);
   background-color: var(--mk-paper);
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
@@ -146,6 +151,10 @@ body:has(.tm-saas-root),
 
 .tm-saas-main {
   flex: 1;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
 }
@@ -161,16 +170,20 @@ body:has(.tm-saas-root),
   letter-spacing: -0.015em;
   color: inherit;
   margin: 0;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 :where(.tm-saas-root, .tm-auth-shell) p {
   margin: 0;
   line-height: 1.65;
   color: var(--mk-text-2);
+  overflow-wrap: break-word;
 }
 
 :where(.tm-saas-root, .tm-auth-shell) img {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
@@ -850,10 +863,11 @@ body:has(.tm-saas-root),
    so the devices stay large inside a compact card. */
 .tm-hero-frame img {
   width: 100%;
-  aspect-ratio: 16 / 10.5;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
-  object-position: 50% 50%;
+  object-position: center top;
   border-radius: 14px;
+  display: block;
 }
 
 .tm-spec-strip {
@@ -1215,8 +1229,10 @@ body:has(.tm-saas-root),
 
 .tm-media img {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
+  object-position: center top;
+  display: block;
 }
 
 .tm-media-tag {
@@ -2397,8 +2413,14 @@ textarea.tm-input {
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  background: var(--mk-surface);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background-color: #070D1E;
+  background-image:
+    linear-gradient(180deg, rgba(7, 13, 30, 0.28) 0%, rgba(11, 19, 43, 0.16) 42%, rgba(7, 13, 30, 0.44) 100%),
+    url('/images/landing/auth_bg_restaurant.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   font-family: var(--mk-font-ui);
   color: var(--mk-text);
   -webkit-font-smoothing: antialiased;
@@ -2420,7 +2442,7 @@ textarea.tm-input {
   }
 }
 
-/* Brand panel: a light-blue scene matching the product photo's own background, so the photo blends in */
+/* Brand panel: AI-generated ambient restaurant background matching the website */
 .tm-auth-aside {
   --aside-px: clamp(28px, 4vw, 56px);
   --aside-py: clamp(28px, 3.5vw, 40px);
@@ -2428,17 +2450,32 @@ textarea.tm-input {
   top: 0;
   height: 100vh;
   height: 100dvh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  row-gap: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   padding: var(--aside-py) var(--aside-px);
-  background: linear-gradient(180deg, #F4FAFF 0%, #E0F2FE 42%, #D5EDFD 100%);
-  border-right: 1px solid #D3E6F3;
-  color: var(--mk-text);
-  overflow: hidden;
+  background-color: transparent;
+  background-image:
+    linear-gradient(180deg, rgba(7, 13, 30, 0.22) 0%, rgba(11, 19, 43, 0.10) 42%, rgba(7, 13, 30, 0.38) 100%),
+    url('/images/landing/auth_bg_restaurant.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  overflow-y: auto;
   isolation: isolate;
   box-sizing: border-box;
+}
+
+.tm-auth-aside::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+              radial-gradient(circle at 85% 85%, rgba(2, 132, 199, 0.10) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .tm-auth-aside > .tm-brand {
@@ -2450,11 +2487,17 @@ textarea.tm-input {
 .tm-auth-aside-body {
   position: relative;
   z-index: 1;
-  max-width: 480px;
+  max-width: 520px;
+  margin: 28px 0 auto;
 }
 
 .tm-auth-aside .tm-eyebrow {
   margin-bottom: 14px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38BDF8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .tm-auth-title {
@@ -2463,56 +2506,54 @@ textarea.tm-input {
   font-size: clamp(1.75rem, 2.4vw, 2.25rem);
   line-height: 1.22;
   letter-spacing: -0.015em;
-  color: var(--mk-text);
+  color: #FFFFFF;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   margin-bottom: 14px;
   text-wrap: balance;
 }
 
 .tm-auth-title em {
-  color: var(--mk-brand);
+  color: #38BDF8;
+  font-style: normal;
 }
 
 .tm-auth-aside .tm-auth-desc {
-  color: var(--mk-text-2);
+  color: #E2E8F0;
   margin-bottom: 22px;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Product photo: fills the space between the copy and the footer, out to the panel's side edges. The whole
-   photo always shows (scaled to fit), and its edges fade into the panel's blue. */
-.tm-auth-visual {
-  grid-row: 3;
-  grid-column: 1;
-  position: relative;
-  z-index: 0;
-  min-height: 0;
-  margin: 0 calc(-1 * var(--aside-px));
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  pointer-events: none;
+.tm-auth-aside .tm-checklist {
+  background: rgba(11, 19, 43, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--mk-r-lg);
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.tm-auth-visual img {
-  display: block;
-  max-width: 100%;
-  /* Capped so the photo stays a small accent, however tall the screen */
-  max-height: min(100%, 120px);
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  -webkit-mask-image:
-    linear-gradient(to bottom, transparent 0, #000 16%, #000 90%, transparent 100%),
-    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, transparent 0, #000 16%, #000 90%, transparent 100%),
-    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
-  mask-composite: intersect;
+.tm-auth-aside .tm-checklist li {
+  color: #F8FAFC;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.tm-auth-aside .tm-check-icon {
+  background: rgba(56, 189, 248, 0.22);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #38BDF8;
+}
+
+.tm-auth-aside-spacer {
+  flex: 1;
+  min-height: 24px;
 }
 
 .tm-auth-aside-foot {
-  grid-row: 4;
-  grid-column: 1;
   position: relative;
   z-index: 1;
   display: flex;
@@ -2521,9 +2562,10 @@ textarea.tm-input {
   flex-wrap: wrap;
   gap: 10px 24px;
   padding-top: 18px;
-  border-top: 1px solid rgba(15, 27, 45, 0.14);
+  margin-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   font-size: 0.8125rem;
-  color: var(--mk-text-2);
+  color: #94A3B8;
 }
 
 .tm-auth-aside-foot span {
@@ -2537,16 +2579,28 @@ textarea.tm-input {
 }
 
 .tm-auth-secure {
-  color: var(--mk-text-2);
+  color: #E2E8F0;
+  font-weight: 500;
 }
 
 .tm-auth-secure svg {
-  color: var(--mk-brand);
+  color: #38BDF8;
 }
 
 .tm-auth-devices {
   display: inline-flex;
   gap: 14px;
+  color: #CBD5E1;
+}
+
+.tm-auth-devices span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tm-auth-devices svg {
+  color: #38BDF8;
 }
 
 /* Very short screens only: drop the photo so the copy never gets cramped */
@@ -2560,7 +2614,10 @@ textarea.tm-input {
 .tm-auth-main {
   display: flex;
   flex-direction: column;
-  padding: 24px clamp(20px, 5vw, 64px);
+  padding: 24px clamp(28px, 4vw, 56px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .tm-auth-topbar {
@@ -2598,9 +2655,9 @@ textarea.tm-input {
 
 .tm-auth-form-wrap {
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   margin: auto;
-  padding-block: 40px;
+  padding-block: 36px;
 }
 
 .tm-auth-head {
@@ -2776,18 +2833,64 @@ textarea.tm-input {
 
   .tm-auth-shell {
     grid-template-columns: minmax(0, 1fr);
+    background-image:
+      linear-gradient(180deg, rgba(7, 13, 30, 0.35) 0%, rgba(11, 19, 43, 0.22) 50%, rgba(7, 13, 30, 0.50) 100%),
+      url('/images/landing/auth_bg_restaurant.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   .tm-auth-aside {
     display: none;
   }
 
+  .tm-auth-main {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 20px 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
   .tm-auth-topbar {
+    width: 100%;
+    max-width: 440px;
     justify-content: space-between;
+    margin-bottom: 12px;
   }
 
   .tm-auth-topbar .tm-brand {
     display: inline-flex;
+  }
+
+  .tm-auth-topbar .tm-brand .tm-brand-word {
+    color: #FFFFFF;
+  }
+
+  .tm-auth-topbar .tm-auth-back {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .tm-auth-topbar .tm-auth-back:hover {
+    background: rgba(255, 255, 255, 0.28);
+    color: #FFFFFF;
+  }
+
+  .tm-auth-form-wrap {
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: clamp(24px, 5vw, 36px) clamp(20px, 4vw, 32px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    margin: auto 0;
   }
 }
 
@@ -2867,6 +2970,7 @@ textarea.tm-input {
   .tm-hero-frame {
     padding: 10px;
     border-radius: var(--mk-r-xl);
+    max-width: 100%;
   }
 
   .tm-spec-strip {
@@ -2910,6 +3014,136 @@ textarea.tm-input {
   .tm-cta-perks {
     flex-direction: column;
     align-items: center;
+  }
+}
+
+/* Phones & Compact Mobile Viewports (<= 480px, e.g. iPhone, Samsung Galaxy, Pixel) */
+@media (max-width: 480px) {
+  .tm-content-wrapper,
+  .tm-page-hero-inner,
+  .tm-nav-inner,
+  .tm-footer-inner {
+    padding-inline: clamp(14px, 4vw, 18px);
+  }
+
+  .tm-home-hero {
+    padding-block: 10px 40px;
+  }
+
+  .tm-home-hero .tm-display {
+    font-size: clamp(1.85rem, 8vw, 2.35rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .tm-home-hero-actions {
+    margin-top: 24px;
+  }
+
+  .tm-actions:not(.is-inline) {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .tm-actions:not(.is-inline) .tm-btn {
+    width: 100%;
+    flex: 1 1 100%;
+    justify-content: center;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  /* Single Column Spec Strip for Complete Text Visibility without Overflow */
+  .tm-spec-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 0 4px;
+  }
+
+  .tm-spec-strip li {
+    border-left: 0 !important;
+    background: var(--mk-sand);
+    border-radius: var(--mk-r-sm);
+    padding: 8px 14px;
+  }
+
+  /* Clean Single Column Stats Grid for Mobile */
+  .tm-stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tm-stat,
+  .tm-stat:first-child,
+  .tm-stat:nth-child(even) {
+    border-left: 0;
+    border-top: 1px solid var(--mk-line);
+    padding: 22px 0;
+  }
+
+  .tm-stat:first-child {
+    border-top: 0;
+  }
+
+  .tm-stat-number {
+    font-size: 2.25rem;
+    margin-bottom: 8px;
+  }
+
+  .tm-trust-row {
+    margin-top: 20px;
+    gap: 8px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .tm-plan {
+    padding: 24px 18px;
+  }
+
+  .tm-plan-price {
+    font-size: 2.25rem;
+  }
+
+  .tm-table-wrap {
+    margin-inline: -4px;
+    border-radius: var(--mk-r-md);
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tm-table {
+    min-width: 580px;
+    font-size: 0.82rem;
+  }
+
+  .tm-table th,
+  .tm-table td {
+    padding: 12px 14px;
+  }
+
+  .tm-auth-form-wrap {
+    padding-inline: 16px;
+  }
+}
+
+/* Ultra-Compact Screens (<= 360px, e.g. iPhone SE, compact Android, foldable outer screens) */
+@media (max-width: 360px) {
+  .tm-content-wrapper,
+  .tm-page-hero-inner,
+  .tm-nav-inner,
+  .tm-footer-inner {
+    padding-inline: 12px;
+  }
+
+  .tm-brand-name {
+    font-size: 1.125rem;
+  }
+
+  .tm-btn {
+    padding-inline: 14px;
+    font-size: 0.88rem;
+  }
+
+  .tm-plan-name {
+    font-size: 1.05rem;
   }
 }
 

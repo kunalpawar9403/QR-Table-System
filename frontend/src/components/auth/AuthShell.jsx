@@ -16,7 +16,7 @@ export default function AuthShell({ title, description, points, asideFooter, chi
     <MotionConfig reducedMotion="user">
       <div className="tm-auth-shell">
         <aside className="tm-auth-aside">
-          <BrandMark size={34} />
+          <BrandMark size={34} tone="light" />
 
           <motion.div className="tm-auth-aside-body" {...enterProps(0.05)}>
             <span className="tm-eyebrow">Modern Restaurant Management</span>
@@ -25,13 +25,7 @@ export default function AuthShell({ title, description, points, asideFooter, chi
             <CheckList items={points} compact />
           </motion.div>
 
-          <motion.figure className="tm-auth-visual" {...enterProps(0.12)}>
-            <img
-              src="/images/landing/auth_pos_devices.jpg"
-              alt="TableMint POS on phone and tablet with a thermal receipt printer"
-              decoding="async"
-            />
-          </motion.figure>
+          <div className="tm-auth-aside-spacer" />
 
           <div className="tm-auth-aside-foot">{asideFooter}</div>
         </aside>

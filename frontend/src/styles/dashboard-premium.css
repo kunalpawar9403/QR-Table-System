@@ -11,9 +11,11 @@ body:has(.dash-layout-container),
   --font-main: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
+  /* Marketing Website Slipzen Palette */
   --dx-ink: #0F1B2D;
   --dx-ink-soft: #1D2B42;
-  --dx-paper: #F7F7F4;
+  --dx-ink-deep: #0A1320;
+  --dx-paper: #FAFAF8;
   --dx-surface: #FFFFFF;
   --dx-sand: #F4F2ED;
   --dx-line: #E6E3DC;
@@ -22,7 +24,10 @@ body:has(.dash-layout-container),
   --dx-text: #0F1B2D;
   --dx-text-2: #4A5465;
   --dx-text-3: #6B7485;
+  --dx-placeholder: #9AA1AC;
   --dx-brand: #0369A1;
+  --dx-brand-hover: #075985;
+  --dx-brand-bright: #0284C7;
   --dx-brand-tint: #EDF5FA;
   --dx-brand-on-dark: #8CCBEF;
   --dx-success: #15803D;
@@ -37,6 +42,50 @@ body:has(.dash-layout-container),
   --dx-shadow: 0 1px 2px rgba(15, 27, 45, 0.04);
   --dx-shadow-hover: 0 6px 18px -8px rgba(15, 27, 45, 0.14);
   --dx-ring: 0 0 0 3px rgba(3, 105, 161, 0.16);
+
+  /* Global legacy variable overrides for total dashboard cohesion */
+  --color-primary-blue: #0369A1;
+  --color-primary-hover: #075985;
+  --color-primary-bright: #0284C7;
+  --color-primary-light: #EDF5FA;
+  --color-primary-soft: #F4F8FA;
+  --color-primary-border: #BAE6FD;
+  --color-dark-text: #0F1B2D;
+  --color-secondary-text: #4A5465;
+  --color-muted-text: #6B7485;
+  --color-page-bg: #FAFAF8;
+  --color-section-bg: #F4F2ED;
+  --color-card-bg: #FFFFFF;
+  --color-border: #E6E3DC;
+  --color-border-light: #EFEDE8;
+  --color-border-strong: #D7D3C9;
+  --color-footer-bg: #0F1B2D;
+
+  --tm-deep-green: #0F1B2D;
+  --tm-deep-green-dark: #0A1320;
+  --tm-deep-green-light: #1D2B42;
+  --tm-primary-green: #0369A1;
+  --tm-primary-green-hover: #075985;
+  --tm-mint: #0369A1;
+  --tm-mint-soft: #EDF5FA;
+  --tm-mint-glow: rgba(3, 105, 161, 0.25);
+  --tm-bg: #FAFAF8;
+  --tm-white: #FFFFFF;
+  --tm-text: #0F1B2D;
+  --tm-text-muted: #4A5465;
+  --tm-text-subtle: #6B7485;
+  --tm-border: #E6E3DC;
+  --tm-border-light: #EFEDE8;
+
+  --bg-page: var(--dx-paper);
+  --bg-darker: var(--dx-sand);
+  --bg-dark: var(--dx-ink);
+  --bg-card: var(--dx-surface);
+  --border-subtle: var(--dx-line);
+  --border-light: var(--dx-line-soft);
+  --text-main: var(--dx-text);
+  --text-muted: var(--dx-text-2);
+  --text-dim: var(--dx-text-3);
 }
 
 .dash-layout-container {
@@ -415,6 +464,335 @@ body:has(.dash-layout-container) .dash-modal-card :is(.dash-form-input, .dash-fo
 }
 
 /* =========================================================
+   TOTAL DASHBOARD — UNIVERSAL THEME (ALL SCREENS & MOBILE)
+   Applies the exact website theme, typography, cards & color palette
+   across all tabs, modals, tables, and views on all devices.
+   ========================================================= */
+
+/* Canvas across all screens */
+body:has(.dash-layout-container),
+.dash-layout-container,
+.dash-layout-container .dash-main-area {
+  background-color: var(--dx-paper) !important;
+  color: var(--dx-text) !important;
+  font-family: var(--font-main) !important;
+}
+
+/* Sidebar theme — Light Blue matching product showcase image */
+.dash-layout-container .dash-sidebar {
+  background: linear-gradient(180deg, #EDF7FF 0%, #E0F2FE 45%, #D5EDFD 100%) !important;
+  border-right: 1px solid #BAE6FD !important;
+  color: #0F172A !important;
+}
+
+/* Mobile top bar: exact website dark band/footer color #0F1B2D */
+.admin-mobile-top-bar {
+  background-color: var(--dx-ink) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 18px rgba(15, 27, 45, 0.25) !important;
+  color: #FFFFFF !important;
+}
+
+.admin-mobile-top-bar .mobile-brand-title {
+  color: #FFFFFF !important;
+}
+
+.admin-mobile-top-bar .mobile-header-tab-title {
+  color: #FFFFFF !important;
+}
+
+/* Mobile bottom navigation bar: clean white with website brand active indicator */
+.admin-mobile-bottom-bar {
+  background: var(--dx-surface) !important;
+  border-top: 1px solid var(--dx-line) !important;
+  box-shadow: 0 -4px 16px rgba(15, 27, 45, 0.05) !important;
+}
+
+.admin-mobile-bottom-bar .mobile-bottom-btn {
+  color: var(--dx-text-3) !important;
+}
+
+.admin-mobile-bottom-bar .mobile-bottom-btn.active {
+  color: var(--dx-brand) !important;
+}
+
+.admin-mobile-bottom-bar .mobile-bottom-btn.active .mobile-tab-icon {
+  color: var(--dx-brand) !important;
+}
+
+/* Mobile drawer sheet: website paper/surface */
+.mobile-admin-drawer-backdrop {
+  background: rgba(15, 27, 45, 0.6) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+.mobile-admin-drawer-card {
+  background: var(--dx-surface) !important;
+  border-top: 3px solid var(--dx-brand) !important;
+  border-left: 1px solid var(--dx-line) !important;
+  border-right: 1px solid var(--dx-line) !important;
+  color: var(--dx-text) !important;
+}
+
+.drawer-header-row {
+  border-bottom: 1px solid var(--dx-line) !important;
+}
+
+.drawer-action-btn {
+  background: var(--dx-paper) !important;
+  border: 1px solid var(--dx-line) !important;
+  color: var(--dx-text) !important;
+}
+
+.drawer-action-btn:hover {
+  background: var(--dx-sand) !important;
+  border-color: var(--dx-line-strong) !important;
+}
+
+.drawer-action-btn.active {
+  background: var(--dx-brand-tint) !important;
+  border-color: var(--dx-brand) !important;
+}
+
+.drawer-btn-title {
+  color: var(--dx-text) !important;
+}
+
+.drawer-btn-sub {
+  color: var(--dx-text-2) !important;
+}
+
+/* Universal Cards & Panels across ALL tabs and screen sizes */
+body:has(.dash-layout-container) :is(
+  .floor-status-panel, .recent-orders-card, .settings-card, .settings-nav-card, .settings-form-card,
+  .billing-active-order-card, .recent-bills-card, .thermal-receipt-preview-card, .pos-print-preview-card,
+  .billing-upi-qr-card, .customers-table-card, .staff-role-card, .integration-card,
+  .reports-kpi-card, .reports-chart-card, .popular-items-card, .orders-table-card, .admin-table-card,
+  .admin-card-inner, .kds-order-card, .kds-summary-strip, .section-pagination-bar, .menu-table-wrap,
+  .order-ticket-card, .empty-state-box, .profile-card, .profile-hero-card, .mobile-restaurant-meta-card,
+  .mobile-live-orders-card, .mobile-promo-hero-banner, .tablemint-promo-card, .stands-toolbar, .qr-stand-card
+) {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line) !important;
+  border-radius: var(--dx-radius);
+  box-shadow: var(--dx-shadow) !important;
+  color: var(--dx-text) !important;
+}
+
+/* Card Headings & Titles */
+body:has(.dash-layout-container) :is(
+  .floor-map-title-row h3, .recent-orders-header h3, .settings-card-title, .floor-panel-title,
+  .recent-bills-header h4, .billing-table-info h3, .kpi-title, .metric-title, .page-title,
+  .mobile-restaurant-title, .mobile-live-header h3, .profile-hero-name, .dialog-title,
+  .admin-page-container h2, .admin-page-container h3, .admin-page-container h4
+) {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--dx-text) !important;
+}
+
+/* Secondary & Muted Copy */
+body:has(.dash-layout-container) :is(
+  .page-subtitle, .kpi-label, .metric-sub, .mobile-restaurant-sub,
+  .profile-hero-email, .profile-info-label, .profile-field-label,
+  .ticket-time-ago, .recent-orders-subtitle, .floor-panel-sub,
+  .settings-card-desc, .table-detail-meta
+) {
+  color: var(--dx-text-2) !important;
+}
+
+/* Orders Tab — Order Ticket Cards */
+body:has(.dash-layout-container) .order-ticket-card {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line) !important;
+  color: var(--dx-text) !important;
+  box-shadow: var(--dx-shadow) !important;
+}
+
+body:has(.dash-layout-container) .ticket-order-id {
+  color: var(--dx-brand) !important;
+  font-family: var(--font-display) !important;
+  font-weight: 700 !important;
+}
+
+body:has(.dash-layout-container) .ticket-header,
+body:has(.dash-layout-container) .ticket-footer {
+  border-color: var(--dx-line-soft) !important;
+}
+
+body:has(.dash-layout-container) .ticket-item-row {
+  color: var(--dx-text) !important;
+  font-weight: 500 !important;
+}
+
+body:has(.dash-layout-container) .ticket-item-qty {
+  color: var(--dx-brand) !important;
+  font-weight: 700 !important;
+}
+
+body:has(.dash-layout-container) .ticket-notes {
+  background: var(--dx-warning-tint) !important;
+  color: var(--dx-warning) !important;
+  border: 1px dashed rgba(180, 83, 9, 0.3) !important;
+  border-radius: var(--dx-radius-sm) !important;
+}
+
+/* Menu Catalog Tab */
+body:has(.dash-layout-container) .menu-table-wrap {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line) !important;
+  box-shadow: var(--dx-shadow) !important;
+}
+
+body:has(.dash-layout-container) .menu-crud-row.header {
+  background: var(--dx-sand) !important;
+  color: var(--dx-text-2) !important;
+  border-bottom: 1px solid var(--dx-line) !important;
+  font-weight: 600 !important;
+}
+
+body:has(.dash-layout-container) .menu-crud-row {
+  border-bottom: 1px solid var(--dx-line-soft) !important;
+  color: var(--dx-text) !important;
+}
+
+body:has(.dash-layout-container) .menu-crud-row:hover {
+  background: var(--dx-paper) !important;
+}
+
+body:has(.dash-layout-container) .dish-name-text {
+  color: var(--dx-text) !important;
+  font-weight: 600 !important;
+}
+
+body:has(.dash-layout-container) .dish-desc-text {
+  color: var(--dx-text-2) !important;
+}
+
+body:has(.dash-layout-container) .menu-crud-cat-pill-desktop {
+  background: var(--dx-brand-tint) !important;
+  color: var(--dx-brand) !important;
+  border: 1px solid rgba(3, 105, 161, 0.2) !important;
+  font-weight: 600 !important;
+}
+
+/* Profile Tab */
+body:has(.dash-layout-container) :is(.profile-card, .profile-hero-card) {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line) !important;
+  color: var(--dx-text) !important;
+  box-shadow: var(--dx-shadow) !important;
+}
+
+body:has(.dash-layout-container) .profile-hero-card::before {
+  background: linear-gradient(135deg, rgba(3, 105, 161, 0.12), rgba(3, 105, 161, 0.02)) !important;
+  border-bottom: 1px solid var(--dx-line-soft) !important;
+}
+
+body:has(.dash-layout-container) .profile-hero-name {
+  color: var(--dx-text) !important;
+  font-weight: 700 !important;
+}
+
+body:has(.dash-layout-container) .profile-hero-email {
+  color: var(--dx-text-2) !important;
+}
+
+body:has(.dash-layout-container) .profile-info-list {
+  border-top: 1px solid var(--dx-line-soft) !important;
+}
+
+body:has(.dash-layout-container) .profile-info-label {
+  color: var(--dx-text-2) !important;
+}
+
+body:has(.dash-layout-container) .profile-info-value {
+  color: var(--dx-text) !important;
+  font-weight: 600 !important;
+}
+
+body:has(.dash-layout-container) .profile-field-label {
+  color: var(--dx-text-2) !important;
+  font-weight: 500 !important;
+}
+
+body:has(.dash-layout-container) .profile-input-readonly {
+  background: var(--dx-sand) !important;
+  border: 1px solid var(--dx-line) !important;
+  color: var(--dx-text-2) !important;
+}
+
+body:has(.dash-layout-container) .profile-logout-card {
+  background: var(--dx-danger-tint) !important;
+  border: 1px solid rgba(185, 28, 28, 0.2) !important;
+  border-radius: var(--dx-radius) !important;
+}
+
+body:has(.dash-layout-container) .profile-logout-text h4 {
+  color: var(--dx-danger) !important;
+}
+
+body:has(.dash-layout-container) .profile-logout-text p {
+  color: var(--dx-text-2) !important;
+}
+
+/* Universal Search & Form Controls */
+body:has(.dash-layout-container) :is(
+  .search-input-box, .global-command-search, .dash-form-input, .dash-form-select, .dash-form-textarea, .profile-input-field
+) {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line-strong) !important;
+  border-radius: var(--dx-radius-sm) !important;
+  color: var(--dx-text) !important;
+  font-family: var(--font-main) !important;
+}
+
+body:has(.dash-layout-container) :is(
+  .search-input-box, .global-command-search
+) input {
+  color: var(--dx-text) !important;
+  font-family: var(--font-main) !important;
+}
+
+body:has(.dash-layout-container) :is(
+  .search-input-box, .global-command-search
+) input::placeholder {
+  color: var(--dx-placeholder) !important;
+}
+
+body:has(.dash-layout-container) :is(
+  .search-input-box:focus-within, .global-command-search:focus-within,
+  .dash-form-input:focus, .dash-form-select:focus, .dash-form-textarea:focus, .profile-input-field:focus
+) {
+  border-color: var(--dx-brand) !important;
+  box-shadow: var(--dx-ring) !important;
+}
+
+/* Universal Filter Pills */
+body:has(.dash-layout-container) .admin-filter-pill {
+  background: var(--dx-surface) !important;
+  border: 1px solid var(--dx-line) !important;
+  color: var(--dx-text-2) !important;
+  border-radius: 999px !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease !important;
+}
+
+body:has(.dash-layout-container) .admin-filter-pill:hover {
+  background: var(--dx-sand) !important;
+  color: var(--dx-text) !important;
+  border-color: var(--dx-line-strong) !important;
+}
+
+body:has(.dash-layout-container) .admin-filter-pill.active {
+  background: var(--dx-ink) !important;
+  color: #FFFFFF !important;
+  border-color: var(--dx-ink) !important;
+}
+
+/* =========================================================
    DESKTOP
    ========================================================= */
 @media (min-width: 981px) {
@@ -427,162 +805,186 @@ body:has(.dash-layout-container) .dash-modal-card :is(.dash-form-input, .dash-fo
   }
 
   .dash-layout-container .dash-main-area {
-    padding: 20px 28px 48px;
-    gap: 20px;
+    padding: 0 28px 48px !important;
+    gap: 0 !important;
   }
 
   .dash-layout-container .overview-content-wrapper {
     gap: 20px;
   }
 
-  /* ---------- Sidebar ---------- */
+  /* ---------- Sidebar (Light Blue Matching Product Showcase Image) ---------- */
   .dash-layout-container .dash-sidebar {
-    width: 248px;
-    padding: 20px 14px 16px;
-    background-color: var(--dx-ink) !important;
-    border-right: 0 !important;
+    width: 250px;
+    padding: 18px 14px 16px;
+    background: linear-gradient(180deg, #EDF7FF 0%, #E0F2FE 45%, #D5EDFD 100%) !important;
+    border-right: 1px solid #BAE6FD !important;
+    color: #0F172A !important;
   }
 
   .dash-sidebar .sidebar-top {
-    gap: 14px;
+    gap: 16px;
   }
 
   .dash-sidebar .sidebar-brand-box {
-    padding: 0 8px 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 6px 16px;
+    border-bottom: 1px solid rgba(186, 230, 253, 0.8);
   }
 
   .dash-sidebar .sidebar-brand-text h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: #0F172A !important;
   }
 
   .dash-sidebar .brand-mint-text {
-    color: var(--dx-brand-on-dark);
+    color: #0284C7 !important;
   }
 
   .dash-sidebar .sidebar-brand-text p {
     margin-top: 3px;
-    font-size: 0.625rem;
-    font-weight: 500;
-    letter-spacing: 0.14em;
-    color: rgba(255, 255, 255, 0.5);
-    opacity: 1;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #0369A1 !important;
+    text-transform: uppercase;
   }
 
   .dash-sidebar .sidebar-nav-list {
-    gap: 2px;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
   }
 
   .dash-sidebar .sidebar-nav-item {
     position: relative;
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.68);
-    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #0F172A !important;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.18s ease;
   }
 
   .dash-sidebar .sidebar-nav-item svg {
-    color: rgba(255, 255, 255, 0.48);
+    color: #0284C7 !important;
+    transition: color 0.18s ease;
+    flex-shrink: 0;
   }
 
   .dash-sidebar .sidebar-nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.75) !important;
+    color: #0369A1 !important;
   }
 
   .dash-sidebar .sidebar-nav-item:hover svg {
-    color: rgba(255, 255, 255, 0.85);
+    color: #0284C7 !important;
   }
 
   .dash-sidebar .sidebar-nav-item.active {
-    background: rgba(255, 255, 255, 0.09) !important;
-    border-color: transparent !important;
+    background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%) !important;
+    border: 1px solid rgba(125, 211, 252, 0.45) !important;
     color: #FFFFFF !important;
-    font-weight: 500 !important;
-    box-shadow: none !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+    border-radius: 10px !important;
   }
 
   .dash-sidebar .sidebar-nav-item.active::before {
-    content: '';
-    position: absolute;
-    left: -14px;
-    top: 50%;
-    width: 3px;
-    height: 20px;
-    transform: translateY(-50%);
-    border-radius: 0 3px 3px 0;
-    background: var(--dx-brand-on-dark);
+    display: none !important;
   }
 
   .dash-sidebar .sidebar-nav-item.active svg {
-    color: var(--dx-brand-on-dark) !important;
+    color: #FFFFFF !important;
   }
 
   .dash-sidebar .sidebar-nav-item:focus-visible {
-    outline: 2px solid var(--dx-brand-on-dark);
-    outline-offset: -2px;
+    outline: 2px solid #0284C7;
+    outline-offset: 1px;
+  }
+
+  .dash-sidebar .sidebar-badge {
+    background: rgba(2, 132, 199, 0.12);
+    color: #0369A1;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
   }
 
   .dash-sidebar .sidebar-badge.sidebar-badge-new {
-    background: var(--dx-brand-on-dark);
-    color: var(--dx-ink);
-    font-weight: 600;
-    box-shadow: none;
-    animation: none;
+    background: #0284C7;
+    color: #FFFFFF;
+    font-weight: 700;
   }
 
   .dash-sidebar .sidebar-nav-item.active .sidebar-badge {
-    background: var(--dx-brand-on-dark) !important;
-    color: var(--dx-ink) !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
   }
 
   .dash-sidebar .sidebar-divider {
-    margin: 12px 8px;
-    background: rgba(255, 255, 255, 0.08);
+    margin: 12px 6px;
+    height: 1px;
+    background: rgba(186, 230, 253, 0.8);
   }
 
   .dash-sidebar .sidebar-bottom-status {
-    padding: 11px 12px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--dx-radius-sm);
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(2, 132, 199, 0.22) !important;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08) !important;
+    transition: all 0.2s ease;
   }
 
   .dash-sidebar .sidebar-bottom-status:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.14);
+    background: #FFFFFF !important;
+    border-color: #0284C7 !important;
     transform: none;
   }
 
+  .dash-sidebar .sidebar-bottom-status .status-card-title {
+    color: #0F172A !important;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .dash-sidebar .sidebar-bottom-status .status-card-sub {
+    color: #0369A1 !important;
+    font-size: 0.72rem;
+  }
+
+  .dash-sidebar .sidebar-bottom-status svg {
+    color: #0284C7 !important;
+  }
+
   .dash-sidebar .status-dot-green {
-    background: #22C55E;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+    background: #16A34A;
+    box-shadow: 0 0 6px rgba(22, 163, 74, 0.4);
   }
 
-  .dash-sidebar .status-card-title {
-    font-size: 0.8125rem;
-    font-weight: 600;
-  }
-
-  .dash-sidebar .status-card-sub {
-    font-size: 0.6875rem;
-    color: rgba(255, 255, 255, 0.55);
-  }
-
-  /* ---------- Top bar: flat, sits on the canvas with a hairline under it ---------- */
+  /* ---------- Top bar: sticky at top, exact website canvas background with a hairline under it ---------- */
   .dash-layout-container .top-command-header {
-    padding: 0 0 16px;
-    background: transparent !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    margin: 0 -28px 20px -28px !important;
+    padding: 14px 28px !important;
+    width: calc(100% + 56px) !important;
+    box-sizing: border-box !important;
+    background: var(--dx-paper) !important;
     border: 0 !important;
     border-bottom: 1px solid var(--dx-line) !important;
-    border-radius: 0;
-    box-shadow: none;
+    border-radius: 0 !important;
+    box-shadow: 0 4px 16px -4px rgba(15, 27, 45, 0.05) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .top-command-header .command-header-left {
@@ -707,6 +1109,19 @@ body:has(.dash-layout-container) .dash-modal-card :is(.dash-form-input, .dash-fo
     margin-bottom: 0;
     flex-wrap: wrap;
     row-gap: 14px;
+  }
+
+  .dash-main-area .menu-page-header-row {
+    margin-bottom: 4px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dash-main-area .menu-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   /* Title block keeps a comfortable width; long action rows drop below it instead of squeezing it */
@@ -1265,53 +1680,47 @@ body:has(.dash-layout-container) .dash-modal-card :is(.dash-form-input, .dash-fo
   }
 
   /* ---------- Kitchen display ---------- */
+  .dash-main-area .kds-metrics-ribbon {
+    margin-bottom: 16px;
+  }
+
+  .dash-main-area .kds-metric-card {
+    background: var(--dx-surface) !important;
+    border: 1px solid var(--dx-line) !important;
+  }
+
+  .dash-main-area .kds-column-lane {
+    background: #F8FAFC !important;
+    border: 1px solid var(--dx-line) !important;
+    border-radius: 16px !important;
+  }
+
   .dash-main-area .kds-col-header {
-    padding: 11px 14px;
+    padding: 10px 14px;
     background: var(--dx-surface) !important;
     border: 1px solid var(--dx-line);
-    border-top: 3px solid var(--dx-line-strong);
-    border-radius: 10px;
-    font-size: 0.84rem;
-    font-weight: 600;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    font-weight: 700;
     color: var(--dx-text);
   }
 
-  .dash-main-area .kds-col-header.pending { border-top-color: #EA580C; }
-  .dash-main-area .kds-col-header.preparing { border-top-color: var(--dx-brand); }
-  .dash-main-area .kds-col-header.ready { border-top-color: #22C55E; }
-  .dash-main-area .kds-col-header.served { border-top-color: var(--dx-text-3); }
+  .dash-main-area .kds-col-header.pending { border-top: 3px solid #EA580C !important; }
+  .dash-main-area .kds-col-header.preparing { border-top: 3px solid var(--dx-brand) !important; }
+  .dash-main-area .kds-col-header.ready { border-top: 3px solid #16A34A !important; }
+  .dash-main-area .kds-col-header.served { border-top: 3px solid var(--dx-text-3) !important; }
 
   .dash-main-area .kds-order-card {
-    padding: 16px;
+    background: var(--dx-surface) !important;
+    border: 1px solid var(--dx-line) !important;
+    padding: 12px;
     border-radius: 12px;
   }
 
-  .dash-main-area .kds-order-id {
-    font-weight: 600;
-  }
-
-  .dash-main-area .kds-order-table {
-    font-weight: 500;
-    color: var(--dx-text-2);
-  }
-
-  .dash-main-area .kds-order-items {
-    color: var(--dx-text);
-  }
-
-  .dash-main-area .kds-btn-action {
-    border-radius: 9px;
-    font-weight: 500;
-  }
-
-  .dash-main-area .kds-btn-action.pending { background: #C2410C; }
-  .dash-main-area .kds-btn-action.preparing { background: var(--dx-brand); }
-  .dash-main-area .kds-btn-action.ready { background: var(--dx-ink); }
-
-  .dash-main-area .kds-summary-strip {
-    border-radius: 12px;
-    font-weight: 500;
-    color: var(--dx-text-2);
+  .dash-main-area .kds-empty-lane {
+    background: var(--dx-surface) !important;
+    border: 1px dashed var(--dx-line-strong) !important;
+    border-radius: 12px !important;
   }
 
   /* ---------- Reports ---------- */

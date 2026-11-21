@@ -283,7 +283,7 @@ export default function MenuItemModal({
               <label className="dash-form-label">Dietary Type</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {[
-                  { id: 'veg', label: 'Veg', color: '#0369A1', bg: '#E0F2FE' },
+                  { id: 'veg', label: 'Veg', color: '#16A34A', bg: '#DCFCE7' },
                   { id: 'non-veg', label: 'Non-Veg', color: '#dc2626', bg: '#fef2f2' },
                   { id: 'egg', label: 'Egg', color: '#F59E0B', bg: '#fffbeb' }
                 ].map((type) => (

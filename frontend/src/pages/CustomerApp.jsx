@@ -85,6 +85,25 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     return sessionStorage.getItem('tm_welcome_dismissed') !== 'true';
   });
 
+  // Ensure body and html background strictly match dark welcome background when active (prevent white gap on mobile pull)
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (showWelcome) {
+        document.body.style.backgroundColor = '#0F172A';
+        document.documentElement.style.backgroundColor = '#0F172A';
+      } else {
+        document.body.style.backgroundColor = '';
+        document.documentElement.style.backgroundColor = '';
+      }
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.backgroundColor = '';
+        document.documentElement.style.backgroundColor = '';
+      }
+    };
+  }, [showWelcome]);
+
   // UI Flow & Active Bottom Tab ('menu' | 'cart' | 'orders' | 'waiter')
   const [activeBottomNav, setActiveBottomNav] = useState('menu');
 
@@ -764,14 +783,8 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             </div>
           </div>
 
-          {/* Luxury Hero Food Image */}
-          <div className="welcome-hero-image-wrap">
-            <img src="/images/welcome_hero.jpg" alt="Good Food Great Moments" className="welcome-hero-img" />
-            <div className="welcome-hero-glow" />
-          </div>
-
-          {/* Welcome Text Content */}
-          <div className="welcome-content-card">
+          {/* Scrollable Middle Content Area */}
+          <div className="welcome-content-scroll-area">
             <h1 className="welcome-headline">Good Food<br />Great Moments</h1>
             <p className="welcome-subtext">
               Explore our menu and place your order right from your table.
@@ -798,7 +811,10 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                 <span className="welcome-feature-text">Contactless Ordering</span>
               </div>
             </div>
+          </div>
 
+          {/* Sticky Bottom Actions Container (Firmly pinned to bottom, no white space) */}
+          <div className="welcome-sticky-bottom-bar">
             {/* Action Button */}
             <button
               className="welcome-view-menu-btn"
@@ -839,104 +855,109 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           ========================================================= */}
       {activeBottomNav === 'menu' && (
         <div className="customer-page-view menu-page-view">
-          {/* Sticky Mobile Header (Matching Exact Reference Screen 2) */}
-          <header className="mobile-menu-header">
-            <div className="menu-header-row">
-              <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
-                <TableMintBrandBadge size={28} />
-                <span className="header-brand-title">Table<span style={{ color: '#7DD3FC' }}>Mint</span></span>
+          {/* Sticky Mobile Header Container - Zero Top Space & Sticks to Top */}
+          <div className="customer-menu-sticky-top-wrap">
+            <header className="mobile-menu-header">
+              <div className="menu-header-row">
+                <div className="menu-brand-wrap" onClick={() => setShowWelcome(true)} style={{ cursor: 'pointer' }}>
+                  <TableMintBrandBadge size={28} />
+                  <span className="header-brand-title">Table<span style={{ color: '#7DD3FC' }}>Mint</span></span>
+                </div>
+                <div className="header-table-pill">
+                  <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
+                </div>
               </div>
-              <div className="header-table-pill">
-                <UtensilsCrossed size={13} /> <span>Table {tableId}</span>
+
+              {/* Search Bar Input */}
+              <div className="menu-search-box">
+                <Search size={16} className="menu-search-icon" />
+                <input
+                  type="text"
+                  className="menu-search-input"
+                  placeholder="Search for dishes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
+                    <X size={14} />
+                  </button>
+                )}
               </div>
+            </header>
+
+            {/* Categories Horizontal Carousel (Dynamic Multi-Tenant Categories) */}
+            <div className="categories-carousel-row">
+              {[
+                { id: 'all', label: 'All', bg: '#E0F2FE', color: '#0369A1' },
+                ...(serverCategories.length > 0
+                  ? serverCategories.map((c, i) => {
+                      const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea', '#e11d48'];
+                      const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff', '#ffe4e6'];
+                      return {
+                        id: c.name.toLowerCase(),
+                        label: c.name,
+                        bg: bgs[i % bgs.length],
+                        color: colors[i % colors.length]
+                      };
+                    })
+                  : [...new Set(menu.map(m => m.category || 'General'))].map((c, i) => {
+                      const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea'];
+                      const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff'];
+                      return {
+                        id: c.toLowerCase(),
+                        label: c.charAt(0).toUpperCase() + c.slice(1),
+                        bg: bgs[i % bgs.length],
+                        color: colors[i % colors.length]
+                      };
+                    }))
+              ].map((cat) => {
+                const isActive = category.toLowerCase() === cat.id.toLowerCase();
+                const iconColor = isActive ? '#ffffff' : cat.color;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    className={`category-item-card ${isActive ? 'active' : ''}`}
+                    onClick={() => {
+                      soundManager.playClick();
+                      setCategory(cat.id);
+                    }}
+                  >
+                    <div className="category-icon-box" style={{ background: isActive ? '#0284C7' : cat.bg }}>
+                      {cat.id === 'all' ? <LayoutGrid size={22} color={iconColor} /> :
+                       cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
+                       cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
+                       <CookingPot size={22} color={iconColor} />}
+                    </div>
+                    <span className="category-label">{cat.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Search Bar Input */}
-            <div className="menu-search-box">
-              <Search size={16} className="menu-search-icon" />
-              <input
-                type="text"
-                className="menu-search-input"
-                placeholder="Search for dishes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button className="clear-search-btn" onClick={() => setSearchQuery('')}>
-                  <X size={14} />
-                </button>
-              )}
+            {/* Popular Dishes Section Header with View All */}
+            <div className="menu-section-header">
+              <h2 className="section-title-text">
+                {category === 'all' ? 'Popular Dishes' : `${category.charAt(0).toUpperCase() + category.slice(1)}`}
+              </h2>
+              <button
+                type="button"
+                className="section-view-all-link"
+                onClick={() => {
+                  setCategory('all');
+                  setSearchQuery('');
+                  setVegOnly(false);
+                }}
+              >
+                View All
+              </button>
             </div>
-          </header>
-
-          {/* Categories Horizontal Carousel (Dynamic Multi-Tenant Categories) */}
-          <div className="categories-carousel-row">
-            {[
-              { id: 'all', label: 'All', bg: '#E0F2FE', color: '#0369A1' },
-              ...(serverCategories.length > 0
-                ? serverCategories.map((c, i) => {
-                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea', '#e11d48'];
-                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff', '#ffe4e6'];
-                    return {
-                      id: c.name.toLowerCase(),
-                      label: c.name,
-                      bg: bgs[i % bgs.length],
-                      color: colors[i % colors.length]
-                    };
-                  })
-                : [...new Set(menu.map(m => m.category || 'General'))].map((c, i) => {
-                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea'];
-                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff'];
-                    return {
-                      id: c.toLowerCase(),
-                      label: c.charAt(0).toUpperCase() + c.slice(1),
-                      bg: bgs[i % bgs.length],
-                      color: colors[i % colors.length]
-                    };
-                  }))
-            ].map((cat) => {
-              const isActive = category.toLowerCase() === cat.id.toLowerCase();
-              const iconColor = isActive ? '#ffffff' : cat.color;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  className={`category-item-card ${isActive ? 'active' : ''}`}
-                  onClick={() => {
-                    soundManager.playClick();
-                    setCategory(cat.id);
-                  }}
-                >
-                  <div className="category-icon-box" style={{ background: isActive ? '#0284C7' : cat.bg }}>
-                    {cat.id === 'all' ? <LayoutGrid size={22} color={iconColor} /> :
-                     cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
-                     cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
-                     <CookingPot size={22} color={iconColor} />}
-                  </div>
-                  <span className="category-label">{cat.label}</span>
-                </button>
-              );
-            })}
           </div>
 
-          {/* Popular Dishes Section Header with View All */}
-          <div className="menu-section-header">
-            <h2 className="section-title-text">Popular Dishes</h2>
-            <button
-              type="button"
-              className="section-view-all-link"
-              onClick={() => {
-                setCategory('all');
-                setSearchQuery('');
-                setVegOnly(false);
-              }}
-            >
-              View All
-            </button>
-          </div>
-
-          {/* 2-Column Food Card Grid (Matching Image 2 Screen 2) */}
-          <div className="food-cards-grid-2col">
+          {/* Scrollable Food Cards Area - ONLY This Scrolls */}
+          <div className="customer-menu-scroll-area">
+            <div className="food-cards-grid-2col">
             {loadingMenu ? (
               <div className="menu-loading-state">
                 <div className="spinner-mint" />
@@ -1041,6 +1062,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                 );
               })
             )}
+            </div>
           </div>
 
           {/* Floating Cart Pill (Shows when cart has items) */}
