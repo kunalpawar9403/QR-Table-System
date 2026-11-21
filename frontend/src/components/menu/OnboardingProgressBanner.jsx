@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 
 export default function OnboardingProgressBanner({
   settings = {},
@@ -63,79 +63,37 @@ export default function OnboardingProgressBanner({
   if (progressPercent === 100) return null;
 
   return (
-    <div 
-      className="onboarding-progress-banner"
-      style={{
-        background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)',
-        borderRadius: 16,
-        padding: collapsed ? '12px 20px' : '20px 24px',
-        color: '#ffffff',
-        marginBottom: 20,
-        boxShadow: '0 4px 16px rgba(2, 132, 199, 0.15)',
-        transition: 'all 0.2s ease'
-      }}
-    >
-      {/* Top Header Row */}
-      <div className="onboarding-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 14 }}>
-        <div className="onboarding-header-left" style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: 'rgba(255, 255, 255, 0.2)',
-            color: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Sparkles size={16} />
-          </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <h4 style={{ fontSize: '0.96rem', fontWeight: 700, margin: 0, color: '#ffffff', wordBreak: 'break-word' }}>
-              Restaurant Setup Progress ({progressPercent}%)
-            </h4>
-            {!collapsed && (
-              <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.85)', margin: '2px 0 0', lineHeight: 1.4 }}>
-                {completedCount} of {steps.length} steps complete. Follow the checklist to launch your dining room.
-              </p>
-            )}
-          </div>
+    <section className={`onboarding-progress-banner ${collapsed ? 'is-collapsed' : ''}`} aria-label="Restaurant setup progress">
+      <div className="onboarding-header-row">
+        <div className="onboarding-header-left">
+          <span className="onboarding-eyebrow">Getting started</span>
+          <h4 className="onboarding-title">
+            Restaurant setup <span className="onboarding-percent">{progressPercent}% complete</span>
+          </h4>
+          {!collapsed && (
+            <p className="onboarding-sub">
+              {completedCount} of {steps.length} steps complete. Follow the checklist to launch your dining room.
+            </p>
+          )}
         </div>
 
-        <div className="onboarding-header-right" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-          {/* Progress Bar in Header */}
-          <div 
+        <div className="onboarding-header-right">
+          <div
             className="onboarding-progress-bar-wrap"
-            style={{
-              width: 120,
-              height: 8,
-              background: 'rgba(255, 255, 255, 0.15)',
-              borderRadius: 4,
-              overflow: 'hidden'
-            }}
+            role="progressbar"
+            aria-valuenow={progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Setup progress"
           >
-            <div style={{
-              width: `${progressPercent}%`,
-              height: '100%',
-              background: '#0284C7',
-              borderRadius: 4,
-              transition: 'width 0.4s ease'
-            }} />
+            <div className="onboarding-progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
 
           <button
             type="button"
+            className="onboarding-collapse-btn"
             onClick={() => setCollapsed(!collapsed)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 4
-            }}
+            aria-expanded={!collapsed}
             title={collapsed ? 'Expand Checklist' : 'Collapse Checklist'}
           >
             {collapsed ? <ChevronDown size={18} /> : <ChevronUp size={18} />}
@@ -143,61 +101,26 @@ export default function OnboardingProgressBanner({
         </div>
       </div>
 
-      {/* Expanded Checklist Grid */}
       {!collapsed && (
-        <div 
-          className="onboarding-checklist-grid"
-          style={{
-            marginTop: 16,
-            paddingTop: 16,
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 10
-          }}
-        >
-          {steps.map(step => (
-            <div
-              key={step.id}
-              onClick={step.action}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '6px 10px',
-                borderRadius: 8,
-                background: step.isCompleted ? 'rgba(2, 132, 199, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                cursor: 'pointer',
-                transition: 'background 0.15s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = step.isCompleted
-                  ? 'rgba(2, 132, 199, 0.18)'
-                  : 'rgba(255, 255, 255, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = step.isCompleted
-                  ? 'rgba(2, 132, 199, 0.1)'
-                  : 'rgba(255, 255, 255, 0.05)';
-              }}
-            >
-              {step.isCompleted ? (
-                <CheckCircle2 size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-              ) : (
-                <Circle size={16} style={{ color: '#64748b', flexShrink: 0 }} />
-              )}
-              <span style={{
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                color: step.isCompleted ? '#BAE6FD' : '#cbd5e1',
-                textDecoration: step.isCompleted ? 'line-through' : 'none'
-              }}>
-                {step.label}
-              </span>
-            </div>
+        <ol className="onboarding-checklist-grid">
+          {steps.map((step, index) => (
+            <li key={step.id}>
+              <button
+                type="button"
+                className={`onboarding-step ${step.isCompleted ? 'is-done' : 'is-todo'}`}
+                onClick={step.action}
+              >
+                <span className="onboarding-step-mark" aria-hidden="true">
+                  {step.isCompleted ? <Check size={13} strokeWidth={2.5} /> : index + 1}
+                </span>
+                <span className="onboarding-step-label">{step.label}</span>
+                {!step.isCompleted && <ArrowRight size={15} className="onboarding-step-arrow" aria-hidden="true" />}
+                <span className="sr-only">{step.isCompleted ? ' (completed)' : ' (to do)'}</span>
+              </button>
+            </li>
           ))}
-        </div>
+        </ol>
       )}
-    </div>
+    </section>
   );
 }

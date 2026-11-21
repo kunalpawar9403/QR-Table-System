@@ -1,15 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Mail, 
-  Send, 
-  CheckCircle, 
-  Clock,
-  MapPin
-} from 'lucide-react';
-import { motion } from 'motion/react';
+import { Mail, Send, CheckCircle, Clock, MapPin } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
 import CTASection from '../components/layout/CTASection';
+import Reveal from '../components/marketing/Reveal';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -19,6 +13,8 @@ export default function ContactPage() {
     message: ''
   });
   const [submitted, setSubmitted] = useState(false);
+
+  const updateField = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -33,7 +29,6 @@ export default function ContactPage() {
 
   return (
     <div className="tm-contact-page">
-      {/* Page Hero */}
       <PageHero
         badge="Contact Us Via Email"
         title="We are Here to Answer"
@@ -41,311 +36,154 @@ export default function ContactPage() {
         description="Have questions regarding hardware compatibility, pricing plans, or custom restaurant floor setups? Email our team directly."
       />
 
-      {/* Main Content */}
-      <section style={{ padding: '70px 24px 90px', background: '#F8FAFC' }}>
-        <PageContainer maxWidth="1040px">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-            gap: 32,
-            alignItems: 'start'
-          }}>
-            {/* Left Column: Direct Email Details */}
-            <motion.div 
-              initial={{ opacity: 0, x: -25 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
-            >
-              <div>
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'rgba(2, 132, 199, 0.1)',
-                  color: '#0284C7',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  padding: '5px 12px',
-                  borderRadius: '9999px',
-                  marginBottom: 14
-                }}>
-                  <Mail size={14} />
-                  <span>Email Only Support</span>
-                </span>
-                <h2 style={{ fontSize: '2rem', color: '#0F172A', fontWeight: 800, marginBottom: 12 }}>
-                  Email Our Team
-                </h2>
-                <p style={{ color: '#64748B', lineHeight: 1.6, fontSize: '0.98rem' }}>
-                  We keep our communication fast, documented, and organized through dedicated email support. Every enquiry is routed directly to a product specialist.
-                </p>
-              </div>
+      <section className="tm-section">
+        <PageContainer maxWidth="1120px">
+          <div className="tm-contact-grid">
+            {/* Direct contact details */}
+            <Reveal>
+              <span className="tm-eyebrow">Email Only Support</span>
+              <h2 className="tm-section-title">Email Our Team</h2>
+              <p className="tm-section-subtitle">
+                We keep our communication fast, documented, and organized through dedicated email support. Every enquiry is routed directly to a product specialist.
+              </p>
 
-              {/* Primary Email Card */}
-              <motion.div 
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.25 }}
-                className="tm-card" 
-                style={{
-                  background: '#FFFFFF',
-                  border: '2px solid #0284C7',
-                  boxShadow: '0 8px 30px rgba(2, 132, 199, 0.12)',
-                  padding: '32px'
-                }}
-              >
-                <div style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: '12px',
-                  background: '#E0F2FE',
-                  color: '#0284C7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 16
-                }}>
-                  <Mail size={26} />
-                </div>
-
-                <h3 style={{ fontSize: '1.25rem', color: '#0F172A', marginBottom: 6 }}>
-                  Direct Support & Sales
-                </h3>
-                <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16 }}>
-                  Click below to open your default email app or write to us directly:
-                </p>
-
-                <div style={{
-                  background: '#F8FAFC',
-                  padding: '12px 16px',
-                  borderRadius: '10px',
-                  border: '1px solid #e2e8f0',
-                  marginBottom: 20
-                }}>
-                  <a
-                    href="mailto:support@tablemint.com"
-                    style={{
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      color: '#0284C7',
-                      textDecoration: 'none',
-                      fontFamily: 'var(--font-heading)'
-                    }}
-                  >
-                    support@tablemint.com
-                  </a>
-                </div>
-
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  href="mailto:support@tablemint.com?subject=TableMint%20POS%20Enquiry"
-                  className="tm-btn tm-btn-primary"
-                  style={{ width: '100%', justifyContent: 'center' }}
-                >
-                  <Mail size={16} />
-                  <span>Send Us an Email</span>
-                </motion.a>
-              </motion.div>
-
-              {/* Response Time & Security */}
-              <div className="tm-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <Clock size={20} style={{ color: '#0284C7' }} />
-                  <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>Response Time Guarantee</strong>
-                </div>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                  Our hospitality support team actively monitors our inbox. You will receive a personalized response within <strong>2 to 4 business hours</strong>.
-                </p>
-              </div>
-
-              {/* Corporate Office Info */}
-              <div className="tm-card" style={{ padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                  <MapPin size={20} style={{ color: '#0284C7' }} />
-                  <strong style={{ color: '#0F172A', fontSize: '0.95rem' }}>TableMint Headquarters</strong>
-                </div>
-                <p style={{ fontSize: '0.88rem', color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                  TableMint Technologies Pvt. Ltd.<br />
-                  100 Feet Road, HAL 2nd Stage, Indiranagar,<br />
-                  Bangalore, Karnataka 560038, India
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Right Column: Email Form */}
-            <motion.div 
-              initial={{ opacity: 0, x: 25 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
-              className="tm-card" 
-              style={{ padding: 'clamp(28px, 4vw, 44px)', borderRadius: '24px' }}
-            >
-              <div style={{ marginBottom: 24 }}>
-                <h3 style={{ fontSize: '1.5rem', color: '#0F172A', fontWeight: 800, marginBottom: 8 }}>
-                  Send an Email Message
-                </h3>
-                <p style={{ color: '#64748B', fontSize: '0.92rem' }}>
-                  Fill out the form below to email us your enquiry or question.
-                </p>
-              </div>
-
-              {submitted ? (
-                <div style={{ textAlign: 'center', padding: '36px 16px' }}>
-                  <div style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: '50%',
-                    background: '#E0F2FE',
-                    color: '#0284C7',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 20px'
-                  }}>
-                    <CheckCircle size={32} />
+              <ul className="tm-contact-list">
+                <li className="tm-contact-item">
+                  <span className="tm-contact-icon"><Mail size={18} /></span>
+                  <div>
+                    <h3 className="tm-contact-item-title">Direct Support & Sales</h3>
+                    <a href="mailto:support@tablemint.com" className="tm-contact-email">
+                      support@tablemint.com
+                    </a>
                   </div>
-                  <h4 style={{ fontSize: '1.4rem', color: '#0F172A', marginBottom: 10 }}>
-                    Message Ready!
-                  </h4>
-                  <p style={{ color: '#64748B', lineHeight: 1.6, maxWidth: '420px', margin: '0 auto 24px', fontSize: '0.94rem' }}>
+                </li>
+                <li className="tm-contact-item">
+                  <span className="tm-contact-icon"><Clock size={18} /></span>
+                  <div>
+                    <h3 className="tm-contact-item-title">Response Time Guarantee</h3>
+                    <p>
+                      Our hospitality support team actively monitors our inbox. You will receive a personalized response within <strong>2 to 4 business hours</strong>.
+                    </p>
+                  </div>
+                </li>
+                <li className="tm-contact-item">
+                  <span className="tm-contact-icon"><MapPin size={18} /></span>
+                  <div>
+                    <h3 className="tm-contact-item-title">TableMint Headquarters</h3>
+                    <p>
+                      TableMint Technologies Pvt. Ltd.<br />
+                      100 Feet Road, HAL 2nd Stage, Indiranagar,<br />
+                      Bangalore, Karnataka 560038, India
+                    </p>
+                  </div>
+                </li>
+              </ul>
+
+              <a
+                href="mailto:support@tablemint.com?subject=TableMint%20POS%20Enquiry"
+                className="tm-btn tm-btn-secondary"
+              >
+                <Mail size={16} />
+                <span>Send Us an Email</span>
+              </a>
+            </Reveal>
+
+            {/* Email form */}
+            <Reveal delay={0.08} className="tm-form-card">
+              {submitted ? (
+                <div className="tm-form-success" role="status">
+                  <div className="tm-form-success-icon">
+                    <CheckCircle size={28} />
+                  </div>
+                  <h3 className="tm-form-title">Message Ready!</h3>
+                  <p>
                     Thank you, <strong>{formData.name}</strong>. We received your note. Click the button below to also launch your email client directly if needed:
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleOpenMailClient}
-                      className="tm-btn tm-btn-primary"
-                      style={{ width: '100%' }}
-                    >
+                  <div className="tm-actions">
+                    <button type="button" onClick={handleOpenMailClient} className="tm-btn tm-btn-primary tm-btn-lg">
                       <Mail size={16} />
                       <span>Open in Mail App</span>
-                    </motion.button>
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setSubmitted(false)}
-                      className="tm-btn tm-btn-secondary"
-                      style={{ width: '100%' }}
-                    >
+                    </button>
+                    <button type="button" onClick={() => setSubmitted(false)} className="tm-btn tm-btn-secondary tm-btn-lg">
                       Write Another Note
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                      Your Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Rahul Sharma"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.95rem',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
-                    />
+                <>
+                  <div className="tm-form-head">
+                    <h3 className="tm-form-title">Send an Email Message</h3>
+                    <p>Fill out the form below to email us your enquiry or question.</p>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                      Your Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="rahul@bistro.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.95rem',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
+                  <form onSubmit={handleSubmit} className="tm-form">
+                    <div className="tm-form-row">
+                      <div>
+                        <label htmlFor="contact-name" className="tm-label">Your Name *</label>
+                        <input
+                          id="contact-name"
+                          type="text"
+                          required
+                          autoComplete="name"
+                          placeholder="e.g. Rahul Sharma"
+                          value={formData.name}
+                          onChange={updateField('name')}
+                          className="tm-input"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="contact-email" className="tm-label">Your Email Address *</label>
+                        <input
+                          id="contact-email"
+                          type="email"
+                          required
+                          autoComplete="email"
+                          placeholder="rahul@bistro.com"
+                          value={formData.email}
+                          onChange={updateField('email')}
+                          className="tm-input"
+                        />
+                      </div>
+                    </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                      Subject *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Question about thermal printers & GST billing"
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.95rem',
-                        outline: 'none',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
+                    <div>
+                      <label htmlFor="contact-subject" className="tm-label">Subject *</label>
+                      <input
+                        id="contact-subject"
+                        type="text"
+                        required
+                        placeholder="e.g. Question about thermal printers & GST billing"
+                        value={formData.subject}
+                        onChange={updateField('subject')}
+                        className="tm-input"
+                      />
+                    </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 600, color: '#0F172A', marginBottom: 6 }}>
-                      Your Message *
-                    </label>
-                    <textarea
-                      rows={5}
-                      required
-                      placeholder="Write your questions or setup details here..."
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '0.95rem',
-                        outline: 'none',
-                        boxSizing: 'border-box',
-                        resize: 'vertical'
-                      }}
-                    />
-                  </div>
+                    <div>
+                      <label htmlFor="contact-message" className="tm-label">Your Message *</label>
+                      <textarea
+                        id="contact-message"
+                        rows={5}
+                        required
+                        placeholder="Write your questions or setup details here..."
+                        value={formData.message}
+                        onChange={updateField('message')}
+                        className="tm-input"
+                      />
+                    </div>
 
-                  <motion.button 
-                    type="submit" 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="tm-btn tm-btn-primary tm-btn-lg" 
-                    style={{ width: '100%', marginTop: 6 }}
-                  >
-                    <Send size={18} />
-                    <span>Send Email Enquiry</span>
-                  </motion.button>
-                </form>
+                    <button type="submit" className="tm-btn tm-btn-primary tm-btn-lg tm-btn-block">
+                      <Send size={16} />
+                      <span>Send Email Enquiry</span>
+                    </button>
+                  </form>
+                </>
               )}
-            </motion.div>
+            </Reveal>
           </div>
         </PageContainer>
       </section>
 
-      {/* Final CTA */}
       <CTASection
         title="Ready to Elevate Your Dining Room?"
         subtitle="Sign up in 60 seconds with no credit card required. Experience TableMint's high-speed cloud POS right away."

@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component {
             !
           </div>
           <h2 style={{ color: '#ffffff', margin: 0, fontSize: '1.25rem' }}>Unable to load dashboard view</h2>
-          <p style={{ color: '#94a3b8', maxWidth: 480, fontSize: '0.88rem', margin: 0 }}>
+          <p style={{ color: 'rgba(255, 255, 255, 0.85)', maxWidth: 480, fontSize: '0.88rem', margin: 0 }}>
             {this.state.error?.message || 'A transient error occurred while preparing your restaurant workspace.'}
           </p>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
@@ -73,8 +73,8 @@ class ErrorBoundary extends React.Component {
               onClick={() => { window.location.reload(); }}
               style={{
                 padding: '10px 20px',
-                background: '#0284C7',
-                color: '#ffffff',
+                background: '#ffffff',
+                color: '#0369A1',
                 border: 'none',
                 borderRadius: 8,
                 fontWeight: 600,
@@ -88,8 +88,8 @@ class ErrorBoundary extends React.Component {
               onClick={() => { logoutStaff(); window.location.href = '/login'; }}
               style={{
                 padding: '10px 20px',
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: '#cbd5e1',
+                background: 'rgba(255, 255, 255, 0.14)',
+                color: '#ffffff',
                 border: 'none',
                 borderRadius: 8,
                 fontWeight: 600,
@@ -124,13 +124,13 @@ function ViewLoadingSpinner() {
         style={{
           width: 44,
           height: 44,
-          border: '3px solid rgba(2, 132, 199, 0.2)',
-          borderTopColor: '#0284C7',
+          border: '3px solid rgba(255, 255, 255, 0.25)',
+          borderTopColor: '#ffffff',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite'
         }}
       />
-      <span style={{ fontSize: '0.9rem', color: '#cbd5e1', fontWeight: 600 }}>
+      <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.9)', fontWeight: 600 }}>
         Loading TableMint POS...
       </span>
     </div>

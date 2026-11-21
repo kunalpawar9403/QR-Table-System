@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "local_b8984233b1b2198e",
+    "id": "audit_1795158375555_fb1d7c",
+    "restaurantSlug": "the-spice-lounge",
+    "restaurantId": "rest_0116483031f3",
+    "actorId": "owner",
+    "actorName": "Owner",
+    "actorRole": "admin",
+    "action": "RESTAURANT_ONBOARDED",
+    "entityType": "restaurant",
+    "entityId": "rest_0116483031f3",
+    "details": {
+      "restaurantName": "The Spice Lounge",
+      "slug": "the-spice-lounge"
+    },
+    "createdAt": "2026-11-20T07:06:15.555Z",
+    "updatedAt": "2026-11-20T07:06:15.555Z"
+  }
+]

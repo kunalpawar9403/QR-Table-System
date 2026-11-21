@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  Menu, 
-  X, 
-  ArrowRight, 
-  LayoutDashboard
-} from 'lucide-react';
-import { motion } from 'motion/react';
+import { Menu, X, ArrowRight, LayoutDashboard } from 'lucide-react';
 import { getStaffToken, logoutStaff } from '../../utils/staffAuth';
-import { TableMintBrandBadge } from '../TableMintLogoIcon';
+import BrandMark from '../marketing/BrandMark';
+
+const NAV_LINKS = [
+  { label: 'Home', to: '/' },
+  { label: 'Features', to: '/features' },
+  { label: 'How It Works', to: '/how-it-works' },
+  { label: 'Solutions', to: '/solutions' },
+  { label: 'Pricing', to: '/pricing' },
+  { label: 'Demo', to: '/demo' },
+  { label: 'Contact', to: '/contact' }
+];
 
 export default function PublicNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,15 +21,16 @@ export default function PublicNavbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const closeMenu = () => setMobileMenuOpen(false);
+
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -37,11 +42,7 @@ export default function PublicNavbar() {
 
   // Lock body scroll when mobile drawer is open
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
     return () => {
       document.body.style.overflow = '';
     };
@@ -50,9 +51,7 @@ export default function PublicNavbar() {
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
+      if (e.key === 'Escape' && mobileMenuOpen) setMobileMenuOpen(false);
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -64,191 +63,145 @@ export default function PublicNavbar() {
     navigate('/');
   };
 
-  const navLinks = [
-    { label: 'Home', to: '/' },
-    { label: 'Features', to: '/features' },
-    { label: 'How It Works', to: '/how-it-works' },
-    { label: 'Solutions', to: '/solutions' },
-    { label: 'Pricing', to: '/pricing' },
-    { label: 'Demo', to: '/demo' },
-    { label: 'Contact', to: '/contact' }
-  ];
-
   return (
-    <header className={`tm-saas-navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="tm-navbar-inner">
-        {/* Brand Logo */}
-        <Link to="/" className="tm-brand-link" onClick={() => setMobileMenuOpen(false)}>
-          <TableMintBrandBadge size={36} />
-          <div>
-            <span className="tm-brand-name">Table</span>
-            <span className="tm-brand-accent">Mint</span>
-          </div>
-        </Link>
+    <>
+      <header className={`tm-nav ${scrolled ? 'is-scrolled' : ''}`}>
+        <div className="tm-nav-inner">
+          <BrandMark onClick={closeMenu} />
 
-        {/* Desktop Navigation Links */}
-        <nav className="tm-nav-links" aria-label="Main Navigation">
-          {navLinks.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/'}
-              className={({ isActive }) => `tm-nav-item ${isActive ? 'active' : ''}`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+          <nav className="tm-nav-links" aria-label="Main navigation">
+            {NAV_LINKS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                onClick={() => {
+                  if (item.to === '/') {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }
+                }}
+                className={({ isActive }) => `tm-nav-item ${isActive ? 'active' : ''}`}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
 
-        {/* Desktop Navbar Actions */}
-        <div className="tm-nav-actions">
-          {isAuthed ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                <Link 
-                  to="/dashboard" 
-                  className="tm-btn-primary-nav"
-                  style={{ background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)' }}
-                >
+          <div className="tm-nav-actions">
+            {isAuthed ? (
+              <>
+                <button type="button" onClick={handleLogout} className="tm-btn tm-btn-ghost tm-btn-sm">
+                  Logout
+                </button>
+                <Link to="/dashboard" className="tm-btn tm-btn-primary tm-btn-sm">
                   <LayoutDashboard size={15} />
                   <span>Dashboard</span>
                 </Link>
-              </motion.div>
-              <motion.button 
-                type="button" 
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={handleLogout}
-                className="tm-btn-ghost-nav"
-                style={{ fontSize: '0.82rem', padding: '7px 12px' }}
-              >
-                Logout
-              </motion.button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                <Link to="/login" className="tm-btn-ghost-nav">
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="tm-btn tm-btn-ghost tm-btn-sm">
                   Login
                 </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
-                <Link to="/register" className="tm-btn-primary-nav">
+                <Link to="/register" className="tm-btn tm-btn-primary tm-btn-sm">
                   <span>Get Started</span>
                   <ArrowRight size={14} />
                 </Link>
-              </motion.div>
-            </div>
-          )}
-        </div>
+              </>
+            )}
+          </div>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          type="button"
-          className="tm-mobile-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={mobileMenuOpen}
-        >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
-
-      {/* Mobile Slide-Over Backdrop */}
-      <div 
-        className={`tm-drawer-backdrop ${mobileMenuOpen ? 'active' : ''}`}
-        onClick={() => setMobileMenuOpen(false)}
-        aria-hidden={!mobileMenuOpen}
-      />
-
-      {/* Mobile Slide-Over Drawer (Right to Left) */}
-      <aside 
-        className={`tm-drawer-panel ${mobileMenuOpen ? 'open' : ''}`}
-        aria-label="Mobile Navigation"
-        aria-hidden={!mobileMenuOpen}
-      >
-        {/* Drawer Header */}
-        <div className="tm-drawer-header">
-          <Link to="/" className="tm-brand-link" onClick={() => setMobileMenuOpen(false)}>
-            <TableMintBrandBadge size={34} />
-            <div>
-              <span className="tm-brand-name">Table</span>
-              <span className="tm-brand-accent">Mint</span>
-            </div>
-          </Link>
           <button
             type="button"
-            className="tm-drawer-close-btn"
-            onClick={() => setMobileMenuOpen(false)}
+            className="tm-nav-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="tm-mobile-drawer"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile drawer — kept outside the blurred header so fixed positioning targets the viewport */}
+      <div
+        className={`tm-drawer-backdrop ${mobileMenuOpen ? 'is-open' : ''}`}
+        onClick={closeMenu}
+        aria-hidden="true"
+      />
+
+      <aside
+        id="tm-mobile-drawer"
+        className={`tm-drawer ${mobileMenuOpen ? 'is-open' : ''}`}
+        aria-label="Mobile navigation"
+        inert={!mobileMenuOpen}
+      >
+        <div className="tm-drawer-head">
+          <BrandMark size={30} onClick={closeMenu} />
+          <button
+            type="button"
+            className="tm-nav-toggle"
+            onClick={closeMenu}
             aria-label="Close navigation"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* Drawer Body / Nav Items */}
         <div className="tm-drawer-body">
           <nav className="tm-drawer-nav">
-            {navLinks.map((item) => (
+            {NAV_LINKS.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) => `tm-mobile-nav-link ${isActive ? 'active' : ''}`}
+                onClick={() => {
+                  closeMenu();
+                  if (item.to === '/') {
+                    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                  }
+                }}
+                className={({ isActive }) => `tm-drawer-link ${isActive ? 'active' : ''}`}
               >
                 <span>{item.label}</span>
-                <ArrowRight size={15} className="tm-drawer-link-arrow" />
+                <ArrowRight size={16} />
               </NavLink>
             ))}
           </nav>
 
-          {/* Drawer Bottom Actions */}
           <div className="tm-drawer-actions">
             {isAuthed ? (
               <>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="tm-drawer-btn tm-drawer-btn-primary"
-                >
+                <Link to="/dashboard" onClick={closeMenu} className="tm-btn tm-btn-primary tm-btn-lg tm-btn-block">
                   <LayoutDashboard size={16} />
                   <span>Open POS Dashboard</span>
                 </Link>
                 <button
                   type="button"
                   onClick={() => {
-                    setMobileMenuOpen(false);
+                    closeMenu();
                     handleLogout();
                   }}
-                  className="tm-drawer-btn tm-drawer-btn-secondary"
-                  style={{ color: '#DC2626' }}
+                  className="tm-btn tm-btn-secondary tm-btn-lg tm-btn-block tm-drawer-logout"
                 >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="tm-drawer-btn tm-drawer-btn-secondary"
-                >
+                <Link to="/login" onClick={closeMenu} className="tm-btn tm-btn-secondary tm-btn-lg tm-btn-block">
                   Login to Account
                 </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="tm-drawer-btn tm-drawer-btn-primary"
-                >
+                <Link to="/register" onClick={closeMenu} className="tm-btn tm-btn-primary tm-btn-lg tm-btn-block">
                   <span>Start Free Trial</span>
-                  <ArrowRight size={15} />
+                  <ArrowRight size={16} />
                 </Link>
               </>
             )}
           </div>
         </div>
       </aside>
-    </header>
+    </>
   );
 }
