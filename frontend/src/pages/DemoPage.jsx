@@ -15,7 +15,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
-import CTASection from '../components/layout/CTASection';
 import Reveal from '../components/marketing/Reveal';
 import SectionHeader from '../components/marketing/SectionHeader';
 import CheckList from '../components/marketing/CheckList';
@@ -260,11 +259,6 @@ export default function DemoPage() {
           </AnimatePresence>
         </PageContainer>
       </section>
-
-      <CTASection
-        title="Ready to Test Drive TableMint Yourself?"
-        subtitle="Create your restaurant workspace in 60 seconds with no credit card required and experience the platform right now."
-      />
     </div>
   );
 }

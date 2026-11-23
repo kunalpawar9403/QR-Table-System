@@ -117,7 +117,7 @@ export default function LoginPage() {
         <div>
           <div className="tm-label-row">
             <label htmlFor="login-password" className="tm-label">Password</label>
-            <Link to="/contact" className="tm-auth-forgot" style={{ textDecoration: 'none' }}>Forgot password?</Link>
+            <Link to="/forgot-password" className="tm-auth-forgot" style={{ textDecoration: 'none' }}>Forgot password?</Link>
           </div>
           <div className="tm-input-wrap">
             <Lock size={17} className="tm-input-icon" />

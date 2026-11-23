@@ -9,16 +9,27 @@ export default function BillingToggle({ value, onChange }) {
         aria-pressed={value === 'monthly'}
         onClick={() => onChange('monthly')}
       >
-        Monthly
+        <span>1 Month</span>
       </button>
+
+      <button
+        type="button"
+        className={value === 'quarterly' ? 'is-active' : ''}
+        aria-pressed={value === 'quarterly'}
+        onClick={() => onChange('quarterly')}
+      >
+        <span>3 Months</span>
+        <span className="tm-billing-save">Save 10%</span>
+      </button>
+
       <button
         type="button"
         className={value === 'yearly' ? 'is-active' : ''}
         aria-pressed={value === 'yearly'}
         onClick={() => onChange('yearly')}
       >
-        <span>Annual</span>
-        <span className="tm-billing-save">Save 20%</span>
+        <span>1 Year</span>
+        <span className="tm-billing-save">Save 25%</span>
       </button>
     </div>
   );

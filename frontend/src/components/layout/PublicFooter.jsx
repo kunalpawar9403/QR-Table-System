@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ShieldCheck } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import BrandMark from '../marketing/BrandMark';
 
 const FOOTER_COLUMNS = [
@@ -41,6 +41,9 @@ const FOOTER_COLUMNS = [
     key: 'company',
     title: 'Company',
     links: [
+      { label: 'Privacy Policy', to: '/contact' },
+      { label: 'Terms of Service', to: '/contact' },
+      { label: 'Security', to: '/contact' },
       { label: 'Email Support', to: '/contact' },
       { label: 'Partner Sign In', to: '/login' },
       { label: 'Create Account', to: '/register' },
@@ -105,15 +108,9 @@ export default function PublicFooter() {
 
         <div className="tm-footer-bottom">
           <span>© {currentYear} TableMint Technologies Pvt. Ltd. All rights reserved.</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: '0.82rem' }}>
-            <ShieldCheck size={16} style={{ color: '#0284C7', flexShrink: 0 }} />
-            <span>PCI-DSS & ISO 27001 Compliant Architecture</span>
-          </div>
-          <nav className="tm-footer-legal" aria-label="Legal">
-            <Link to="/contact">Privacy Policy</Link>
-            <Link to="/contact">Terms of Service</Link>
-            <Link to="/contact">Security</Link>
-          </nav>
+          <span className="tm-footer-developed" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            Developed by <span style={{ color: 'var(--mk-brand)', fontWeight: 700 }}>DevNectar</span>
+          </span>
         </div>
       </div>
     </footer>

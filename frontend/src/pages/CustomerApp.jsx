@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import {
   UtensilsCrossed,
@@ -140,15 +140,15 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     }
     if (typeof window !== 'undefined') {
       const saved = sessionStorage.getItem('tablemint_customer_restaurant') ||
-                    localStorage.getItem('tablemint_active_restaurant') ||
-                    '';
+        localStorage.getItem('tablemint_active_restaurant') ||
+        '';
       if (saved) return saved;
       try {
         const u = JSON.parse(localStorage.getItem('tablemint_current_user') || '{}');
         if (u && (u.restaurantSlug || u.restaurantName)) {
           return u.restaurantSlug || u.restaurantName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
         }
-      } catch {}
+      } catch { }
     }
     return '';
   });
@@ -186,7 +186,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
       .then((data) => {
         if (data && (data.upiId || data.restaurantName)) setRestaurantSettings(data);
       })
-      .catch(() => {});
+      .catch(() => { });
 
     const handleSettingsUpdated = (newSettings) => {
       if (newSettings && (newSettings.upiId || newSettings.restaurantName)) {
@@ -249,13 +249,14 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     }
   };
 
+  const recentStatusEventsRef = useRef(new Map());
+
   // Socket setup for instant real-time table & order sync
   useEffect(() => {
     if (!tableId) return;
 
     const joinRooms = () => {
       const rest = restaurantParam || sessionStorage.getItem('tablemint_customer_restaurant') || '';
-      socket.emit('join', { role: 'customer', tableId, restaurant: rest, token: tableToken });
       socket.emit('join-table', { tableId, restaurant: rest, token: tableToken });
       fetchMenu();
       if (tableToken) {
@@ -268,6 +269,14 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
 
     const handleStatusChanged = (order) => {
       if (order && (order.tableId === tableId || order.tableNumber === tableId || String(order.tableId) === String(tableId))) {
+        const statusKey = `${order.id || order._id}_${order.status}`;
+        const now = Date.now();
+        const last = recentStatusEventsRef.current.get(statusKey);
+        if (last && now - last < 2500) {
+          return;
+        }
+        recentStatusEventsRef.current.set(statusKey, now);
+
         if (order.status === 'completed' || order.status === 'cancelled') {
           setActiveOrder(null);
         } else {
@@ -313,7 +322,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     };
 
     socket.on('order:status_changed', handleStatusChanged);
-    socket.on('order:updated', handleStatusChanged);
     socket.on('order:new', handleOrderNew);
     socket.on('menu:updated', handleMenuUpdated);
     socket.on('table:session_expired', handleSessionExpired);
@@ -322,7 +330,6 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     return () => {
       socket.off('connect', joinRooms);
       socket.off('order:status_changed', handleStatusChanged);
-      socket.off('order:updated', handleStatusChanged);
       socket.off('order:new', handleOrderNew);
       socket.off('menu:updated', handleMenuUpdated);
       socket.off('table:session_expired', handleSessionExpired);
@@ -605,7 +612,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           origin: { y: 0.6 }
         });
 
-        addToast(`Order #${placedOrder.orderNumber || placedOrder.id} confirmed!`, 'success', 5000);
+        addToast(`Order ${placedOrder.orderNumber || placedOrder.id} confirmed!`, 'success', 5000);
         setTrackingModalOpen(false);
         setActiveBottomNav('orders');
       } else {
@@ -666,9 +673,9 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
     try {
       const typeLabel =
         type === 'waiter' ? 'Call Waiter' :
-        type === 'water' ? 'Drinking Water' :
-        type === 'tissue' ? 'Cutlery & Napkins' :
-        type === 'bill' ? 'Request Bill' : type;
+          type === 'water' ? 'Drinking Water' :
+            type === 'tissue' ? 'Cutlery & Napkins' :
+              type === 'bill' ? 'Request Bill' : type;
 
       const res = await fetch(formatApiUrl('/api/service-call'), {
         method: 'POST',
@@ -892,25 +899,25 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                 { id: 'all', label: 'All', bg: '#E0F2FE', color: '#0369A1' },
                 ...(serverCategories.length > 0
                   ? serverCategories.map((c, i) => {
-                      const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea', '#e11d48'];
-                      const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff', '#ffe4e6'];
-                      return {
-                        id: c.name.toLowerCase(),
-                        label: c.name,
-                        bg: bgs[i % bgs.length],
-                        color: colors[i % colors.length]
-                      };
-                    })
+                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea', '#e11d48'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff', '#ffe4e6'];
+                    return {
+                      id: c.name.toLowerCase(),
+                      label: c.name,
+                      bg: bgs[i % bgs.length],
+                      color: colors[i % colors.length]
+                    };
+                  })
                   : [...new Set(menu.map(m => m.category || 'General'))].map((c, i) => {
-                      const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea'];
-                      const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff'];
-                      return {
-                        id: c.toLowerCase(),
-                        label: c.charAt(0).toUpperCase() + c.slice(1),
-                        bg: bgs[i % bgs.length],
-                        color: colors[i % colors.length]
-                      };
-                    }))
+                    const colors = ['#ea580c', '#F59E0B', '#0369A1', '#0284c7', '#9333ea'];
+                    const bgs = ['#fff7ed', '#fef3c7', '#E0F2FE', '#f0f9ff', '#faf5ff'];
+                    return {
+                      id: c.toLowerCase(),
+                      label: c.charAt(0).toUpperCase() + c.slice(1),
+                      bg: bgs[i % bgs.length],
+                      color: colors[i % colors.length]
+                    };
+                  }))
               ].map((cat) => {
                 const isActive = category.toLowerCase() === cat.id.toLowerCase();
                 const iconColor = isActive ? '#ffffff' : cat.color;
@@ -926,9 +933,9 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                   >
                     <div className="category-icon-box" style={{ background: isActive ? '#0284C7' : cat.bg }}>
                       {cat.id === 'all' ? <LayoutGrid size={22} color={iconColor} /> :
-                       cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
-                       cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
-                       <CookingPot size={22} color={iconColor} />}
+                        cat.id.includes('starter') || cat.id.includes('soup') ? <Soup size={22} color={iconColor} /> :
+                          cat.id.includes('beverage') || cat.id.includes('juice') ? <CupSoda size={22} color={iconColor} /> :
+                            <CookingPot size={22} color={iconColor} />}
                     </div>
                     <span className="category-label">{cat.label}</span>
                   </button>
@@ -958,110 +965,110 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
           {/* Scrollable Food Cards Area - ONLY This Scrolls */}
           <div className="customer-menu-scroll-area">
             <div className="food-cards-grid-2col">
-            {loadingMenu ? (
-              <div className="menu-loading-state">
-                <div className="spinner-mint" />
-                <p>Loading fresh dishes...</p>
-              </div>
-            ) : filteredDishes.length === 0 ? (
-              <div className="menu-empty-state">
-                <Utensils size={36} style={{ color: '#94a3b8', margin: '0 auto 10px' }} />
-                <p>No dishes found in this category.</p>
-              </div>
-            ) : (
-              filteredDishes.map((dish) => {
-                const count = getItemCount(dish.id);
-                const isFav = favorites.has(dish.id);
-                const isAvailable = dish.available !== false;
+              {loadingMenu ? (
+                <div className="menu-loading-state">
+                  <div className="spinner-mint" />
+                  <p>Loading fresh dishes...</p>
+                </div>
+              ) : filteredDishes.length === 0 ? (
+                <div className="menu-empty-state">
+                  <Utensils size={36} style={{ color: '#94a3b8', margin: '0 auto 10px' }} />
+                  <p>No dishes found in this category.</p>
+                </div>
+              ) : (
+                filteredDishes.map((dish) => {
+                  const count = getItemCount(dish.id);
+                  const isFav = favorites.has(dish.id);
+                  const isAvailable = dish.available !== false;
 
-                return (
-                  <div
-                    key={dish.id}
-                    className={`dish-grid-card ${!isAvailable ? 'sold-out' : ''}`}
-                    onClick={() => isAvailable && openCustomization(dish)}
-                  >
-                    {/* Image Wrap */}
-                    <div className="dish-card-img-wrap">
-                      <img
-                        src={dish.image || '/images/paneer_tikka.jpg'}
-                        alt={dish.name}
-                        className="dish-card-img"
-                        loading="lazy"
-                        onError={(e) => {
-                          e.target.src = '/images/paneer_tikka.jpg';
-                        }}
-                      />
+                  return (
+                    <div
+                      key={dish.id}
+                      className={`dish-grid-card ${!isAvailable ? 'sold-out' : ''}`}
+                      onClick={() => isAvailable && openCustomization(dish)}
+                    >
+                      {/* Image Wrap */}
+                      <div className="dish-card-img-wrap">
+                        <img
+                          src={dish.image || '/images/paneer_tikka.jpg'}
+                          alt={dish.name}
+                          className="dish-card-img"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.src = '/images/paneer_tikka.jpg';
+                          }}
+                        />
 
-                      {/* Favorite Heart Button in top right */}
-                      <button
-                        type="button"
-                        className={`dish-fav-btn ${isFav ? 'active' : ''}`}
-                        onClick={(e) => toggleFavorite(dish.id, e)}
-                        aria-label="Favorite"
-                      >
-                        <Heart size={14} fill={isFav ? '#DC2626' : 'none'} color={isFav ? '#DC2626' : '#ffffff'} />
-                      </button>
-
-                      {!isAvailable && <div className="dish-sold-badge">Sold Out</div>}
-                    </div>
-
-                    {/* Dish Card Content - Guaranteed NO Overlap */}
-                    <div className="dish-card-body">
-                      {/* Title Row with Inline Veg / Non-Veg Icon */}
-                      <div className="dish-card-title-row">
-                        <h3 className="dish-card-title">{dish.name}</h3>
-                        <span
-                          className={`dish-inline-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}
-                          title={dish.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                        {/* Favorite Heart Button in top right */}
+                        <button
+                          type="button"
+                          className={`dish-fav-btn ${isFav ? 'active' : ''}`}
+                          onClick={(e) => toggleFavorite(dish.id, e)}
+                          aria-label="Favorite"
                         >
-                          <span className="diet-dot" />
-                        </span>
+                          <Heart size={14} fill={isFav ? '#DC2626' : 'none'} color={isFav ? '#DC2626' : '#ffffff'} />
+                        </button>
+
+                        {!isAvailable && <div className="dish-sold-badge">Sold Out</div>}
                       </div>
 
-                      <p className="dish-card-desc">{dish.description || 'Specially prepared by TableMint chefs.'}</p>
+                      {/* Dish Card Content - Guaranteed NO Overlap */}
+                      <div className="dish-card-body">
+                        {/* Title Row with Inline Veg / Non-Veg Icon */}
+                        <div className="dish-card-title-row">
+                          <h3 className="dish-card-title">{dish.name}</h3>
+                          <span
+                            className={`dish-inline-diet-tag ${dish.isVeg ? 'veg' : 'non-veg'}`}
+                            title={dish.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                          >
+                            <span className="diet-dot" />
+                          </span>
+                        </div>
 
-                      <div className="dish-card-footer">
-                        <span className="dish-card-price">₹ {dish.price}</span>
+                        <p className="dish-card-desc">{dish.description || 'Specially prepared by TableMint chefs.'}</p>
 
-                        {isAvailable && (
-                          <div onClick={(e) => e.stopPropagation()}>
-                            {count > 0 ? (
-                              <div className="grid-qty-stepper">
+                        <div className="dish-card-footer">
+                          <span className="dish-card-price">₹ {dish.price}</span>
+
+                          {isAvailable && (
+                            <div onClick={(e) => e.stopPropagation()}>
+                              {count > 0 ? (
+                                <div className="grid-qty-stepper">
+                                  <button
+                                    type="button"
+                                    className="grid-stepper-btn"
+                                    onClick={() => updateQuantity(dish.id, -1)}
+                                    aria-label="Decrease quantity"
+                                  >
+                                    <Minus size={12} />
+                                  </button>
+                                  <span className="grid-stepper-val">{count}</span>
+                                  <button
+                                    type="button"
+                                    className="grid-stepper-btn"
+                                    onClick={() => updateQuantity(dish.id, 1)}
+                                    aria-label="Increase quantity"
+                                  >
+                                    <Plus size={12} />
+                                  </button>
+                                </div>
+                              ) : (
                                 <button
                                   type="button"
-                                  className="grid-stepper-btn"
-                                  onClick={() => updateQuantity(dish.id, -1)}
-                                  aria-label="Decrease quantity"
+                                  className="btn-add-food-pill"
+                                  onClick={(e) => quickAddToCart(dish, e)}
                                 >
-                                  <Minus size={12} />
+                                  + Add
                                 </button>
-                                <span className="grid-stepper-val">{count}</span>
-                                <button
-                                  type="button"
-                                  className="grid-stepper-btn"
-                                  onClick={() => updateQuantity(dish.id, 1)}
-                                  aria-label="Increase quantity"
-                                >
-                                  <Plus size={12} />
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                className="btn-add-food-pill"
-                                onClick={(e) => quickAddToCart(dish, e)}
-                              >
-                                + Add
-                              </button>
-                            )}
-                          </div>
-                        )}
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -1341,7 +1348,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                       <div className="timeline-content-col">
                         <div className="step-label">Order Placed & Confirmed</div>
                         <div className="step-sub">
-                          Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} sent to kitchen
+                          Order {activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} sent to kitchen
                         </div>
                         <div className="step-time">
                           {activeOrder.createdAt ? new Date(activeOrder.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
@@ -1416,7 +1423,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                     <div className="tracking-order-summary-header">
                       <div>
                         <span style={{ fontWeight: 800, fontSize: '0.92rem', color: '#0f172a' }}>
-                          Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')}
+                          Order {activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')}
                         </span>
                         <span style={{ display: 'block', fontSize: '0.72rem', color: '#64748b' }}>
                           Table {tableId} • {activeOrder.items?.length || 0} items
@@ -1589,27 +1596,42 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
                   <div className="tracking-actions-grid">
                     <button
                       type="button"
-                      className="tracking-action-btn"
+                      className="tracking-action-btn tracking-btn-waiter"
                       onClick={() => handleServiceCall('waiter')}
                     >
-                      <PhoneCall size={16} />
-                      <span>Call Waiter</span>
+                      <div className="tracking-action-icon-wrap waiter-tint">
+                        <PhoneCall size={18} />
+                      </div>
+                      <div className="tracking-action-labels">
+                        <span className="tracking-action-name">Call Waiter</span>
+                        <span className="tracking-action-hint">Staff to table</span>
+                      </div>
                     </button>
                     <button
                       type="button"
-                      className="tracking-action-btn"
+                      className="tracking-action-btn tracking-btn-water"
                       onClick={() => handleServiceCall('water')}
                     >
-                      <Droplets size={16} />
-                      <span>Drinking Water</span>
+                      <div className="tracking-action-icon-wrap water-tint">
+                        <Droplets size={18} />
+                      </div>
+                      <div className="tracking-action-labels">
+                        <span className="tracking-action-name">Drinking Water</span>
+                        <span className="tracking-action-hint">Fresh water</span>
+                      </div>
                     </button>
                     <button
                       type="button"
-                      className="tracking-action-btn"
+                      className="tracking-action-btn tracking-btn-bill"
                       onClick={() => handleServiceCall('bill')}
                     >
-                      <Receipt size={16} />
-                      <span>Request Bill</span>
+                      <div className="tracking-action-icon-wrap bill-tint">
+                        <Receipt size={18} />
+                      </div>
+                      <div className="tracking-action-labels">
+                        <span className="tracking-action-name">Request Bill</span>
+                        <span className="tracking-action-hint">Check & pay</span>
+                      </div>
                     </button>
                   </div>
                 </>
@@ -1758,7 +1780,7 @@ export default function CustomerApp({ initialTable = null, initialToken = null }
             <span className="pulse-inner-ring" style={{ width: 10, height: 10 }} />
             <div>
               <div style={{ fontWeight: 800, fontSize: '0.88rem', letterSpacing: '0.01em' }}>
-                Order #{activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} is {activeOrder.status === 'pending' ? 'Placed' : (activeOrder.status === 'preparing' ? 'Cooking' : 'Ready')}
+                Order {activeOrder.orderNumber || activeOrder.id.replace('ORD-', '')} is {activeOrder.status === 'pending' ? 'Placed' : (activeOrder.status === 'preparing' ? 'Cooking' : 'Ready')}
               </div>
               <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
                 Tap to view live kitchen tracking

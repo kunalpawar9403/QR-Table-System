@@ -1134,23 +1134,23 @@ html:has(.welcome-screen-bg) {
 }
 
 .waiter-service-icon-box.waiter-color {
-  background: #E0F2FE;
-  color: #0369A1;
+  background: #FEF3C7;
+  color: #D97706;
 }
 
 .waiter-service-icon-box.water-color {
-  background: #e0f2fe;
-  color: #0284c7;
+  background: #E0F2FE;
+  color: #0284C7;
 }
 
 .waiter-service-icon-box.cutlery-color {
-  background: #fef3c7;
-  color: #F59E0B;
+  background: #F3E8FF;
+  color: #9333EA;
 }
 
 .waiter-service-icon-box.bill-color {
-  background: #f3e8ff;
-  color: #9333ea;
+  background: #DCFCE7;
+  color: #16A34A;
 }
 
 .waiter-service-info {
@@ -2092,32 +2092,107 @@ html:has(.welcome-screen-bg) {
   color: #0f172a;
 }
 
+/* Quick Assistance Actions on Tracking View */
 .tracking-actions-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .tracking-action-btn {
   background: #ffffff;
-  border: 1.5px solid #0284C7;
-  border-radius: var(--tm-radius-full);
-  padding: 12px;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #0284C7;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 6px;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.tracking-action-btn:hover,
+.tracking-action-btn:active {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.tracking-action-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
-.tracking-action-btn:hover {
+.tracking-action-icon-wrap.waiter-tint {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.tracking-action-icon-wrap.water-tint {
   background: #E0F2FE;
-  border-color: #0369A1;
-  color: #0369A1;
+  color: #0284C7;
+}
+
+.tracking-action-icon-wrap.bill-tint {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.tracking-btn-waiter:hover {
+  border-color: #FCD34D;
+  background: #FFFBEB;
+}
+
+.tracking-btn-water:hover {
+  border-color: #7DD3FC;
+  background: #F0F9FF;
+}
+
+.tracking-btn-bill:hover {
+  border-color: #86EFAC;
+  background: #F0FDF4;
+}
+
+.tracking-action-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tracking-action-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.tracking-action-hint {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+@media (max-width: 360px) {
+  .tracking-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .tracking-action-btn {
+    flex-direction: row;
+    padding: 10px 14px;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .tracking-action-labels {
+    align-items: flex-start;
+  }
 }
 
 /* Service / Waiter Modal */
