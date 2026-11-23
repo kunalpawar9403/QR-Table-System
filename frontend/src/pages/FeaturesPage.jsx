@@ -14,7 +14,6 @@ import {
 } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
-import CTASection from '../components/layout/CTASection';
 import Reveal from '../components/marketing/Reveal';
 import CheckList from '../components/marketing/CheckList';
 import MediaFrame from '../components/marketing/MediaFrame';
@@ -240,11 +239,6 @@ export default function FeaturesPage() {
           })}
         </div>
       </PageContainer>
-
-      <CTASection
-        title="Experience All 9 TableMint Modules in Action"
-        subtitle="Sign up in 60 seconds with no credit card required. Your custom digital restaurant workspace will be ready immediately."
-      />
     </div>
   );
 }

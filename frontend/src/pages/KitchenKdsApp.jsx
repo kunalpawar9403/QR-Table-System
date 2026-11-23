@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChefHat, Volume2, VolumeX, Clock, Check, Flame } from 'lucide-react';
 import { socket } from '../utils/socket';
 import { soundManager } from '../utils/sound';
@@ -30,12 +30,13 @@ export default function KitchenKdsApp() {
     } catch {}
   };
 
+  const recentKdsEventsRef = useRef(new Map());
+
   useEffect(() => {
     const handleConnect = () => {
       const user = getCurrentUser();
       const rSlug = user?.restaurantSlug || (user?.restaurantName ? user.restaurantName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'tablemint');
       const token = getStaffToken();
-      socket.emit('join', { role: 'kitchen', restaurant: rSlug, token });
       socket.emit('join-kitchen', { restaurant: rSlug, token });
       fetchOrders();
     };
@@ -44,9 +45,16 @@ export default function KitchenKdsApp() {
     socket.on('connect', handleConnect);
 
     const handleNewOrder = (order) => {
+      if (!order) return;
+      const key = `kds:new:${order.id || order._id}`;
+      const now = Date.now();
+      const last = recentKdsEventsRef.current.get(key);
+      if (last && now - last < 2500) return;
+      recentKdsEventsRef.current.set(key, now);
+
       soundManager.playNewOrderChime();
       setTickets((prev) => [order, ...prev.filter((o) => o.id !== order.id)]);
-      addToast(`New Kitchen Ticket: ${order.tableName} (#${order.orderNumber})`, 'warning', 6000);
+      addToast(`New Kitchen Ticket: ${order.tableName} (${order.orderNumber})`, 'warning', 6000);
     };
 
     const handleStatusChanged = (updated) => {
@@ -135,7 +143,7 @@ export default function KitchenKdsApp() {
               <div key={ticket.id} className="kds-ticket">
                 <div className={`kds-ticket-header ${urgency.class}`}>
                   <div className="kds-ticket-table">
-                    {ticket.tableName} • #{ticket.orderNumber}
+                    {ticket.tableName} • {ticket.orderNumber}
                   </div>
                   <div className="kds-timer-badge">
                     <Clock size={14} /> {urgency.text}

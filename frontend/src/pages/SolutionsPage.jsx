@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
-import CTASection from '../components/layout/CTASection';
 import Reveal from '../components/marketing/Reveal';
 import MediaFrame from '../components/marketing/MediaFrame';
 
@@ -149,11 +148,6 @@ export default function SolutionsPage() {
           ))}
         </div>
       </PageContainer>
-
-      <CTASection
-        title="Tailored Software, Exceptional Dining"
-        subtitle="Schedule a 1-on-1 walkthrough with a restaurant specialist to see how TableMint fits your exact venue layout."
-      />
     </div>
   );
 }

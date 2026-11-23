@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
-import CTASection from '../components/layout/CTASection';
 import Reveal from '../components/marketing/Reveal';
 import SectionHeader from '../components/marketing/SectionHeader';
 import CheckList from '../components/marketing/CheckList';
@@ -186,11 +185,6 @@ export default function HowItWorksPage() {
           </div>
         </PageContainer>
       </section>
-
-      <CTASection
-        title="Start Your 6-Step Transformation Today"
-        subtitle="Join forward-thinking restaurants experiencing faster billing and zero kitchen delays with TableMint."
-      />
     </div>
   );
 }

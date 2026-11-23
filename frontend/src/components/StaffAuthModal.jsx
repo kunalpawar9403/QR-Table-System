@@ -230,7 +230,9 @@ export default function StaffAuthModal({
               <button
                 type="button"
                 className="auth-forgot-link"
-                onClick={() => triggerError('Password reset link sent to registered email.')}
+                onClick={() => {
+                  window.location.href = '/forgot-password';
+                }}
               >
                 Forgot Password?
               </button>

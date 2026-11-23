@@ -32,14 +32,21 @@ export default function AuthShell({ title, description, points, asideFooter, chi
 
         <main className="tm-auth-main">
           <div className="tm-auth-topbar">
-            <BrandMark size={32} />
             <Link to="/" className="tm-auth-back">
               <ArrowLeft size={15} />
-              <span>Back to website</span>
+              <span>Back</span>
             </Link>
+            <BrandMark size={32} />
           </div>
 
           <motion.div className="tm-auth-form-wrap" {...enterProps(0.1)}>
+            <div className="tm-auth-mobile-hero">
+              <img
+                src="/images/landing/tablemint_noir_qr_table.jpg"
+                alt="TableMint Restaurant & Contactless QR Table"
+                className="tm-auth-mobile-hero-img"
+              />
+            </div>
             {children}
           </motion.div>
         </main>

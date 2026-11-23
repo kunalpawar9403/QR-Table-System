@@ -23,7 +23,6 @@ import Reveal, { enterProps } from '../components/marketing/Reveal';
 import SectionHeader from '../components/marketing/SectionHeader';
 import CheckList from '../components/marketing/CheckList';
 import MediaFrame from '../components/marketing/MediaFrame';
-import BillingToggle from '../components/marketing/BillingToggle';
 import PlanCard from '../components/marketing/PlanCard';
 
 const HERO_SPECS = [
@@ -153,25 +152,38 @@ const RESTAURANT_TYPES = [
 
 const PLANS = [
   {
-    id: 'starter',
-    name: 'Starter',
+    id: '1-month',
+    name: '1 Month Plan',
+    duration: '1 Month',
     tagline: 'Ideal for small cafes, takeaway counters, and food trucks.',
-    monthlyPrice: 999,
-    yearlyPrice: 799,
+    price: 999,
+    originalPrice: null,
+    savingsTag: null,
+    note: 'Billed monthly (₹999 total)',
     ctaText: 'Get Started',
-    features: ['Up to 10 Dining Tables', '1 POS Terminal Cashier', 'Contactless QR Menus', 'Basic Sales Reports', 'Email Support']
+    features: [
+      'Up to 15 Dining Tables',
+      '1 POS Terminal Cashier',
+      'Contactless QR Menus',
+      'Real-time Kitchen Display (KDS)',
+      'Basic Sales Reports',
+      'Email & WhatsApp Support'
+    ]
   },
   {
-    id: 'standard',
-    name: 'Standard',
+    id: '3-months',
+    name: '3 Months Plan',
+    duration: '3 Months',
     tagline: 'Perfect for busy casual dining, bistros, and full-service restaurants.',
-    monthlyPrice: 1999,
-    yearlyPrice: 1599,
+    price: 899,
+    originalPrice: 999,
+    savingsTag: 'Save 10%',
     badge: 'Most Popular',
+    note: 'Billed quarterly (₹2,697 for 3 months)',
     highlight: true,
     ctaText: 'Start 14-Day Free Trial',
     features: [
-      'Up to 30 Dining Tables',
+      'Up to 35 Dining Tables',
       '3 POS Terminals & Waiter Tablets',
       'Kitchen Display System (KDS)',
       'Custom Branded QR Stands',
@@ -180,11 +192,15 @@ const PLANS = [
     ]
   },
   {
-    id: 'premium',
-    name: 'Premium',
+    id: '1-year',
+    name: '1 Year Plan',
+    duration: '1 Year',
     tagline: 'For high-volume multi-floor restaurants, bars, and multi-outlet chains.',
-    monthlyPrice: 3999,
-    yearlyPrice: 3199,
+    price: 749,
+    originalPrice: 999,
+    savingsTag: 'Save 25%',
+    badge: 'Best Value',
+    note: 'Billed annually (₹8,988 / year)',
     ctaText: 'Get Started',
     features: [
       'Unlimited Dining Tables & Zones',
@@ -198,7 +214,6 @@ const PLANS = [
 ];
 
 export default function HomePage() {
-  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
 
   return (
     <div className="tm-home-page">
@@ -385,15 +400,13 @@ export default function HomePage() {
           <SectionHeader
             eyebrow="Transparent SaaS Pricing"
             title="Predictable Plans With No Hidden Commissions"
-            subtitle="Keep 100% of your restaurant profits. All plans include automated GST billing, menu management, and unlimited staff accounts."
-          >
-            <BillingToggle value={billingCycle} onChange={setBillingCycle} />
-          </SectionHeader>
+            subtitle="Choose between 1 month, 3 months, or 1 year plans. Save up to 25% with longer durations while keeping 100% of your restaurant profits."
+          />
 
           <div className="tm-plan-grid">
             {PLANS.map((plan, idx) => (
               <Reveal key={plan.id} delay={idx * 0.06}>
-                <PlanCard plan={plan} billingCycle={billingCycle} />
+                <PlanCard plan={plan} />
               </Reveal>
             ))}
           </div>

@@ -10,6 +10,7 @@ import DemoPage from './pages/DemoPage';
 import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import CustomerApp from './pages/CustomerApp';
 import MobileAppEntry from './pages/MobileAppEntry';
 import { isNativeAppEnvironment } from './utils/apiConfig';
@@ -193,6 +194,7 @@ export default function App() {
             {/* Standalone Authentication Pages */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
             {/* Customer Self-Ordering App (when accessed directly via /customer) */}
             <Route path="/customer" element={<CustomerApp />} />

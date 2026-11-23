@@ -3,43 +3,46 @@ import { Check, Minus, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import PageHero from '../components/layout/PageHero';
 import PageContainer from '../components/layout/PageContainer';
-import CTASection from '../components/layout/CTASection';
 import Reveal from '../components/marketing/Reveal';
 import SectionHeader from '../components/marketing/SectionHeader';
-import BillingToggle from '../components/marketing/BillingToggle';
 import PlanCard from '../components/marketing/PlanCard';
 
 const PLANS = [
   {
-    id: "starter",
-    name: "Starter",
+    id: "1-month",
+    name: "1 Month Plan",
     tagline: "For small cafes, express counters, and food trucks.",
-    monthlyPrice: 999,
-    yearlyPrice: 799,
-    badge: null,
+    price: 999,
+    originalPrice: null,
+    savingsTag: null,
+    badge: "Flexible",
+    note: "Billed monthly (₹999 total)",
     highlight: false,
-    ctaText: "Start Starter Plan",
+    ctaText: "Start 1 Month Plan",
     features: [
-      "Up to 10 Dining Tables",
+      "Up to 15 Dining Tables",
       "1 POS Cashier Terminal",
       "Unlimited Menu Items & Categories",
       "Contactless QR Code Menus",
+      "Real-time Kitchen Display (KDS)",
       "GST-Compliant Thermal Billing",
       "Standard Daily Sales Reports",
-      "Email Support (24h response)"
+      "Email & WhatsApp Support"
     ]
   },
   {
-    id: "standard",
-    name: "Standard",
+    id: "3-months",
+    name: "3 Months Plan",
     tagline: "For busy casual dining, bistros, and full-service restaurants.",
-    monthlyPrice: 1999,
-    yearlyPrice: 1599,
+    price: 899,
+    originalPrice: 999,
+    savingsTag: "Save 10%",
     badge: "Most Popular",
+    note: "Billed quarterly (₹2,697 for 3 months)",
     highlight: true,
     ctaText: "Start 14-Day Free Trial",
     features: [
-      "Up to 30 Dining Tables & 3 Floor Zones",
+      "Up to 35 Dining Tables & 3 Floor Zones",
       "3 POS Terminals & Waiter Tablets",
       "Full Kitchen Display System (KDS)",
       "Custom Branded QR Stand Generator",
@@ -51,14 +54,16 @@ const PLANS = [
     ]
   },
   {
-    id: "premium",
-    name: "Premium",
+    id: "1-year",
+    name: "1 Year Plan",
     tagline: "For high-volume multi-floor restaurants, bars, and chains.",
-    monthlyPrice: 3999,
-    yearlyPrice: 3199,
-    badge: "High Growth",
+    price: 749,
+    originalPrice: 999,
+    savingsTag: "Save 25%",
+    badge: "Best Value",
+    note: "Billed annually (₹8,988 / year)",
     highlight: false,
-    ctaText: "Get Premium Access",
+    ctaText: "Get 1 Year Access",
     features: [
       "Unlimited Dining Tables & Floors",
       "Unlimited POS Terminals & Devices",
@@ -74,23 +79,24 @@ const PLANS = [
 ];
 
 const COMPARISON_ROWS = [
-  { feature: "Dining Tables Included", starter: "Up to 10", standard: "Up to 30", premium: "Unlimited" },
-  { feature: "Floor Zones (e.g. AC, Rooftop)", starter: "1 Zone", standard: "Up to 3 Zones", premium: "Unlimited Zones" },
-  { feature: "Simultaneous POS Terminals", starter: "1 Terminal", standard: "3 Terminals", premium: "Unlimited" },
-  { feature: "Contactless QR Menus", starter: true, standard: true, premium: true },
-  { feature: "Print-Ready QR Table Tents", starter: "Standard", standard: "Custom Branded", premium: "Custom Branded" },
-  { feature: "Express POS Billing", starter: true, standard: true, premium: true },
-  { feature: "Thermal Receipt Printing (ESC/POS)", starter: true, standard: true, premium: true },
-  { feature: "Split Bill by Seat / Item", starter: false, standard: true, premium: true },
-  { feature: "Kitchen Display System (KDS)", starter: false, standard: true, premium: true },
-  { feature: "Multi-Station KDS Routing (Bar + Food)", starter: false, standard: false, premium: true },
-  { feature: "Staff 4-Digit Security PINs", starter: false, standard: true, premium: true },
-  { feature: "Manager PIN Discount Overrides", starter: false, standard: true, premium: true },
-  { feature: "Daily Sales & Tax Summaries", starter: true, standard: true, premium: true },
-  { feature: "GSTR-1 & GSTR-3B Tax Export", starter: false, standard: true, premium: true },
-  { feature: "Item Velocity & Peak Hour Analytics", starter: false, standard: true, premium: true },
-  { feature: "Multi-Outlet Management", starter: false, standard: false, premium: true },
-  { feature: "Customer Support Channels", starter: "Email Support", standard: "WhatsApp + Phone", premium: "Dedicated Manager 24/7" }
+  { feature: "Duration / Billing Cycle", oneMonth: "1 Month", threeMonths: "3 Months (Save 10%)", oneYear: "1 Year (Save 25%)" },
+  { feature: "Dining Tables Included", oneMonth: "Up to 15", threeMonths: "Up to 35", oneYear: "Unlimited" },
+  { feature: "Floor Zones (e.g. AC, Rooftop)", oneMonth: "1 Zone", threeMonths: "Up to 3 Zones", oneYear: "Unlimited Zones" },
+  { feature: "Simultaneous POS Terminals", oneMonth: "1 Terminal", threeMonths: "3 Terminals", oneYear: "Unlimited" },
+  { feature: "Contactless QR Menus", oneMonth: true, threeMonths: true, oneYear: true },
+  { feature: "Print-Ready QR Table Tents", oneMonth: "Standard", threeMonths: "Custom Branded", oneYear: "Custom Branded" },
+  { feature: "Express POS Billing", oneMonth: true, threeMonths: true, oneYear: true },
+  { feature: "Thermal Receipt Printing (ESC/POS)", oneMonth: true, threeMonths: true, oneYear: true },
+  { feature: "Split Bill by Seat / Item", oneMonth: false, threeMonths: true, oneYear: true },
+  { feature: "Kitchen Display System (KDS)", oneMonth: true, threeMonths: true, oneYear: true },
+  { feature: "Multi-Station KDS Routing (Bar + Food)", oneMonth: false, threeMonths: false, oneYear: true },
+  { feature: "Staff 4-Digit Security PINs", oneMonth: false, threeMonths: true, oneYear: true },
+  { feature: "Manager PIN Discount Overrides", oneMonth: false, threeMonths: true, oneYear: true },
+  { feature: "Daily Sales & Tax Summaries", oneMonth: true, threeMonths: true, oneYear: true },
+  { feature: "GSTR-1 & GSTR-3B Tax Export", oneMonth: false, threeMonths: true, oneYear: true },
+  { feature: "Item Velocity & Peak Hour Analytics", oneMonth: false, threeMonths: true, oneYear: true },
+  { feature: "Multi-Outlet Management", oneMonth: false, threeMonths: false, oneYear: true },
+  { feature: "Customer Support Channels", oneMonth: "Email Support", threeMonths: "WhatsApp + Phone", oneYear: "Dedicated Manager 24/7" }
 ];
 
 const FAQS = [
@@ -132,7 +138,6 @@ function ComparisonCell({ value, featured }) {
 }
 
 export default function PricingPage() {
-  const [billingCycle, setBillingCycle] = useState('monthly'); // 'monthly' | 'yearly'
   const [openFaq, setOpenFaq] = useState(null);
 
   return (
@@ -141,10 +146,8 @@ export default function PricingPage() {
         badge="Simple, Transparent SaaS Pricing"
         title="Zero Commissions. Zero Setup Fees."
         titleAccent="Just Modern POS."
-        description="Choose the right plan for your floor capacity. Every plan includes cloud backup, automatic updates, and full database isolation."
-      >
-        <BillingToggle value={billingCycle} onChange={setBillingCycle} />
-      </PageHero>
+        description="Choose the right subscription duration for your restaurant. Save up to 25% with our 3-month and 1-year plans with full feature access and priority updates."
+      />
 
       {/* Plans */}
       <section className="tm-section">
@@ -152,7 +155,7 @@ export default function PricingPage() {
           <div className="tm-plan-grid">
             {PLANS.map((plan, idx) => (
               <Reveal key={plan.id} delay={idx * 0.06}>
-                <PlanCard plan={plan} billingCycle={billingCycle} />
+                <PlanCard plan={plan} />
               </Reveal>
             ))}
           </div>
@@ -164,7 +167,7 @@ export default function PricingPage() {
         <PageContainer>
           <SectionHeader
             eyebrow="Full Specifications"
-            title="Compare Features Side-by-Side"
+            title="Compare Plans Side-by-Side"
             subtitle="Every detail matters when choosing your restaurant operating system."
           />
 
@@ -173,18 +176,18 @@ export default function PricingPage() {
               <thead>
                 <tr>
                   <th scope="col">Feature / Capability</th>
-                  <th scope="col">Starter</th>
-                  <th scope="col" className="is-featured">Standard</th>
-                  <th scope="col">Premium</th>
+                  <th scope="col">1 Month Plan</th>
+                  <th scope="col" className="is-featured">3 Months Plan</th>
+                  <th scope="col">1 Year Plan</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARISON_ROWS.map((row) => (
                   <tr key={row.feature}>
                     <th scope="row">{row.feature}</th>
-                    <ComparisonCell value={row.starter} />
-                    <ComparisonCell value={row.standard} featured />
-                    <ComparisonCell value={row.premium} />
+                    <ComparisonCell value={row.oneMonth} />
+                    <ComparisonCell value={row.threeMonths} featured />
+                    <ComparisonCell value={row.oneYear} />
                   </tr>
                 ))}
               </tbody>
@@ -237,11 +240,6 @@ export default function PricingPage() {
           </Reveal>
         </PageContainer>
       </section>
-
-      <CTASection
-        title="Ready to Elevate Your Restaurant Revenue?"
-        subtitle="Start your 14-day free trial now. Up and running with your menu in under 10 minutes."
-      />
     </div>
   );
 }

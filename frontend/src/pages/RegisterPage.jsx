@@ -4,6 +4,7 @@ import {
   Building2,
   User,
   Mail,
+  Phone,
   Lock,
   ArrowRight,
   ShieldCheck,
@@ -28,8 +29,12 @@ export default function RegisterPage() {
   const [restaurantName, setRestaurantName] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -54,8 +59,28 @@ export default function RegisterPage() {
       setErrorMessage('Please provide an email and password.');
       return;
     }
+    if (!phone.trim()) {
+      setErrorMessage('Please enter your mobile phone number.');
+      return;
+    }
+    if (!/^[0-9+\s\-()]{7,15}$/.test(phone.trim())) {
+      setErrorMessage('Please enter a valid mobile number.');
+      return;
+    }
     if (password.length < 6) {
       setErrorMessage('Password must be at least 6 characters long.');
+      return;
+    }
+    if (!confirmPassword) {
+      setErrorMessage('Please confirm your password.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setErrorMessage('Passwords do not match. Please verify.');
+      return;
+    }
+    if (!agreeTerms) {
+      setErrorMessage('Please accept the Terms of Service and Privacy Policy to continue.');
       return;
     }
 
@@ -66,6 +91,7 @@ export default function RegisterPage() {
       const res = await signUpWithCredentials({
         name: name.trim(),
         email: email.trim(),
+        phone: phone.trim(),
         password,
         restaurantName: restaurantName.trim(),
         role: 'admin'
@@ -97,9 +123,9 @@ export default function RegisterPage() {
       }
     >
       <div className="tm-auth-head">
-        <span className="tm-eyebrow">14-Day Free Trial</span>
+        <span className="tm-eyebrow">Get Started</span>
         <h2 className="tm-auth-form-title">Create Your Restaurant Account</h2>
-        <p>Start your 14-day free trial. No credit card needed.</p>
+        <p>No credit card required. Set up your operations in minutes.</p>
       </div>
 
       {errorMessage && (
@@ -162,6 +188,23 @@ export default function RegisterPage() {
         </div>
 
         <div>
+          <label htmlFor="reg-phone" className="tm-label">Mobile Number *</label>
+          <div className="tm-input-wrap">
+            <Phone size={17} className="tm-input-icon" />
+            <input
+              id="reg-phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              placeholder="+91 98765 43210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="tm-input has-icon"
+            />
+          </div>
+        </div>
+
+        <div>
           <div className="tm-label-row">
             <label htmlFor="reg-password" className="tm-label">Password *</label>
             <span className="tm-label-hint">Min 6 characters</span>
@@ -187,6 +230,51 @@ export default function RegisterPage() {
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="reg-confirm-password" className="tm-label">Confirm Password *</label>
+          <div className="tm-input-wrap">
+            <Lock size={17} className="tm-input-icon" />
+            <input
+              id="reg-confirm-password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              required
+              autoComplete="new-password"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="tm-input has-icon has-action"
+            />
+            <button
+              type="button"
+              className="tm-input-action"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+            >
+              {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+          </div>
+        </div>
+
+        <div className="tm-auth-policy">
+          <input
+            id="reg-agree-terms"
+            type="checkbox"
+            required
+            checked={agreeTerms}
+            onChange={(e) => setAgreeTerms(e.target.checked)}
+          />
+          <label htmlFor="reg-agree-terms">
+            I agree to TableMint&apos;s{' '}
+            <Link to="/contact" target="_blank" rel="noopener noreferrer">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link to="/contact" target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </Link>.
+          </label>
         </div>
 
         <button type="submit" disabled={loading} className="tm-btn tm-btn-primary tm-btn-lg tm-btn-block">

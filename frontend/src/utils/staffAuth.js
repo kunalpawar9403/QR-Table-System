@@ -61,7 +61,7 @@ export async function signInWithCredentials(email, password) {
   }
 }
 
-export async function signUpWithCredentials({ name, email, password, restaurantName, role }) {
+export async function signUpWithCredentials({ name, email, phone, password, restaurantName, role }) {
   try {
     const res = await fetch(formatApiUrl('/api/auth/signup'), {
       method: 'POST',
@@ -69,6 +69,7 @@ export async function signUpWithCredentials({ name, email, password, restaurantN
       body: JSON.stringify({
         name: name.trim(),
         email: email.trim(),
+        phone: (phone || '').trim(),
         password,
         restaurantName: (restaurantName || 'TableMint').trim(),
         role: role || 'admin'
@@ -172,7 +173,7 @@ export async function requestPasswordReset(email) {
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      return { success: true, message: data.message, codePreview: data.codePreview };
+      return { success: true, message: data.message, codePreview: data.codePreview, dummyOtp: data.dummyOtp || '123456' };
     }
     return { success: false, error: data.error || 'Could not verify email for password reset.' };
   } catch {

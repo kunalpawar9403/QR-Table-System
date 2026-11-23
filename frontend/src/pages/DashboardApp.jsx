@@ -13,6 +13,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Bell,
+  Droplets,
+  UserRound,
   Flame,
   Volume2,
   VolumeX,
@@ -388,8 +390,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     else if (isOccupied) status = 'occupied';
 
     const orderCode = activeOrders.length > 0
-      ? `#${activeOrders[0].orderNumber || activeOrders[0].id.replace('ORD-', '')}`
-      : (tbl.sessionToken ? `#${tbl.sessionToken}` : '');
+      ? `${activeOrders[0].orderNumber || activeOrders[0].id.replace('ORD-', '')}`
+      : (tbl.sessionToken ? `${tbl.sessionToken}` : '');
 
     const totalBill = activeOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
@@ -571,6 +573,8 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
   };
 
   // Socket setup
+  const recentSocketEventsRef = useRef(new Map());
+
   useEffect(() => {
     const handleConnect = () => {
       const curUser = getCurrentUser();
@@ -578,18 +582,35 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
       const token = getStaffToken();
       socket.emit('join-admin', { restaurant: rSlug, token });
       socket.emit('join-kitchen', { restaurant: rSlug, token });
-      socket.emit('join', { role: 'admin', restaurant: rSlug, token });
-      socket.emit('join', { role: 'kitchen', restaurant: rSlug, token });
       fetchAllData();
     };
 
     handleConnect();
     socket.on('connect', handleConnect);
 
+    const isDuplicateEvent = (key, windowMs = 2500) => {
+      const now = Date.now();
+      const last = recentSocketEventsRef.current.get(key);
+      if (last && (now - last) < windowMs) {
+        return true;
+      }
+      recentSocketEventsRef.current.set(key, now);
+      if (recentSocketEventsRef.current.size > 100) {
+        for (const [k, ts] of recentSocketEventsRef.current.entries()) {
+          if (now - ts > 10000) recentSocketEventsRef.current.delete(k);
+        }
+      }
+      return false;
+    };
+
     const handleNewOrder = (newOrder) => {
+      if (!newOrder) return;
+      const key = `order:new:${newOrder.id || newOrder._id}`;
+      if (isDuplicateEvent(key)) return;
+
       soundManager.playNewOrderChime();
       setOrders((prev) => [newOrder, ...prev.filter((o) => o.id !== newOrder.id)]);
-      addToast(`🔔 New Order #${newOrder.orderNumber || newOrder.id} from ${newOrder.tableName}`, 'success', 6000);
+      addToast(`🔔 New Order ${newOrder.orderNumber || newOrder.id} from ${newOrder.tableName}`, 'success', 6000);
 
       // Increment unseen counters if user is not currently visiting that tab
       if (activeTabRef.current !== 'orders') {
@@ -616,6 +637,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     };
 
     const handleStatusChanged = (updated) => {
+      if (!updated) return;
+      const key = `order:status:${updated.id || updated._id}:${updated.status}`;
+      if (isDuplicateEvent(key, 1200)) return;
+
       setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
       setMobileSelectedOrder((prev) => (prev && (prev.id === updated.id || prev._id === updated._id) ? { ...prev, ...updated } : prev));
       authFetch('/api/tables').then((r) => r.json()).then(setTables).catch(() => {});
@@ -639,6 +664,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     };
 
     const handleServiceCall = (call) => {
+      if (!call) return;
+      const key = `service:call:${call.id || `${call.tableId}_${call.type}`}`;
+      if (isDuplicateEvent(key)) return;
+
       soundManager.playServiceBell();
       setServiceCalls((prev) => [call, ...prev.filter((c) => c.id !== call.id)]);
       addToast(`🔔 ${call.tableName}: ${call.type.toUpperCase()}`, 'warning', 6000);
@@ -646,6 +675,10 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
 
     const handleServiceDismissed = (data) => {
       setServiceCalls((prev) => prev.filter((c) => c.id !== data.id));
+    };
+
+    const handleServiceUpdated = (updatedList) => {
+      if (Array.isArray(updatedList)) setServiceCalls(updatedList);
     };
 
     const handleMenuUpdated = (newMenu) => {
@@ -663,6 +696,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     socket.on('table:updated', handleTableUpdated);
     socket.on('service:call', handleServiceCall);
     socket.on('service:dismissed', handleServiceDismissed);
+    socket.on('service:updated', handleServiceUpdated);
     socket.on('menu:updated', handleMenuUpdated);
 
     return () => {
@@ -674,6 +708,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
       socket.off('table:updated', handleTableUpdated);
       socket.off('service:call', handleServiceCall);
       socket.off('service:dismissed', handleServiceDismissed);
+      socket.off('service:updated', handleServiceUpdated);
       socket.off('menu:updated', handleMenuUpdated);
     };
   }, []);
@@ -691,6 +726,50 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     } catch {
       addToast('Failed to dismiss alert', 'error');
     }
+  };
+
+  // Dismiss All Service Calls
+  const dismissAllServiceCalls = async () => {
+    try {
+      const callsToDismiss = [...serviceCalls];
+      setServiceCalls([]);
+      soundManager.playClick();
+      await Promise.allSettled(
+        callsToDismiss.map((c) => authFetch(`/api/service-call/${c.id}/dismiss`, { method: 'PATCH' }))
+      );
+    } catch {
+      addToast('Failed to clear some service alerts', 'error');
+    }
+  };
+
+  const getServiceTypeDetails = (type = '') => {
+    const norm = String(type).toLowerCase().trim();
+    if (norm.includes('water') || norm === 'water') {
+      return {
+        label: 'Drinking Water',
+        badgeClass: 'service-badge-water',
+        icon: <Droplets size={14} className="service-badge-icon" />
+      };
+    }
+    if (norm.includes('bill') || norm.includes('payment') || norm === 'bill') {
+      return {
+        label: 'Request Bill',
+        badgeClass: 'service-badge-bill',
+        icon: <Receipt size={14} className="service-badge-icon" />
+      };
+    }
+    if (norm.includes('tissue') || norm.includes('cutlery') || norm.includes('napkin')) {
+      return {
+        label: 'Cutlery & Napkins',
+        badgeClass: 'service-badge-cutlery',
+        icon: <UtensilsCrossed size={14} className="service-badge-icon" />
+      };
+    }
+    return {
+      label: norm.length > 0 && norm !== 'waiter' && norm !== 'call waiter' ? (type || 'Call Waiter') : 'Call Waiter',
+      badgeClass: 'service-badge-waiter',
+      icon: <Bell size={14} className="service-badge-icon" />
+    };
   };
 
   // Change Order Status
@@ -1096,7 +1175,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
     content += `   Fine Dining Restaurant & Bar\n`;
     content += `   GSTIN: 27AAACS1234M1Z5\n`;
     content += `================================\n`;
-    content += `Bill: #${o.orderNumber || o.id}   Table: ${o.tableName || ''}\n`;
+    content += `Bill: ${o.orderNumber || o.id}   Table: ${o.tableName || ''}\n`;
     content += `Date: ${dateStr}\n`;
     content += `--------------------------------\n`;
     content += `ITEM                QTY    AMT\n`;
@@ -1537,7 +1616,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               >
                 <ChevronLeft size={22} />
                 <span className="mobile-header-tab-title">
-                  Order #{mobileSelectedOrder.orderNumber || mobileSelectedOrder.code || mobileSelectedOrder.id}
+                  Order {mobileSelectedOrder.orderNumber || mobileSelectedOrder.code || mobileSelectedOrder.id}
                 </span>
               </button>
             ) : activeTab === 'billing' ? (
@@ -1759,23 +1838,78 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
 
         {/* Floating Service Alert Banner */}
         {serviceCalls.length > 0 && (
-          <div className="floating-alert-banner">
-            <div className="alert-banner-left">
-              <Bell size={24} className="alert-bell-anim" />
-              <div>
-                <strong style={{ color: '#fbbf24', fontSize: '0.95rem' }}>
-                  {serviceCalls.length} Pending Service Call{serviceCalls.length > 1 ? 's' : ''}:
-                </strong>{' '}
-                {serviceCalls[0].tableName} requests <span style={{ textTransform: 'uppercase', color: '#fff' }}>{serviceCalls[0].type}</span>
+          <div
+            className="service-alert-banner"
+            style={{ flexShrink: 0, minHeight: 'fit-content' }}
+          >
+            <div className="service-alert-top-bar">
+              <div className="service-alert-header-info">
+                <div className="service-alert-bell-wrapper">
+                  <Bell size={18} className="service-alert-bell" />
+                  <span className="service-alert-ping" />
+                </div>
+                <div className="service-alert-title-wrap">
+                  <div className="service-alert-headline">
+                    <span className="service-alert-title">Guest Assistance Needed</span>
+                    <span className="service-alert-count">
+                      {serviceCalls.length} {serviceCalls.length === 1 ? 'Pending Call' : 'Pending Calls'}
+                    </span>
+                  </div>
+                  <span className="service-alert-subtext">
+                    Live table assistance requested by dining guests
+                  </span>
+                </div>
               </div>
+
+              {serviceCalls.length > 1 && (
+                <button
+                  type="button"
+                  className="service-alert-dismiss-all-btn"
+                  onClick={dismissAllServiceCalls}
+                  title="Clear all pending assistance alerts"
+                >
+                  <CheckCircle size={14} /> Clear All ({serviceCalls.length})
+                </button>
+              )}
             </div>
-            <button
-              className="btn-primary"
-              style={{ padding: '8px 16px', fontSize: '0.85rem' }}
-              onClick={() => dismissServiceCall(serviceCalls[0].id)}
-            >
-              <CheckCircle size={15} /> Dismiss
-            </button>
+
+            <div className="service-alert-cards-track">
+              {serviceCalls.map((call) => {
+                const details = getServiceTypeDetails(call.type);
+                return (
+                  <div key={call.id} className="service-alert-card">
+                    <div className="service-alert-card-main">
+                      <div className="service-table-pill">
+                        <UtensilsCrossed size={12} />
+                        <span>{call.tableName || `Table ${call.tableId}`}</span>
+                      </div>
+                      <div className={`service-type-badge ${details.badgeClass}`}>
+                        {details.icon}
+                        <span>{details.label}</span>
+                      </div>
+                      {call.note && (
+                        <div className="service-note-bubble" title={call.note}>
+                          "{call.note}"
+                        </div>
+                      )}
+                      <span className="service-call-timer">
+                        <Clock size={11} /> {formatElapsed(call.timestamp || call.createdAt)}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="service-call-attend-btn"
+                      onClick={() => dismissServiceCall(call.id)}
+                      title="Mark attended and clear alert"
+                    >
+                      <Check size={14} strokeWidth={2.5} />
+                      <span>Attended</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -1935,7 +2069,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         }}
                       >
                         <div className="mobile-live-order-left">
-                          <span className="mobile-order-code">#{order.orderNumber || `T${order.tableId || 1}234`}</span>
+                          <span className="mobile-order-code">{order.orderNumber || `T${order.tableId || 1}234`}</span>
                           <span className="mobile-order-table">{order.tableName || `Table ${order.tableId || 1}`}</span>
                         </div>
                         <div className="mobile-live-order-right">
@@ -1977,23 +2111,87 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 <div className="overview-floor-grid">
                   {tables.map((tbl) => {
                     const info = getTableStatusInfo(tbl);
+                    const cleanCode = String(info.code || '').replace(/^#+/, '').trim();
+
                     return (
                       <div
                         key={tbl.id}
-                        className={`ref-table-box ${info.status}`}
+                        className={`floor-table-card ${info.status}`}
                         onClick={() => {
                           setSelectedBillingTableId(tbl.id);
                           setActiveTab('billing');
                         }}
                         title={`Table ${tbl.name} - ${info.status.toUpperCase()}`}
-                        style={{ cursor: 'pointer' }}
                       >
-                        <div className="ref-table-name">{tbl.name}</div>
-                        <div className="ref-table-seats">{tbl.capacity || 4} Seats</div>
-                        <div className="ref-table-state-label">
-                          {info.status === 'occupied' && `Occupied ${info.code}`}
-                          {info.status === 'serving' && `Serving ${info.code}`}
-                          {info.status === 'available' && 'Available'}
+                        <div className="floor-table-top-row">
+                          <div className="floor-table-info-col">
+                            <h4 className="floor-table-title">{tbl.name}</h4>
+                            <div className="floor-table-seats-row">
+                              <Users size={14} />
+                              <span>{tbl.capacity || 4} Seats</span>
+                            </div>
+                            <div className="floor-table-status-pill">
+                              <span className="floor-table-dot" />
+                              <span>
+                                {info.status === 'available' && 'Available'}
+                                {info.status === 'occupied' && (cleanCode ? `Occupied ${cleanCode}` : 'Occupied')}
+                                {info.status === 'serving' && (cleanCode ? `Serving ${cleanCode}` : 'Serving')}
+                                {info.status === 'reserved' && 'Reserved'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="floor-table-graphic-wrap">
+                            <div className="floor-table-graphic-glow" />
+                            <img
+                              src="/images/dashboard/isometric_dining_table.png"
+                              alt="Table"
+                              className="floor-table-img"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="floor-table-actions-row">
+                          <button
+                            type="button"
+                            className="btn-card-stand"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewQrTable(tbl);
+                            }}
+                            title="Print / View QR Stand"
+                          >
+                            <QrCode size={13} />
+                            <span>Stand</span>
+                          </button>
+
+                          {info.status !== 'available' && (
+                            <button
+                              type="button"
+                              className="btn-card-vacate"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleVacateTable(tbl.id);
+                              }}
+                              title="Vacate and free up table"
+                            >
+                              <Trash2 size={12} />
+                              <span>Vacate</span>
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            className="btn-card-more"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedBillingTableId(tbl.id);
+                              setActiveTab('billing');
+                            }}
+                            title="Table Options & Billing"
+                          >
+                            <span>•••</span>
+                          </button>
                         </div>
                       </div>
                     );
@@ -2040,7 +2238,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         }}
                       >
                         <div className="recent-ord-left">
-                          <span className="recent-ord-id">#{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
+                          <span className="recent-ord-id">{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
                           <span className="recent-ord-table">{ord.tableName}</span>
                           <span className="recent-ord-price">₹ {ord.total}</span>
                         </div>
@@ -2131,7 +2329,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </button>
             </div>
 
-            {/* Floor Grid of Pastel Table Cards matching Panel 3 on Desktop and Screen 5 on Mobile */}
+            {/* Floor Grid of 3D Table Cards matching User Reference Design */}
             <div className="overview-floor-grid">
               {tables
                 .filter((tbl) => {
@@ -2143,75 +2341,87 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 })
                 .map((tbl) => {
                   const info = getTableStatusInfo(tbl);
+                  const cleanCode = String(info.code || '').replace(/^#+/, '').trim();
+
                   return (
                     <div
                       key={tbl.id}
-                      className={`ref-table-box ${info.status}`}
+                      className={`floor-table-card ${info.status}`}
                       onClick={() => {
                         setSelectedBillingTableId(tbl.id);
                         setActiveTab('billing');
                       }}
                       title={`Table ${tbl.name} - ${info.status.toUpperCase()}`}
-                      style={{ cursor: 'pointer' }}
                     >
-                      <div className="ref-table-name" style={{ fontSize: '1.45rem', fontWeight: 900 }}>
-                        {tbl.name}
+                      <div className="floor-table-top-row">
+                        <div className="floor-table-info-col">
+                          <h4 className="floor-table-title">{tbl.name}</h4>
+                          <div className="floor-table-seats-row">
+                            <Users size={14} />
+                            <span>{tbl.capacity || 4} Seats</span>
+                          </div>
+                          <div className="floor-table-status-pill">
+                            <span className="floor-table-dot" />
+                            <span>
+                              {info.status === 'available' && 'Available'}
+                              {info.status === 'occupied' && (cleanCode ? `Occupied ${cleanCode}` : 'Occupied')}
+                              {info.status === 'serving' && (cleanCode ? `Serving ${cleanCode}` : 'Serving')}
+                              {info.status === 'reserved' && 'Reserved'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="floor-table-graphic-wrap">
+                          <div className="floor-table-graphic-glow" />
+                          <img
+                            src="/images/dashboard/isometric_dining_table.png"
+                            alt="Table"
+                            className="floor-table-img"
+                          />
+                        </div>
                       </div>
-                      <div className="ref-table-seats" style={{ fontSize: '0.82rem', fontWeight: 600 }}>
-                        {tbl.capacity || 4} Seats
-                      </div>
-                      <div className="ref-table-state-label" style={{ fontSize: '0.78rem', fontWeight: 700, marginTop: 4 }}>
-                        {info.status === 'occupied' && `Occupied ${info.code}`}
-                        {info.status === 'serving' && `Serving ${info.code}`}
-                        {info.status === 'available' && 'Available'}
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, marginTop: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+
+                      <div className="floor-table-actions-row">
                         <button
                           type="button"
-                          className="btn-table-qr-badge"
-                          style={{
-                            padding: '3px 8px',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            borderRadius: 6,
-                            border: '1px solid #F59E0B',
-                            background: '#fffbeb',
-                            color: '#b45309',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 3
-                          }}
+                          className="btn-card-stand"
                           onClick={(e) => {
                             e.stopPropagation();
                             setViewQrTable(tbl);
                           }}
-                          title="Print / View Table QR Stand"
+                          title="Print / View QR Stand"
                         >
-                          <QrCode size={12} /> Stand
+                          <QrCode size={13} />
+                          <span>Stand</span>
                         </button>
+
                         {info.status !== 'available' && (
                           <button
                             type="button"
-                            className="btn-vacate-table-badge"
-                            style={{
-                              padding: '3px 8px',
-                              fontSize: '0.72rem',
-                              fontWeight: 700,
-                              borderRadius: 6,
-                              border: '1px solid #fca5a5',
-                              background: '#fff',
-                              color: '#dc2626',
-                              cursor: 'pointer'
-                            }}
+                            className="btn-card-vacate"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleVacateTable(tbl.id);
                             }}
+                            title="Vacate and free up table"
                           >
-                            Vacate
+                            <Trash2 size={12} />
+                            <span>Vacate</span>
                           </button>
                         )}
+
+                        <button
+                          type="button"
+                          className="btn-card-more"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedBillingTableId(tbl.id);
+                            setActiveTab('billing');
+                          }}
+                          title="Table Options & Billing"
+                        >
+                          <span>•••</span>
+                        </button>
                       </div>
                     </div>
                   );
@@ -2279,7 +2489,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                       </span>
                     </div>
                     <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: 2 }}>
-                      Order #{orderNum} • {mobileSelectedOrder.guestName || 'Dine-in Guest'}
+                      Order {orderNum} • {mobileSelectedOrder.guestName || 'Dine-in Guest'}
                     </div>
                   </div>
 
@@ -2441,7 +2651,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         onClick={() => setMobileSelectedOrder(ord)}
                       >
                         <div className="mobile-order-card-row" style={{ marginBottom: 4 }}>
-                          <span className="mobile-order-code">#{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
+                          <span className="mobile-order-code">{ord.orderNumber || ord.id.replace('ORD-', '')}</span>
                           <span className={`status-badge-pill ${ord.status}`}>
                             {ord.status.charAt(0).toUpperCase() + ord.status.slice(1)}
                           </span>
@@ -2486,7 +2696,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         .map((ord) => (
                           <tr key={ord.id}>
                             <td style={{ fontWeight: 800, color: '#0f172a' }}>
-                              #{ord.orderNumber || ord.id.replace('ORD-', '')}
+                              {ord.orderNumber || ord.id.replace('ORD-', '')}
                             </td>
                             <td style={{ color: '#475569', fontWeight: 600 }}>{ord.tableName}</td>
                             <td style={{ color: '#64748b' }}>
@@ -2629,7 +2839,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     <div key={ticket.id} className="mobile-kds-card">
                       <div className="kds-card-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                         <span className="kds-order-id" style={{ fontWeight: 800, fontSize: '0.98rem', color: '#0f172a' }}>
-                          #{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}
+                          {ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}
                         </span>
                         <span className="kds-order-timer" style={{ fontSize: '0.78rem', color: ticket.status === 'pending' ? '#ea580c' : ticket.status === 'preparing' ? '#0284c7' : '#0369A1', fontWeight: 700 }}>
                           {formatElapsed(ticket.createdAt)}
@@ -2697,7 +2907,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     {kdsPending.map((ticket) => (
                       <div key={ticket.id} className="kds-order-card">
                         <div className="kds-card-top">
-                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-id">{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
                           <span className="kds-order-timer pending">
                             <Clock size={12} /> {formatElapsed(ticket.createdAt)}
                           </span>
@@ -2745,7 +2955,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     {kdsPreparing.map((ticket) => (
                       <div key={ticket.id} className="kds-order-card">
                         <div className="kds-card-top">
-                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-id">{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
                           <span className="kds-order-timer preparing">
                             <Clock size={12} /> {formatElapsed(ticket.createdAt)}
                           </span>
@@ -2793,7 +3003,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     {kdsReady.map((ticket) => (
                       <div key={ticket.id} className="kds-order-card">
                         <div className="kds-card-top">
-                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-id">{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
                           <span className="kds-order-timer ready">
                             <Clock size={12} /> {formatElapsed(ticket.createdAt)}
                           </span>
@@ -2841,7 +3051,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                     {kdsServed.map((ticket) => (
                       <div key={ticket.id} className="kds-order-card">
                         <div className="kds-card-top">
-                          <span className="kds-order-id">#{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
+                          <span className="kds-order-id">{ticket.orderNumber || (ticket.id || '').replace('ORD-', '')}</span>
                           <span className="kds-order-timer">
                             <Clock size={12} /> {formatElapsed(ticket.createdAt)}
                           </span>
@@ -3755,35 +3965,98 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         );
                       })()}
 
-                      {/* Full-width Settle & Print Bill Action Button */}
-                      <button
-                        type="button"
-                        className="mobile-print-bill-btn"
-                        style={{ marginTop: 14, width: '100%' }}
-                        onClick={async () => {
-                          const billToPrint = {
-                            id: `B${Date.now().toString().slice(-4)}`,
-                            orderNumber: activeTableOrders[0].orderNumber || activeTableOrders[0].id.replace('ORD-', ''),
-                            tableName: `Table ${selectedBillingTableId}`,
-                            items: activeBillItems,
-                            total: billTotal,
-                            subtotal: billSubtotal,
-                            tax: billGst,
-                            paymentMethod: billingPaymentMethod.toUpperCase()
-                          };
-                          handlePrintReceipt(billToPrint, thermalPaperSize);
-                          for (const ord of activeTableOrders) {
-                            await handleOrderStatusUpdate(ord.id, 'completed');
-                          }
-                          try {
-                            await authFetch(`/api/tables/${selectedBillingTableId}/vacant`, { method: 'PATCH' });
-                          } catch {}
-                          fetchAllData();
-                          addToast(`Bill settled for Table ${selectedBillingTableId} & marked vacant`, 'success');
-                        }}
-                      >
-                        <Printer size={16} /> Settle Bill & Print Receipt (₹ {billTotal})
-                      </button>
+                      {/* POS Settle Bill Action Section */}
+                      <div className="pos-settle-section">
+                        <button
+                          type="button"
+                          className="pos-settle-main-btn"
+                          onClick={async () => {
+                            const billToPrint = {
+                              id: `B${Date.now().toString().slice(-4)}`,
+                              orderNumber: activeTableOrders[0]?.orderNumber || (activeTableOrders[0]?.id ? activeTableOrders[0].id.replace('ORD-', '') : '101'),
+                              tableName: `Table ${selectedBillingTableId}`,
+                              items: activeBillItems,
+                              total: billTotal,
+                              subtotal: billSubtotal,
+                              tax: billGst,
+                              paymentMethod: billingPaymentMethod.toUpperCase()
+                            };
+                            handlePrintReceipt(billToPrint, thermalPaperSize);
+                            for (const ord of activeTableOrders) {
+                              await handleOrderStatusUpdate(ord.id, 'completed');
+                            }
+                            try {
+                              await authFetch(`/api/tables/${selectedBillingTableId}/vacant`, { method: 'PATCH' });
+                            } catch {}
+                            fetchAllData();
+                            addToast(`Bill settled for Table ${selectedBillingTableId} & receipt printed`, 'success');
+                          }}
+                        >
+                          <div className="pos-settle-btn-left">
+                            <div className="pos-settle-icon-circle">
+                              <Printer size={20} />
+                            </div>
+                            <div className="pos-settle-text-group">
+                              <span className="pos-settle-title">Settle Bill & Print Receipt</span>
+                              <span className="pos-settle-subtitle">
+                                Table {selectedBillingTableId} • {billingPaymentMethod.toUpperCase()} Settlement
+                              </span>
+                            </div>
+                          </div>
+                          <div className="pos-settle-amount-badge">
+                            <span>₹ {billTotal}</span>
+                            <ChevronRight size={18} className="pos-settle-arrow" />
+                          </div>
+                        </button>
+
+                        <div className="pos-settle-secondary-row">
+                          <button
+                            type="button"
+                            className="pos-settle-secondary-btn"
+                            onClick={async () => {
+                              for (const ord of activeTableOrders) {
+                                await handleOrderStatusUpdate(ord.id, 'completed');
+                              }
+                              try {
+                                await authFetch(`/api/tables/${selectedBillingTableId}/vacant`, { method: 'PATCH' });
+                              } catch {}
+                              fetchAllData();
+                              addToast(`Bill settled for Table ${selectedBillingTableId} (No print)`, 'success');
+                            }}
+                            title="Settle bill and mark table vacant without printing physical receipt"
+                          >
+                            <CheckCircle size={15} style={{ color: '#16a34a' }} />
+                            <span>Settle Only (No Print)</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="pos-settle-secondary-btn"
+                            onClick={() => {
+                              const billToPrint = {
+                                id: `B${Date.now().toString().slice(-4)}`,
+                                orderNumber: activeTableOrders[0]?.orderNumber || (activeTableOrders[0]?.id ? activeTableOrders[0].id.replace('ORD-', '') : '101'),
+                                tableName: `Table ${selectedBillingTableId}`,
+                                items: activeBillItems,
+                                total: billTotal,
+                                subtotal: billSubtotal,
+                                tax: billGst,
+                                paymentMethod: billingPaymentMethod.toUpperCase()
+                              };
+                              handlePrintReceipt(billToPrint, thermalPaperSize);
+                            }}
+                            title="Test or preview receipt printing"
+                          >
+                            <Printer size={15} style={{ color: '#0284c7' }} />
+                            <span>Print Preview ({thermalPaperSize})</span>
+                          </button>
+                        </div>
+
+                        <div className="pos-settle-info-strip">
+                          <ShieldCheck size={14} style={{ color: '#16a34a', flexShrink: 0 }} />
+                          <span>Automatically frees Table {selectedBillingTableId} and closes active guest dining session</span>
+                        </div>
+                      </div>
                     </>
                   );
                 })()}
@@ -3819,7 +4092,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         .map((b) => (
                           <tr key={b.id}>
                             <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>
-                              #B{b.orderNumber || b.id.replace('ORD-', '')}
+                              B{b.orderNumber || b.id.replace('ORD-', '').replace(/^B/, '')}
                             </td>
                             <td style={{ color: '#64748b', padding: '9px 10px' }}>{b.tableName}</td>
                             <td style={{ fontWeight: 800, color: '#0f172a', padding: '9px 10px' }}>₹ {b.total}</td>
@@ -3938,7 +4211,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                         <div className="thermal-divider" />
                         <div className="thermal-line" style={{ fontSize: '0.72rem', fontWeight: 700 }}>
                           <span>{previewOrder.tableName || `Table ${selectedBillingTableId}`}</span>
-                          <span>Bill #{previewOrder.orderNumber || previewOrder.id}</span>
+                          <span>Bill {previewOrder.orderNumber || previewOrder.id}</span>
                         </div>
                         <div className="thermal-line" style={{ fontSize: '0.66rem', color: '#64748b' }}>
                           <span>Date: {new Date(previewOrder.createdAt || Date.now()).toLocaleDateString()}</span>
@@ -6423,32 +6696,32 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
             id="thermal-receipt-container"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Top-Right Floating Close Button - ALWAYS visible on screen */}
-            <button
-              type="button"
-              className="receipt-modal-close-btn no-print"
-              onClick={() => setPrintBillOrder(null)}
-              title="Close Receipt (Esc)"
-              aria-label="Close"
-            >
-              <X size={18} />
-            </button>
-
-            {/* Paper Size Switcher inside Modal */}
-            <div className="thermal-size-switch no-print" style={{ margin: '0 0 10px' }}>
+            {/* Modal Top Bar: Size Switcher + Clean Close Button (No Overlap) */}
+            <div className="receipt-modal-top-bar no-print">
+              <div className="thermal-size-switch">
+                <button
+                  type="button"
+                  className={`thermal-size-btn ${thermalPaperSize === '58mm' ? 'active' : ''}`}
+                  onClick={() => setThermalPaperSize('58mm')}
+                >
+                  58mm Roll (2")
+                </button>
+                <button
+                  type="button"
+                  className={`thermal-size-btn ${thermalPaperSize === '80mm' ? 'active' : ''}`}
+                  onClick={() => setThermalPaperSize('80mm')}
+                >
+                  80mm Roll (3")
+                </button>
+              </div>
               <button
                 type="button"
-                className={`thermal-size-btn ${thermalPaperSize === '58mm' ? 'active' : ''}`}
-                onClick={() => setThermalPaperSize('58mm')}
+                className="receipt-modal-close-btn"
+                onClick={() => setPrintBillOrder(null)}
+                title="Close Receipt (Esc)"
+                aria-label="Close"
               >
-                58mm Roll (2-inch Standard)
-              </button>
-              <button
-                type="button"
-                className={`thermal-size-btn ${thermalPaperSize === '80mm' ? 'active' : ''}`}
-                onClick={() => setThermalPaperSize('80mm')}
-              >
-                80mm Roll (3-inch Wide)
+                <X size={16} />
               </button>
             </div>
 
@@ -6464,7 +6737,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
                 TAX INVOICE / CASH BILL
               </div>
               <div className="receipt-meta">
-                Bill #{printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
+                Bill {printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
               </div>
               <div className="receipt-meta" style={{ fontSize: '0.72rem' }}>
                 Date: {new Date(printBillOrder.createdAt || Date.now()).toLocaleDateString()} {new Date(printBillOrder.createdAt || Date.now()).toLocaleTimeString()}
@@ -6509,7 +6782,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
             </div>
 
-            <div className="receipt-footer-msg">
+            <div className="receipt-footer-msg" style={{ paddingBottom: 6 }}>
               <div style={{ fontWeight: 700 }}>*** THANK YOU FOR DINING WITH US ***</div>
               <div style={{ fontSize: '0.68rem', marginTop: 2 }}>Please Visit TableMint Again!</div>
               <div style={{ fontSize: '0.62rem', color: '#9ca3af', marginTop: 4 }}>
@@ -6517,29 +6790,31 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               </div>
             </div>
 
+            {/* Bottom Actions: Full-width Primary Print + Symmetrical Secondary Row */}
             <div className="receipt-actions-footer no-print">
               <button
                 type="button"
-                className="btn-primary"
-                style={{ flex: 1 }}
+                className="receipt-btn-primary-print"
                 onClick={() => handlePrintReceipt(printBillOrder, thermalPaperSize)}
               >
                 <Printer size={16} /> Print Receipt ({thermalPaperSize})
               </button>
-              <button
-                type="button"
-                className="btn-brand-outline"
-                onClick={() => handleDownloadReceipt(printBillOrder)}
-              >
-                <Download size={16} /> Download Slip
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={() => setPrintBillOrder(null)}
-              >
-                Close
-              </button>
+              <div className="receipt-secondary-row">
+                <button
+                  type="button"
+                  className="receipt-btn-secondary"
+                  onClick={() => handleDownloadReceipt(printBillOrder)}
+                >
+                  <Download size={14} /> Download Slip
+                </button>
+                <button
+                  type="button"
+                  className="receipt-btn-secondary"
+                  onClick={() => setPrintBillOrder(null)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -6631,7 +6906,7 @@ export default function DashboardApp({ onLockStaff, onOpenWebsite: _onOpenWebsit
               TAX INVOICE / CASH BILL
             </div>
             <div style={{ fontSize: '0.74rem', fontWeight: 700 }}>
-              Bill #{printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
+              Bill {printBillOrder.orderNumber || printBillOrder.id} • {printBillOrder.tableName}
             </div>
             <div style={{ fontSize: '0.66rem', color: '#333' }}>
               Date: {new Date(printBillOrder.createdAt || Date.now()).toLocaleDateString()} {new Date(printBillOrder.createdAt || Date.now()).toLocaleTimeString()}
